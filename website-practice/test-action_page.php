@@ -10,7 +10,7 @@
 <!-- <link rel="stylesheet" href="website-practice/css/styles-buttons.css"> -->
 
 <!-- Practice Form with Links -->
-<title>TEST-FORM2</title>
+<title>TEST-ACTION-PAGE-FORM1-COLLAPSIBLE-MENU-RESULTS</title>
     
 <!-- SPLASH SCREEN:
 <link rel="apple-touch-icon" sizes="180x180" href="public/icons/apple-touch-icon.png">
@@ -150,7 +150,7 @@
 <div class="header-style1" style="text-align: center;"><header><h1>PAGE HEADER</h1></header>
 -->
 
-<form action=""></form>
+<form action="test-action_page.php"></form>
 
 <!-- SCRIPTS NOT NEEDED, CURRENTLY:
 <script src="public/js/main.js"></script>
