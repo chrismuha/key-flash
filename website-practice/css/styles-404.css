@@ -48,7 +48,7 @@
 
 /* Classes */
 .header1-h1 {
-    background: white;
+    background: goldenrod;
     max-width: 360px;
     margin: 100px auto 16px;
     padding: 32px 24px 16px;
@@ -60,7 +60,7 @@
 }
 
 .header1 p {
-    background: white;
+    background: gray;
     max-width: 360px;
     margin: 100px auto 16px;
     padding: 32px 24px 16px;
