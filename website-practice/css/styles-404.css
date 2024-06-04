@@ -47,7 +47,19 @@
 */
 
 /* Classes */
-.h1 {
+.header1-h1 {
+    background: white;
+    max-width: 360px;
+    margin: 100px auto 16px;
+    padding: 32px 24px 16px;
+    border-radius: 3px;
+    font-size: 22px;
+    font-weight: 300;
+    color: aquamarine;
+    margin: 0 0 16px;
+}
+
+.header1 p {
     background: white;
     max-width: 360px;
     margin: 100px auto 16px;
