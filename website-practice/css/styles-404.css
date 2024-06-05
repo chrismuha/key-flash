@@ -2,13 +2,12 @@
 #header1 {
     background: white;
     max-width: 360px;
-    margin: 100px auto 16px;
+    margin: center;
     padding: 32px 24px 16px;
     border-radius: 3px;
     font-size: 22px;
     font-weight: 300;
     color: aquamarine;
-    margin: 0 0 16px;
 }
 
 /* #message a {
@@ -50,43 +49,44 @@
 .header1-h1 {
     background: goldenrod;
     max-width: 360px;
-    margin: 100px auto 16px;
     padding: 32px 24px 16px;
     border-radius: 3px;
     font-size: 22px;
     font-weight: 300;
     color: aquamarine;
-    margin: 0 0 16px;
+    margin: center;
 }
 
 .header1 p {
     background: gray;
     max-width: 360px;
-    margin: 100px auto 16px;
     padding: 32px 24px 16px;
     border-radius: 3px;
     font-size: 22px;
     font-weight: 300;
     color: black;
-    margin: 0 0 16px;
+    margin: center;
 }
 
 .h2 {
     color: #FFA100;
     font-weight: bold;
     font-size: 16px;
-    margin: 0 0 8px;
+    margin: center;
 }
 
 .h3 {
     font-weight: normal;
     font-size: 16px;
-    margin: 16px 0 12px;
+    margin: center;
 }
 
 .center {
     display: block;
-    margin-left: auto;
-    margin-right: auto;
+    margin: center;
     width: 50%;
+}
+
+.text-center {
+    text-align: center;
 }
