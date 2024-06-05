@@ -1,15 +1,16 @@
 body {
+    background-color: seashell;
     margin: 0;
     font-family: Arial, sans-serif;
 }
 
 .navbar {
-    list-style-type: none;
+    list-style-type: circle; /* the circles are not appearing */
     margin: 0;
     padding: 0;
-    height: 50%;
+    height: 100%;
     width: 200px;
-    background-color: #333;
+    background-color: #9b8988; opacity: 80%;
     position: fixed;
     overflow: auto;
 }
@@ -22,11 +23,11 @@ body {
 }
 
 .navbar a:hover {
-    background-color: #555;
-    color: white;
+    background-color: sandybrown;
+    color: lightseagreen;
 }
 
 .navbar a.active {
-    background-color: #4CAF50;
+    background-color: seagreen; /* this should not be using the opacity */
     color: white;
 }
