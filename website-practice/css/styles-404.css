@@ -54,7 +54,8 @@
     font-size: 22px;
     font-weight: 300;
     color: aquamarine;
-    margin: center;
+    margin: auto;
+    margin-bottom: 32px;
 }
 
 .header1 p {
@@ -65,25 +66,26 @@
     font-size: 22px;
     font-weight: 300;
     color: black;
-    margin: center;
+    margin: auto;
+    margin-bottom: 32px;
 }
 
 .h2 {
     color: #FFA100;
     font-weight: bold;
     font-size: 16px;
-    margin: center;
+    margin: auto;
 }
 
 .h3 {
     font-weight: normal;
     font-size: 16px;
-    margin: center;
+    margin: auto;
 }
 
 .center {
     display: block;
-    margin: center;
+    margin: auto;
     width: 50%;
 }
 
