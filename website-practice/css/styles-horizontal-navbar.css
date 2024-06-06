@@ -9,6 +9,14 @@
   background-color: skyblue;
 }
 
+.ul a {
+  color: red
+  }
+  
+.ul hover {
+  color: pink;
+  }
+
 .li {
   float: left;
 }
