@@ -1,0 +1,37 @@
+/* Vertical Navigation Bar */
+body {
+    background-color: seashell;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.navbar {
+    list-style-type: circle;
+    /* the circles are not appearing */
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 200px;
+    background-color: #9b8988;
+    opacity: 80%;
+    position: fixed;
+    overflow: auto;
+}
+
+.navbar a {
+    display: block;
+    padding: 16px;
+    color: white;
+    text-decoration: none;
+}
+
+.navbar a:hover {
+    background-color: sandybrown;
+    color: lightseagreen;
+}
+
+.navbar a.active {
+    background-color: seagreen;
+    /* this should not be using the opacity */
+    color: white;
+}
