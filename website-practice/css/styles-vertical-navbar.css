@@ -1,10 +1,4 @@
-/* Vertical Navigation Bar */
-body {
-    background-color: seashell;
-    margin: 0;
-    font-family: Arial, sans-serif;
-}
-
+/* Vertical Navigation Bar Styling */
 .navbar {
     list-style-type: circle;
     /* the circles are not appearing */
@@ -34,4 +28,13 @@ body {
     background-color: seagreen;
     /* this should not be using the opacity */
     color: white;
+}
+
+/* Page Styling */
+
+/* CLASSES */
+body {
+    background-color: seashell;
+    margin: 0;
+    font-family: Arial, sans-serif;
 }
