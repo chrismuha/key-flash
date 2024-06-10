@@ -1,48 +1,112 @@
-/* Horizontal Navigation Bar */
-.ul {
+/* Horizontal Navigation Bar Styling */
+.navbar-ul {
+  display: inline-block;
   list-style-type: none;
   margin: auto;
+  margin-bottom: 10px;
+  margin-right: 0;
   padding: 0;
   overflow: hidden;
   height: 80px;
-  width: auto;
-  display: block;
+  width: 100%;
   text-align: center;
   background-color: skyblue;
-  font-size: 20pt;
+  font-size: 22pt;
   position: sticky;
 }
 
-.ul a {
+.navbar-ul a {
   color: seagreen;
   text-decoration: none;
 }
 
-.ul a:hover {
+.navbar-ul a:hover {
   color: yellow;
   text-decoration: none;
 }
 
-.li {
+.navbar-li {
   display: block;
   text-align: center;
 }
 
-.li a {
+.navbar-li a {
   display: block;
-  text-align: center;
   padding: 14px 16px;
+  text-align: center;
   text-decoration: none;
 }
 
-.li a:hover {
-  background-color: #111;
+.navbar-li a:hover {
+  background-color: lightgreen;
 }
 
-.active {
+.navbar-active {
   background-color: seashell;
 }
 
+/* Page Styling */
+
+/* ID */
+#container {
+  color: aqua;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  margin: auto;
+}
+
+#block {
+  background:
+    /* sandy brown with 0.6 opacity */
+    rgb(244, 164, 96, 0.6);
+  height: 100%;
+  width: 100%;
+  position: relative;
+  margin: auto;
+  padding: 0;
+
+  /* opacity */
+  opacity: 0.6;
+
+  /* IE */
+  filter: alpha(opacity=60);
+
+  /* Mozilla */
+  -moz-opacity: 0.6;
+}
+
+#text {
+  color: aquamarine;
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+/* CLASSES */
 body {
-  background-color: sandybrown;
+  display: block;
+  height: auto;
+  width: auto;
+  text-align: center;
+  background-color:
+  /* sandy brown */
+  rgb(244, 164, 96);
+  color:
+  /* light sea blue */
+  #c2dfff;
+  margin: auto;
+  padding: 0;
+  font-size: 18pt;
+  font-weight: lighter;
+}
+
+.box1 {
+  display: block;
+  height: 40px;
+  width: 10px;
+  border: 2px solid gray;
+  margin: auto;
+  margin-left: 0;
+  padding: 10px;
 }
