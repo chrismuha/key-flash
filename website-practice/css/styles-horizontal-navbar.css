@@ -4,21 +4,28 @@
   margin: auto;
   padding: 0;
   overflow: hidden;
-  height: 50px;
+  height: 80px;
   width: auto;
+  display: block;
+  text-align: center;
   background-color: skyblue;
+  font-size: 20pt;
+  position: sticky;
 }
 
 .ul a {
-  color: red
-  }
-  
-.ul hover {
-  color: pink;
-  }
+  color: seagreen;
+  text-decoration: none;
+}
+
+.ul a:hover {
+  color: yellow;
+  text-decoration: none;
+}
 
 .li {
-  float: left;
+  display: block;
+  text-align: center;
 }
 
 .li a {
@@ -33,5 +40,9 @@
 }
 
 .active {
-  background-color: #04AA6D;
+  background-color: seashell;
+}
+
+body {
+  background-color: sandybrown;
 }
