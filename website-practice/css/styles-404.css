@@ -102,3 +102,24 @@
 .text-center {
     text-align: center;
 }
+
+/* PAGE HEADER DESIGN */
+
+/* ID */
+#rectangle1 {
+    width: 100%;
+    height: 100px;
+    background: red;
+}
+
+#rectangle2 {
+    width: 100%;
+    height: 50px;
+    background: black;
+}
+
+/* CLASSES */
+.page-header-design {
+    /* insert rectangle 2 within rectangle 1 */
+    margin: auto;
+}
