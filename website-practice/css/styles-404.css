@@ -131,3 +131,14 @@ body {
     background-color: red;
     width: 100%;
 }
+
+@media screen and (max-width: 712px) {
+    .content-wrapper {
+        width: 95%;
+        margin: auto;
+    }
+    .header2-h2 {
+        width: 95%;
+        margin: initial auto;
+    }
+}
