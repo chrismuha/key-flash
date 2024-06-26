@@ -14,7 +14,7 @@ body {
 /* Classes */
 .header1-h1 {
     background: goldenrod;
-    max-width: 95vw;
+    max-width: 684px;
     padding: 16px 16px 16px;
     border-radius: 3px;
     font-size: 16pt;
@@ -26,7 +26,7 @@ body {
 
 .header1-p {
     background: gray;
-    max-width: 95vw;
+    max-width: 684px;
     padding: 16px 16px 16px;
     border-radius: 3px;
     font-size: 14pt;
@@ -47,7 +47,7 @@ body {
     border-style: solid;
     border-radius: 50px;
     border-width: 2px;
-    width: 95vw;
+    width: 684px;
 }
 
 /* .header2-p {
@@ -63,7 +63,7 @@ body {
 
 .header3-p {
     background: seashell;
-    max-width: 95vw;
+    max-width: 684px;
     padding: 16px 16px 16px;
     padding-bottom: 0;
     border-radius: 3px;
@@ -92,7 +92,6 @@ body {
     height: 50%;
     padding-bottom: -10px;
     padding-top: -10px;
-    
 }
 
 /* PAGE HEADER DESIGN */
