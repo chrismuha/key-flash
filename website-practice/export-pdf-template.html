@@ -17,8 +17,7 @@ jspdf.umd.min.js"></script>
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             // Load the template image
-            const templateURL = 'https://via.placeholder.com/595x842'; // Replace with
-your template URL
+            const templateURL = 'https://via.placeholder.com/595x842'; // Replace with your template URL
             const templateImage = await fetch(templateURL)
                 .then(response => response.blob())
                 .then(blob => createImageBitmap(blob));
