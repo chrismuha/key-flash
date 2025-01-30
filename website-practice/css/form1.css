@@ -1,0 +1,117 @@
+.location {
+    width: 482px;
+    margin: auto;
+}
+
+.px-3 {
+    margin: 12pt 24pt;
+}
+
+.bitter {
+    font-family: 'Poppins';
+    font-weight: 500 !important;
+}
+
+.semi-bold p {
+    font-weight: 500 !important;
+}
+
+div span {
+    font-weight: 600;
+}
+
+@media(max-width: 520px) {
+    .location {
+        width: fit-content;
+        margin: auto 1rem;
+    }
+}
+
+.page-banner::before {
+    content: 'test-form1';
+    color: black;
+}
+
+.container {
+    margin-top: 37px;
+    margin-bottom: 37px;
+}
+
+form {
+    background-color: #ffd0d0;
+    padding: 1rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    border-radius: 0.2rem;
+}
+
+form input:not([type=radio], [type=checkbox], [type=file]),
+form textarea {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.5rem;
+}
+
+form input:is([type=submit], [type=reset]) {
+    background-color: #ff4141;
+    border: white;
+    border-radius: 0.2rem;
+    color: white;
+    margin-top: 0.5rem;
+}
+
+form .horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+form .horizontal>div {
+    background-color: #ff6a6a;
+    color: white;
+    padding: 0.5rem;
+    width: 6rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+form input[type=file] {
+    padding: 0;
+}
+
+input::-webkit-file-upload-button {
+    background-color: #ff6a6a;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 0.2rem;
+    border: white;
+    margin-right: 1rem;
+    margin-top: 0.5rem;
+}
+
+form #payment {
+    background-color: #ff6a6a;
+    color: white;
+    border: white;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.2rem;
+}
+
+#exportButton {
+    color: indigo !important;
+    padding: 0.5rem;
+    background-color: lightgreen;
+    outline: 1px darkblue solid;
+    border: none;
+    border-radius: 0.2rem;
+    font-style: normal;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12pt;
+    font-weight: 700;
+    margin-top: 0.5rem;
+    text-shadow: none;
+    box-shadow: none;
+}

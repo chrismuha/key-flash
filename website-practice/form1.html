@@ -27,157 +27,11 @@
     <!-- STYLESHEETS -->
     <link href="public/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="public/css/styles.css">
-
-    <button id="exportButton">Export PDF</button>
-
-    <!-- STYLING: -->
-    <style>
-        .location {
-            width: 482px;
-            margin: auto;
-        }
-
-        .px-3 {
-            margin: 12pt 24pt;
-        }
-
-        .bitter {
-            font-family: 'Poppins';
-            font-weight: 500 !important;
-        }
-
-        .semi-bold p {
-            font-weight: 500 !important;
-        }
-
-        div span {
-            font-weight: 600;
-        }
-
-        @media(max-width: 520px) {
-
-            .location {
-                width: fit-content;
-                margin: auto 1rem;
-            }
-        }
-
-        .page-banner::before {
-            content: 'test-form1';
-            color: black;
-        }
-
-        .container {
-            margin-top: 37px;
-            margin-bottom: 37px;
-        }
-
-        form {
-            background-color: rgb(255, 208, 208);
-            padding: 1rem 0.5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: start;
-            border-radius: 0.2rem;
-        }
-
-        form input:not([type=radio], [type=checkbox], [type=file]),
-        form textarea {
-            width: 100%;
-            min-height: 3rem;
-            padding: 0.5rem;
-        }
-
-        form input:is([type=submit], [type=reset]) {
-            background-color: rgb(255, 65, 65);
-            border: white;
-            border-radius: 0.2rem;
-            color: white;
-        }
-
-        form .horizontal {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2rem;
-        }
-
-        form .horizontal>div {
-            background-color: rgb(255, 106, 106);
-            color: white;
-            padding: 0.5rem;
-            width: 6rem;
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-        }
-
-        form input[type=file] {
-            padding: 0;
-        }
-
-        input::-webkit-file-upload-button {
-            background-color: rgb(255, 106, 106);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.2rem;
-            border: white;
-            margin-right: 1rem;
-            margin-top: 0.5rem;
-        }
-
-        form #payment {
-            background-color: rgb(255, 106, 106);
-            color: white;
-            border: white;
-            margin-top: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 0.2rem;
-        }
-    </style>
+    <link rel="stylesheet" href="css/form1.css">
 
     <!-- SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="public/js/main.js"></script>
-
-    <script>
-        document.getElementById('exportButton').addEventListener('click', async () => {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({
-                format: "letter", // Set PDF to US Letter size
-            });
-
-            // Load the template image
-            const templateURL = 'https://via.placeholder.com/612x792'; // Replace with your template URL
-            const templateImage = await fetch(templateURL)
-                .then(response => response.blob())
-                .then(blob => createImageBitmap(blob));
-
-            // Add the template image as the background
-            const canvas = document.createElement('canvas');
-            canvas.width = 612; // US Letter width in points
-            canvas.height = 792; // US Letter height in points
-            const context = canvas.getContext('2d');
-            context.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
-            const imageData = canvas.toDataURL('image/png');
-            doc.addImage(imageData, 'PNG', 0, 0, 216, 279); // Fit image to US Letter size (8.5 x 11 inches)
-
-            // Overlay custom content
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(16);
-            doc.text("Hello, this is content over the template!", 20, 50);
-
-            // Save the PDF
-            doc.save("custom-letter-template.pdf");
-        });
-        // Helper function to convert Blob to ImageBitmap
-        async function createImageBitmap(blob) {
-            return new Promise((resolve, reject));
-        }
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = URL.createObjectURL(blob); </script>
+    <script src="js/form1.js"></script>
 
     <!-- PAGE HEADER -->
     <div class="header-style1" style="text-align: center;">
@@ -264,6 +118,8 @@
         <input type="reset">
         <br>
         <input type="submit">
+
+        <button id="exportButton">Export PDF</button>
 
     </form>
     </div>

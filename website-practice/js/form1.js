@@ -1,0 +1,37 @@
+document.getElementById('exportButton').addEventListener('click', async () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+        format: "letter", // Set PDF to US Letter size
+    });
+
+    // Load the template image
+    const templateURL = 'https://via.placeholder.com/612x792'; // Replace with your template URL
+    const templateImage = await fetch(templateURL)
+        .then(response => response.blob())
+        .then(blob => createImageBitmap(blob));
+
+    // Add the template image as the background
+    const canvas = document.createElement('canvas');
+    canvas.width = 612; // US Letter width in points
+    canvas.height = 792; // US Letter height in points
+    const context = canvas.getContext('2d');
+    context.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
+    const imageData = canvas.toDataURL('image/png');
+    doc.addImage(imageData, 'PNG', 0, 0, 216, 279); // Fit image to US Letter size (8.5 x 11 inches)
+
+    // Overlay custom content
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("Hello, this is content over the template!", 20, 50);
+
+    // Save the PDF
+    doc.save("custom-letter-template.pdf");
+});
+// Helper function to convert Blob to ImageBitmap
+async function createImageBitmap(blob) {
+    return new Promise((resolve, reject));
+}
+const img = new Image();
+img.onload = () => resolve(img);
+img.onerror = reject;
+img.src = URL.createObjectURL(blob);
