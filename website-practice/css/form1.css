@@ -1,5 +1,6 @@
 .location {
-    width: 482px;
+    width: 80%;
+    /* Adjusted width to 80% */
     margin: auto;
 }
 
@@ -20,9 +21,9 @@ div span {
     font-weight: 600;
 }
 
-@media(max-width: 520px) {
+@media (max-width: 520px) {
     .location {
-        width: fit-content;
+        width: 80%;
         margin: auto 1rem;
     }
 }
@@ -44,20 +45,46 @@ form {
     flex-direction: column;
     align-items: start;
     border-radius: 0.2rem;
+    width: 80%;
+    margin: auto;
 }
 
-form input:not([type=radio], [type=checkbox], [type=file]),
+form input:not([type="radio"], [type="checkbox"], [type="file"]),
 form textarea {
-    width: 100%;
-    min-height: 3rem;
+    padding: 0.5rem;
+    width: 80%;
+    padding: 0.5rem;
+    border: none;
+    resize: none;
+}
+
+form .button-group {
+    display: flex;
+    gap: 0;
     padding: 0.5rem;
 }
 
-form input:is([type=submit], [type=reset]) {
-    background-color: #ff4141;
-    border: white;
+form input:is([type="submit"], [type="reset"]) {
+    background-color: red;
+    border: none;
     border-radius: 0.2rem;
     color: white;
+    padding: 0.5rem;
+    margin-top: -0.75rem;
+    margin-bottom: 0;
+    margin-right: 0;
+}
+
+#exportButton {
+    color: white !important;
+    padding: 0.5rem;
+    background-color: red;
+    border: none;
+    border-radius: 0.2rem;
+    font-style: normal;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12pt;
+    font-weight: 700;
     margin-top: 0.5rem;
 }
 
@@ -65,10 +92,11 @@ form .horizontal {
     display: flex;
     flex-wrap: wrap;
     gap: 2rem;
+    width: 80%;
 }
 
 form .horizontal>div {
-    background-color: #ff6a6a;
+    background-color: red;
     color: white;
     padding: 0.5rem;
     width: 6rem;
@@ -77,41 +105,27 @@ form .horizontal>div {
     gap: 1rem;
 }
 
-form input[type=file] {
+form input[type="file"] {
     padding: 0;
+    width: 80%;
 }
 
 input::-webkit-file-upload-button {
-    background-color: #ff6a6a;
+    background-color: red;
     color: white;
     padding: 0.5rem;
     border-radius: 0.2rem;
-    border: white;
+    border: none;
     margin-right: 1rem;
     margin-top: 0.5rem;
 }
 
 form #payment {
-    background-color: #ff6a6a;
+    background-color: red;
     color: white;
-    border: white;
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    border-radius: 0.2rem;
-}
-
-#exportButton {
-    color: indigo !important;
-    padding: 0.5rem;
-    background-color: lightgreen;
-    outline: 1px darkblue solid;
     border: none;
-    border-radius: 0.2rem;
-    font-style: normal;
-    font-family: 'Times New Roman', Times, serif;
-    font-size: 12pt;
-    font-weight: 700;
     margin-top: 0.5rem;
-    text-shadow: none;
-    box-shadow: none;
+    padding: 0.5rem;
+    border-radius: 0.2rem;
+    width: 80%;
 }
