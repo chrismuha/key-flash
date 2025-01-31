@@ -1,3 +1,7 @@
+body {
+    font-family: 'Aptos', Arial, sans-serif;
+}
+
 .location {
     width: 95%;
     margin: auto;
@@ -8,16 +12,21 @@
 }
 
 .bitter {
-    font-family: 'Poppins';
-    font-weight: 500 !important;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-weight: 400 !important;
+    font-size: 12pt;
 }
 
 .semi-bold p {
-    font-weight: 500 !important;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-weight: 400 !important;
+    font-size: 12pt;
 }
 
 div span {
-    font-weight: 600;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-weight: 400;
+    font-size: 12pt;
 }
 
 @media (max-width: 520px) {
@@ -46,6 +55,9 @@ form {
     border-radius: 0.2rem;
     width: 95%;
     margin: auto;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-weight: 400;
+    font-size: 12pt;
 }
 
 form input:not([type="radio"], [type="checkbox"], [type="file"]),
@@ -58,6 +70,9 @@ form textarea {
 }
 
 form textarea {
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+    font-weight: 400;
     height: 6rem;
 }
 
@@ -77,6 +92,7 @@ form input:is([type="reset"], [type="submit"]) {
     margin-top: -0.75rem;
     margin-bottom: 0;
     margin-right: 0;
+    font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
     font-weight: 400;
     white-space: nowrap;
@@ -89,10 +105,9 @@ form input:is([type="reset"], [type="submit"]) {
     background-color: red;
     border: none;
     border-radius: 0.2rem;
-    font-style: normal;
-    font-family: 'Times New Roman', Times, serif;
+    font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
-    font-weight: 700;
+    font-weight: 400;
     margin-top: 0.5rem;
     white-space: nowrap;
 }
@@ -127,6 +142,9 @@ input::-webkit-file-upload-button {
     border: none;
     margin-right: 1rem;
     margin-top: 0.5rem;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+    font-weight: 400;
 }
 
 form #payment {
@@ -138,9 +156,22 @@ form #payment {
     border-radius: 0.2rem;
     width: 95%;
     height: 2rem;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+    font-weight: 400;
 }
 
 form input:focus,
 form textarea:focus {
     outline: 2px solid blue;
+}
+
+::selection {
+    background-color: blue;
+    color: white;
+}
+
+input,
+textarea {
+    caret-color: blue;
 }
