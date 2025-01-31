@@ -211,6 +211,19 @@ form input[type="checkbox"] {
     width: 20px;
     height: 20px;
     margin: 0;
+    /* border-radius: 50%; */
+    /* background-color: white !important; */
+    /* border: 2px solid green !important; */
+}
+
+/* Circles/Bullets/Radio Button Styling */
+form input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    /* border-radius: 50%; */
+    /* background-color: white !important; */
+    /* border: 2px solid black !important; */
 }
 
 /* Focus Styles */
