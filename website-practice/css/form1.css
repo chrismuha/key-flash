@@ -2,7 +2,8 @@
 * {
     margin: 0;
     padding: 0;
-    box-sizing: border-box; /* Prevents overflow */
+    box-sizing: border-box;
+    /* Prevents overflow */
 }
 
 /* Basic Body Styling */
@@ -23,7 +24,9 @@ body {
 }
 
 /* Typography */
-.bitter, .semi-bold p, div span {
+.bitter,
+.semi-bold p,
+div span {
     font-family: 'Aptos', Arial, sans-serif;
     font-weight: 400 !important;
     font-size: 12pt;
@@ -47,7 +50,8 @@ body {
 .container {
     margin-top: 37px;
     margin-bottom: 37px;
-    overflow: hidden; /* Prevents overflow */
+    overflow: hidden;
+    /* Prevents overflow */
 }
 
 /* Form Styling */
@@ -59,12 +63,15 @@ form {
     align-items: flex-start;
     border-radius: 0.2rem;
     width: 100%;
-    margin: 0 auto; /* Centered */
+    margin: 0 auto;
+    /* Centered */
     font-family: 'Aptos', Arial, sans-serif;
     font-weight: 400;
     font-size: 12pt;
-    box-sizing: border-box; /* Prevents overflow */
-    overflow: hidden; /* Prevents overflow */
+    box-sizing: border-box;
+    /* Prevents overflow */
+    overflow: hidden;
+    /* Prevents overflow */
 }
 
 /* Input and Textarea Styling */
@@ -104,7 +111,8 @@ form input:is([type="reset"], [type="submit"]) {
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
     font-weight: 400;
-    white-space: nowrap; /* Prevents text breaking/cutting off */
+    white-space: nowrap;
+    /* Prevents text breaking/cutting off */
 }
 
 /* Export Button */
@@ -119,7 +127,8 @@ form input:is([type="reset"], [type="submit"]) {
     font-size: 12pt;
     font-weight: 400;
     margin-top: 0.5rem;
-    white-space: nowrap; /* Prevents text breaking/cutting off */
+    white-space: nowrap;
+    /* Prevents text breaking/cutting off */
 }
 
 /* Horizontal Form Section */
@@ -128,10 +137,11 @@ form .horizontal {
     flex-wrap: wrap;
     gap: 2rem;
     width: 100%;
-    overflow: hidden; /* Prevents overflow in horizontal form */
+    overflow: hidden;
+    /* Prevents overflow in horizontal form */
 }
 
-form .horizontal > div {
+form .horizontal>div {
     background-color: red;
     color: white;
     padding: 0.5rem;
@@ -178,20 +188,24 @@ form #payment {
 /* Exam Attempt Section */
 form .exam-attempt {
     display: flex;
-    align-items: center; /* Vertically center items */
+    align-items: center;
+    /* Vertically center items */
     width: 100%;
-    gap: 0.5rem; /* Adjust the gap between checkbox and label */
+    gap: 0;
+    /* Adjust the gap between checkbox and label */
+    padding-bottom: 0.5rem;
 }
 
 /* Ensure the checkbox and text appear correctly aligned */
 form .exam-attempt label {
-    order: 1; /* Ensure label stays on the left */
+    order: 1;
+    /* Ensure label stays on the left */
 }
 
 form .exam-attempt input[type="checkbox"] {
-    order: -1; /* Moves checkbox to the right of the label */
+    order: -1;
+    /* Moves checkbox to the right of the label */
 }
-
 
 /* Focus Styles */
 form input:focus,
@@ -213,8 +227,11 @@ textarea {
 
 /* Checkbox Styling */
 form input[type="checkbox"] {
-    width: 20px; /* Increased size */
-    height: 20px; /* Increased size */
+    width: 20px;
+    /* Increased size */
+    height: 20px;
+    /* Increased size */
     margin: 0.5rem;
-    float: right; /* This will position it to the right */
+    float: right;
+    /* This will position it to the right */
 }
