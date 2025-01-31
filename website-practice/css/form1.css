@@ -1,87 +1,98 @@
-body {
-    font-family: 'Aptos', Arial, sans-serif;
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Prevents overflow */
 }
 
+/* Basic Body Styling */
+body {
+    font-family: 'Aptos', Arial, sans-serif;
+    padding: 0.5rem;
+}
+
+/* Location Styling */
 .location {
-    width: 95%;
+    width: 100%;
     margin: auto;
 }
 
+/* Padding Utility */
 .px-3 {
     margin: 12pt 24pt;
 }
 
-.bitter {
+/* Typography */
+.bitter, .semi-bold p, div span {
     font-family: 'Aptos', Arial, sans-serif;
     font-weight: 400 !important;
     font-size: 12pt;
 }
 
-.semi-bold p {
-    font-family: 'Aptos', Arial, sans-serif;
-    font-weight: 400 !important;
-    font-size: 12pt;
-}
-
-div span {
-    font-family: 'Aptos', Arial, sans-serif;
-    font-weight: 400;
-    font-size: 12pt;
-}
-
+/* Responsive Adjustments */
 @media (max-width: 520px) {
     .location {
-        width: 95%;
+        width: 100%;
         margin: auto 1rem;
     }
 }
 
+/* Page Banner */
 .page-banner::before {
     content: 'test-form1';
     color: black;
 }
 
+/* Container */
 .container {
     margin-top: 37px;
     margin-bottom: 37px;
+    overflow: hidden; /* Prevents overflow */
 }
 
+/* Form Styling */
 form {
     background-color: #ffd0d0;
-    padding: 1rem 0.5rem;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
     align-items: start;
     border-radius: 0.2rem;
-    width: 95%;
-    margin: auto;
+    width: 100%;
+    margin: 0 auto; /* Centered */
     font-family: 'Aptos', Arial, sans-serif;
     font-weight: 400;
     font-size: 12pt;
+    box-sizing: border-box; /* Prevents overflow */
+    overflow: hidden; /* Prevents overflow */
 }
 
+/* Input and Textarea Styling */
 form input:not([type="radio"], [type="checkbox"], [type="file"]),
 form textarea {
     padding: 0.5rem;
-    width: 95%;
-    height: 1rem;
+    width: 100%;
+    height: auto;
     border: none;
     resize: none;
 }
 
+/* Textarea Specific Styling */
 form textarea {
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
     font-weight: 400;
-    height: 6rem;
+    height: auto;
 }
 
+/* Button Group */
 form .button-group {
     display: flex;
-    gap: 0;
-    padding: 0.5rem;
+    gap: 1rem;
+    padding: 0.5rem 0;
 }
 
+/* Reset and Submit Button Styling */
 form input:is([type="reset"], [type="submit"]) {
     background-color: red;
     border: none;
@@ -90,14 +101,13 @@ form input:is([type="reset"], [type="submit"]) {
     padding: 0.5rem 1rem;
     height: 2rem;
     margin-top: -0.75rem;
-    margin-bottom: 0;
-    margin-right: 0;
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
     font-weight: 400;
-    white-space: nowrap;
+    white-space: nowrap; /* Prevents text breaking/cutting off */
 }
 
+/* Export Button */
 #exportButton {
     color: white !important;
     padding: 0.5rem 1rem;
@@ -109,17 +119,19 @@ form input:is([type="reset"], [type="submit"]) {
     font-size: 12pt;
     font-weight: 400;
     margin-top: 0.5rem;
-    white-space: nowrap;
+    white-space: nowrap; /* Prevents text breaking/cutting off */
 }
 
+/* Horizontal Form Section */
 form .horizontal {
     display: flex;
     flex-wrap: wrap;
     gap: 2rem;
-    width: 95%;
+    width: 100%;
+    overflow: hidden; /* Prevents overflow in horizontal form */
 }
 
-form .horizontal>div {
+form .horizontal > div {
     background-color: red;
     color: white;
     padding: 0.5rem;
@@ -129,9 +141,10 @@ form .horizontal>div {
     gap: 1rem;
 }
 
+/* File Input */
 form input[type="file"] {
     padding: 0;
-    width: 95%;
+    width: 100%;
 }
 
 input::-webkit-file-upload-button {
@@ -147,6 +160,7 @@ input::-webkit-file-upload-button {
     font-weight: 400;
 }
 
+/* Payment Button */
 form #payment {
     background-color: red;
     color: white;
@@ -154,23 +168,26 @@ form #payment {
     margin-top: 0.5rem;
     padding: 0.5rem 1rem;
     border-radius: 0.2rem;
-    width: 95%;
+    width: 100%;
     height: 2rem;
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
     font-weight: 400;
 }
 
+/* Focus Styles */
 form input:focus,
 form textarea:focus {
     outline: 2px solid blue;
 }
 
+/* Selection Styling */
 ::selection {
     background-color: blue;
     color: white;
 }
 
+/* Caret Styling */
 input,
 textarea {
     caret-color: blue;
