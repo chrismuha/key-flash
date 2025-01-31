@@ -189,33 +189,28 @@ form #payment {
 form .exam-attempt {
     display: flex;
     align-items: center;
-    /* Vertically center the checkbox and the label */
     width: 100%;
-    gap: 0;
+    gap: 1rem;
     /* Adjust the gap between the checkbox and the label */
     padding-bottom: 0.5rem;
 }
 
 /* Ensure the checkbox and its text appear correctly aligned */
 form .exam-attempt label {
-    order: 1;
-    /* Ensures the label stays on the left */
+    order: 0;
+    /* Keeps the label on the left */
 }
 
 form .exam-attempt input[type="checkbox"] {
-    order: -1;
+    order: 1;
     /* Moves the checkbox to the right of the label */
 }
 
 /* Checkbox Styling */
 form input[type="checkbox"] {
     width: 20px;
-    /* Increased size */
     height: 20px;
-    /* Increased size */
-    margin: 0.5rem;
-    float: right;
-    /* This will position the checkbox to the right */
+    margin: 0;
 }
 
 /* Focus Styles */
