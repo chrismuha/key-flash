@@ -1,0 +1,8 @@
+document.getElementById('exportButton').addEventListener('click', () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    // Add content to the PDF
+    doc.text("Hello, this is a sample PDF!", 10, 10);
+    // Save the PDF
+    doc.save("sample.pdf");
+});

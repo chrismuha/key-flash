@@ -1,0 +1,32 @@
+document.getElementById('exportButton').addEventListener('click', async () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    // Load the template image
+    const templateURL = 'https://via.placeholder.com/595x842'; // Replace with your template URL
+    const templateImage = await fetch(templateURL)
+        .then(response => response.blob())
+        .then(blob => createImageBitmap(blob));
+    // Add the template image as the background
+    const canvas = document.createElement('canvas');
+    canvas.width = 595; // A4 width in points
+    canvas.height = 842; // A4 height in points
+    const context = canvas.getContext('2d');
+    context.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
+    const imageData = canvas.toDataURL('image/png');
+    doc.addImage(imageData, 'PNG', 0, 0, 210, 297); // Fit image to A4 page size
+    // Overlay custom content
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("Hello, this is content over the template!", 20, 50);
+    // Save the PDF
+    doc.save("custom-template.pdf");
+});
+// Helper function to convert Blob to ImageBitmap
+async function createImageBitmap(blob) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = URL.createObjectURL(blob);
+    });
+}
