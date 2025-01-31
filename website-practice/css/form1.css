@@ -56,7 +56,7 @@ form {
     padding: 1rem;
     display: flex;
     flex-direction: column;
-    align-items: start;
+    align-items: flex-start;
     border-radius: 0.2rem;
     width: 100%;
     margin: 0 auto; /* Centered */
@@ -175,6 +175,24 @@ form #payment {
     font-weight: 400;
 }
 
+/* Exam Attempt Section */
+form .exam-attempt {
+    display: flex;
+    align-items: center; /* Vertically center items */
+    width: 100%;
+    gap: 0.5rem; /* Adjust the gap between checkbox and label */
+}
+
+/* Ensure the checkbox and text appear correctly aligned */
+form .exam-attempt label {
+    order: 1; /* Ensure label stays on the left */
+}
+
+form .exam-attempt input[type="checkbox"] {
+    order: -1; /* Moves checkbox to the right of the label */
+}
+
+
 /* Focus Styles */
 form input:focus,
 form textarea:focus {
@@ -191,4 +209,12 @@ form textarea:focus {
 input,
 textarea {
     caret-color: blue;
+}
+
+/* Checkbox Styling */
+form input[type="checkbox"] {
+    width: 20px; /* Increased size */
+    height: 20px; /* Increased size */
+    margin: 0.5rem;
+    float: right; /* This will position it to the right */
 }
