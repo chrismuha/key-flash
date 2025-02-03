@@ -82,6 +82,7 @@ form textarea {
     height: auto;
     border: none;
     resize: none;
+    background-color: white;
 }
 
 /* Textarea Specific Styling */
@@ -115,12 +116,42 @@ form input:is([type="reset"], [type="submit"]) {
     /* Prevents text breaking/cutting off */
 }
 
+body.dark-mode form input:is([type="reset"], [type="submit"]) {
+    background-color: darkblue;
+    border: none;
+    border-radius: 0.2rem;
+    color: white;
+    padding: 0.5rem 1rem;
+    height: 2rem;
+    margin-top: -0.75rem;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+    font-weight: 400;
+    white-space: nowrap;
+    /* Prevents text breaking/cutting off */
+}
+
 /* Export Button */
 #exportButton {
     color: white !important;
     padding: 0.5rem 1rem;
     height: 2rem;
     background-color: red;
+    border: none;
+    border-radius: 0.2rem;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+    font-weight: 400;
+    margin-top: 0.5rem;
+    white-space: nowrap;
+    /* Prevents text breaking/cutting off */
+}
+
+body.dark-mode #exportButton {
+    color: white !important;
+    padding: 0.5rem 1rem;
+    height: 2rem;
+    background-color: darkblue;
     border: none;
     border-radius: 0.2rem;
     font-family: 'Aptos', Arial, sans-serif;
@@ -151,6 +182,16 @@ form .horizontal>div {
     gap: 1rem;
 }
 
+body.dark-mode form .horizontal>div {
+    background-color: darkblue;
+    color: white;
+    padding: 0.5rem;
+    width: 6rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
 /* File Input */
 form input[type="file"] {
     padding: 0;
@@ -170,9 +211,36 @@ input::-webkit-file-upload-button {
     font-weight: 400;
 }
 
+body.dark-mode input::-webkit-file-upload-button {
+    background-color: darkblue;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 0.2rem;
+    border: none;
+    margin-right: 1rem;
+    margin-top: 0.5rem;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+    font-weight: 400;
+}
+
 /* Payment Button */
 form #payment {
     background-color: red;
+    color: white;
+    border: none;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.2rem;
+    width: 100%;
+    height: 2rem;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+    font-weight: 400;
+}
+
+body.dark-mode form #payment {
+    background-color: darkblue;
     color: white;
     border: none;
     margin-top: 0.5rem;
@@ -239,13 +307,13 @@ input[type="checkbox"]:checked::after {
 }
 
 body.dark-mode input[type="checkbox"]:checked {
-    background-color: red;
-    border-color: red;
+    background-color: black;
+    border-color: #32CD32;
 }
 
 body.dark-mode input[type="checkbox"]:checked::after {
     content: '\2714';
-    color: darkgreen;
+    color: #32CD32;
     font-size: 16px;
     position: absolute;
     top: -2px;
@@ -285,18 +353,19 @@ form input[type="radio"]:focus {
 }
 
 body.dark-mode form input[type="radio"]:checked {
-    background-color: darkgreen;
-    border: 4px solid red;
-    outline: 1.5px solid darkgreen;
+    background-color: #32CD32;
+    border: 4px solid black;
+    outline: 1.5px solid #32CD32;
 }
 
 body.dark-mode form input[type="radio"]:focus {
-    outline: 1.5px solid darkgreen;
+    outline: 1.5px solid #32CD32;
 }
 
 /* Focus Styles */
 form input:focus,
 form textarea:focus {
+    background-color: white;
     outline: 2px solid blue;
 }
 
@@ -365,6 +434,6 @@ body.dark-mode {
 }
 
 body.dark-mode form {
-    background: #681e1e;
+    background: #800020;
     color: white;
 }
