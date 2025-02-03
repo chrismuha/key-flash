@@ -217,14 +217,14 @@ input[type="checkbox"] {
     background-color: white;
     cursor: pointer;
     position: relative;
-  }
-  
-  input[type="checkbox"]:checked {
-    background-color: red; 
-    border-color: red;
-  }
+}
 
-  input[type="checkbox"]:checked::after {
+input[type="checkbox"]:checked {
+    background-color: red;
+    border-color: red;
+}
+
+input[type="checkbox"]:checked::after {
     content: '\2714';
     color: #7CFC00;
     font-size: 16px;
@@ -236,10 +236,11 @@ input[type="checkbox"] {
     display: flex;
     justify-content: center;
     align-items: center;
-  }
-  input[type="checkbox"]:focus {
+}
+
+input[type="checkbox"]:focus {
     outline: 0;
-  }
+}
 
 /* Circles/Bullets/Radio Button Styling */
 form input[type="radio"] {
@@ -253,11 +254,13 @@ form input[type="radio"] {
     margin: 0;
     /* border-radius: 50%; */
 }
+
 form input[type="radio"]:checked {
     background-color: #7CFC00;
     border: 4px solid red;
     outline: 1.5px solid #7CFC00;
 }
+
 form input[type="radio"]:focus {
     outline: 1.5px solid #7CFC00;
 }
@@ -285,6 +288,7 @@ textarea {
     border-radius: 0.2rem;
     background: white;
 }
+
 .themes-switcher div {
     width: 5rem;
     display: flex;
@@ -296,6 +300,7 @@ textarea {
     color: grey;
     cursor: pointer;
 }
+
 .themes-switcher .active {
     background: black;
     border-radius: 0.2rem;
@@ -307,6 +312,7 @@ textarea {
     height: 150px;
     margin: auto;
 }
+
 .business-logo img {
     width: 100%;
     height: 100%;
@@ -316,16 +322,20 @@ textarea {
 body .only-dark {
     display: none;
 }
+
 body.dark-mode .only-light {
     display: none;
 }
+
 body.dark-mode .only-dark {
     display: block;
 }
+
 body.dark-mode {
     background: black;
 }
+
 body.dark-mode form {
-    background: rgb(104, 30, 30);
+    background: #681e1e;
     color: white;
 }
