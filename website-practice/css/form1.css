@@ -93,6 +93,24 @@ form textarea {
     height: auto;
 }
 
+body.dark-mode form input:not([type="radio"], [type="checkbox"], [type="file"]),
+form textarea {
+    padding: 0.5rem;
+    width: 100%;
+    height: auto;
+    border: none;
+    resize: none;
+    background-color: #1E1E1E;
+}
+
+/* Textarea Specific Styling */
+body.dark-mode form textarea {
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+    font-weight: 400;
+    height: auto;
+}
+
 /* Button Group */
 form .button-group {
     display: flex;
@@ -436,4 +454,101 @@ body.dark-mode {
 body.dark-mode form {
     background: #800020;
     color: white;
+}
+
+#comment {
+    background-color: white;
+    color: black;
+    border: none;
+    padding: 0.5rem;
+    width: 100%;
+    height: auto;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+    /* resize: none; Disable resizing */
+}
+
+body.dark-mode #comment {
+    background-color: #1E1E1E;
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    width: 100%;
+    height: auto;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+    /* resize: none; Disable resizing */
+}
+
+#quantity {
+    color: gray !important;
+}
+
+body.dark-mode #quantity {
+    color: lightgray !important;
+}
+
+input::placeholder,
+textarea::placeholder, 
+select::placeholder {
+    color: gray;
+    opacity: 1;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+}
+
+body.dark-mode input::placeholder,
+textarea::placeholder,
+select::placeholder {
+    color: lightgray;
+    opacity: 1;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+}
+
+/* Ensure compatibility across different browsers */
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder,
+select:-ms-input-placeholder {
+    color: gray;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+}
+
+body.dark-mode input:-ms-input-placeholder,
+textarea:-ms-input-placeholder,
+select:-ms-input-placeholder {
+    color: lightgray;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+}
+
+::-ms-input-placeholder,
+input::-ms-input-placeholder,
+textarea::-ms-input-placeholder,
+select::-ms-input-placeholder {
+    color: gray;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+}
+
+body.dark-mode ::-ms-input-placeholder,
+input::-ms-input-placeholder,
+textarea::-ms-input-placeholder,
+select::-ms-input-placeholder {
+    color: lightgray;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+}
+
+#quantity::placeholder {
+    color: gray !important;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+}
+
+body.dark-mode #quantity::placeholder {
+    color: lightgray !important;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
 }

@@ -48,3 +48,24 @@ document.querySelectorAll('.themes-switcher div').forEach(theme => {
         }
     });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    let quantityInput = document.getElementById("quantity");
+
+    if (quantityInput.value.trim() !== "") {
+        quantityInput.style.color = "gray"; // Light Mode default text color
+    }
+
+    quantityInput.addEventListener("input", function () {
+        this.style.color = "black"; // Change color when user types
+    });
+
+    if (document.body.classList.contains("dark-mode")) {
+        if (quantityInput.value.trim() !== "") {
+            quantityInput.style.color = "lightgray"; // Dark Mode default text color
+        }
+        quantityInput.addEventListener("input", function () {
+            this.style.color = "white";
+        });
+    }
+});
