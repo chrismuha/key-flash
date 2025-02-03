@@ -238,6 +238,25 @@ input[type="checkbox"]:checked::after {
     align-items: center;
 }
 
+body.dark-mode input[type="checkbox"]:checked {
+    background-color: red;
+    border-color: red;
+}
+
+body.dark-mode input[type="checkbox"]:checked::after {
+    content: '\2714';
+    color: darkgreen;
+    font-size: 16px;
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    width: 19px;
+    height: 19px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 input[type="checkbox"]:focus {
     outline: 0;
 }
@@ -263,6 +282,16 @@ form input[type="radio"]:checked {
 
 form input[type="radio"]:focus {
     outline: 1.5px solid #7CFC00;
+}
+
+body.dark-mode form input[type="radio"]:checked {
+    background-color: darkgreen;
+    border: 4px solid red;
+    outline: 1.5px solid darkgreen;
+}
+
+body.dark-mode form input[type="radio"]:focus {
+    outline: 1.5px solid darkgreen;
 }
 
 /* Focus Styles */
