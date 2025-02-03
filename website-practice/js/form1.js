@@ -33,5 +33,18 @@ async function createImageBitmap(blob) {
 }
 const img = new Image();
 img.onload = () => resolve(img);
-img.onerror = reject;
-img.src = URL.createObjectURL(blob);
+// img.onerror = reject;
+// img.src = URL.createObjectURL(blob);
+
+document.querySelectorAll('.themes-switcher div').forEach(theme => {
+    theme.addEventListener('click', function () {
+        document.querySelectorAll('.themes-switcher div').forEach(div => div.classList.remove('active'));
+        this.classList.add('active');
+
+        if (this.textContent.trim() === 'Dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+    });
+});

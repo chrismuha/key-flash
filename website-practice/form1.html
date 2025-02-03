@@ -25,13 +25,12 @@
     <meta name="theme-color" content="#ffffff">
 
     <!-- STYLESHEETS -->
-    <link href="public/css/bootstrap.min.css" rel="stylesheet">
+    <!-- <link href="public/css/bootstrap.min.css" rel="stylesheet"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/form1.css">
 
     <!-- SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="js/form1.js"></script>
 
     <!-- PAGE HEADER -->
     <div class="header-style1" style="text-align: center;">
@@ -42,6 +41,18 @@
 
 <body>
     <form action="test-action_page.php" method="POST" enctype="multipart/form-data">
+
+        <div class="business-logo">
+            <img class="only-light" src="images/MCRred1-cropped.png">
+            <img class="only-dark" src="images/black-banner.png">
+        </div>
+        
+        <label>Theme:</label>
+        <div class="themes-switcher">
+            <div class="active">Light</div>
+            <div>Dark</div>
+        </div>
+        <br>
 
         <label for="username">Username:</label>
         <input type="text" id="username" placeholder="Username" minlength="5" maxlength="25" required>
@@ -123,6 +134,7 @@
     </form>
     </div>
 
+    <script src="js/form1.js"></script>
 </body>
 
 </html>
