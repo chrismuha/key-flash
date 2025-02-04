@@ -75,8 +75,15 @@ form {
 }
 
 /* Global Input and Textarea Styling */
+form label {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
 form input,
-form textarea {
+form select {
+    display: block;
+    margin-bottom: 1rem; 
     padding: 0.5rem;
     width: 100%;
     height: auto;
@@ -248,16 +255,16 @@ form #payment {
     color: white;
     border: none;
     margin-top: 0.5rem;
-    margin-bottom: none;
-    padding: 0rem 0rem;
+    padding: 0;
     border-radius: 0.2rem;
     width: 100%;
     height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
     font-weight: 400;
-    display: flex;
-    flex-direction: column;
 }
 
 body.dark-mode form #payment {
@@ -265,30 +272,32 @@ body.dark-mode form #payment {
     color: white;
     border: none;
     margin-top: 0.5rem;
-    margin-bottom: none;
-    padding: 0rem 0rem;
+    padding: 0;
     border-radius: 0.2rem;
     width: 100%;
     height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
     font-weight: 400;
-    display: flex;
-    flex-direction: column;
 }
 
 form #payment label {
-    padding-bottom: -0.5rem -0.5rem;
-    margin-bottom: 5px;
-    width: 100%;
+    margin-bottom: -0.25rem;
+    padding: 0;
+    width: auto;
     display: block;
+    border: 3px solid yellowgreen;
 }
 
 body.dark-mode form #payment label {
-    padding-bottom: -0.5rem -0.5rem;
-    margin-bottom: 5px;
-    width: 100%;
+    margin-bottom: -0.25rem;
+    padding: 0;
+    width: auto;
     display: block;
+    border: 3px solid yellowgreen;
 }
 
 /* Exam Attempt Section */
