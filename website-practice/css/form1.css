@@ -250,7 +250,7 @@ body.dark-mode input::-webkit-file-upload-button {
 }
 
 /* Payment Button */
-form #payment {
+form #payment-method {
     background-color: red;
     color: white;
     border: none;
@@ -267,7 +267,7 @@ form #payment {
     font-weight: 400;
 }
 
-body.dark-mode form #payment {
+body.dark-mode form #payment-method {
     background-color: darkblue;
     color: white;
     border: none;
@@ -284,20 +284,22 @@ body.dark-mode form #payment {
     font-weight: 400;
 }
 
-form #payment label {
-    margin-bottom: -0.25rem;
-    padding: 0;
-    width: auto;
-    display: block;
-    border: 3px solid yellowgreen;
+form #payment > label {
+    margin-bottom: -0.25rem !important;
+    padding: 0 !important;
+    height: auto;
+    width: auto !important;
+    display: block !important;
+    color: black !important;
 }
 
-body.dark-mode form #payment label {
-    margin-bottom: -0.25rem;
-    padding: 0;
-    width: auto;
-    display: block;
-    border: 3px solid yellowgreen;
+body.dark-mode form #payment > label {
+    margin-bottom: -0.25rem !important;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto;
+    display: block !important;
+    color: white !important;
 }
 
 /* Exam Attempt Section */
@@ -313,6 +315,10 @@ form .exam-attempt {
 /* Ensure the checkbox and its text appear correctly aligned */
 form .exam-attempt label {
     order: 0;
+    display: flex;
+    align-items: center;
+    width: auto;
+    gap: 1rem;
     /* Keeps the label on the left */
 }
 
