@@ -23,6 +23,23 @@ body {
     margin: 12pt 24pt;
 }
 
+.themes-switcher {
+    margin-bottom: 1rem !important;
+}
+
+form input [type="file"] {
+    padding: 0.5rem;
+    width: 100%;
+    font-family: 'Aptos', Arial, sans-serif !important;
+    font-size: 12px !important;
+    padding-top: 0px !important;
+}
+
+.themes-switcher div {
+    font-family: 'Aptos', Arial, sans-serif !important;
+    font-size: 18px !important;
+}
+
 /* Typography */
 .bitter,
 .semi-bold p,
@@ -98,6 +115,12 @@ form textarea {
     font-size: 12pt;
     font-weight: 400;
     height: auto;
+    min-height: 50px;
+    min-width: 100px;
+    overflow: hidden;
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
 }
 
 body.dark-mode form input,
@@ -508,7 +531,7 @@ body.dark-mode form {
     height: auto;
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
-    /* resize: none; Disable resizing */
+    resize: none;
 }
 
 body.dark-mode #comment {
@@ -520,7 +543,7 @@ body.dark-mode #comment {
     height: auto;
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
-    /* resize: none; Disable resizing */
+    resize: none;
 }
 
 #comment>label {
@@ -562,7 +585,6 @@ select::placeholder {
     font-size: 12pt;
 }
 
-/* Ensure compatibility across different browsers */
 input:-ms-input-placeholder,
 textarea:-ms-input-placeholder,
 select:-ms-input-placeholder {
@@ -607,4 +629,8 @@ body.dark-mode #quantity::placeholder {
     color: lightgray !important;
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
+}
+
+select {
+    field-sizing: content;
 }
