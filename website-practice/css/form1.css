@@ -247,6 +247,9 @@ body.dark-mode form .horizontal>div {
 form input[type="file"] {
     padding: 0.5rem;
     width: 100%;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+    font-weight: 400;
 }
 
 input::-webkit-file-upload-button {
@@ -260,6 +263,7 @@ input::-webkit-file-upload-button {
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
     font-weight: 400;
+    cursor: pointer;
 }
 
 body.dark-mode input::-webkit-file-upload-button {
