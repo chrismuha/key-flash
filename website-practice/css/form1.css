@@ -30,14 +30,14 @@ body {
 form input [type="file"] {
     padding: 0.5rem;
     width: 100%;
-    font-family: 'Aptos', Arial, sans-serif !important;
-    font-size: 12px !important;
-    padding-top: 0px !important;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12px;
+    padding-top: 0px;
 }
 
 .themes-switcher div {
-    font-family: 'Aptos', Arial, sans-serif !important;
-    font-size: 18px !important;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 18px;
 }
 
 /* Typography */
@@ -45,7 +45,7 @@ form input [type="file"] {
 .semi-bold p,
 div span {
     font-family: 'Aptos', Arial, sans-serif;
-    font-weight: 400 !important;
+    font-weight: 400;
     font-size: 12pt;
 }
 
@@ -178,7 +178,7 @@ body.dark-mode form input:is([type="reset"], [type="submit"]) {
 
 /* Export Button */
 #exportButton {
-    color: white !important;
+    color: white;
     padding: 0.5rem 1rem;
     height: 2rem;
     background-color: red;
@@ -194,7 +194,7 @@ body.dark-mode form input:is([type="reset"], [type="submit"]) {
 }
 
 body.dark-mode #exportButton {
-    color: white !important;
+    color: white;
     padding: 0.5rem 1rem;
     height: 2rem;
     background-color: darkblue;
@@ -301,21 +301,21 @@ body.dark-mode form #payment-method {
 }
 
 form #payment>label {
-    margin-bottom: -0.25rem !important;
-    padding-bottom: -0.25rem !important;
+    margin-bottom: -0.25rem;
+    padding-bottom: -0.25rem;
     height: auto;
-    width: auto !important;
-    display: block !important;
-    color: black !important;
+    width: auto;
+    display: block;
+    color: black;
 }
 
 body.dark-mode form #payment>label {
-    margin-bottom: -0.25rem !important;
-    padding-bottom: -0.25rem !important;
-    width: auto !important;
+    margin-bottom: -0.25rem;
+    padding-bottom: -0.25rem;
+    width: auto;
     height: auto;
-    display: block !important;
-    color: white !important;
+    display: block;
+    color: white;
 }
 
 /* Exam Attempt Section */
@@ -475,7 +475,6 @@ textarea {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
     height: 2rem;
     padding: 0 0.5rem;
     color: grey;
@@ -558,7 +557,7 @@ body.dark-mode #comment {
     padding-bottom: 0.25rem;
 }
 
-#quantity {
+body #quantity {
     color: gray !important;
 }
 
@@ -619,7 +618,7 @@ select::-ms-input-placeholder {
 }
 
 #quantity::placeholder {
-    color: gray !important;
+    color: gray;
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
 }
