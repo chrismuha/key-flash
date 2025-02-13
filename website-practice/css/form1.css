@@ -632,3 +632,10 @@ body.dark-mode #quantity::placeholder {
 select {
     field-sizing: content;
 }
+
+#error-message {
+    color: red;
+    font-size: 14px;
+    display: none;
+    margin-top: 5px;
+}

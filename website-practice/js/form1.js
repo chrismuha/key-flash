@@ -71,30 +71,24 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Phone Number Format Input Value Automations //
-function formatPhoneNumber(input) {
+document.getElementById("phone").addEventListener("input", function (event) {
+    let input = event.target;
     let value = input.value.replace(/\D/g, ''); // Remove non-numeric characters
-    let formattedValue = '';
 
+    // Format phone number as XXX-XXX-XXXX
     if (value.length > 3 && value.length <= 6) {
-        formattedValue = value.replace(/(\d{3})(\d{1,3})/, '$1-$2');
+        value = value.replace(/(\d{3})(\d{1,3})/, '$1-$2');
     } else if (value.length > 6) {
-        formattedValue = value.replace(/(\d{3})(\d{3})(\d{1,4})/, '$1-$2-$3');
-    } else {
-        formattedValue = value;
+        value = value.replace(/(\d{3})(\d{3})(\d{1,4})/, '$1-$2-$3');
     }
 
-    input.value = formattedValue;
-}
+    // Update input value
+    input.value = value;
 
-function validateInput(event) {
-    const key = event.key;
-    const regex = /^[0-9]$/; // Only allow numbers
-
-    if (!regex.test(key) && key !== 'Backspace' && key !== 'Tab') {
-        event.preventDefault();
+    // Validate input and show error message if invalid characters were entered
+    if (value !== cleanedValue) {
         document.getElementById("error-message").style.display = "block";
-        setTimeout(() => {
-            document.getElementById("error-message").style.display = "none";
-        }, 2000); // Hide the message after 2 seconds
+    } else {
+        document.getElementById("error-message").style.display = "none";
     }
-}
+});

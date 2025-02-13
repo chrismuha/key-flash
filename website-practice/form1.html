@@ -67,7 +67,8 @@
         <br>
 
         <label for="phone">Phone #:</label>
-        <input type="text" id="phone" name="phone" oninput="formatPhoneNumber(this)" onkeydown="validateInput(event)" maxlength="12" placeholder="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
+        <input type="text" id="phone" name="phone" oninput="formatPhoneNumber(this); validateInput(event);" maxlength="12" placeholder="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
+        <p id="error-message"></p>
         <br>
 
         <label for="bday">Birthdate:</label>
