@@ -71,6 +71,8 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Phone Number Format Input Value Automations //
+let errorTimeout; // Stores the timeout reference
+
 document.getElementById("phone").addEventListener("input", function (event) {
     let input = event.target;
     let value = input.value.replace(/\D/g, ''); // Remove all non-numeric characters
@@ -87,12 +89,15 @@ document.getElementById("phone").addEventListener("input", function (event) {
 
     input.value = formattedValue;
 
-    // Check if the input contained invalid characters
+    // Show error message if an invalid character was typed
     if (event.inputType === "insertText" && /[^0-9]/.test(event.data)) {
         document.getElementById("error-message").style.display = "block";
-        setTimeout(() => {
+
+        // Reset the timer so it stays visible for 2 seconds
+        clearTimeout(errorTimeout);
+        errorTimeout = setTimeout(() => {
             document.getElementById("error-message").style.display = "none";
-        }, 2000); // Hide after 2 seconds
+        }, 2000); // Message disappears after 2 seconds
     }
 });
 
