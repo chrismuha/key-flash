@@ -67,7 +67,7 @@
         <br>
 
         <label for="phone">Phone #:</label>
-        <input type="tel" id="phone" placeholder="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
+        <input type="text" id="phone" name="phone" oninput="formatPhoneNumber(this)" maxlength="12" placeholder="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
         <br>
 
         <label for="bday">Birthdate:</label>

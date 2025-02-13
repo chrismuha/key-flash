@@ -69,3 +69,14 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+// Phone Number Format Input Value Automations //
+function formatPhoneNumber(input) {
+    let value = input.value.replace(/\D/g, ''); // Remove non-numeric characters
+    if (value.length > 3 && value.length <= 6) {
+        value = value.replace(/(\d{3})(\d{1,3})/, '$1-$2');
+    } else if (value.length > 6) {
+        value = value.replace(/(\d{3})(\d{3})(\d{1,4})/, '$1-$2-$3');
+    }
+    input.value = value;
+}
