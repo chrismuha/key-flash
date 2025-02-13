@@ -73,22 +73,42 @@ document.addEventListener("DOMContentLoaded", function () {
 // Phone Number Format Input Value Automations //
 document.getElementById("phone").addEventListener("input", function (event) {
     let input = event.target;
-    let value = input.value.replace(/\D/g, ''); // Remove non-numeric characters
+    let value = input.value.replace(/\D/g, ''); // Remove all non-numeric characters
+    let formattedValue = '';
 
-    // Format phone number as XXX-XXX-XXXX
+    // Auto-format as user types
     if (value.length > 3 && value.length <= 6) {
-        value = value.replace(/(\d{3})(\d{1,3})/, '$1-$2');
+        formattedValue = value.replace(/(\d{3})(\d{1,3})/, '$1-$2');
     } else if (value.length > 6) {
-        value = value.replace(/(\d{3})(\d{3})(\d{1,4})/, '$1-$2-$3');
-    }
-
-    // Update input value
-    input.value = value;
-
-    // Validate input and show error message if invalid characters were entered
-    if (value !== cleanedValue) {
-        document.getElementById("error-message").style.display = "block";
+        formattedValue = value.replace(/(\d{3})(\d{3})(\d{1,4})/, '$1-$2-$3');
     } else {
-        document.getElementById("error-message").style.display = "none";
+        formattedValue = value;
     }
+
+    input.value = formattedValue;
+
+    // Check if the input contained invalid characters
+    if (event.inputType === "insertText" && /[^0-9]/.test(event.data)) {
+        document.getElementById("error-message").style.display = "block";
+        setTimeout(() => {
+            document.getElementById("error-message").style.display = "none";
+        }, 2000); // Hide after 2 seconds
+    }
+});
+
+// Prevent users from pasting invalid input
+document.getElementById("phone").addEventListener("paste", function (event) {
+    event.preventDefault();
+    let pastedData = (event.clipboardData || window.clipboardData).getData("text").replace(/\D/g, ''); // Remove non-numeric
+    let formattedValue = '';
+
+    if (pastedData.length > 3 && pastedData.length <= 6) {
+        formattedValue = pastedData.replace(/(\d{3})(\d{1,3})/, '$1-$2');
+    } else if (pastedData.length > 6) {
+        formattedValue = pastedData.replace(/(\d{3})(\d{3})(\d{1,4})/, '$1-$2-$3');
+    } else {
+        formattedValue = pastedData;
+    }
+
+    event.target.value = formattedValue;
 });
