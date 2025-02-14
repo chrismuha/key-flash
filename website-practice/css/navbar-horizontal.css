@@ -1,4 +1,19 @@
-/* Horizontal Navigation Bar Styling */
+/* horizontal navigation bar classes */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-logo {
+  background-color: black;
+  padding: 10 0; /* Adjust padding if needed */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 75%;
+}
+
 .navbar-logo img {
   width: 206px;
   height: 206px;
@@ -34,7 +49,7 @@
 }
 
 .navbar-ul a {
-  color: seagreen;
+  color: lightseagreen;
   text-decoration: none;
 }
 
@@ -60,32 +75,50 @@
 }
 
 .navbar-active {
-  background-color: seashell;
+  background-color: saddlebrown;
 }
 
-/* Ensure body text is positioned below the navbar */
+/* body classes */
 .body-content {
-  margin-top: 150px; /* Adjusted to ensure proper separation from the navbar */
+  margin-top: 20px;
   padding: 20px;
-  font-size: 18px;
-  background-color: #f4a460; /* sandy brown */
+  background-color: #f4a460;
+  text-align: center;
+  font-size: 18pt !important;
+  color: black !important;
+}
+
+.body-content p {
+  font-size: inherit;
+  margin-bottom: 20px;
 }
 
 .box1, .box2, .box3 {
-  display: block;
-  height: 40px;
-  max-width: 100%;
+  display: flex;
+  align-items: left;
+  justify-content: left;
+  height: 60px;
+  width: 100%;
   border: 2px solid darkcyan;
-  margin: auto;
-  margin-left: 0;
+  margin: 20px auto;
   padding: 10px;
   box-sizing: border-box;
-  max-width: 100%;
-  overflow: hidden;
   word-wrap: break-word;
+  text-align: center;
+  margin-top: 20px;
 }
 
-/* ID Styles */
+.box3 {
+  margin-bottom: 40px;
+}
+
+.parent-container {
+  max-width: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* horizontal navigation bar id attributes */
 #navbar-container {
   width: 100%;
   position: relative;
@@ -101,12 +134,14 @@
   color: white;
 }
 
+/* body id attributes */
 #content-wrapper {
   max-width: 1200px;
   margin: auto;
   padding: 20px;
-  background-color: #f4a460; /* sandy brown */
-  color: #c2dfff;
+  background-color: #f4a460;
+  color: black;
+  text-align: center;
 }
 
 #block-container {
@@ -123,6 +158,7 @@
   box-shadow: 0 0 10px #0000001a;
 }
 
+/* header and footer id attributes */
 #header-section {
   width: 100%;
   background-color: purple;
@@ -141,15 +177,15 @@
   bottom: 0;
 }
 
-/* body content */
+/* additional body styling */
 body {
   display: block;
   flex-grow: 1;
   height: auto;
-  width: auto;
+  width: 100%;
   text-align: center;
-  background-color: #f4a460; /* sandy brown */
-  color: #c2dfff; /* light sea blue */
+  background-color: #f4a460;
+  color: black;
   margin: 0;
   padding: 20px;
   font-size: 18pt;
