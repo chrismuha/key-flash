@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=12.0, minimum-scale=.25, user-scalable=yes" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="description" content="description" />
+</head>
+
+<!-- STYLESHEETS -->
+<link rel="stylesheet" href="css/navbar-vertical.css">
+
+<!-- SCRIPTS -->
+<script src="js/navbar-vertical.js"></script>
+
+<body>
+    <button class="toggle-button" onclick="toggleNavbar()">=</button>
+    <nav class="navbar">
+        <div class="navbar-logo">
+            <img src="images/navbar-logo.webp" alt="Navbar Logo">
+        </div>
+        <ul class="navbar-ul">
+            <li><a href="#">Home</a></li>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Services</a></li>
+            <li><a href="#" class="navbar-active">Contact</a></li>
+        </ul>
+    </nav>
+    <div class="content">
+    <p> test </p>
+</body>
+
+</html>

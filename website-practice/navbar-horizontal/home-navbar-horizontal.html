@@ -12,26 +12,33 @@
 </head>
 
 <!-- STYLESHEETS -->
-<link rel="stylesheet" href="css/navbar-vertical.css">
+<link rel="stylesheet" href="css/navbar-horizontal.css">
 
 <!-- SCRIPTS -->
-<script src="js/navbar.js"></script>
+<!-- <script src="js/navbar-horizontal.js"></script> -->
 
 <body>
-    <button class="toggle-button" onclick="toggleNavbar()">=</button>
     <nav class="navbar">
         <div class="navbar-logo">
             <img src="images/navbar-logo.webp" alt="Navbar Logo">
         </div>
-        <ul class="navbar-ul">
-            <li><a href="#">Home</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Services</a></li>
-            <li><a href="#">Contact</a></li>
-        </ul>
+        <div class="navbar-ul">
+            <a href="#" class="navbar-active">Home</a>
+            <a href="#">About</a>
+            <a href="#">Services</a>
+            <a href="#">Contact</a>
+        </div>
     </nav>
-    <div class="content">
-    <p> test </p>
+
+    <div class="body-content">
+        <p> test </p>
+    </div>
+
+        <div class="content">
+            <div class="box1" id="container">test</div>
+            <div class="box2" id="block">test</div>
+            <div class="box3" id="text">test</div>
+        </div>
 </body>
 
 </html>
