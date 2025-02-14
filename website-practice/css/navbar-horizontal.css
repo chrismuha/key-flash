@@ -68,18 +68,21 @@
   margin-top: 150px; /* Adjusted to ensure proper separation from the navbar */
   padding: 20px;
   font-size: 18px;
-  color: #333;
-  background-color: rgb(244, 164, 96); /* sandy brown */
+  background-color: #f4a460; /* sandy brown */
 }
 
 .box1, .box2, .box3 {
   display: block;
   height: 40px;
-  width: 100%;
-  border: 2px solid gray;
+  max-width: 100%;
+  border: 2px solid darkcyan;
   margin: auto;
   margin-left: 0;
   padding: 10px;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
+  word-wrap: break-word;
 }
 
 /* ID Styles */
@@ -102,7 +105,7 @@
   max-width: 1200px;
   margin: auto;
   padding: 20px;
-  background-color: rgb(244, 164, 96); /* sandy brown */
+  background-color: #f4a460; /* sandy brown */
   color: #c2dfff;
 }
 
@@ -117,12 +120,12 @@
   margin: auto;
   background-color: white;
   padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px #0000001a;
 }
 
 #header-section {
   width: 100%;
-  background-color: navy;
+  background-color: purple;
   color: white;
   text-align: center;
   padding: 15px;
@@ -145,7 +148,7 @@ body {
   height: auto;
   width: auto;
   text-align: center;
-  background-color: rgb(244, 164, 96); /* sandy brown */
+  background-color: #f4a460; /* sandy brown */
   color: #c2dfff; /* light sea blue */
   margin: 0;
   padding: 20px;
