@@ -1,15 +1,51 @@
 /* Vertical Navigation Bar Styling */
-.navbar {
+.navbar-ul {
     list-style-type: circle;
-    /* the circles are not appearing */
     margin: 0;
     padding: 0;
-    height: 100%;
-    width: 200px;
+    height: 100vh;
+    width: 206px;
     background-color: #9b8988;
-    opacity: 80%;
     position: fixed;
-    overflow: auto;
+    overflow: hidden;
+    top: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.navbar-logo {
+    width: 100%;
+    padding-top: 10px 0;
+    flex-shrink: 0;
+    display: flex;
+}
+
+.navbar-logo img {
+    width: 206px;
+    height: 206px;
+    object-fit: contain;
+    background-color: black;
+    display: block;
+}
+
+.navbar-links {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.navbar-ul a {
+    color: seagreen;
+    text-decoration: none;
+}
+
+.navbar-ul a:hover {
+    color: yellow;
+    text-decoration: underline;
 }
 
 .navbar a {
@@ -26,15 +62,14 @@
 
 .navbar a.active {
     background-color: seagreen;
-    /* this should not be using the opacity */
     color: white;
+    opacity: none;
 }
 
-/* Page Styling */
-
-/* CLASSES */
 body {
     background-color: seashell;
     margin: 0;
+    padding: 0;
     font-family: Arial, sans-serif;
+    overflow: hidden;
 }

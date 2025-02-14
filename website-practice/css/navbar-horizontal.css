@@ -1,4 +1,22 @@
 /* Horizontal Navigation Bar Styling */
+.navbar-logo img {
+  width: 206px;
+  height: 206px;
+  object-fit: contain;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: skyblue;
+  padding: 10px 20px;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
 .navbar-ul {
   display: inline-block;
   list-style-type: none;
@@ -45,68 +63,99 @@
   background-color: seashell;
 }
 
-/* Page Styling */
-
-/* ID */
-#container {
-  color: aqua;
-  height: 100%;
-  width: 100%;
-  position: relative;
-  margin: auto;
+/* Ensure body text is positioned below the navbar */
+.body-content {
+  margin-top: 150px; /* Adjusted to ensure proper separation from the navbar */
+  padding: 20px;
+  font-size: 18px;
+  color: #333;
+  background-color: rgb(244, 164, 96); /* sandy brown */
 }
 
-#block {
-  background:
-    /* sandy brown with 0.6 opacity */
-    rgb(244, 164, 96, 0.6);
-  height: 100%;
-  width: 100%;
-  position: relative;
-  margin: auto;
-  padding: 0;
-
-  /* opacity */
-  opacity: 0.6;
-
-  /* IE */
-  filter: alpha(opacity=60);
-
-  /* Mozilla */
-  -moz-opacity: 0.6;
-}
-
-#text {
-  color: aquamarine;
-  height: 100%;
-  width: 100%;
-  position: relative;
-}
-
-/* CLASSES */
-body {
-  display: block;
-  height: auto;
-  width: auto;
-  text-align: center;
-  background-color:
-    /* sandy brown */
-    rgb(244, 164, 96);
-  color:
-    /* light sea blue */
-    #c2dfff;
-  margin: auto;
-  padding: 0;
-  font-size: 18pt;
-  font-weight: lighter;
-}
-
-.box1 {
+.box1, .box2, .box3 {
   display: block;
   height: 40px;
-  width: 10px;
+  width: 100%;
   border: 2px solid gray;
   margin: auto;
   margin-left: 0;
   padding: 10px;
+}
+
+/* ID Styles */
+#navbar-container {
+  width: 100%;
+  position: relative;
+  background-color: skyblue;
+}
+
+#navbar-menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  background-color: darkblue;
+  color: white;
+}
+
+#content-wrapper {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  background-color: rgb(244, 164, 96); /* sandy brown */
+  color: #c2dfff;
+}
+
+#block-container {
+  width: 100%;
+  background-color: lightgray;
+  padding: 20px;
+}
+
+#block-content {
+  max-width: 1000px;
+  margin: auto;
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#header-section {
+  width: 100%;
+  background-color: navy;
+  color: white;
+  text-align: center;
+  padding: 15px;
+}
+
+#footer-section {
+  width: 100%;
+  background-color: black;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  position: fixed;
+  bottom: 0;
+}
+
+/* body content */
+body {
+  display: block;
+  flex-grow: 1;
+  height: auto;
+  width: auto;
+  text-align: center;
+  background-color: rgb(244, 164, 96); /* sandy brown */
+  color: #c2dfff; /* light sea blue */
+  margin: 0;
+  padding: 20px;
+  font-size: 18pt;
+  font-weight: lighter;
+}
+
+/* prevents scrolling left and right */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
 }
