@@ -1,3 +1,4 @@
+/* classes */
 .navbar {
     width: 206px;
     height: 100vh;
@@ -79,6 +80,20 @@
     left: 0;
 }
 
+.content {
+    transition: 0.3s ease-in-out;
+    padding: 20px;
+    margin-left: 206px;
+}
+
+.navbar.active+.content {
+    margin-left: 206px;
+    /* Same as navbar width */
+}
+
+/* attributes */
+
+/* elements */
 body {
     background-color: seashell;
     margin: 0;
@@ -90,15 +105,4 @@ body {
     display: grid;
     grid-template-columns: 206px 1fr;
     transition: all 0.3s ease-in-out;
-}
-
-.content {
-    transition: 0.3s ease-in-out;
-    padding: 20px;
-    margin-left: 206px;
-}
-
-.navbar.active+.content {
-    margin-left: 206px;
-    /* Same as navbar width */
 }
