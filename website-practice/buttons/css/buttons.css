@@ -1,38 +1,48 @@
-/* classes */
-.button1 {
-    text-decoration-color: #00ff11;
+/* elements */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* flex container for buttons */
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 80px;
+}
+
+/* classes for both buttons to be the same */
+.button1,
+.button2 {
     text-align: center;
-    font-size: 20pt;
-    line-height: 60px;
-    border: 6px solid #000000;
-    outline: 12px solid #ffff00;
+    font-size: 18pt;
+    line-height: 0px;
     min-width: 20px;
     min-height: 20px;
     max-width: 200px;
     max-height: 200px;
     border-radius: 20px;
-    background-color: #ff0000;
-    margin: auto;
-    margin-top: 25px;
+    margin-top: 50px;
     margin-bottom: 50px;
-    margin-left: 85px;
+}
+
+/* classes for individual styling */
+.button1 {
+    text-decoration-color: #00ff11;
+    border: 10px solid #000000;
+    outline: 10px solid #ffff00;
+    background-color: #ff0000;
+    margin-right: 80px;
 }
 
 .button2 {
     text-decoration-color: #ff0000;
-    text-align: center;
-    font-size: 20pt;
-    line-height: 0px;
-    border: 6px solid #800080;
-    outline: 12px solid #adff2f;
-    min-width: 20px;
-    min-height: 20px;
-    max-width: 200px;
-    max-height: 200px;
-    border-radius: 20px;
+    border: 10px solid #800080;
+    outline: 10px solid #adff2f;
     background-color: #0000ff;
-    margin: auto;
-    margin-top: 25px;
-    margin-bottom: 0px;
-    margin-left: 85px;
+    margin-left: 80px;
 }
