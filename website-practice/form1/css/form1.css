@@ -130,7 +130,6 @@ form textarea {
     background-color: #1E1E1E;
 }
 
-/* Textarea Specific Styling */
 body.dark-mode form textarea {
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
