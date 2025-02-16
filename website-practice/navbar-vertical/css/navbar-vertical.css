@@ -184,3 +184,32 @@ body {
     display: grid;
     grid-template-columns: 206px 1fr;
 }
+
+/* mobile optimization */
+@media screen and (max-width: 768px) {
+    .navbar {
+        width: 80%;
+        left: -80%;
+    }
+
+    .navbar.active {
+        left: 0;
+    }
+
+    .content {
+        margin-left: 0;
+        padding: 15px;
+    }
+
+    .navbar.active + .content {
+        margin-left: 80%;
+    }
+
+    .toggle-button {
+        top: 10px;
+        left: 10px;
+        width: 40px;
+        height: 40px;
+        font-size: 22px;
+    }
+}
