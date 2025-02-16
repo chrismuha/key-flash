@@ -1,7 +1,18 @@
 /* classes */
 .container {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    min-height: 100vh;
+}
+
+/* mobile optimization */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        /* Stack elements vertically on smaller screens */
+        padding: 20px;
+    }
 }

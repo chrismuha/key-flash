@@ -40,3 +40,29 @@
     border: none;
     cursor: pointer;
 }
+
+/* mobile optimization */
+@media (max-width: 768px) {
+    .dropdown {
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
+    .dropbtn {
+        width: 100%;
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .dropdown-content {
+        position: relative;
+        width: 100%;
+        box-shadow: none;
+    }
+
+    .dropdown-content a {
+        padding: 10px;
+        font-size: 14px;
+    }
+}
