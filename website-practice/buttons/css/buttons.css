@@ -48,7 +48,7 @@ body {
 }
 
 /* mobile optimization */
-@media (max-width: 600px) {
+/* @media (max-width: 600px) {
     .button-container {
         flex-direction: column;
         gap: 20px;
@@ -61,3 +61,4 @@ body {
         font-size: 16pt;
     }
 }
+*/

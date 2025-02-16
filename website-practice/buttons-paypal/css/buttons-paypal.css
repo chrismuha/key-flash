@@ -9,10 +9,11 @@
 }
 
 /* mobile optimization */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
     .container {
         flex-direction: column;
         /* Stack elements vertically on smaller screens */
-        padding: 20px;
+        /* padding: 20px; /*
     }
 }
+} */

@@ -219,7 +219,7 @@ body {
 }
 
 /* mobile optimization */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .navbar {
     flex-direction: row;
   }
@@ -254,4 +254,4 @@ body {
     text-align: center;
     padding: 10px 0;
   }
-}
+} */
