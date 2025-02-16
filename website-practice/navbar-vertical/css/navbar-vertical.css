@@ -12,22 +12,26 @@
 }
 
 .navbar-logo {
-    width: 100%;
+    width: 98%;
     display: flex;
-    padding-left: 1px;
+    padding-left: 2px;
     justify-content: flex-start;
     flex-shrink: 0;
+    position: relative;
 }
 
 .navbar-logo img {
-    width: 206px;
-    height: 206px;
+    width: 203px;
+    height: 203px;
     object-fit: contain;
     background-color: black;
     display: block;
 }
 
 .navbar-ul {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     padding: 0;
     width: 100%;
 }
@@ -42,6 +46,7 @@
 .navbar-ul a {
     display: block;
     padding: 16px;
+    padding-left: 10px;
     font-family: Arial, sans-serif;
     font-size: 16pt;
     color: #50b94a;
@@ -50,6 +55,7 @@
     box-sizing: border-box;
     position: relative;
     font-weight: 700;
+    text-align: left;
     text-shadow:
         -1px -1px 0 black,
         1px -1px 0 black,
@@ -113,7 +119,7 @@
 
 /* attributes */
 #rectangle-gap {
-    background: black;
+    background: red;
     width: 5px;
     height: 100vh;
     position: fixed;
@@ -139,7 +145,7 @@
     height: 20px;
     background-color: black;
     position: absolute;
-    top: 206px;
+    top: 203px;
     left: 0;
 }
 
@@ -147,8 +153,20 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 1px;
-    height: 206px;
+    width: 2px;
+    height: 203px;
+    background-color: black;
+    flex-shrink: 0;
+    z-index: 1002;
+}
+
+.navbar-logo-right-gap {
+    position: absolute;
+    top: 0;
+    left: 204px;
+    right: 0;
+    width: 2px;
+    height: 203px;
     background-color: black;
     flex-shrink: 0;
     z-index: 1002;
