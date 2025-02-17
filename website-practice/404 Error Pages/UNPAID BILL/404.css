@@ -31,9 +31,15 @@ body {
     padding: 16px 16px 16px;
     border-radius: 3px;
     font-size: 14pt;
-    font-weight: 300;
+    font-weight: 900;
     margin: auto;
     margin-top: 16px;
+    line-height: 1.3rem;
+    /* text-shadow:
+        -1px -1px 0 white,
+        1px -1px 0 white,
+        -1px 1px 0 white,
+        1px 1px 0 white; */
 }
 
 .header2-h2 {
