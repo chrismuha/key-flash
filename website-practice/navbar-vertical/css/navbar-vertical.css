@@ -75,7 +75,7 @@
 }
 
 .navbar-ul a:hover {
-    background-color: red;
+    background-color: #eb2024;
     text-decoration: underline;
 }
 
@@ -119,7 +119,7 @@
 
 /* attributes */
 #rectangle-gap {
-    background: red;
+    background: #ed2124;
     width: 5px;
     height: 100vh;
     position: fixed;
@@ -130,7 +130,7 @@
 }
 
 #rectangle1 {
-    background: red;
+    background: #ed2124;
     width: 10px;
     height: 100%;
     position: fixed;
