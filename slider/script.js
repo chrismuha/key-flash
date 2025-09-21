@@ -19,34 +19,53 @@ function updateAria(input, unit) {
     input.setAttribute('aria-valuetext', vt);
 }
 
+// Helper: read --thumb-size (px) from the input
+function getThumbSizePx(input) {
+    const cs = getComputedStyle(input);
+    const v = cs.getPropertyValue('--thumb-size') || '0';
+    const n = parseFloat(v);
+    return Number.isFinite(n) ? n : 0;
+}
+
+// Set WebKit progress width in PX to the *thumb center*
 function setProgressCSS(input, trackWidth) {
     const min = Number(input.min || 0);
     const max = Number(input.max || 100);
     const val = Number(input.value);
-    const pct = ((val - min) / (max - min)) * 100;
+    const ratio = (val - min) / (max - min);
 
-    input.style.setProperty('--_progress', pct.toFixed(6) + '%');
+    const thumb = getThumbSizePx(input);
+    const eff = Math.max(0, trackWidth - thumb);
+    const centerPx = eff * ratio + thumb / 2;          // exact center of thumb
 
-    const px = Math.round((pct / 100) * trackWidth);
-    input.style.setProperty('--_progress_px', px + 'px');
+    // For completeness, keep % too (unused by WebKit here)
+    const pct = ratio * 100;
+    input.style.setProperty('--_progress', pct + '%');
+
+    // Use the exact (possibly fractional) px value; no rounding
+    input.style.setProperty('--_progress_px', centerPx + 'px');
 }
 
-function buildTicks(container, min, max, step, majorEvery, unit, input, render, position) {
+function buildTicks(container, min, max, step, majorEvery, unit, input, render, position, trackWidth) {
     if (!container) return;
     container.innerHTML = '';
+
     const steps = Math.round((max - min) / step);
-    const w = Math.round(container.getBoundingClientRect().width);
+    const thumb = getThumbSizePx(input);
+    const eff = Math.max(0, trackWidth - thumb);
 
     for (let i = 0; i <= steps; i++) {
         const val = min + i * step;
         const ratio = steps === 0 ? 0 : (i / steps);
-        const x = Math.round(ratio * w);
 
-        // Tick line
+        // Center of thumb at this step, in px (no rounding)
+        const x = eff * ratio + thumb / 2;
+
         const t = document.createElement('div');
         const isMajor = (i % majorEvery) === 0;
         t.className = 'tick' + (isMajor ? ' major' : '');
-        t.style.left = x + 'px';
+        t.style.left = x + 'px';                      // place at center
+        // CSS will center the tick with transform: translateX(-50%)
 
         if (position === 'top') {
             t.style.top = 'auto';
@@ -58,10 +77,11 @@ function buildTicks(container, min, max, step, majorEvery, unit, input, render, 
         t.addEventListener('click', () => {
             input.value = val;
             render();
+            input.dispatchEvent(new Event('input', { bubbles: true }));
         });
         container.appendChild(t);
 
-        // Labels only on bottom row
+        // Labels - bottom row
         if (position === 'bottom' && isMajor) {
             const lbl = document.createElement('div');
             lbl.className = 'tick-label';
@@ -73,6 +93,7 @@ function buildTicks(container, min, max, step, majorEvery, unit, input, render, 
             lbl.addEventListener('click', () => {
                 input.value = val;
                 render();
+                input.dispatchEvent(new Event('input', { bubbles: true }));
             });
             container.appendChild(lbl);
         }
@@ -97,8 +118,8 @@ function initSlider(wrapperId, unit, options = {}) {
     let trackWidth = 0;
 
     function measure() {
-        // Use the input’s rendered width as the track width proxy
-        trackWidth = Math.round(input.getBoundingClientRect().width);
+        // match the exact box the track paints into
+        trackWidth = input.getBoundingClientRect().width;
     }
 
     function render() {
@@ -109,8 +130,8 @@ function initSlider(wrapperId, unit, options = {}) {
     }
 
     function rebuildTicks() {
-        buildTicks(ticksBottom, min, max, step, majorEvery, unit, input, render, 'bottom');
-        buildTicks(ticksTop, min, max, step, majorEvery, unit, input, render, 'top');
+        buildTicks(ticksBottom, min, max, step, majorEvery, unit, input, render, 'bottom', trackWidth);
+        buildTicks(ticksTop, min, max, step, majorEvery, unit, input, render, 'top', trackWidth);
     }
 
     // Events
@@ -130,6 +151,7 @@ function initSlider(wrapperId, unit, options = {}) {
         val = roundToStep(val, step, min);
         input.value = String(clamp(val, min, max));
         render();
+        input.dispatchEvent(new Event('input', { bubbles: true }));
     });
 
     // Handle resizes for perfect alignment
@@ -143,5 +165,5 @@ function initSlider(wrapperId, unit, options = {}) {
 }
 
 // Initialize sliders
-initSlider('volume-wrap', '%', { majorEvery: 2 }); // labels every 20%
-initSlider('font-wrap', 'px', { majorEvery: 2 });  // labels every 4px
+initSlider('volume-wrap', '%', { majorEvery: 2 });
+initSlider('font-wrap', 'px', { majorEvery: 2 });
