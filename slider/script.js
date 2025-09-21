@@ -28,16 +28,19 @@ function updateAria(input, unit) {
 }
 
 function buildTicks(container, min, max, step, majorEvery, unit, input, render, position) {
+    if (!container) return; // guard if HTML doesn't include this row
     container.innerHTML = '';
-    const total = (max - min) / step;
 
-    for (let i = 0; i <= total; i++) {
+    // Use an integer loop count to avoid float modulo edge cases.
+    const steps = Math.round((max - min) / step);
+
+    for (let i = 0; i <= steps; i++) {
         const val = min + i * step;
         const pct = ((val - min) / (max - min)) * 100;
 
         // Tick line
         const t = document.createElement('div');
-        const isMajor = ((val - min) % (step * majorEvery) === 0);
+        const isMajor = (i % majorEvery) === 0; // stable major calculation
         t.className = 'tick' + (isMajor ? ' major' : '');
         t.style.left = pct + '%';
 
@@ -46,7 +49,7 @@ function buildTicks(container, min, max, step, majorEvery, unit, input, render, 
             t.style.bottom = '0';
         }
 
-        // Make tick clickable
+        // Clickable tick
         t.style.cursor = 'pointer';
         t.addEventListener('click', () => {
             input.value = val;
@@ -68,7 +71,6 @@ function buildTicks(container, min, max, step, majorEvery, unit, input, render, 
                 input.value = val;
                 render();
             });
-
             container.appendChild(lbl);
         }
     }
@@ -76,15 +78,18 @@ function buildTicks(container, min, max, step, majorEvery, unit, input, render, 
 
 function initSlider(wrapperId, unit, options = {}) {
     const wrap = document.getElementById(wrapperId);
+    if (!wrap) return; // guard for missing wrapper
+
     const input = wrap.querySelector('input[type="range"]');
     const valueEl = wrap.querySelector('.value');
     const ticksBottom = wrap.querySelector('.ticks.bottom');
     const ticksTop = wrap.querySelector('.ticks.top');
+    if (!input || !valueEl) return; // guard
+
     const min = Number(input.min);
     const max = Number(input.max);
     const step = Number(input.step);
-
-    const majorEvery = options.majorEvery || (unit === '%' ? 2 : 2);
+    const majorEvery = options.majorEvery || 2;
 
     function render() {
         const val = Number(input.value);
@@ -93,11 +98,11 @@ function initSlider(wrapperId, unit, options = {}) {
         updateAria(input, unit);
     }
 
-    // Build ticks on both rows
+    // Build ticks on both rows (if present)
     buildTicks(ticksBottom, min, max, step, majorEvery, unit, input, render, 'bottom');
     buildTicks(ticksTop, min, max, step, majorEvery, unit, input, render, 'top');
 
-    // Update on input/change
+    // Live updates
     input.addEventListener('input', render);
     input.addEventListener('change', render);
 
@@ -116,10 +121,10 @@ function initSlider(wrapperId, unit, options = {}) {
         render();
     });
 
-    // Initialize
+    // Initial paint
     render();
 }
 
 // Initialize sliders
-initSlider('volume-wrap', '%', { majorEvery: 2 });
-initSlider('font-wrap', 'px', { majorEvery: 2 });
+initSlider('volume-wrap', '%', { majorEvery: 2 }); // labels every 20%
+initSlider('font-wrap', 'px', { majorEvery: 2 });  // labels every 4px

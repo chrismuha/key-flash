@@ -1,4 +1,4 @@
-/* ====== Variables ====== */
+/* global */
 :root {
     --track-height: 8px;
     --track-radius: 999px;
@@ -13,7 +13,7 @@
     --bg: #ffffff;
 }
 
-/* ====== Base ====== */
+/* Box */
 * {
     box-sizing: border-box;
 }
@@ -67,19 +67,6 @@ body {
     outline: none;
 }
 
-/* Track */
-.slider::-webkit-slider-runnable-track {
-    height: var(--track-height);
-    background: var(--track);
-    border-radius: var(--track-radius);
-}
-
-.slider::-moz-range-track {
-    height: var(--track-height);
-    background: var(--track);
-    border-radius: var(--track-radius);
-}
-
 /* Thumb */
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -117,6 +104,27 @@ body {
             var(--track) var(--_progress) 100%);
     border-radius: var(--track-radius);
     height: var(--track-height);
+}
+
+/* Firefox: left side (blue) */
+.slider::-moz-range-progress {
+    background: var(--primary);
+    height: var(--track-height);
+    border-radius: var(--track-radius);
+}
+
+/* Firefox: right side (gray) */
+.slider::-moz-range-track {
+    background: var(--track);
+    height: var(--track-height);
+    border-radius: var(--track-radius);
+}
+
+/* Webkit: track (gray) */
+.slider::-webkit-slider-runnable-track {
+    height: var(--track-height);
+    background: var(--track);
+    border-radius: var(--track-radius);
 }
 
 /* ====== Ticks (top & bottom rows) ====== */
