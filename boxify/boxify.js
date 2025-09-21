@@ -74,6 +74,7 @@
       panel.style.maxHeight = "40vh";
       panel.style.overflow = "auto";
       panel.style.zIndex = "999999";
+      panel.style.transition = "opacity 100ms ease";
       panel.setAttribute("aria-label", "Boxify status");
       document.body.appendChild(panel);
     }
@@ -89,6 +90,25 @@
       panel.appendChild(line);
     }
     line.textContent = id + " = " + qty;
+  }
+
+  function listBoxes() {
+    return Array.from(document.querySelectorAll(".boxify"));
+  }
+  function focusIndex(i) {
+    const boxes = listBoxes();
+    if (i < 0 || i >= boxes.length) return;
+    boxes[i].focus();
+  }
+  function indexOfBox(el) {
+    return listBoxes().indexOf(el);
+  }
+  function gridCols(fromEl) {
+    const grid = fromEl.closest("#inventory") || document.querySelector("#inventory");
+    if (!grid) return 1;
+    const s = getComputedStyle(grid).gridTemplateColumns || "";
+    const cols = s.split(" ").filter(Boolean).length;
+    return Math.max(1, cols);
   }
 
   function applyHandlers(wrapper, id, counts, onChange) {
@@ -112,8 +132,8 @@
 
     wrapper.addEventListener("click", (e) => {
       if (e.target.closest(".boxify-btn")) return;
+      if (e.shiftKey) { e.preventDefault(); setQty(0); return; }
       if (!(e.metaKey || e.ctrlKey)) { e.preventDefault(); return; }
-      if (e.shiftKey) { setQty(0); return; }
       setQty(getQty() + 1);
     });
 
@@ -127,10 +147,24 @@
     });
 
     wrapper.addEventListener("keydown", (e) => {
+      if (e.altKey && (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown")) {
+        e.preventDefault();
+        const idx = indexOfBox(wrapper);
+        const cols = gridCols(wrapper);
+        let delta = 0;
+        if (e.key === "ArrowLeft") delta = -1;
+        else if (e.key === "ArrowRight") delta = 1;
+        else if (e.key === "ArrowUp") delta = -cols;
+        else if (e.key === "ArrowDown") delta = cols;
+        const next = Math.min(Math.max(0, idx + delta), listBoxes().length - 1);
+        if (next !== idx) focusIndex(next);
+        return;
+      }
+
       if (e.key === "ArrowUp" || e.key === "ArrowRight") { e.preventDefault(); setQty(getQty() + 1); }
-      if (e.key === "ArrowDown" || e.key === "ArrowLeft") { e.preventDefault(); setQty(getQty() - 1); }
-      if (e.key === "Backspace" || e.key === "Delete") { e.preventDefault(); setQty(0); }
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setQty(getQty() + 1); }
+      else if (e.key === "ArrowDown" || e.key === "ArrowLeft") { e.preventDefault(); setQty(getQty() - 1); }
+      else if (e.key === "Backspace" || e.key === "Delete") { e.preventDefault(); setQty(0); }
+      else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setQty(getQty() + 1); }
     });
 
     setQty(getQty());
@@ -206,8 +240,6 @@
       panel.style.opacity = "1";
     }, 100);
   });
-
-
 
   document.addEventListener("keydown", (e) => {
     if (e.altKey && e.code === "KeyR") {
