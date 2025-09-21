@@ -90,11 +90,19 @@ body {
 
 /* Progress fill */
 .slider.progress {
+    background: none;
+    /* background handled by WebKit track */
+    border-radius: var(--track-radius);
+    height: var(--track-height);
+}
+
+/* WebKit: track (blue left, gray right) */
+.slider.progress::-webkit-slider-runnable-track {
+    height: var(--track-height);
+    border-radius: var(--track-radius);
     background: linear-gradient(to right,
             #4f46e5 0 var(--_progress),
             #e5e7eb var(--_progress) 100%);
-    border-radius: var(--track-radius);
-    height: var(--track-height);
 }
 
 /* Firefox: left side (blue) */
@@ -108,13 +116,6 @@ body {
 .slider::-moz-range-track {
     background: #e5e7eb;
     height: var(--track-height);
-    border-radius: var(--track-radius);
-}
-
-/* Webkit: track (gray) */
-.slider::-webkit-slider-runnable-track {
-    height: var(--track-height);
-    background: #e5e7eb;
     border-radius: var(--track-radius);
 }
 
