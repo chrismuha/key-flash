@@ -1,3 +1,4 @@
+/* ====== Variables ====== */
 :root {
     --track-height: 8px;
     --track-radius: 999px;
@@ -6,10 +7,15 @@
     --track: #e5e7eb;
     --tick: #9ca3af;
     --tick-strong: #6b7280;
-    --focus: #2563eb;
+    --focus-ring: rgba(37, 99, 235, 0.35);
     --label: #111827;
     --subtle: #6b7280;
     --bg: #ffffff;
+}
+
+/* ====== Base ====== */
+* {
+    box-sizing: border-box;
 }
 
 body {
@@ -27,7 +33,7 @@ body {
     padding: 20px 20px 28px;
     border: 1px solid #e5e7eb;
     border-radius: 16px;
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .header {
@@ -49,7 +55,7 @@ body {
     font-weight: 600;
 }
 
-/* Base slider styling */
+/* Slider */
 .slider {
     appearance: none;
     -webkit-appearance: none;
@@ -58,6 +64,7 @@ body {
     background: transparent;
     margin: 18px 0 8px;
     position: relative;
+    outline: none;
 }
 
 /* Track */
@@ -83,13 +90,8 @@ body {
     border: 2px solid var(--primary);
     border-radius: 50%;
     margin-top: calc((var(--track-height) - var(--thumb-size)) / 2);
-    box-shadow: 0 2px 6px rgb(0 0 0 / 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     position: relative;
-}
-
-.slider:focus-visible::-webkit-slider-thumb {
-    outline: 3px solid color-mix(in srgb, var(--focus) 30%, transparent);
-    outline-offset: 2px;
 }
 
 .slider::-moz-range-thumb {
@@ -98,38 +100,56 @@ body {
     background: #fff;
     border: 2px solid var(--primary);
     border-radius: 50%;
-    box-shadow: 0 2px 6px rgb(0 0 0 / 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
+/* Focus */
+.slider:focus-visible::-webkit-slider-thumb,
 .slider:focus-visible::-moz-range-thumb {
-    outline: 3px solid color-mix(in srgb, var(--focus) 30%, transparent);
+    outline: 3px solid var(--focus-ring);
     outline-offset: 2px;
 }
 
-/* Custom progress fill */
+/* Progress fill */
 .slider.progress {
     background: linear-gradient(to right,
             var(--primary) 0 var(--_progress),
             var(--track) var(--_progress) 100%);
     border-radius: var(--track-radius);
     height: var(--track-height);
-    outline: none;
 }
 
-/* Ticks */
+/* ====== Ticks (top & bottom rows) ====== */
 .ticks {
     position: relative;
-    height: 16px;
-    margin-top: 10px;
+    height: 20px;
 }
 
+.ticks.top {
+    margin-bottom: 6px;
+}
+
+.ticks.bottom {
+    margin-top: 6px;
+}
+
+/* Tick line — center each tick at its percentage */
 .tick {
     position: absolute;
-    top: 0;
-    width: 1px;
+    left: 0;
+    transform: translateX(-50%);
+    width: 2px;
     height: 10px;
     background: var(--tick);
-    transform: translateX(-0.5px);
+    cursor: pointer;
+}
+
+.ticks.bottom .tick {
+    top: 0;
+}
+
+.ticks.top .tick {
+    bottom: 0;
 }
 
 .tick.major {
@@ -137,14 +157,17 @@ body {
     background: var(--tick-strong);
 }
 
+/* Labels — bottom row */
 .tick-label {
     position: absolute;
     top: 14px;
+    left: 0;
     transform: translateX(-50%);
     font-size: 12px;
     color: var(--subtle);
     white-space: nowrap;
     user-select: none;
+    cursor: pointer;
 }
 
 /* Screen reader only text */

@@ -27,9 +27,10 @@ function updateAria(input, unit) {
     input.setAttribute('aria-valuetext', vt);
 }
 
-function buildTicks(container, min, max, step, majorEvery, unit, input, render) {
+function buildTicks(container, min, max, step, majorEvery, unit, input, render, position) {
     container.innerHTML = '';
     const total = (max - min) / step;
+
     for (let i = 0; i <= total; i++) {
         const val = min + i * step;
         const pct = ((val - min) / (max - min)) * 100;
@@ -40,6 +41,11 @@ function buildTicks(container, min, max, step, majorEvery, unit, input, render) 
         t.className = 'tick' + (isMajor ? ' major' : '');
         t.style.left = pct + '%';
 
+        if (position === 'top') {
+            t.style.top = 'auto';
+            t.style.bottom = '0';
+        }
+
         // Make tick clickable
         t.style.cursor = 'pointer';
         t.addEventListener('click', () => {
@@ -49,8 +55,8 @@ function buildTicks(container, min, max, step, majorEvery, unit, input, render) 
 
         container.appendChild(t);
 
-        // Tick label
-        if (isMajor) {
+        // Labels only on bottom row
+        if (position === 'bottom' && isMajor) {
             const lbl = document.createElement('div');
             lbl.className = 'tick-label';
             lbl.style.left = pct + '%';
@@ -72,7 +78,8 @@ function initSlider(wrapperId, unit, options = {}) {
     const wrap = document.getElementById(wrapperId);
     const input = wrap.querySelector('input[type="range"]');
     const valueEl = wrap.querySelector('.value');
-    const ticksEl = wrap.querySelector('.ticks');
+    const ticksBottom = wrap.querySelector('.ticks.bottom');
+    const ticksTop = wrap.querySelector('.ticks.top');
     const min = Number(input.min);
     const max = Number(input.max);
     const step = Number(input.step);
@@ -86,13 +93,15 @@ function initSlider(wrapperId, unit, options = {}) {
         updateAria(input, unit);
     }
 
-    // Build clickable ticks
-    buildTicks(ticksEl, min, max, step, majorEvery, unit, input, render);
+    // Build ticks on both rows
+    buildTicks(ticksBottom, min, max, step, majorEvery, unit, input, render, 'bottom');
+    buildTicks(ticksTop, min, max, step, majorEvery, unit, input, render, 'top');
 
+    // Update on input/change
     input.addEventListener('input', render);
     input.addEventListener('change', render);
 
-    // Keyboard enhancements
+    // Keyboard support
     input.addEventListener('keydown', (e) => {
         let val = Number(input.value);
         const page = (max - min) / 10;
