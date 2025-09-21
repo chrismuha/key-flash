@@ -1,83 +1,136 @@
-/* global */
+/* === Minimum page size + fixed 3x3 grid sizing === */
+:root {
+  --cols: 3;
+  --rows: 3;
+  --cell-w: 360px;
+  /* width of each card */
+  --cell-h: 140px;
+  /* min height of each card */
+  --gap: 24px;
+  /* space between cards */
+  --page-pad: 48px;
+  /* outer body padding */
+  --header-h: 140px;
+  /* height of heading + intro paragraph */
+}
+
+/* Page & typography */
+html,
 body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
   font-family: Arial, sans-serif;
-  margin: 24px;
 }
 
-h1 {
-  margin: 0 0 12px 0;
-}
-
-/* Grid container for your boxes */
-.box-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 12px;
-}
-
-/* Square box */
-.boxify {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  border: 1px solid #cccccc;
-  background: #f6f7f9;
-  color: #1b1f23;
-  border-radius: 0px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, .12);
-  padding: 12px;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
+h1, p {
   text-align: center;
-  user-select: none;
-  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
 }
 
-.boxify:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, .16);
-  border-color: #0b5fff;
+/* Inventory grid: responsive, no overflow */
+#inventory {
+  display: grid;
+  gap: 16px;
+  margin: 16px auto;
+  padding: 0 16px;
+  /* some breathing room at edges */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  max-width: 1200px;
+  /* centers and caps width on large screens */
+}
+
+/* On very wide screens, prefer 3 columns nicely spaced */
+@media (min-width: 1100px) {
+  #inventory {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Box */
+.boxify {
+  min-height: 140px;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fafafa;
+  text-align: center;
+  transition: background 0.2s;
 }
 
 .boxify:focus {
-  outline: 2px solid #0b5fff;
-  outline-offset: 3px;
+  outline: 2px solid #0078d7;
+  background: #f0f8ff;
 }
 
+/* Title */
 .boxify-title {
-  font: 600 14px/1.2 Arial, sans-serif;
-  margin: 0;
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 8px;
 }
 
+/* Controls Row */
+.boxify-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+/* Quantity Display */
 .boxify-qty {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  min-width: 22px;
-  height: 22px;
-  border-radius: 11px;
-  background: #0b5fff;
-  color: #ffffff;
-  font: 600 12px/22px Arial, sans-serif;
+  min-width: 40px;
   text-align: center;
-  padding: 0 6px;
-  pointer-events: none;
+  font-size: 18px;
+  font-weight: bold;
 }
 
-.boxify:active {
-  transform: translateY(0);
-  box-shadow: 0 3px 12px rgba(0, 0, 0, .10);
-}
-
-/* Reset button */
-#reset-all {
-  margin-top: 16px;
-  padding: 8px 12px;
-  font: 600 14px/1 Arial, sans-serif;
-  border: none;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+/* Plus and Minus Buttons */
+.boxify-btn {
+  background: #eee;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  width: 48px;
+  height: 48px;
+  font-size: 22px;
+  font-weight: bold;
   cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.boxify-btn:hover {
+  background: #ddd;
+}
+
+.boxify-btn:active {
+  transform: scale(0.95);
+}
+
+.boxify-btn:focus {
+  outline: 2px solid #0078d7;
+}
+
+/* Reset All Button */
+#reset-all {
+  /* place in its own row spanning all columns */
+  grid-column: 1 / -1;
+  /* keep natural button width, centered */
+  justify-self: center;
+  /* remaining styling */
+  margin-top: 16px;
+  padding: 8px 14px;
+  font: 14px Arial, sans-serif;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  background: #f8f8f8;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#reset-all:hover {
+  background: #e8e8e8;
 }
 
 #reset-all:active {

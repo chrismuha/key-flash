@@ -10,31 +10,48 @@
   }
 
   function ensureWrapper(el, label) {
-    const wrapper = document.createElement("button");
-    wrapper.type = "button";
-    wrapper.tabIndex = 0;
+    const wrapper = document.createElement("div");
     wrapper.className = "boxify";
     wrapper.setAttribute("data-boxify-id", label.toLowerCase().replace(/\s+/g, "-"));
     wrapper.setAttribute("aria-label", label + " quantity");
     wrapper.setAttribute("aria-live", "polite");
+    wrapper.tabIndex = 0;
 
     const title = document.createElement("div");
     title.className = "boxify-title";
     title.textContent = label;
 
+    const controls = document.createElement("div");
+    controls.className = "boxify-controls";
+
+    const minusBtn = document.createElement("button");
+    minusBtn.type = "button";
+    minusBtn.className = "boxify-btn minus";
+    minusBtn.textContent = "-";
+    minusBtn.setAttribute("aria-label", "Decrease " + label);
+
     const qty = document.createElement("div");
     qty.className = "boxify-qty";
     qty.textContent = "0";
 
+    const plusBtn = document.createElement("button");
+    plusBtn.type = "button";
+    plusBtn.className = "boxify-btn plus";
+    plusBtn.textContent = "+";
+    plusBtn.setAttribute("aria-label", "Increase " + label);
+
+    controls.appendChild(minusBtn);
+    controls.appendChild(qty);
+    controls.appendChild(plusBtn);
+
     const contentHolder = document.createElement("div");
     contentHolder.style.font = "400 12px/1.2 Arial, sans-serif";
     contentHolder.style.opacity = "0.8";
-
     while (el.firstChild) contentHolder.appendChild(el.firstChild);
 
     wrapper.appendChild(title);
     if (contentHolder.childNodes.length) wrapper.appendChild(contentHolder);
-    wrapper.appendChild(qty);
+    wrapper.appendChild(controls);
 
     el.replaceWith(wrapper);
     return wrapper;
@@ -75,25 +92,28 @@
   }
 
   function applyHandlers(wrapper, id, counts, onChange) {
+    const minusBtn = wrapper.querySelector(".boxify-btn.minus");
+    const plusBtn = wrapper.querySelector(".boxify-btn.plus");
+    const qtyEl = wrapper.querySelector(".boxify-qty");
+
     function setQty(n) {
       if (n < 0) n = 0;
       counts[id] = n;
-      wrapper.querySelector(".boxify-qty").textContent = String(n);
+      qtyEl.textContent = String(n);
       wrapper.setAttribute("aria-label", id + " quantity " + n);
       saveCounts(counts);
       if (onChange) onChange({ id, quantity: n, el: wrapper });
       updateLogLine(id, n);
     }
+    function getQty() { return Number(counts[id] || 0); }
 
-    function getQty() {
-      return Number(counts[id] || 0);
-    }
+    plusBtn.addEventListener("click", (e) => { e.stopPropagation(); setQty(getQty() + 1); });
+    minusBtn.addEventListener("click", (e) => { e.stopPropagation(); setQty(getQty() - 1); });
 
     wrapper.addEventListener("click", (e) => {
-      if (e.shiftKey) {
-        setQty(0);
-        return;
-      }
+      if (e.target.closest(".boxify-btn")) return;
+      if (!(e.metaKey || e.ctrlKey)) { e.preventDefault(); return; }
+      if (e.shiftKey) { setQty(0); return; }
       setQty(getQty() + 1);
     });
 
@@ -107,14 +127,10 @@
     });
 
     wrapper.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        setQty(getQty() + 1);
-      }
-      if (e.key === "Backspace" || e.key === "Delete" || e.key === "-") {
-        e.preventDefault();
-        setQty(getQty() - 1);
-      }
+      if (e.key === "ArrowUp" || e.key === "ArrowRight") { e.preventDefault(); setQty(getQty() + 1); }
+      if (e.key === "ArrowDown" || e.key === "ArrowLeft") { e.preventDefault(); setQty(getQty() - 1); }
+      if (e.key === "Backspace" || e.key === "Delete") { e.preventDefault(); setQty(0); }
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setQty(getQty() + 1); }
     });
 
     setQty(getQty());
@@ -174,4 +190,12 @@
       return loadCounts();
     }
   };
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key.toLowerCase() === "r" && e.altKey) {
+      e.preventDefault();
+      const resetBtn = document.getElementById("reset-all");
+      if (resetBtn) resetBtn.click();
+    }
+  });
 })();

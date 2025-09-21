@@ -10,17 +10,29 @@
 
 <body>
   <h1>Boxify Demo</h1>
-  <p>Click a box to increase quantity. Right-click to decrease. Shift+Click resets to 0.</p>
+  <p> Hold Command (Mac) or Control (Windows) to use the whole card.
+    <br> Left Click = increase, Right Click = decrease, Shift+Click = reset.
+  </p>
 
   <div id="inventory">
+    <!-- 3 × 3 boxes -->
     <div class="ui-item" data-label="SSD"></div>
     <div class="ui-item" data-label="RAM"></div>
     <div class="ui-item" data-label="GPU"></div>
     <div class="ui-item" data-label="CPU"></div>
+    <div class="ui-item" data-label="Motherboard"></div>
+    <div class="ui-item" data-label="Power Supply"></div>
+    <div class="ui-item" data-label="Cooling"></div>
+    <div class="ui-item" data-label="Case"></div>
+    <div class="ui-item" data-label="Monitor"></div>
+
+    <!-- Reset button as part of the grid -->
+    <button id="reset-all" type="button" aria-label="Reset all quantities">
+      Reset All
+    </button>
   </div>
 
-  <button id="reset-all" type="button" aria-label="Reset all quantities">Reset All</button>
-
+  <!-- Scripts -->
   <script src="boxify.js"></script>
   <script src="init.js"></script>
 </body>
