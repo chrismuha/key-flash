@@ -48,6 +48,7 @@
       wrapper.setAttribute("aria-label", id + " quantity " + n);
       saveCounts(counts);
       if (onChange) onChange({ id, quantity: n, el: wrapper });
+      console.log(id + " = " + n);
     }
 
     function getQty() {
@@ -56,7 +57,7 @@
 
     wrapper.addEventListener("click", (e) => {
       if (e.shiftKey) {
-        setQty(0);           // Shift+Click now resets
+        setQty(0);
         return;
       }
       setQty(getQty() + 1);
@@ -64,12 +65,11 @@
 
     wrapper.addEventListener("contextmenu", (e) => {
       e.preventDefault();
-      setQty(getQty() - 1);  // Right-click still decreases
+      setQty(getQty() - 1);
     });
 
     wrapper.addEventListener("auxclick", (e) => {
-      // Middle-click (button === 1) no longer resets
-      if (e.button === 1) { /* no-op */ }
+      if (e.button === 1) { }
     });
 
     wrapper.addEventListener("keydown", (e) => {
