@@ -10,7 +10,7 @@
   function getSavedTheme() {
     try { return localStorage.getItem(THEME_KEY) || "system"; } catch { return "system"; }
   }
-  function saveTheme(theme) { try { localStorage.setItem(THEME_KEY, theme); } catch {} }
+  function saveTheme(theme) { try { localStorage.setItem(THEME_KEY, theme); } catch { } }
 
   function buildSwitch(current) {
     const wrap = document.createElement("div");

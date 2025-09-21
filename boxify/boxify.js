@@ -6,7 +6,7 @@
     catch { return {}; }
   }
   function saveCounts(map) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(map)); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(map)); } catch { }
   }
 
   function ensureWrapper(el, label) {
@@ -55,23 +55,31 @@
     }
 
     wrapper.addEventListener("click", (e) => {
-      if (e.shiftKey) { setQty(getQty() - 1); return; }
+      if (e.shiftKey) {
+        setQty(0);           // Shift+Click now resets
+        return;
+      }
       setQty(getQty() + 1);
     });
 
     wrapper.addEventListener("contextmenu", (e) => {
       e.preventDefault();
-      setQty(getQty() - 1);
+      setQty(getQty() - 1);  // Right-click still decreases
     });
 
     wrapper.addEventListener("auxclick", (e) => {
-      if (e.button === 1) { setQty(0); }
+      // Middle-click (button === 1) no longer resets
+      if (e.button === 1) { /* no-op */ }
     });
 
     wrapper.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setQty(getQty() + 1); }
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        setQty(getQty() + 1);
+      }
       if (e.key === "Backspace" || e.key === "Delete" || e.key === "-") {
-        e.preventDefault(); setQty(getQty() - 1);
+        e.preventDefault();
+        setQty(getQty() - 1);
       }
     });
 
