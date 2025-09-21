@@ -23,7 +23,8 @@ body {
   font-family: Arial, sans-serif;
 }
 
-h1, p {
+h1,
+p {
   text-align: center;
 }
 
@@ -46,37 +47,49 @@ h1, p {
   }
 }
 
-/* Box */
+/* Consistent internal spacing: box owns padding; rows use a fixed gap */
 .boxify {
   min-height: 140px;
   box-sizing: border-box;
-  padding: 12px;
+  padding: 7px 12px 10px;
   border: 1px solid #ccc;
   border-radius: 8px;
   background: #fafafa;
   text-align: center;
   transition: background 0.2s;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  row-gap: 5px;
 }
 
 .boxify:focus {
   outline: 2px solid #0078d7;
-  background: #f0f8ff;
+  outline-offset: 2px;
+  background: #f7fbff;
 }
 
 /* Title */
 .boxify-title {
+  grid-row: 1;
   font-weight: bold;
   font-size: 16px;
-  margin-bottom: 8px;
+  margin: 0;
+  line-height: 1.15 ;
+}
+
+.boxify::before {
+  content: "";
+  grid-row: 2;
 }
 
 /* Controls Row */
 .boxify-controls {
+  grid-row: 3;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  margin-top: 6px;
+  margin: 0;
 }
 
 /* Quantity Display */
@@ -110,6 +123,10 @@ h1, p {
 
 .boxify-btn:focus {
   outline: 2px solid #0078d7;
+}
+
+#boxify-log {
+  transition: opacity 100ms ease;
 }
 
 /* Reset All Button */

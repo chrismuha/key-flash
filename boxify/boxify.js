@@ -188,14 +188,36 @@
 
     getAll() {
       return loadCounts();
+    },
+
+    resetAll() {
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
     }
   };
 
+  let hideTimeout;
+  window.addEventListener("scroll", () => {
+    const panel = document.getElementById("boxify-log");
+    if (!panel) return;
+    panel.style.opacity = "0";
+    clearTimeout(hideTimeout);
+    hideTimeout = setTimeout(() => {
+      panel.style.opacity = "1";
+    }, 100);
+  });
+
+
+
   document.addEventListener("keydown", (e) => {
-    if (e.key.toLowerCase() === "r" && e.altKey) {
+    if (e.altKey && e.code === "KeyR") {
       e.preventDefault();
-      const resetBtn = document.getElementById("reset-all");
-      if (resetBtn) resetBtn.click();
+      if (window.Boxify && typeof window.Boxify.resetAll === "function") {
+        window.Boxify.resetAll();
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      }
     }
   });
 })();
