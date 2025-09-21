@@ -27,22 +27,42 @@ function updateAria(input, unit) {
     input.setAttribute('aria-valuetext', vt);
 }
 
-function buildTicks(container, min, max, step, majorEvery, unit) {
+function buildTicks(container, min, max, step, majorEvery, unit, input, render) {
     container.innerHTML = '';
     const total = (max - min) / step;
     for (let i = 0; i <= total; i++) {
         const val = min + i * step;
         const pct = ((val - min) / (max - min)) * 100;
+
+        // Tick line
         const t = document.createElement('div');
         const isMajor = ((val - min) % (step * majorEvery) === 0);
         t.className = 'tick' + (isMajor ? ' major' : '');
         t.style.left = pct + '%';
+
+        // Make tick clickable
+        t.style.cursor = 'pointer';
+        t.addEventListener('click', () => {
+            input.value = val;
+            render();
+        });
+
         container.appendChild(t);
+
+        // Tick label
         if (isMajor) {
             const lbl = document.createElement('div');
             lbl.className = 'tick-label';
             lbl.style.left = pct + '%';
             lbl.textContent = unit === '%' ? `${val}%` : `${val}${unit}`;
+
+            // Make label clickable
+            lbl.style.cursor = 'pointer';
+            lbl.addEventListener('click', () => {
+                input.value = val;
+                render();
+            });
+
             container.appendChild(lbl);
         }
     }
@@ -57,9 +77,7 @@ function initSlider(wrapperId, unit, options = {}) {
     const max = Number(input.max);
     const step = Number(input.step);
 
-    // Build ticks (major label every N steps)
     const majorEvery = options.majorEvery || (unit === '%' ? 2 : 2);
-    buildTicks(ticksEl, min, max, step, majorEvery, unit);
 
     function render() {
         const val = Number(input.value);
@@ -68,14 +86,16 @@ function initSlider(wrapperId, unit, options = {}) {
         updateAria(input, unit);
     }
 
-    // Pointer change
+    // Build clickable ticks
+    buildTicks(ticksEl, min, max, step, majorEvery, unit, input, render);
+
     input.addEventListener('input', render);
     input.addEventListener('change', render);
 
     // Keyboard enhancements
     input.addEventListener('keydown', (e) => {
         let val = Number(input.value);
-        const page = (max - min) / 10; // page jump = 10% of range
+        const page = (max - min) / 10;
         if (e.key === 'ArrowLeft') { val -= step; e.preventDefault(); }
         else if (e.key === 'ArrowRight') { val += step; e.preventDefault(); }
         else if (e.key === 'PageDown') { val -= page; e.preventDefault(); }
@@ -92,5 +112,5 @@ function initSlider(wrapperId, unit, options = {}) {
 }
 
 // Initialize sliders
-initSlider('volume-wrap', '%', { majorEvery: 2 }); // labels every 20%
-initSlider('font-wrap', 'px', { majorEvery: 2 });  // labels every 4px
+initSlider('volume-wrap', '%', { majorEvery: 2 });
+initSlider('font-wrap', 'px', { majorEvery: 2 });
