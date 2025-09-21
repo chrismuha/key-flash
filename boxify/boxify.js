@@ -40,6 +40,40 @@
     return wrapper;
   }
 
+  function getLogPanel() {
+    let panel = document.getElementById("boxify-log");
+    if (!panel) {
+      panel = document.createElement("div");
+      panel.id = "boxify-log";
+      panel.style.position = "fixed";
+      panel.style.bottom = "12px";
+      panel.style.right = "12px";
+      panel.style.background = "rgba(0,0,0,0.75)";
+      panel.style.color = "#fff";
+      panel.style.font = "12px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+      panel.style.padding = "10px 12px";
+      panel.style.borderRadius = "8px";
+      panel.style.maxWidth = "40vw";
+      panel.style.maxHeight = "40vh";
+      panel.style.overflow = "auto";
+      panel.style.zIndex = "999999";
+      panel.setAttribute("aria-label", "Boxify status");
+      document.body.appendChild(panel);
+    }
+    return panel;
+  }
+
+  function updateLogLine(id, qty) {
+    const panel = getLogPanel();
+    let line = panel.querySelector('[data-log-id="' + id + '"]');
+    if (!line) {
+      line = document.createElement("div");
+      line.setAttribute("data-log-id", id);
+      panel.appendChild(line);
+    }
+    line.textContent = id + " = " + qty;
+  }
+
   function applyHandlers(wrapper, id, counts, onChange) {
     function setQty(n) {
       if (n < 0) n = 0;
@@ -48,7 +82,7 @@
       wrapper.setAttribute("aria-label", id + " quantity " + n);
       saveCounts(counts);
       if (onChange) onChange({ id, quantity: n, el: wrapper });
-      console.log(id + " = " + n);
+      updateLogLine(id, n);
     }
 
     function getQty() {
@@ -127,6 +161,7 @@
         if (badge) badge.textContent = String(counts[id]);
         el.setAttribute("aria-label", id + " quantity " + counts[id]);
       }
+      updateLogLine(id, Number(counts[id] || 0));
       return counts[id];
     },
 

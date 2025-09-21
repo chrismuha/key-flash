@@ -6,57 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Boxify Demo</title>
   <link rel="stylesheet" href="boxify.css" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 24px;
-    }
-
-    h1 {
-      margin: 0 0 12px 0;
-    }
-
-    .log {
-      margin-top: 16px;
-      font-size: 12px;
-      color: #444;
-      white-space: pre;
-    }
-  </style>
 </head>
 
 <body>
   <h1>Boxify Demo</h1>
   <p>Click a box to increase quantity. Right-click to decrease. Shift+Click resets to 0.</p>
 
-  <div id="inventory" class="box-grid">
+  <div id="inventory">
     <div class="ui-item" data-label="SSD"></div>
     <div class="ui-item" data-label="RAM"></div>
     <div class="ui-item" data-label="GPU"></div>
     <div class="ui-item" data-label="CPU"></div>
   </div>
 
-  <div class="log" id="log"></div>
+  <button id="reset-all" type="button" aria-label="Reset all quantities">Reset All</button>
 
   <script src="boxify.js"></script>
-  <script>
-    function logLine(text) {
-      const el = document.getElementById("log");
-      el.textContent = text + "\n" + el.textContent;
-    }
-
-    Boxify.init({
-      selector: ".ui-item",
-      gridSelector: "#inventory",
-      onChange: ({ id, quantity }) => {
-        logLine(id + " = " + quantity);
-      }
-    });
-
-    // Example: programmatic set/get
-    // Boxify.setQuantity("ssd", 5);
-    // console.log(Boxify.getAll());
-  </script>
+  <script src="init.js"></script>
 </body>
 
 </html>

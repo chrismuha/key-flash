@@ -1,3 +1,13 @@
+/* global */
+body {
+  font-family: Arial, sans-serif;
+  margin: 24px;
+}
+
+h1 {
+  margin: 0 0 12px 0;
+}
+
 /* Grid container for your boxes */
 .box-grid {
   display: grid;
@@ -54,8 +64,22 @@
   pointer-events: none;
 }
 
-/* Optional “pressed” feedback */
 .boxify:active {
   transform: translateY(0);
   box-shadow: 0 3px 12px rgba(0, 0, 0, .10);
+}
+
+/* Reset button */
+#reset-all {
+  margin-top: 16px;
+  padding: 8px 12px;
+  font: 600 14px/1 Arial, sans-serif;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+  cursor: pointer;
+}
+
+#reset-all:active {
+  transform: translateY(1px);
 }
