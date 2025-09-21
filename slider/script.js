@@ -8,7 +8,9 @@ function roundToStep(val, step, min) {
 }
 
 function formatValue(val, unit) {
-    return unit === '%' ? `${val}%` : `${val}${unit}`;
+    // show up to 2 decimals, trim trailing zeros
+    const s = Number(val).toFixed(2).replace(/\.?0+$/, '');
+    return unit === '%' ? `${s}%` : `${s}${unit}`;
 }
 
 function updateAria(input, unit) {
@@ -27,7 +29,7 @@ function getThumbSizePx(input) {
     return Number.isFinite(n) ? n : 0;
 }
 
-// Set WebKit progress width in PX to the *thumb center*
+// Paint WebKit progress width to the *thumb center* (px)
 function setProgressCSS(input, trackWidth) {
     const min = Number(input.min || 0);
     const max = Number(input.max || 100);
@@ -36,13 +38,9 @@ function setProgressCSS(input, trackWidth) {
 
     const thumb = getThumbSizePx(input);
     const eff = Math.max(0, trackWidth - thumb);
-    const centerPx = eff * ratio + thumb / 2;          // exact center of thumb
+    const centerPx = eff * ratio + thumb / 2;
 
-    // For completeness, keep % too (unused by WebKit here)
-    const pct = ratio * 100;
-    input.style.setProperty('--_progress', pct + '%');
-
-    // Use the exact (possibly fractional) px value; no rounding
+    input.style.setProperty('--_progress', (ratio * 100) + '%');
     input.style.setProperty('--_progress_px', centerPx + 'px');
 }
 
@@ -57,23 +55,19 @@ function buildTicks(container, min, max, step, majorEvery, unit, input, render, 
     for (let i = 0; i <= steps; i++) {
         const val = min + i * step;
         const ratio = steps === 0 ? 0 : (i / steps);
-
-        // Center of thumb at this step, in px (no rounding)
-        const x = eff * ratio + thumb / 2;
+        const x = eff * ratio + thumb / 2; // center of thumb, no rounding
 
         const t = document.createElement('div');
         const isMajor = (i % majorEvery) === 0;
         t.className = 'tick' + (isMajor ? ' major' : '');
-        t.style.left = x + 'px';                      // place at center
-        // CSS will center the tick with transform: translateX(-50%)
+        t.style.left = x + 'px';
 
         if (position === 'top') {
             t.style.top = 'auto';
             t.style.bottom = '0';
         }
 
-        // Clickable tick
-        t.style.cursor = 'pointer';
+        // Clicking a tick snaps to the discrete step
         t.addEventListener('click', () => {
             input.value = val;
             render();
@@ -112,7 +106,16 @@ function initSlider(wrapperId, unit, options = {}) {
 
     const min = Number(input.min);
     const max = Number(input.max);
-    const step = Number(input.step);
+
+    // preserve original step for keyboard/ticks; allow override
+    const originalStep = input.step === 'any' ? NaN : Number(input.step);
+    const discreteStep = Number.isFinite(originalStep)
+        ? originalStep
+        : Number(options.discreteStep || 1);
+
+    // Enable free (non-snapped) dragging
+    input.step = 'any';
+
     const majorEvery = options.majorEvery || 2;
 
     let trackWidth = 0;
@@ -130,31 +133,31 @@ function initSlider(wrapperId, unit, options = {}) {
     }
 
     function rebuildTicks() {
-        buildTicks(ticksBottom, min, max, step, majorEvery, unit, input, render, 'bottom', trackWidth);
-        buildTicks(ticksTop, min, max, step, majorEvery, unit, input, render, 'top', trackWidth);
+        buildTicks(ticksBottom, min, max, discreteStep, majorEvery, unit, input, render, 'bottom', trackWidth);
+        buildTicks(ticksTop, min, max, discreteStep, majorEvery, unit, input, render, 'top', trackWidth);
     }
 
-    // Events
+    // Pointer/drag: free movement (no snapping)
     input.addEventListener('input', render);
     input.addEventListener('change', render);
 
-    // Keyboard support
+    // Keyboard: snap to discrete steps
     input.addEventListener('keydown', (e) => {
         let val = Number(input.value);
         const page = (max - min) / 10;
-        if (e.key === 'ArrowLeft') { val -= step; e.preventDefault(); }
-        else if (e.key === 'ArrowRight') { val += step; e.preventDefault(); }
+        if (e.key === 'ArrowLeft') { val -= discreteStep; e.preventDefault(); }
+        else if (e.key === 'ArrowRight') { val += discreteStep; e.preventDefault(); }
         else if (e.key === 'PageDown') { val -= page; e.preventDefault(); }
         else if (e.key === 'PageUp') { val += page; e.preventDefault(); }
         else if (e.key === 'Home') { val = min; e.preventDefault(); }
         else if (e.key === 'End') { val = max; e.preventDefault(); }
-        val = roundToStep(val, step, min);
+        val = roundToStep(val, discreteStep, min);
         input.value = String(clamp(val, min, max));
         render();
         input.dispatchEvent(new Event('input', { bubbles: true }));
     });
 
-    // Handle resizes for perfect alignment
+    // Resize -> recompute exact pixel positions
     const resizeHandler = () => { measure(); rebuildTicks(); render(); };
     window.addEventListener('resize', resizeHandler);
 
@@ -165,5 +168,5 @@ function initSlider(wrapperId, unit, options = {}) {
 }
 
 // Initialize sliders
-initSlider('volume-wrap', '%', { majorEvery: 2 });
-initSlider('font-wrap', 'px', { majorEvery: 2 });
+initSlider('volume-wrap', '%', { majorEvery: 2, discreteStep: 10 }); // drag free, ticks at 0/10/20...
+initSlider('font-wrap', 'px', { majorEvery: 2, discreteStep: 2 });  // drag free, ticks at 10/12/14...
