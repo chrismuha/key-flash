@@ -7,14 +7,6 @@ function roundToStep(val, step, min) {
     return Math.round(offset / step) * step + min;
 }
 
-function setProgressCSS(input) {
-    const min = Number(input.min || 0);
-    const max = Number(input.max || 100);
-    const val = Number(input.value);
-    const pct = ((val - min) / (max - min)) * 100;
-    input.style.setProperty('--_progress', pct + '%');
-}
-
 function formatValue(val, unit) {
     return unit === '%' ? `${val}%` : `${val}${unit}`;
 }
@@ -27,22 +19,34 @@ function updateAria(input, unit) {
     input.setAttribute('aria-valuetext', vt);
 }
 
-function buildTicks(container, min, max, step, majorEvery, unit, input, render, position) {
-    if (!container) return; // guard if HTML doesn't include this row
-    container.innerHTML = '';
+function setProgressCSS(input, trackWidth) {
+    const min = Number(input.min || 0);
+    const max = Number(input.max || 100);
+    const val = Number(input.value);
+    const pct = ((val - min) / (max - min)) * 100;
 
-    // Use an integer loop count to avoid float modulo edge cases.
+    input.style.setProperty('--_progress', pct.toFixed(6) + '%');
+
+    const px = Math.round((pct / 100) * trackWidth);
+    input.style.setProperty('--_progress_px', px + 'px');
+}
+
+function buildTicks(container, min, max, step, majorEvery, unit, input, render, position) {
+    if (!container) return;
+    container.innerHTML = '';
     const steps = Math.round((max - min) / step);
+    const w = Math.round(container.getBoundingClientRect().width);
 
     for (let i = 0; i <= steps; i++) {
         const val = min + i * step;
-        const pct = ((val - min) / (max - min)) * 100;
+        const ratio = steps === 0 ? 0 : (i / steps);
+        const x = Math.round(ratio * w);
 
         // Tick line
         const t = document.createElement('div');
-        const isMajor = (i % majorEvery) === 0; // stable major calculation
+        const isMajor = (i % majorEvery) === 0;
         t.className = 'tick' + (isMajor ? ' major' : '');
-        t.style.left = pct + '%';
+        t.style.left = x + 'px';
 
         if (position === 'top') {
             t.style.top = 'auto';
@@ -55,14 +59,13 @@ function buildTicks(container, min, max, step, majorEvery, unit, input, render, 
             input.value = val;
             render();
         });
-
         container.appendChild(t);
 
         // Labels only on bottom row
         if (position === 'bottom' && isMajor) {
             const lbl = document.createElement('div');
             lbl.className = 'tick-label';
-            lbl.style.left = pct + '%';
+            lbl.style.left = x + 'px';
             lbl.textContent = unit === '%' ? `${val}%` : `${val}${unit}`;
 
             // Make label clickable
@@ -78,31 +81,39 @@ function buildTicks(container, min, max, step, majorEvery, unit, input, render, 
 
 function initSlider(wrapperId, unit, options = {}) {
     const wrap = document.getElementById(wrapperId);
-    if (!wrap) return; // guard for missing wrapper
+    if (!wrap) return;
 
     const input = wrap.querySelector('input[type="range"]');
     const valueEl = wrap.querySelector('.value');
     const ticksBottom = wrap.querySelector('.ticks.bottom');
     const ticksTop = wrap.querySelector('.ticks.top');
-    if (!input || !valueEl) return; // guard
+    if (!input || !valueEl) return;
 
     const min = Number(input.min);
     const max = Number(input.max);
     const step = Number(input.step);
     const majorEvery = options.majorEvery || 2;
 
+    let trackWidth = 0;
+
+    function measure() {
+        // Use the input’s rendered width as the track width proxy
+        trackWidth = Math.round(input.getBoundingClientRect().width);
+    }
+
     function render() {
         const val = Number(input.value);
         valueEl.textContent = formatValue(val, unit);
-        setProgressCSS(input);
+        setProgressCSS(input, trackWidth);
         updateAria(input, unit);
     }
 
-    // Build ticks on both rows (if present)
-    buildTicks(ticksBottom, min, max, step, majorEvery, unit, input, render, 'bottom');
-    buildTicks(ticksTop, min, max, step, majorEvery, unit, input, render, 'top');
+    function rebuildTicks() {
+        buildTicks(ticksBottom, min, max, step, majorEvery, unit, input, render, 'bottom');
+        buildTicks(ticksTop, min, max, step, majorEvery, unit, input, render, 'top');
+    }
 
-    // Live updates
+    // Events
     input.addEventListener('input', render);
     input.addEventListener('change', render);
 
@@ -121,7 +132,13 @@ function initSlider(wrapperId, unit, options = {}) {
         render();
     });
 
+    // Handle resizes for perfect alignment
+    const resizeHandler = () => { measure(); rebuildTicks(); render(); };
+    window.addEventListener('resize', resizeHandler);
+
     // Initial paint
+    measure();
+    rebuildTicks();
     render();
 }
 

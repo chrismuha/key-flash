@@ -11,7 +11,7 @@
 }
 
 body {
-    font-family: ui-sans-serif, system-ui, Helvetica, Arial, sans-serif;
+    font-family: ui-sans-serif, system-ui, sans-serif, Arial;
     background: #ffffff;
     color: #111827;
     padding: 24px;
@@ -98,12 +98,14 @@ body {
 
 /* WebKit: track (blue left, gray right) */
 .slider.progress::-webkit-slider-runnable-track {
-    height: var(--track-height);
-    border-radius: var(--track-radius);
-    background: linear-gradient(to right,
-            #4f46e5 0 var(--_progress),
-            #e5e7eb var(--_progress) 100%);
+  height: var(--track-height);
+  border-radius: var(--track-radius);
+  background:
+    linear-gradient(#4f46e5, #4f46e5) no-repeat,  /* blue fill */
+    #e5e7eb;                                      /* gray remainder */
+  background-size: var(--_progress_px) 100%, 100% 100%;
 }
+
 
 /* Firefox: left side (blue) */
 .slider::-moz-range-progress {
