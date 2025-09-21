@@ -1,0 +1,96 @@
+/* Switch styling */
+#theme-switch .ts-root {
+  position: relative;
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 999px;
+  background: #f6f7f9;
+  border: 1px solid #cccccc;
+  box-shadow: 0 6px 18px rgba(0,0,0,.12);
+}
+#theme-switch .ts-track {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  pointer-events: none;
+}
+#theme-switch .ts-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 999px;
+  transform: translateX(0);
+  transition: transform 180ms ease, width 180ms ease;
+}
+#theme-switch .ts-option {
+  position: relative;
+  z-index: 1;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #333333;
+  font: 500 12px/1 Arial, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  outline: none;
+}
+#theme-switch .ts-option[aria-checked="true"] {
+  color: #0b5fff;
+}
+#theme-switch .ts-option:focus-visible {
+  outline: 2px solid #0b5fff;
+  outline-offset: 2px;
+}
+
+/* Example themes */
+:root[data-theme="light"] {
+  background-color: #ffffff;
+  color: #1b1f23;
+}
+:root[data-theme="dark"] {
+  background-color: #0b0f14;
+  color: #e8edf2;
+}
+:root[data-theme="solarized"] {
+  background-color: #fdf6e3;
+  color: #073642;
+}
+:root[data-theme="contrast"] {
+  background-color: #000000;
+  color: #ffffff;
+}
+:root[data-theme="system"] {
+  background-color: #ffffff;
+  color: #1b1f23;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    background-color: #0b0f14;
+    color: #e8edf2;
+  }
+}
+
+/* Demo card/button */
+.card {
+  background: #e6e8eb;
+  border: 1px solid #cccccc;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.12);
+  padding: 16px;
+  margin-top: 16px;
+}
+button.demo {
+  padding: 8px 12px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  background: #f6f7f9;
+  cursor: pointer;
+}

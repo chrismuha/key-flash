@@ -1,0 +1,61 @@
+/* Grid container for your boxes */
+.box-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+/* Square box */
+.boxify {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border: 1px solid #cccccc;
+  background: #f6f7f9;
+  color: #1b1f23;
+  border-radius: 0px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.12);
+  padding: 12px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  user-select: none;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.boxify:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(0,0,0,.16);
+  border-color: #0b5fff;
+}
+
+.boxify:focus {
+  outline: 2px solid #0b5fff;
+  outline-offset: 3px;
+}
+
+.boxify-title {
+  font: 600 14px/1.2 Arial, sans-serif;
+  margin: 0;
+}
+
+.boxify-qty {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 11px;
+  background: #0b5fff;
+  color: #ffffff;
+  font: 600 12px/22px Arial, sans-serif;
+  text-align: center;
+  padding: 0 6px;
+  pointer-events: none;
+}
+
+/* Optional “pressed” feedback */
+.boxify:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 12px rgba(0,0,0,.10);
+}
