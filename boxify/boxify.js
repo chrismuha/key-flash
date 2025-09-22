@@ -81,6 +81,11 @@
     return panel;
   }
 
+  function getLabelById(id) {
+    const t = document.querySelector('[data-boxify-id="' + id + '"] .boxify-title');
+    return t ? t.textContent.trim() : id;
+  }
+
   function updateLogLine(id, qty) {
     const panel = getLogPanel();
     let line = panel.querySelector('[data-log-id="' + id + '"]');
@@ -89,7 +94,7 @@
       line.setAttribute("data-log-id", id);
       panel.appendChild(line);
     }
-    line.textContent = id + " = " + qty;
+    line.textContent = getLabelById(id) + " = " + qty;
   }
 
   function listBoxes() {
@@ -160,7 +165,6 @@
         if (next !== idx) focusIndex(next);
         return;
       }
-
       if (e.key === "ArrowUp" || e.key === "ArrowRight") { e.preventDefault(); setQty(getQty() + 1); }
       else if (e.key === "ArrowDown" || e.key === "ArrowLeft") { e.preventDefault(); setQty(getQty() - 1); }
       else if (e.key === "Backspace" || e.key === "Delete") { e.preventDefault(); setQty(0); }
