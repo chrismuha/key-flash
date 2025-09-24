@@ -1,5 +1,6 @@
 :root {
   --flash-color: #ffff99;
+  --flash-ring-color: rgba(255, 255, 153, 1);
 }
 
 #theme-switch .ts-root {
@@ -51,7 +52,7 @@
 
 .flash-ring {
   inset: -4px;
-  box-shadow: 0 0 0 6px rgba(0, 0, 0, 0);
+  box-shadow: 0 0 0 6px var(--flash-ring-color);
   transition: none;
 }
 

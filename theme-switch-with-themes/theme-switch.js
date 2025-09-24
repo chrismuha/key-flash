@@ -19,9 +19,9 @@
     try { return localStorage.getItem(THEME_KEY) || "system"; } catch { return "system"; }
   }
 
-  function saveTheme(theme) { try { localStorage.setItem(THEME_KEY, theme); } catch {} }
+  function saveTheme(theme) { try { localStorage.setItem(THEME_KEY, theme); } catch { } }
 
-  function makeFlasher(el, baseMs = 150, pulseMs = 90) {
+  function makeFlasher(el, baseMs = 400, pulseMs = 300) {
     const base = document.createElement("span");
     base.className = "flash-base";
     const ring = document.createElement("span");
@@ -29,23 +29,29 @@
     el.style.position = "relative";
     el.appendChild(base);
     el.appendChild(ring);
+
     let lastOn = 0;
     let pulseStart = -1;
+
     function loop(t) {
       const on = t - lastOn < baseMs;
       base.style.opacity = on ? "1" : "0";
+
       const p = pulseStart < 0 ? 1 : (t - pulseStart) / pulseMs;
       if (p < 1) {
         const k = 1 - p;
-        const a = 0.45 * k;
-        const px = 6 + 6 * (1 - k);
-        ring.style.boxShadow = `0 0 0 ${px}px rgba(255,255,0,${a})`;
+        const a = 0.25 * k;
+        const px = 6 + 10 * (1 - k);
+        ring.style.boxShadow = `0 0 0 ${px}px var(--flash-ring-color)`;
+        ring.style.opacity = String(a);
       } else {
-        ring.style.boxShadow = "0 0 0 6px rgba(255,255,0,0)";
+        ring.style.boxShadow = `0 0 0 6px var(--flash-ring-color)`;
+        ring.style.opacity = "0";
       }
       requestAnimationFrame(loop);
     }
     requestAnimationFrame(loop);
+
     return function flash() {
       const now = performance.now();
       lastOn = now;
@@ -72,7 +78,7 @@
     thumb.className = "ts-thumb";
     track.appendChild(thumb);
 
-    const flash = makeFlasher(thumb, 150, 90);
+    const flash = makeFlasher(thumb, 400, 300);
 
     let currentIndex = THEMES.indexOf(currentSource);
 
@@ -197,7 +203,7 @@
       if (!dragging) return;
       dragging = false;
       if (pointerId != null) {
-        try { root.releasePointerCapture(pointerId); } catch {}
+        try { root.releasePointerCapture(pointerId); } catch { }
         pointerId = null;
       }
       positionThumb(pendingIndex, 1);
