@@ -19,28 +19,13 @@
     try { return localStorage.getItem(THEME_KEY) || "system"; } catch { return "system"; }
   }
 
-  function saveTheme(theme) { try { localStorage.setItem(THEME_KEY, theme); } catch { } }
+  function saveTheme(theme) { try { localStorage.setItem(THEME_KEY, theme); } catch {} }
 
-  function makeFlasher(el, baseMs = 150, pulseMs = 90, color = "yellow") {
+  function makeFlasher(el, baseMs = 150, pulseMs = 90) {
     const base = document.createElement("span");
-    Object.assign(base.style, {
-      position: "absolute",
-      inset: "0",
-      background: color,
-      opacity: "0",
-      pointerEvents: "none",
-      borderRadius: "inherit",
-      transition: "none"
-    });
+    base.className = "flash-base";
     const ring = document.createElement("span");
-    Object.assign(ring.style, {
-      position: "absolute",
-      inset: "-4px",
-      borderRadius: "inherit",
-      boxShadow: "0 0 0 6px rgba(255,255,0,0)",
-      pointerEvents: "none",
-      transition: "none"
-    });
+    ring.className = "flash-ring";
     el.style.position = "relative";
     el.appendChild(base);
     el.appendChild(ring);
@@ -52,7 +37,9 @@
       const p = pulseStart < 0 ? 1 : (t - pulseStart) / pulseMs;
       if (p < 1) {
         const k = 1 - p;
-        ring.style.boxShadow = `0 0 0 ${6 + 6 * (1 - k)}px rgba(255,255,0,${0.45 * k})`;
+        const a = 0.45 * k;
+        const px = 6 + 6 * (1 - k);
+        ring.style.boxShadow = `0 0 0 ${px}px rgba(255,255,0,${a})`;
       } else {
         ring.style.boxShadow = "0 0 0 6px rgba(255,255,0,0)";
       }
@@ -85,7 +72,7 @@
     thumb.className = "ts-thumb";
     track.appendChild(thumb);
 
-    const flash = makeFlasher(thumb, 150, 90, "yellow");
+    const flash = makeFlasher(thumb, 150, 90);
 
     let currentIndex = THEMES.indexOf(currentSource);
 
@@ -210,7 +197,7 @@
       if (!dragging) return;
       dragging = false;
       if (pointerId != null) {
-        try { root.releasePointerCapture(pointerId); } catch { }
+        try { root.releasePointerCapture(pointerId); } catch {}
         pointerId = null;
       }
       positionThumb(pendingIndex, 1);
@@ -219,9 +206,7 @@
 
     root.addEventListener("pointerup", endDrag);
     root.addEventListener("pointercancel", endDrag);
-    root.addEventListener("click", (e) => {
-      if (dragging) e.preventDefault();
-    }, true);
+    root.addEventListener("click", (e) => { if (dragging) e.preventDefault(); }, true);
 
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => {
       measure();

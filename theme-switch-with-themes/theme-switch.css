@@ -1,3 +1,7 @@
+:root {
+  --flash-color: #ffff99;
+}
+
 #theme-switch .ts-root {
   position: relative;
   display: inline-grid;
@@ -35,10 +39,19 @@
 #theme-switch .ts-thumb span {
   position: absolute;
   inset: 0;
-  background: yellow;
-  opacity: 0;
   pointer-events: none;
   border-radius: inherit;
+}
+
+.flash-base {
+  background: var(--flash-color);
+  opacity: 0;
+  transition: none;
+}
+
+.flash-ring {
+  inset: -4px;
+  box-shadow: 0 0 0 6px rgba(0, 0, 0, 0);
   transition: none;
 }
 
