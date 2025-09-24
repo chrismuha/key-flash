@@ -21,9 +21,9 @@
 
   function saveTheme(theme) { try { localStorage.setItem(THEME_KEY, theme); } catch { } }
 
-  function makeFlasher(el, duration = 150, color = "yellow") {
-    const overlay = document.createElement("span");
-    Object.assign(overlay.style, {
+  function makeFlasher(el, baseMs = 150, pulseMs = 90, color = "yellow") {
+    const base = document.createElement("span");
+    Object.assign(base.style, {
       position: "absolute",
       inset: "0",
       background: color,
@@ -32,18 +32,37 @@
       borderRadius: "inherit",
       transition: "none"
     });
+    const ring = document.createElement("span");
+    Object.assign(ring.style, {
+      position: "absolute",
+      inset: "-4px",
+      borderRadius: "inherit",
+      boxShadow: "0 0 0 6px rgba(255,255,0,0)",
+      pointerEvents: "none",
+      transition: "none"
+    });
     el.style.position = "relative";
-    el.appendChild(overlay);
-
+    el.appendChild(base);
+    el.appendChild(ring);
     let lastOn = 0;
+    let pulseStart = -1;
     function loop(t) {
-      overlay.style.opacity = t - lastOn < duration ? 1 : 0;
+      const on = t - lastOn < baseMs;
+      base.style.opacity = on ? "1" : "0";
+      const p = pulseStart < 0 ? 1 : (t - pulseStart) / pulseMs;
+      if (p < 1) {
+        const k = 1 - p;
+        ring.style.boxShadow = `0 0 0 ${6 + 6 * (1 - k)}px rgba(255,255,0,${0.45 * k})`;
+      } else {
+        ring.style.boxShadow = "0 0 0 6px rgba(255,255,0,0)";
+      }
       requestAnimationFrame(loop);
     }
     requestAnimationFrame(loop);
-
     return function flash() {
-      lastOn = performance.now();
+      const now = performance.now();
+      lastOn = now;
+      pulseStart = now;
     };
   }
 
@@ -66,7 +85,7 @@
     thumb.className = "ts-thumb";
     track.appendChild(thumb);
 
-    const flash = makeFlasher(thumb, 150, "yellow");
+    const flash = makeFlasher(thumb, 150, 90, "yellow");
 
     let currentIndex = THEMES.indexOf(currentSource);
 
@@ -79,7 +98,7 @@
       btn.setAttribute("tabindex", i === currentIndex ? "0" : "-1");
       btn.dataset.index = String(i);
       btn.textContent = t[0].toUpperCase() + t.slice(1);
-      btn.addEventListener("click", () => select(i));
+      btn.addEventListener("click", (ev) => { if (!dragging) select(i); ev.stopPropagation(); });
       btn.addEventListener("keydown", (e) => {
         if (e.key === "ArrowRight") return select((i + 1) % THEMES.length, true);
         if (e.key === "ArrowLeft") return select((i - 1 + THEMES.length) % THEMES.length, true);
@@ -96,18 +115,18 @@
     function measure() {
       const opts = options();
       if (!opts.length) return;
-      const firstLeft = opts[0].offsetLeft;
-      meas = Array.from(opts).map(el => ({
-        left: el.offsetLeft - firstLeft,
-        width: el.offsetWidth
-      }));
+      const firstLeft = opts[0].getBoundingClientRect().left;
+      meas = Array.from(opts).map(el => {
+        const r = el.getBoundingClientRect();
+        return { left: r.left - firstLeft, width: r.width, center: (r.left - firstLeft) + r.width / 2 };
+      });
     }
 
-    function positionThumb(i) {
+    function positionThumb(i, scale = 1) {
       const m = meas[i];
       if (!m) return;
       thumb.style.width = m.width + "px";
-      thumb.style.transform = "translateX(" + m.left + "px)";
+      thumb.style.transform = `translateX(${m.left}px) scale(${scale})`;
     }
 
     let pendingIndex = currentIndex;
@@ -147,6 +166,62 @@
       pendingFocus = focus || pendingFocus;
       scheduleUpdate();
     }
+
+    function nearestIndexFromClientX(clientX) {
+      if (!meas.length) return currentIndex;
+      const firstLeft = options()[0].getBoundingClientRect().left;
+      const x = clientX - firstLeft;
+      let best = 0, bestD = Infinity;
+      for (let i = 0; i < meas.length; i++) {
+        const d = Math.abs(x - meas[i].center);
+        if (d < bestD) { bestD = d; best = i; }
+      }
+      return best;
+    }
+
+    let dragging = false;
+    let pointerId = null;
+
+    root.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
+      dragging = true;
+      pointerId = e.pointerId;
+      root.setPointerCapture(pointerId);
+      measure();
+      const idx = nearestIndexFromClientX(e.clientX);
+      pendingIndex = idx;
+      positionThumb(idx, 1.06);
+      e.preventDefault();
+    });
+
+    root.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const idx = nearestIndexFromClientX(e.clientX);
+      if (idx !== pendingIndex) {
+        pendingIndex = idx;
+        positionThumb(idx, 1.06);
+        const opts = options();
+        opts.forEach((b, j) => b.setAttribute("aria-checked", String(j === idx)));
+      }
+      e.preventDefault();
+    });
+
+    function endDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      if (pointerId != null) {
+        try { root.releasePointerCapture(pointerId); } catch { }
+        pointerId = null;
+      }
+      positionThumb(pendingIndex, 1);
+      select(pendingIndex);
+    }
+
+    root.addEventListener("pointerup", endDrag);
+    root.addEventListener("pointercancel", endDrag);
+    root.addEventListener("click", (e) => {
+      if (dragging) e.preventDefault();
+    }, true);
 
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => {
       measure();
