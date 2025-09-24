@@ -1,7 +1,6 @@
 (() => {
   const THEME_KEY = "app.theme";
   const THEMES = ["system", "light", "dark", "solarized", "contrast"];
-
   const media = matchMedia("(prefers-color-scheme: dark)");
 
   function resolveTheme(source) {
@@ -19,6 +18,7 @@
   function getSavedTheme() {
     try { return localStorage.getItem(THEME_KEY) || "system"; } catch { return "system"; }
   }
+
   function saveTheme(theme) { try { localStorage.setItem(THEME_KEY, theme); } catch { } }
 
   function buildSwitch(currentSource) {
@@ -51,7 +51,6 @@
       btn.setAttribute("tabindex", i === currentIndex ? "0" : "-1");
       btn.dataset.index = String(i);
       btn.textContent = t[0].toUpperCase() + t.slice(1);
-
       btn.addEventListener("click", () => select(i));
       btn.addEventListener("keydown", (e) => {
         if (e.key === "ArrowRight") return select((i + 1) % THEMES.length, true);
@@ -79,26 +78,39 @@
       const source = THEMES[i];
       saveTheme(source);
       applyTheme(source);
+
       options().forEach((b, j) => {
         const isSel = j === i;
         b.setAttribute("aria-checked", String(isSel));
         b.setAttribute("tabindex", isSel ? "0" : "-1");
         if (focus && isSel) b.focus();
       });
-      requestAnimationFrame(() => positionThumb(i));
+
+      requestAnimationFrame(() => {
+        positionThumb(i);
+
+        requestAnimationFrame(() => {
+          thumb.classList.remove("flash");
+          void thumb.offsetWidth;
+          thumb.classList.add("flash");
+          thumb.addEventListener("animationend", () => {
+            thumb.classList.remove("flash");
+          }, { once: true });
+        });
+      });
     }
+
 
     const ro = new ResizeObserver(() => positionThumb(currentIndex));
     ro.observe(root);
     window.addEventListener("resize", () => positionThumb(currentIndex));
-
     requestAnimationFrame(() => positionThumb(currentIndex));
 
     const handleMediaChange = () => {
       if ((getSavedTheme() || "system") === "system") applyTheme("system");
     };
     if (media.addEventListener) media.addEventListener("change", handleMediaChange);
-    else if (media.addListener) media.addListener(handleMediaChange); // Safari fallback
+    else if (media.addListener) media.addListener(handleMediaChange);
 
     return wrap;
   }
@@ -125,14 +137,4 @@
 window.addEventListener("DOMContentLoaded", () => {
   ThemeToggle.init();
   ThemeToggle.onChange((resolved, source) => console.log("Theme is now:", resolved, `(source: ${source})`));
-
-  const button = document.getElementById("flashButton");
-  if (button) {
-    button.addEventListener("click", () => {
-      button.classList.add("flash");
-      button.addEventListener("animationend", () => {
-        button.classList.remove("flash");
-      }, { once: true });
-    });
-  }
 });
