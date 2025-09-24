@@ -42,24 +42,12 @@
     track.appendChild(thumb);
 
     const flashOverlay = document.createElement("span");
-    Object.assign(flashOverlay.style, {
-      position: "absolute",
-      inset: "0",
-      background: "yellow",
-      opacity: "0",
-      pointerEvents: "none",
-      borderRadius: "inherit",
-      transition: "none"
-    });
     thumb.appendChild(flashOverlay);
 
     function flash() {
       flashOverlay.style.opacity = 1;
-      setTimeout(() => {
-        flashOverlay.style.opacity = 0;
-      }, 400);
+      setTimeout(() => { flashOverlay.style.opacity = 0; }, 150);
     }
-
 
     let currentIndex = THEMES.indexOf(currentSource);
 
@@ -110,14 +98,13 @@
     function applyPending() {
       scheduled = false;
       const i = pendingIndex;
-      if (i === currentIndex) {
-        positionThumb(i);
-        return;
+      const changed = i !== currentIndex;
+      if (changed) {
+        currentIndex = i;
+        const source = THEMES[i];
+        saveTheme(source);
+        applyTheme(source);
       }
-      currentIndex = i;
-      const source = THEMES[i];
-      saveTheme(source);
-      applyTheme(source);
       const opts = options();
       opts.forEach((b, j) => {
         const isSel = j === i;
@@ -137,7 +124,6 @@
     }
 
     function select(i, focus = false) {
-      if (i === pendingIndex && !focus) return;
       pendingIndex = i;
       pendingFocus = focus || pendingFocus;
       scheduleUpdate();
