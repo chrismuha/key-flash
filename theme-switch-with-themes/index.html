@@ -10,14 +10,9 @@
 <body>
   <h1>Theme Switch Demo</h1>
   <p>Use the switch in the top-right corner to change themes.</p>
+  <button id="flashButton">Click Me</button>
 
   <script src="theme-switch.js"></script>
-  <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      ThemeToggle.init();
-      ThemeToggle.onChange((t) => console.log("Theme is now:", t));
-    });
-  </script>
 </body>
 
 </html>
