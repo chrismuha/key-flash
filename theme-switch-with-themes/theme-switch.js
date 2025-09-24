@@ -21,6 +21,32 @@
 
   function saveTheme(theme) { try { localStorage.setItem(THEME_KEY, theme); } catch { } }
 
+  function makeFlasher(el, duration = 150, color = "yellow") {
+    const overlay = document.createElement("span");
+    Object.assign(overlay.style, {
+      position: "absolute",
+      inset: "0",
+      background: color,
+      opacity: "0",
+      pointerEvents: "none",
+      borderRadius: "inherit",
+      transition: "none"
+    });
+    el.style.position = "relative";
+    el.appendChild(overlay);
+
+    let lastOn = 0;
+    function loop(t) {
+      overlay.style.opacity = t - lastOn < duration ? 1 : 0;
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    return function flash() {
+      lastOn = performance.now();
+    };
+  }
+
   function buildSwitch(currentSource) {
     const wrap = document.createElement("div");
     wrap.id = "theme-switch";
@@ -38,16 +64,9 @@
 
     const thumb = document.createElement("div");
     thumb.className = "ts-thumb";
-    thumb.style.position = "relative";
     track.appendChild(thumb);
 
-    const flashOverlay = document.createElement("span");
-    thumb.appendChild(flashOverlay);
-
-    function flash() {
-      flashOverlay.style.opacity = 1;
-      setTimeout(() => { flashOverlay.style.opacity = 0; }, 150);
-    }
+    const flash = makeFlasher(thumb, 150, "yellow");
 
     let currentIndex = THEMES.indexOf(currentSource);
 
