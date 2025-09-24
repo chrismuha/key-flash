@@ -38,7 +38,28 @@
 
     const thumb = document.createElement("div");
     thumb.className = "ts-thumb";
+    thumb.style.position = "relative";
     track.appendChild(thumb);
+
+    const flashOverlay = document.createElement("span");
+    Object.assign(flashOverlay.style, {
+      position: "absolute",
+      inset: "0",
+      background: "yellow",
+      opacity: "0",
+      pointerEvents: "none",
+      borderRadius: "inherit",
+      transition: "none"
+    });
+    thumb.appendChild(flashOverlay);
+
+    function flash() {
+      flashOverlay.style.opacity = 1;
+      setTimeout(() => {
+        flashOverlay.style.opacity = 0;
+      }, 400);
+    }
+
 
     let currentIndex = THEMES.indexOf(currentSource);
 
@@ -64,47 +85,79 @@
 
     function options() { return root.querySelectorAll(".ts-option"); }
 
-    function positionThumb(i) {
+    let meas = [];
+    function measure() {
       const opts = options();
-      const el = opts[i];
-      const rect = el.getBoundingClientRect();
-      const first = opts[0].getBoundingClientRect();
-      thumb.style.width = rect.width + "px";
-      thumb.style.transform = "translateX(" + (rect.left - first.left) + "px)";
+      if (!opts.length) return;
+      const firstLeft = opts[0].offsetLeft;
+      meas = Array.from(opts).map(el => ({
+        left: el.offsetLeft - firstLeft,
+        width: el.offsetWidth
+      }));
     }
 
-    function select(i, focus = false) {
+    function positionThumb(i) {
+      const m = meas[i];
+      if (!m) return;
+      thumb.style.width = m.width + "px";
+      thumb.style.transform = "translateX(" + m.left + "px)";
+    }
+
+    let pendingIndex = currentIndex;
+    let pendingFocus = false;
+    let scheduled = false;
+
+    function applyPending() {
+      scheduled = false;
+      const i = pendingIndex;
+      if (i === currentIndex) {
+        positionThumb(i);
+        return;
+      }
       currentIndex = i;
       const source = THEMES[i];
       saveTheme(source);
       applyTheme(source);
-
-      options().forEach((b, j) => {
+      const opts = options();
+      opts.forEach((b, j) => {
         const isSel = j === i;
         b.setAttribute("aria-checked", String(isSel));
         b.setAttribute("tabindex", isSel ? "0" : "-1");
-        if (focus && isSel) b.focus();
+        if (pendingFocus && isSel) b.focus();
       });
-
-      requestAnimationFrame(() => {
-        positionThumb(i);
-
-        requestAnimationFrame(() => {
-          thumb.classList.remove("flash");
-          void thumb.offsetWidth;
-          thumb.classList.add("flash");
-          thumb.addEventListener("animationend", () => {
-            thumb.classList.remove("flash");
-          }, { once: true });
-        });
-      });
+      pendingFocus = false;
+      positionThumb(i);
+      flash();
     }
 
+    function scheduleUpdate() {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(applyPending);
+    }
 
-    const ro = new ResizeObserver(() => positionThumb(currentIndex));
-    ro.observe(root);
-    window.addEventListener("resize", () => positionThumb(currentIndex));
-    requestAnimationFrame(() => positionThumb(currentIndex));
+    function select(i, focus = false) {
+      if (i === pendingIndex && !focus) return;
+      pendingIndex = i;
+      pendingFocus = focus || pendingFocus;
+      scheduleUpdate();
+    }
+
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => {
+      measure();
+      positionThumb(currentIndex);
+    }) : null;
+    if (ro) ro.observe(root);
+
+    window.addEventListener("resize", () => {
+      measure();
+      positionThumb(currentIndex);
+    });
+
+    requestAnimationFrame(() => {
+      measure();
+      positionThumb(currentIndex);
+    });
 
     const handleMediaChange = () => {
       if ((getSavedTheme() || "system") === "system") applyTheme("system");
