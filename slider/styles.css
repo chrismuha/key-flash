@@ -115,14 +115,7 @@ body {
     border-radius: var(--track-radius);
 }
 
-/* Firefox: right side (gray) */
-.slider::-moz-range-track {
-    background: #e5e7eb;
-    height: var(--track-height);
-    border-radius: var(--track-radius);
-}
-
-/* Ticks container to match content box width */
+/* Tick marks */
 .ticks {
     position: relative;
     height: 20px;
@@ -182,8 +175,13 @@ body {
     border: 0;
 }
 
-.hint {
-    font-size: 12px;
-    color: #6b7280;
-    margin-top: 8px;
+/* Settings dropdown */
+#settings-wrap select {
+    width: 100%;
+    max-width: 260px;
+    padding: 8px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font: inherit;
+    background: #fff;
 }

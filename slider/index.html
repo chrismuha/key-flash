@@ -9,6 +9,21 @@
 </head>
 
 <body>
+  <!-- Settings: Snap behavior -->
+  <div class="wrap" id="settings-wrap" aria-label="Slider settings">
+    <div class="header">
+      <div class="title">Settings</div>
+    </div>
+    <label for="snap-mode" class="sr-only">Snap behavior</label>
+    <select id="snap-mode" aria-label="Snap behavior">
+      <option value="nearest" selected>Round to nearest (%)</option>
+      <option value="next">Snap to next tick</option>
+    </select>
+    <div class="hint"><br>Choose how values snap on release. <br>Values always snap to next tick with the keyboard.
+    </div>
+  </div>
+
+  <!-- Volume slider -->
   <div class="wrap" id="volume-wrap">
     <div class="header">
       <div class="title">Volume</div>
@@ -16,12 +31,12 @@
     </div>
     <div class="ticks top" aria-hidden="true"></div>
     <label for="volume" class="sr-only">Volume</label>
-    <input id="volume" class="slider progress" type="range" min="0" max="100" step="10" value="50" role="slider"
-      aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" aria-valuetext="50 percent" />
+    <input id="volume" class="slider progress" type="range" min="0" max="100" step="10" value="50" />
     <div class="ticks bottom" aria-hidden="true"></div>
-    <div class="hint"> <br> Tip: use ← / → to adjust in steps, Home/End for min/max, Page Up/Down for larger jumps.</div>
+    <div class="hint"><br>Labels at every 4px. Try the keyboard to snap exactly.</div>
   </div>
 
+  <!-- Font Size slider -->
   <div class="wrap" id="font-wrap">
     <div class="header">
       <div class="title">Font Size</div>
@@ -29,10 +44,9 @@
     </div>
     <div class="ticks top" aria-hidden="true"></div>
     <label for="fontsize" class="sr-only">Font size</label>
-    <input id="fontsize" class="slider progress" type="range" min="10" max="30" step="2" value="16" role="slider"
-      aria-valuemin="10" aria-valuemax="30" aria-valuenow="16" aria-valuetext="16 pixels" />
+    <input id="fontsize" class="slider progress" type="range" min="10" max="30" step="2" value="16" />
     <div class="ticks bottom" aria-hidden="true"></div>
-    <div class="hint"> <br> Labels at every 4px. Try the keyboard to snap exactly.</div>
+    <div class="hint"><br>Labels at every 4px. Try the keyboard to snap exactly.</div>
   </div>
 
   <script src="script.js"></script>

@@ -170,3 +170,74 @@ function initSlider(wrapperId, unit, options = {}) {
 // Initialize sliders
 initSlider('volume-wrap', '%', { majorEvery: 2, discreteStep: 10 }); // drag free, ticks at 0/10/20...
 initSlider('font-wrap', 'px', { majorEvery: 2, discreteStep: 2 });  // drag free, ticks at 10/12/14...
+
+// === Snap behavior (append-only) ===
+function ceilToStep(val, step, min) {
+    const off = val - min;
+    return Math.ceil(off / step) * step + min;
+}
+function floorToStep(val, step, min) {
+    const off = val - min;
+    return Math.floor(off / step) * step + min;
+}
+function getSnapMode() {
+    const sel = document.getElementById('snap-mode');
+    return sel ? sel.value : 'nearest';
+}
+function snapByMode(val, { unit, min, step, direction }) {
+    const mode = getSnapMode();
+    if (mode === 'nearest') {
+        if (unit === '%') return Math.round(val);
+        // assumes your file already has roundToStep(min/step). If not, replace with:
+        // const off = val - min; return Math.round(off / step) * step + min;
+        return roundToStep(val, step, min);
+    }
+    // mode === 'next'
+    if (direction === 'dec') return floorToStep(val, step, min);
+    return ceilToStep(val, step, min);
+}
+function wireSnap(input, unit, discreteStep) {
+    if (!input) return;
+    const min = Number(input.min || 0);
+    const max = Number(input.max || 100);
+
+    // Snap on pointer release
+    input.addEventListener('change', () => {
+        let v = Number(input.value);
+        v = snapByMode(v, { unit, min, step: discreteStep, direction: undefined });
+        v = Math.min(max, Math.max(min, v));
+        input.value = String(v);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    // Snap after keyboard actions
+    let dir;
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === 'Home') dir = 'dec';
+        else if (e.key === 'ArrowRight' || e.key === 'PageUp' || e.key === 'End') dir = 'inc';
+        else dir = undefined;
+    }, true);
+    input.addEventListener('keyup', () => {
+        if (!dir) return;
+        let v = Number(input.value);
+        v = snapByMode(v, { unit, min, step: discreteStep, direction: dir });
+        v = Math.min(max, Math.max(min, v));
+        input.value = String(v);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        dir = undefined;
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Hook your existing sliders by ID; adjust IDs/steps if yours differ
+    wireSnap(document.getElementById('volume'), '%', 10);
+    wireSnap(document.getElementById('fontsize'), 'px', 2);
+
+    // Re-snap current values when the setting changes
+    document.getElementById('snap-mode')?.addEventListener('change', () => {
+        ['volume', 'fontsize'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    });
+});
