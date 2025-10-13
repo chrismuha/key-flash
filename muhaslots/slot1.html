@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Neon Slots</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="game">
+        <div class="card">
+            <h2 class="title"><span class="dot"></span> Neon Slots</h2>
+            <div class="reels-wrap">
+                <div id="reels" class="reels" aria-live="polite" aria-label="Slot reels">
+                    <!-- Reels rendered by JS -->
+                </div>
+                <div class="hud">
+                    <div class="left">
+                        <div class="stat"><span class="muted">Balance:</span> <b id="balance">—</b></div>
+
+                        <div class="credit-controls">
+                            <label for="creditStep" class="muted">Adjust credit</label>
+                            <div class="credit-row">
+                                <input id="creditStep" type="number" value="1" step="0.01" min="0" inputmode="decimal"
+                                    autocomplete="off" aria-label="Credit increment amount" />
+                                <button id="creditUp" class="icon-btn" title="Increase credit (Arrow Up)" type="button"
+                                    aria-label="Increase credit">▲</button>
+                                <button id="creditDown" class="icon-btn" title="Decrease credit (Arrow Down)"
+                                    type="button" aria-label="Decrease credit">▼</button>
+                            </div>
+                        </div>
+
+                        <div class="stat">
+                            <span class="muted">Total Bet:</span>
+                            <b id="totalBet">—</b>
+                        </div>
+
+                        <div class="select">
+                            <label for="denom">Denomination (value per credit)</label>
+                            <select id="denom">
+                                <option value="0.01">$0.01</option>
+                                <option value="0.05">$0.05</option>
+                                <option value="0.10">$0.10</option>
+                                <option value="0.25">$0.25</option>
+                                <option value="0.50">$0.50</option>
+                                <option value="1.00" selected>$1.00</option>
+                            </select>
+                        </div>
+
+                        <div class="select">
+                            <label for="lines">Lines (1–10)</label>
+                            <select id="lines">
+                                <option selected>10</option>
+                                <option>9</option>
+                                <option>8</option>
+                                <option>7</option>
+                                <option>6</option>
+                                <option>5</option>
+                                <option>4</option>
+                                <option>3</option>
+                                <option>2</option>
+                                <option>1</option>
+                            </select>
+                        </div>
+
+                        <div class="select">
+                            <label for="bet">Bet per line (credits)</label>
+                            <select id="bet">
+                                <option value="1" selected>1</option>
+                                <option value="2">2</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="right">
+                        <button id="spin" type="button">Spin</button>
+                        <button id="max" type="button">Max Bet</button>
+                    </div>
+                </div>
+
+                <div id="message" class="message" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="footer">
+            </div>
+        </div>
+
+        <div class="card sidebar">
+            <div class="paytable">
+                <h3>
+                    Payouts
+                    <button id="payInfo" class="info-btn" type="button" title="How payouts are calculated"
+                        aria-controls="payInfoPopup" aria-expanded="false" aria-haspopup="tooltip"
+                        aria-describedby="payInfoPopup">i</button>
+                </h3>
+
+                <div id="payInfoPopup" class="info-popup" role="tooltip" hidden>
+                    <p>Payout = multiplier × bet per line (credits) × denomination ($).</p>
+                    <p>Example: 4 ⭐ with bet 2 credits, denom $0.25 → 40 × 2 × 0.25 = $20</p>
+                </div>
+
+                <!-- paytable symbols -->
+                <div class="table">
+                    <div class="head">Symbol</div>
+                    <div class="head">3</div>
+                    <div class="head">4</div>
+                    <div class="head">5</div>
+
+                    <div><span class="icon-container">💎</span></div>
+                    <div>50</div>
+                    <div>200</div>
+                    <div>1000</div>
+
+                    <div><span class="icon-container">🍀</span></div>
+                    <div>20</div>
+                    <div>100</div>
+                    <div>400</div>
+
+                    <div><span class="icon-container">⭐</span></div>
+                    <div>10</div>
+                    <div>40</div>
+                    <div>200</div>
+
+                    <div><span class="icon-container">🔔</span></div>
+                    <div>6</div>
+                    <div>20</div>
+                    <div>100</div>
+
+                    <div><span class="icon-container">🍋</span></div>
+                    <div>4</div>
+                    <div>12</div>
+                    <div>60</div>
+
+                    <div><span class="icon-container">🍒</span></div>
+                    <div>2</div>
+                    <div>6</div>
+                    <div>30</div>
+                </div>
+
+
+                <div class="legend">Approximate RTP depends on RNG/weights. No real money.</div>
+                <div>
+                    <label>Lines preview</label>
+                    <div class="lines-preview" id="linesPreview" aria-hidden="true"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
