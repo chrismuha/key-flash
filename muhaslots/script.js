@@ -65,6 +65,9 @@ const linesPreviewEl = document.getElementById("linesPreview");
 let balance = 100.0;
 let isSpinning = false;
 
+// --- Session Winnings State ---
+let sessionWinningsUSD = 0;
+
 
 // Utilities
 
@@ -254,6 +257,41 @@ function incBet(delta) {
     onConfigChange();
 }
 
+// --- Session Winnings UI Helpers ---
+function insertAfter(refNode, newNode) {
+    refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
+}
+function ensureSessionWinningsUI() {
+    if (document.getElementById("sessionWinnings")) return;
+
+    const box = document.createElement("div");
+    box.id = "session-winnings";
+    box.className = "stat-box";
+    box.style.cssText = "margin-top:.5rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem;";
+    box.innerHTML = `
+        <span>Session Winnings</span>
+        <strong><span id="sessionWinnings">\$0.00</span></strong>
+    `;
+
+    // Try to place directly under the Available Credits container
+    const anchor = balanceEl?.parentElement || balanceEl;
+    if (anchor && anchor.parentElement) {
+        insertAfter(anchor, box);
+    } else {
+        // Fallback: append near totals
+        totalBetEl?.parentElement?.appendChild(box);
+    }
+}
+function updateSessionWinningsDisplay() {
+    const el = document.getElementById("sessionWinnings");
+    if (el) el.textContent = fmtUSD(sessionWinningsUSD);
+}
+function addSessionWinnings(amountUSD) {
+    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
+    sessionWinningsUSD += amountUSD;
+    updateSessionWinningsDisplay();
+}
+
 // Main Spin Flow
 async function doSpin() {
     if (isSpinning) return;
@@ -283,6 +321,8 @@ async function doSpin() {
     // Payout
     if (totalWinUSD > 0) {
         balance += totalWinUSD;
+        addSessionWinnings(totalWinUSD); // <-- accumulate session winnings
+
         const linesText = lineWins
             .map(w => `Line ${w.lineIndex}: ${w.symbol} × ${w.count} → ${fmtUSD(w.winUSD)}`)
             .join(" • ");
@@ -345,6 +385,10 @@ document.addEventListener("keydown", (e) => {
     // ARIA defaults
     payInfoPopup.hidden = true;
     payInfoBtn.setAttribute("aria-expanded", "false");
+
+    // Initialize Session Winnings UI
+    ensureSessionWinningsUI();
+    updateSessionWinningsDisplay();
 })();
 
 // Render Payout Table automatically
