@@ -72,7 +72,7 @@ let sessionWinningsUSD = 0;
 // Utilities
 
 function fmtUSD(n) {
-    return `$${n.toFixed(2)}`;
+    return `$${Number(n).toFixed(2)}`;
 }
 
 function choiceWeighted(weightsMap) {
@@ -113,7 +113,6 @@ function createCell(symbol, isWinning = false) {
     const cell = document.createElement("div");
     cell.className = "cell";
     if (isWinning) cell.classList.add("win");
-    // Reel symbols wrapped to pick up .reels .icon-container (green chip)
     cell.innerHTML = `<span class="icon-container" aria-hidden="true">${symbol}</span>`;
     cell.setAttribute("role", "img");
     cell.setAttribute("aria-label", `Symbol ${symbol}`);
@@ -122,7 +121,6 @@ function createCell(symbol, isWinning = false) {
 
 function renderGrid(grid, winningPositions = new Set()) {
     reelsEl.innerHTML = "";
-    // grid[row][col]
     for (let row = 0; row < ROWS; row++) {
         for (let col = 0; col < COLS; col++) {
             const key = `${row},${col}`;
@@ -137,7 +135,7 @@ function spinOnce() {
     return Array.from({ length: ROWS }, () =>
         Array.from({ length: COLS }, () => choiceWeighted(WEIGHTS))
     );
-    return grid;
+    // (no unreachable returns)
 }
 
 // Returns { totalWinUSD, lineWins: [...], winningPositions: Set<string> }
@@ -152,7 +150,6 @@ function evaluateGrid(grid) {
 
     for (let li = 0; li < linesActive; li++) {
         const path = PAYLINES[li];
-        // Count matching from left
         const firstRow = path[0];
         const firstSym = grid[firstRow][0];
 
@@ -168,10 +165,8 @@ function evaluateGrid(grid) {
             const winUSD = multiplier * betPerLine * denom;
             totalWinUSD += winUSD;
 
-            // track win for UI
             lineWins.push({ lineIndex: li + 1, count, symbol: firstSym, winUSD });
 
-            // mark the winning cells
             for (let c = 0; c < count; c++) {
                 const r = path[c];
                 winningPositions.add(`${r},${c}`);
@@ -207,7 +202,6 @@ function renderLinesPreview() {
             const dot = document.createElement("div");
             dot.className = "dot2";
 
-            // Check if this (row,col) is part of any active line path
             for (let li = 0; li < active; li++) {
                 const path = PAYLINES[li];
                 if (path[col] === row) {
@@ -248,9 +242,7 @@ function getCreditStep() {
 function incBet(delta) {
     const step = getCreditStep();
     let newVal = parseFloat(betEl.value) + delta * step;
-    // Clamp to one of the existing options [1,2,5,10,20,50]
     const options = Array.from(betEl.options).map(o => parseFloat(o.value));
-    // find nearest option
     const nearest = options.reduce((best, val) =>
         Math.abs(val - newVal) < Math.abs(best - newVal) ? val : best, options[0]);
     betEl.value = String(nearest);
@@ -261,31 +253,91 @@ function incBet(delta) {
 function insertAfter(refNode, newNode) {
     refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
 }
-function ensureSessionWinningsUI() {
-    if (document.getElementById("sessionWinnings")) return;
 
-    const box = document.createElement("div");
-    box.id = "session-winnings";
-    box.className = "stat-box";
-    box.style.cssText = "margin-top:.5rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem;";
-    box.innerHTML = `
-        <span>Session Winnings</span>
-        <strong><span id="sessionWinnings">\$0.00</span></strong>
-    `;
-
-    // Try to place directly under the Available Credits container
-    const anchor = balanceEl?.parentElement || balanceEl;
-    if (anchor && anchor.parentElement) {
-        insertAfter(anchor, box);
-    } else {
-        // Fallback: append near totals
-        totalBetEl?.parentElement?.appendChild(box);
-    }
+// Copy specific computed styles from a source element to a target element
+function copyComputedStyles(src, dest, props) {
+    if (!src || !dest) return;
+    const cs = getComputedStyle(src);
+    props.forEach(p => {
+        dest.style[p] = cs[p];
+    });
 }
+
+/**
+ * Build a Session Winnings box that:
+ *  - visually matches the BALANCE/AVAILABLE CREDITS box (font, size, color, spacing),
+ *  - avoids duplicate IDs and duplicate boxes,
+ *  - is inserted directly below the balance/credits box.
+ */
+function ensureSessionWinningsUI() {
+    // Remove any existing variants to prevent duplicates
+    document.getElementById("sessionWinningsBox")?.remove();
+    document.getElementById("session-winnings")?.remove();
+
+    // Identify the container that holds the numeric balance (#balance)
+    const balanceBox =
+        balanceEl?.closest?.(".balance-box, .stat-box, .box, .tile, .panel, .credits-box") ||
+        balanceEl?.parentElement ||
+        null;
+    if (!balanceBox) return;
+
+    // Try to detect the label and value nodes used inside the balance box
+    // Prefer siblings/selectors that exist in your markup
+    const balanceValueNode =
+        balanceBox.querySelector("#balance") ||
+        balanceBox.querySelector(".value, [data-value]") ||
+        balanceEl;
+
+    // Look for a label near the value
+    let balanceLabelNode =
+        balanceBox.querySelector(".label, [data-label]") ||
+        (balanceValueNode && balanceValueNode.previousElementSibling && balanceValueNode.previousElementSibling.matches(".label, [data-label]") ? balanceValueNode.previousElementSibling : null);
+
+    // Create a NEW box element with the SAME outer classes so it inherits styling
+    const newBox = document.createElement("div");
+    newBox.className = balanceBox.className;
+    newBox.id = "sessionWinningsBox";
+
+    // Create label + value elements that mirror the tagName/className of the originals
+    const labelTag = (balanceLabelNode?.tagName || "DIV").toLowerCase();
+    const valueTag = (balanceValueNode?.tagName || "DIV").toLowerCase();
+
+    const labelDiv = document.createElement(labelTag);
+    labelDiv.className = balanceLabelNode?.className || "label";
+    labelDiv.textContent = "Session Winnings";
+
+    const valueDiv = document.createElement(valueTag);
+    valueDiv.className = balanceValueNode?.className || "value";
+    valueDiv.id = "sessionWinnings";
+    valueDiv.textContent = fmtUSD(0);
+
+    // Copy critical computed styles to guarantee visual parity even if CSS targets #balance specifically
+    const styleProps = [
+        "fontFamily", "fontSize", "fontWeight", "fontStyle", "lineHeight", "letterSpacing", "textTransform", "color",
+        "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "marginTop", "marginRight", "marginBottom", "marginLeft",
+        "backgroundColor", "backgroundImage", "backgroundSize", "backgroundPosition", "backgroundRepeat",
+        "borderTopLeftRadius", "borderTopRightRadius", "borderBottomRightRadius", "borderBottomLeftRadius",
+        "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth",
+        "borderTopStyle", "borderRightStyle", "borderBottomStyle", "borderLeftStyle",
+        "borderTopColor", "borderRightColor", "borderBottomColor", "borderLeftColor",
+        "boxShadow", "display", "alignItems", "justifyContent", "gap", "columnGap", "rowGap"
+    ];
+    copyComputedStyles(balanceBox, newBox, styleProps);
+    copyComputedStyles(balanceLabelNode, labelDiv, styleProps);
+    copyComputedStyles(balanceValueNode, valueDiv, styleProps);
+
+    newBox.appendChild(labelDiv);
+    newBox.appendChild(valueDiv);
+
+    // Insert directly below the balance box
+    insertAfter(balanceBox, newBox);
+}
+
 function updateSessionWinningsDisplay() {
     const el = document.getElementById("sessionWinnings");
     if (el) el.textContent = fmtUSD(sessionWinningsUSD);
 }
+
 function addSessionWinnings(amountUSD) {
     if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
     sessionWinningsUSD += amountUSD;
@@ -321,7 +373,7 @@ async function doSpin() {
     // Payout
     if (totalWinUSD > 0) {
         balance += totalWinUSD;
-        addSessionWinnings(totalWinUSD); // <-- accumulate session winnings
+        addSessionWinnings(totalWinUSD);
 
         const linesText = lineWins
             .map(w => `Line ${w.lineIndex}: ${w.symbol} × ${w.count} → ${fmtUSD(w.winUSD)}`)
@@ -359,7 +411,6 @@ betEl.addEventListener("change", onConfigChange);
 creditUpBtn.addEventListener("click", () => incBet(+1));
 creditDownBtn.addEventListener("click", () => incBet(-1));
 creditStepEl.addEventListener("input", () => {
-    // keep within bounds >= 0
     if (parseFloat(creditStepEl.value) < 0) creditStepEl.value = "0";
 });
 
@@ -386,7 +437,7 @@ document.addEventListener("keydown", (e) => {
     payInfoPopup.hidden = true;
     payInfoBtn.setAttribute("aria-expanded", "false");
 
-    // Initialize Session Winnings UI
+    // Initialize Session Winnings UI (deduped and visually matched)
     ensureSessionWinningsUI();
     updateSessionWinningsDisplay();
 })();

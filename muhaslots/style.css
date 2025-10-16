@@ -419,3 +419,71 @@ button:focus-visible,
     font-family: monospace;
     text-align: right;
 }
+
+/* --- Glowing Buttons --- */
+button {
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+    border: none;
+    outline: none;
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+/* Base glow effect */
+button::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(45deg,
+            #ff00cc,
+            #3333ff,
+            #00ffff,
+            #00ff00,
+            #ffff00,
+            #ff6600,
+            #ff0000);
+    background-size: 400%;
+    filter: blur(8px);
+    opacity: 0.6;
+    animation: glowMove 6s linear infinite;
+}
+
+/* Slight scale and stronger glow on hover */
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+button:hover::before {
+    opacity: 0.9;
+}
+
+/* Optional: subtle pulse animation even when idle */
+@keyframes glowMove {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Glowing effect - alternative style
+.glow-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  
+box-shadow: 0 0 10px rgba(0, 123, 255, 0.7);
+} */
