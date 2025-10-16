@@ -22,11 +22,10 @@ const PAYTABLE = {
     "🍒": { 3: 2, 4: 6, 5: 30 },
 };
 
-// ---->>> CHANGED: 5 rows now
 const ROWS = 5;
 const COLS = 5;
 
-// 10 paylines for a 5-row machine (row indices 0..4)
+// Paylines
 const PAYLINES = [
     [2, 2, 2, 2, 2], // 1 middle
     [0, 0, 0, 0, 0], // 2 top
@@ -42,7 +41,6 @@ const PAYLINES = [
 
 
 // DOM
-
 const reelsEl = document.getElementById("reels");
 const messageEl = document.getElementById("message");
 const balanceEl = document.getElementById("balance");
@@ -61,16 +59,14 @@ const linesPreviewEl = document.getElementById("linesPreview");
 
 
 // State
-
 let balance = 100.0;
 let isSpinning = false;
 
-// --- Session Winnings State ---
+// Session Winnings State
 let sessionWinningsUSD = 0;
 
 
 // Utilities
-
 function fmtUSD(n) {
     return `$${Number(n).toFixed(2)}`;
 }
@@ -295,9 +291,7 @@ function removeOrphanSessionWinningsLabels() {
     });
 }
 
-/**
- * Ensure one Session Winnings box exists, matching Available Credits.
- */
+/* Ensure one Session Winnings box exists, matching Available Credits. */
 function ensureSessionWinningsUI() {
     // HARD DELETE existing session winnings containers/values and orphan labels
     document.querySelectorAll("#sessionWinningsBox").forEach(n => n.remove());
