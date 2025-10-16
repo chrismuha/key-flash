@@ -1,5 +1,4 @@
 // Config
-
 const SYMBOLS = ["💎", "🍀", "⭐", "🔔", "🍋", "🍒"];
 
 // Weights (higher = more common)
