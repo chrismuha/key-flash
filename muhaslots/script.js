@@ -423,8 +423,20 @@ denomEl.addEventListener("change", onConfigChange);
 linesEl.addEventListener("change", onConfigChange);
 betEl.addEventListener("change", onConfigChange);
 
-creditUpBtn.addEventListener("click", () => incBet(+1));
-creditDownBtn.addEventListener("click", () => incBet(-1));
+creditUpBtn.onclick = () => {
+    const step = parseFloat(creditStepEl.value) || 0;
+    const denom = parseFloat(denomEl.value) || 1;
+    balance = Math.max(0, balance + step * denom);
+    updateTotals();
+};
+
+creditDownBtn.onclick = () => {
+    const step = parseFloat(creditStepEl.value) || 0;
+    const denom = parseFloat(denomEl.value) || 1;
+    balance = Math.max(0, balance - step * denom);
+    updateTotals();
+};
+
 creditStepEl.addEventListener("input", () => {
     if (parseFloat(creditStepEl.value) < 0) creditStepEl.value = "0";
 });
