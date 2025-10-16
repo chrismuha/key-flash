@@ -135,7 +135,6 @@ function spinOnce() {
     return Array.from({ length: ROWS }, () =>
         Array.from({ length: COLS }, () => choiceWeighted(WEIGHTS))
     );
-    // (no unreachable returns)
 }
 
 // Returns { totalWinUSD, lineWins: [...], winningPositions: Set<string> }
@@ -196,12 +195,10 @@ function renderLinesPreview() {
     const active = parseInt(linesEl.value, 10);
     linesPreviewEl.innerHTML = "";
 
-    // Always render ROWS x COLS (5x5) dots; highlight those touched by active lines
     for (let row = 0; row < ROWS; row++) {
         for (let col = 0; col < COLS; col++) {
             const dot = document.createElement("div");
             dot.className = "dot2";
-
             for (let li = 0; li < active; li++) {
                 const path = PAYLINES[li];
                 if (path[col] === row) {
@@ -249,88 +246,104 @@ function incBet(delta) {
     onConfigChange();
 }
 
-// --- Session Winnings UI Helpers ---
-function insertAfter(refNode, newNode) {
-    refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
+// -----------------------------
+// Session Winnings UI (match Available Credits, DELETE duplicates hard + orphans)
+// -----------------------------
+
+const BOX_SELECTOR = ".credits-box, .available-box, .stat-box, .box, .tile, .panel, .balance-box";
+
+/* Locate the Available Credits box containing the balance value. */
+function findAvailableCreditsBox() {
+    if (!balanceEl) return null;
+    let node = balanceEl;
+    while (node && node !== document.body) {
+        if (node.matches?.(BOX_SELECTOR)) {
+            const lbl = node.querySelector(".label, [data-label], label") || node.firstElementChild;
+            const txt = (lbl?.textContent || "").trim().toLowerCase();
+            if (txt.includes("available")) return node;
+        }
+        node = node.parentElement;
+    }
+    return balanceEl.closest(BOX_SELECTOR) || balanceEl.parentElement || null;
 }
 
-// Copy specific computed styles from a source element to a target element
-function copyComputedStyles(src, dest, props) {
-    if (!src || !dest) return;
-    const cs = getComputedStyle(src);
-    props.forEach(p => {
-        dest.style[p] = cs[p];
+/* Match the $ value typography to the Available Credits value node (no layout changes). */
+function matchValueTypography(srcValueEl, destValueEl) {
+    if (!srcValueEl || !destValueEl) return;
+    const cs = getComputedStyle(srcValueEl);
+    destValueEl.style.fontFamily = cs.fontFamily;
+    destValueEl.style.fontWeight = cs.fontWeight;
+    destValueEl.style.fontStyle = cs.fontStyle;
+    destValueEl.style.letterSpacing = cs.letterSpacing;
+    destValueEl.style.fontSize = cs.fontSize;
+    destValueEl.style.lineHeight = cs.lineHeight;
+    destValueEl.style.color = cs.color;
+    destValueEl.style.textTransform = cs.textTransform;
+    destValueEl.style.textShadow = cs.textShadow;
+}
+
+/** Remove any orphan elements whose text is exactly "Session Winnings" that are NOT inside our box. */
+function removeOrphanSessionWinningsLabels() {
+    const candidates = document.querySelectorAll(
+        'button, .label, [data-label], label, .chip, .tag, .pill, .badge, span, div'
+    );
+    candidates.forEach(el => {
+        const txt = (el.textContent || "").trim().toLowerCase();
+        if (txt === "session winnings" && !el.closest("#sessionWinningsBox")) {
+            el.remove();
+        }
     });
 }
 
 /**
- * Build a Session Winnings box that:
- *  - visually matches the BALANCE/AVAILABLE CREDITS box (font, size, color, spacing),
- *  - avoids duplicate IDs and duplicate boxes,
- *  - is inserted directly below the balance/credits box.
+ * Ensure one Session Winnings box exists, matching Available Credits.
  */
 function ensureSessionWinningsUI() {
-    // Remove any existing variants to prevent duplicates
-    document.getElementById("sessionWinningsBox")?.remove();
-    document.getElementById("session-winnings")?.remove();
+    // HARD DELETE existing session winnings containers/values and orphan labels
+    document.querySelectorAll("#sessionWinningsBox").forEach(n => n.remove());
+    document.querySelectorAll("#sessionWinnings").forEach(n => n.remove());
+    removeOrphanSessionWinningsLabels();
 
-    // Identify the container that holds the numeric balance (#balance)
-    const balanceBox =
-        balanceEl?.closest?.(".balance-box, .stat-box, .box, .tile, .panel, .credits-box") ||
-        balanceEl?.parentElement ||
-        null;
-    if (!balanceBox) return;
+    const availBox = findAvailableCreditsBox();
+    if (!availBox) return;
 
-    // Try to detect the label and value nodes used inside the balance box
-    // Prefer siblings/selectors that exist in your markup
-    const balanceValueNode =
-        balanceBox.querySelector("#balance") ||
-        balanceBox.querySelector(".value, [data-value]") ||
+    // Clone Available Credits
+    const clone = availBox.cloneNode(true);
+    clone.id = "sessionWinningsBox";
+
+    // Label
+    let cloneLabel = clone.querySelector(".label, [data-label], label") || clone.firstElementChild;
+    if (!cloneLabel) {
+        cloneLabel = document.createElement("div");
+        cloneLabel.className = "label";
+        clone.insertBefore(cloneLabel, clone.firstChild);
+    }
+    cloneLabel.textContent = "Session Winnings";
+
+    // Value
+    let cloneValue =
+        clone.querySelector("#balance") ||
+        clone.querySelector(".value, [data-value]");
+    if (!cloneValue) {
+        cloneValue = document.createElement("div");
+        cloneValue.className = "value";
+        clone.appendChild(cloneValue);
+    }
+    cloneValue.id = "sessionWinnings";
+    cloneValue.textContent = fmtUSD(0);
+    cloneValue.setAttribute?.("aria-label", "Session Winnings");
+
+    // Insert directly below Available Credits
+    availBox.insertAdjacentElement("afterend", clone);
+
+    // Match value typography to Available Credits value
+    const availValue =
+        availBox.querySelector("#balance") ||
+        availBox.querySelector(".value, [data-value]") ||
         balanceEl;
+    matchValueTypography(availValue, cloneValue);
 
-    // Look for a label near the value
-    let balanceLabelNode =
-        balanceBox.querySelector(".label, [data-label]") ||
-        (balanceValueNode && balanceValueNode.previousElementSibling && balanceValueNode.previousElementSibling.matches(".label, [data-label]") ? balanceValueNode.previousElementSibling : null);
-
-    // Create a NEW box element with the SAME outer classes so it inherits styling
-    const newBox = document.createElement("div");
-    newBox.className = balanceBox.className;
-    newBox.id = "sessionWinningsBox";
-
-    // Create label + value elements that mirror the tagName/className of the originals
-    const labelTag = (balanceLabelNode?.tagName || "DIV").toLowerCase();
-    const valueTag = (balanceValueNode?.tagName || "DIV").toLowerCase();
-
-    const labelDiv = document.createElement(labelTag);
-    labelDiv.className = balanceLabelNode?.className || "label";
-    labelDiv.textContent = "Session Winnings";
-
-    const valueDiv = document.createElement(valueTag);
-    valueDiv.className = balanceValueNode?.className || "value";
-    valueDiv.id = "sessionWinnings";
-    valueDiv.textContent = fmtUSD(0);
-
-    // Copy critical computed styles to guarantee visual parity even if CSS targets #balance specifically
-    const styleProps = [
-        "fontFamily", "fontSize", "fontWeight", "fontStyle", "lineHeight", "letterSpacing", "textTransform", "color",
-        "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "marginTop", "marginRight", "marginBottom", "marginLeft",
-        "backgroundColor", "backgroundImage", "backgroundSize", "backgroundPosition", "backgroundRepeat",
-        "borderTopLeftRadius", "borderTopRightRadius", "borderBottomRightRadius", "borderBottomLeftRadius",
-        "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth",
-        "borderTopStyle", "borderRightStyle", "borderBottomStyle", "borderLeftStyle",
-        "borderTopColor", "borderRightColor", "borderBottomColor", "borderLeftColor",
-        "boxShadow", "display", "alignItems", "justifyContent", "gap", "columnGap", "rowGap"
-    ];
-    copyComputedStyles(balanceBox, newBox, styleProps);
-    copyComputedStyles(balanceLabelNode, labelDiv, styleProps);
-    copyComputedStyles(balanceValueNode, valueDiv, styleProps);
-
-    newBox.appendChild(labelDiv);
-    newBox.appendChild(valueDiv);
-
-    // Insert directly below the balance box
-    insertAfter(balanceBox, newBox);
+    removeOrphanSessionWinningsLabels();
 }
 
 function updateSessionWinningsDisplay() {
@@ -385,10 +398,12 @@ async function doSpin() {
 
     isSpinning = false;
     updateTotals();
+
+    removeOrphanSessionWinningsLabels();
+    updateSessionWinningsDisplay();
 }
 
 function doMaxBet() {
-    // Max lines stays at 10 (matches PAYLINES length)
     betEl.value = Array.from(betEl.options).reduce((max, o) =>
         parseFloat(o.value) > parseFloat(max.value) ? o : max
     ).value;
@@ -437,9 +452,9 @@ document.addEventListener("keydown", (e) => {
     payInfoPopup.hidden = true;
     payInfoBtn.setAttribute("aria-expanded", "false");
 
-    // Initialize Session Winnings UI (deduped and visually matched)
     ensureSessionWinningsUI();
     updateSessionWinningsDisplay();
+    removeOrphanSessionWinningsLabels();
 })();
 
 // Render Payout Table automatically
@@ -452,7 +467,7 @@ function renderPayoutTable() {
     <div class="head">4</div>
     <div class="head">5</div>
   `;
-    const order = ["💎", "🍀", "⭐", "🔔", "🍋", "🍒"]; // match UI order
+    const order = ["💎", "🍀", "⭐", "🔔", "🍋", "🍒"];
     for (const sym of order) {
         const p = PAYTABLE[sym];
         table.insertAdjacentHTML(
