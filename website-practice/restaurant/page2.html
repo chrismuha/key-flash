@@ -23,7 +23,7 @@
         <p>Select ingredients for each menu item below.</p>
 
         <section>
-            <details>
+            <details id="pizza">
                 <summary class="menu-summary">Pizza</summary>
                 <form>
                     <fieldset>
@@ -44,11 +44,14 @@
         </section>
 
         <section>
-            <details>
+            <details id="burger">
                 <summary class="menu-summary">Burger</summary>
                 <form>
                     <fieldset>
                         <legend>Choose Ingredients</legend>
+                        <label class="required" title="Required">
+                            <input type="checkbox" name="burger_ingredients[]" value="patty" checked data-required="true" title="Required" disabled> Patty (Required)
+                        </label><br>
                         <label><input type="checkbox" name="burger_ingredients[]" value="cheese"> Cheese</label><br>
                         <label><input type="checkbox" name="burger_ingredients[]" value="tomato"> Tomato</label><br>
                         <label><input type="checkbox" name="burger_ingredients[]" value="lettuce"> Lettuce</label><br>
@@ -65,8 +68,10 @@
         </section>
 
         <a class="next-button" href="page3.html" aria-label="Go to next page">Next »</a>
-        </main>
+</main>
 
 </body>
+<script src="app.js"></script>
+ 
 
 </html>

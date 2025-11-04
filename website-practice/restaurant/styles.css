@@ -71,7 +71,7 @@ main {
 
 /* Only Page 2 should show bordered builder */
 body.page2 main {
-    border: 2px solid var(--box-border);
+    border: none;
     position: relative;
 }
 
@@ -162,6 +162,107 @@ main h6 {
     line-height: 24px;
 }
 
+/* Cross-OS, cross-browser alignment for checkbox + label */
+main fieldset label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.25;
+}
+
+/* Checkbox color to match theme */
+/* Unified custom checkbox styling to match Patty (square, green when checked) */
+main input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #000;
+    border-radius: 3px;
+    background: #fff;
+    position: relative;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+main input[type="checkbox"]:checked {
+    background-color: var(--box-bg);
+}
+main input[type="checkbox"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px 16px;
+    opacity: 0;
+}
+main input[type="checkbox"]:checked::after {
+    opacity: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='4,10 8,14 16,6'/></svg>");
+}
+
+/* Keep required/disabled Patty visual matching */
+body.page2 input[type="checkbox"][disabled] {
+    opacity: 1; /* don't gray out */
+    accent-color: var(--box-bg); /* keep green when supported */
+}
+body.page2 label.required {
+    color: #000;
+    opacity: 1;
+    cursor: not-allowed;
+}
+/* Remove focus outline and tap highlight on restricted */
+body.page2 label.required:focus-visible,
+body.page2 label.required input:focus-visible {
+    outline: none;
+}
+body.page2 label.required,
+body.page2 label.required * {
+    -webkit-tap-highlight-color: transparent;
+}
+/* Prevent any hover color changes on restricted items */
+body.page2 label.required:hover,
+body.page2 label.required:active,
+body.page2 label.required:focus {
+    color: #000;
+    background: transparent;
+}
+body.page2 label.required:hover input[type="checkbox"][data-required="true"],
+body.page2 label.required:active input[type="checkbox"][data-required="true"],
+body.page2 label.required:focus input[type="checkbox"][data-required="true"] {
+    accent-color: var(--box-bg);
+}
+
+/* Custom-render the restricted, disabled checkbox to keep green box + black check */
+body.page2 input[type="checkbox"][data-required="true"][disabled] {
+    opacity: 1; /* don't gray out */
+    cursor: not-allowed;
+    transform: translateY(1px); /* nudge to match native checkbox baselines */
+}
+body.page2 input[type="checkbox"][data-required="true"][disabled]:checked {
+    background-color: var(--box-bg);
+}
+/* pseudo-element and checked styles are shared above for all checkboxes */
+/* Restricted checkbox: show error cursor and block interaction */
+body.page2 input[type="checkbox"][data-required="true"] {
+    cursor: not-allowed;
+    pointer-events: none; /* hover still hits the label, showing tooltip */
+}
+
+/* Order summary styles (Page 3) */
+body.page3 #order-summary {
+    border: 1px solid #000;
+    padding: 12px;
+    margin-bottom: 16px;
+}
+body.page3 #order-summary h3 {
+    margin: 0 0 8px 0;
+}
+body.page3 #order-summary ul {
+    margin: 0 0 8px 0;
+}
+
 /* Order type (index) */
 body.order-type main {
     text-align: center;
@@ -197,6 +298,11 @@ body.order-type .order-card {
 
 body.order-type .order-card:hover {
     background: #f5f5f5;
+}
+
+/* Visual selection if user returns to index */
+body.order-type .order-card.selected {
+    background: #f0f0f0;
 }
 
 body.order-type .order-card svg {
