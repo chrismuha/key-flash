@@ -1,11 +1,16 @@
-// Simple persistence for order type and ingredient selections using localStorage
+// =============================================
+// Restaurant Demo App JS
+// - See section tags [A]..[H] for navigation
+// =============================================
 
 (function () {
+  // [A] STORAGE KEYS
   const STORAGE_KEYS = {
     orderType: 'restaurant.orderType',
     ingredients: 'restaurant.ingredients'
   };
 
+  // [B] TEXT UTILS
   function titleCase(str) {
     if (!str) return '';
     return String(str)
@@ -15,6 +20,7 @@
       .join(' ');
   }
 
+  // [C] ORDER TYPE: SAVE/GET
   function saveOrderType(type) {
     try {
       localStorage.setItem(STORAGE_KEYS.orderType, type);
@@ -27,6 +33,7 @@
     } catch { return ''; }
   }
 
+  // [D] INGREDIENTS: READ FROM DOM
   function readIngredientsFromDOM() {
     const data = {};
     const inputs = document.querySelectorAll('input[type="checkbox"][name]');
@@ -47,6 +54,7 @@
     return data;
   }
 
+  // [E] INGREDIENTS: SAVE TO STORAGE
   function saveIngredients() {
     const data = readIngredientsFromDOM();
     try {
@@ -54,6 +62,7 @@
     } catch {}
   }
 
+  // [F] INGREDIENTS: RESTORE FROM STORAGE
   function restoreIngredients() {
     let data = {};
     try {
@@ -71,6 +80,7 @@
     });
   }
 
+  // [G] NAV: OPEN SECTION FROM URL HASH
   function openSectionFromHash() {
     const hash = (location.hash || '').replace('#', '').trim();
     if (!hash) return;
@@ -83,10 +93,11 @@
     }
   }
 
+  // [H] PAGE INITIALIZATION
   document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
 
-    // Index (order type) page logic
+    // [H1] INDEX: ORDER TYPE
     if (body.classList.contains('order-type')) {
       const cards = document.querySelectorAll('.order-card');
       cards.forEach((card) => {
@@ -104,7 +115,7 @@
       }
     }
 
-    // Page 2 (menu builder) logic
+    // [H2] PAGE 2: MENU BUILDER
     if (body.classList.contains('page2')) {
       // Restore previous selections
       restoreIngredients();
@@ -154,7 +165,7 @@
       }
     }
 
-    // Page 3: render order summary
+    // [H3] PAGE 3: ORDER SUMMARY
     if (body.classList.contains('page3')) {
       const container = document.getElementById('order-summary');
       if (container) {

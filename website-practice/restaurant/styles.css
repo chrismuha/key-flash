@@ -1,3 +1,15 @@
+/* =============================================
+   Restaurant Demo Styles
+   - Layout (left rail + main)
+   - Headings & typography
+   - Expandable menu sections
+   - Order type (index) UI
+   - Order summary (page 3)
+   - Navigation boxes (left rail)
+   - Form controls (checkboxes, reset buttons)
+   - Responsive rules
+   ============================================= */
+
 :root {
     --rail-width: clamp(260px, 35vw, 420px);
     --box-height: 56px;
