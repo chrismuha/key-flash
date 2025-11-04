@@ -1,13 +1,14 @@
-// =============================================
+//
 // Restaurant Demo App JS
 // - See section tags [A]..[H] for navigation
-// =============================================
+//
 
 (function () {
   // [A] STORAGE KEYS
   const STORAGE_KEYS = {
     orderType: 'restaurant.orderType',
-    ingredients: 'restaurant.ingredients'
+    ingredients: 'restaurant.ingredients',
+    theme: 'restaurant.theme'
   };
 
   // [B] TEXT UTILS
@@ -24,7 +25,7 @@
   function saveOrderType(type) {
     try {
       localStorage.setItem(STORAGE_KEYS.orderType, type);
-    } catch {}
+    } catch { }
   }
 
   function getOrderType() {
@@ -59,7 +60,7 @@
     const data = readIngredientsFromDOM();
     try {
       localStorage.setItem(STORAGE_KEYS.ingredients, JSON.stringify(data));
-    } catch {}
+    } catch { }
   }
 
   // [F] INGREDIENTS: RESTORE FROM STORAGE
@@ -68,7 +69,7 @@
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.ingredients);
       if (raw) data = JSON.parse(raw);
-    } catch {}
+    } catch { }
 
     const inputs = document.querySelectorAll('input[type="checkbox"][name]');
     inputs.forEach((input) => {
@@ -96,6 +97,22 @@
   // [H] PAGE INITIALIZATION
   document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
+
+    // Theme init
+    try {
+      const savedTheme = localStorage.getItem(STORAGE_KEYS.theme);
+      if (savedTheme === 'dark') body.classList.add('theme-dark');
+    } catch { }
+    const themeBtn = document.querySelector('.theme-toggle');
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        body.classList.toggle('theme-dark');
+        try {
+          const isDark = body.classList.contains('theme-dark');
+          localStorage.setItem(STORAGE_KEYS.theme, isDark ? 'dark' : 'light');
+        } catch { }
+      });
+    }
 
     // [H1] INDEX: ORDER TYPE
     if (body.classList.contains('order-type')) {

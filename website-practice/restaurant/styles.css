@@ -1,4 +1,4 @@
-/* =============================================
+/*
    Restaurant Demo Styles
    - Layout (left rail + main)
    - Headings & typography
@@ -8,8 +8,9 @@
    - Navigation boxes (left rail)
    - Form controls (checkboxes, reset buttons)
    - Responsive rules
-   ============================================= */
+ */
 
+/* Section: CSS Variables */
 :root {
     --rail-width: clamp(260px, 35vw, 420px);
     --box-height: 56px;
@@ -18,6 +19,7 @@
     --box-border: #000;
 }
 
+/* Section: Global Resets */
 * {
     box-sizing: border-box;
     -webkit-user-select: none;
@@ -26,6 +28,7 @@
     user-select: none;
 }
 
+/* Section: Base HTML/Body */
 html,
 body {
     margin: 0;
@@ -34,13 +37,14 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Section: App Layout (Body Flex) */
 body {
     display: flex;
     min-height: 100vh;
     min-height: 100dvh;
 }
 
-/* Left rail */
+/* Section: Left Rail Navigation */
 .left-rail {
     display: flex;
     flex-direction: column;
@@ -65,7 +69,7 @@ body {
     pointer-events: none;
 }
 
-/* Right-side content area */
+/* Section: Main Content Area */
 main {
     background: #fff;
     flex: 0 1 auto;
@@ -81,13 +85,50 @@ main {
     margin-inline: 0 auto;
 }
 
-/* Only Page 2 should show bordered builder */
+/* Section: Theme (Dark) */
+/* Only flips the main content background to black and text to white */
+body.theme-dark main {
+    background: #000;
+    color: #fff;
+}
+
+/* Keep summary arrow visible on dark */
+body.theme-dark main summary.menu-summary::before {
+    color: #fff;
+}
+
+/* Links inside main inherit white so they remain readable */
+body.theme-dark main a {
+    color: #fff;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+    position: absolute;
+    top: var(--gap);
+    right: calc(var(--gap) + 4px);
+    padding: 6px 10px;
+    font-weight: 600;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    color: #000;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+body.theme-dark .theme-toggle {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+/* Section: Page 2 Scoped (Builder Container) */
 body.page2 main {
     border: none;
     position: relative;
 }
 
-/* Next button inside builder */
+/* Section: Page 2 Next Button */
 body.page2 .next-button {
     position: absolute;
     right: var(--gap);
@@ -109,6 +150,7 @@ body.page2 .next-button:active {
     transform: translateY(1px);
 }
 
+/* Section: Main Spacing Helpers */
 main> :first-child {
     margin-top: 0;
 }
@@ -123,6 +165,7 @@ main img {
     display: block;
 }
 
+/* Section: Headings & Typography */
 main h1,
 main h2,
 main h3,
@@ -174,7 +217,7 @@ main h6 {
     line-height: 24px;
 }
 
-/* Cross-OS, cross-browser alignment for checkbox + label */
+/* Section: Form Label Alignment */
 main fieldset label {
     display: inline-flex;
     align-items: center;
@@ -182,8 +225,7 @@ main fieldset label {
     line-height: 1.25;
 }
 
-/* Checkbox color to match theme */
-/* Unified custom checkbox styling to match Patty (square, green when checked) */
+/* Section: Checkboxes (Unified Custom Style) */
 main input[type="checkbox"] {
     -webkit-appearance: none;
     appearance: none;
@@ -217,7 +259,7 @@ main input[type="checkbox"]:checked::after {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='4,10 8,14 16,6'/></svg>");
 }
 
-/* Keep required/disabled Patty visual matching */
+/* Section: Restricted/Required Overrides */
 body.page2 input[type="checkbox"][disabled] {
     opacity: 1;
     /* don't gray out */
@@ -277,7 +319,7 @@ body.page2 input[type="checkbox"][data-required="true"] {
     /* hover still hits the label, showing tooltip */
 }
 
-/* Order summary styles (Page 3) */
+/* Section: Page 3 Order Summary */
 body.page3 #order-summary {
     border: 1px solid #000;
     padding: 12px;
@@ -302,7 +344,7 @@ body.page3 #order-summary a:focus {
     text-decoration: underline;
 }
 
-/* Order type (index) */
+/* Section: Page 1 Order Type */
 body.order-type main {
     text-align: center;
 }
@@ -378,6 +420,7 @@ body.order-type .order-powered a {
     color: #000;
 }
 
+/* Section: Order Type Responsive */
 @media (max-width: 600px) {
     body.order-type .order-options {
         gap: 16px;
@@ -389,7 +432,7 @@ body.order-type .order-powered a {
     }
 }
 
-/* Expandable menu sections */
+/* Section: Expandable Menu Sections */
 main details {
     margin-bottom: var(--gap);
 }
@@ -406,7 +449,7 @@ main summary.menu-summary {
     /* ensure no default marker in Firefox */
 }
 
-/* Reset buttons */
+/* Section: Reset Buttons */
 main .reset-group {
     margin-top: 8px;
     padding: 6px 10px;
@@ -448,7 +491,7 @@ main details[open]>summary.menu-summary::before {
     transform: rotate(90deg);
 }
 
-/* boxes */
+/* Section: Left Rail Boxes (Links) */
 .box {
     margin: 0;
     height: var(--box-height);
@@ -481,6 +524,7 @@ main details[open]>summary.menu-summary::before {
     text-decoration: none;
 }
 
+/* Section: Focus Styles */
 :focus-visible {
     outline: 2px solid #000;
     outline-offset: 2px;
@@ -495,6 +539,7 @@ main details[open]>summary.menu-summary::before {
 }
 
 
+/* Section: Global Responsive (Stack Layout) */
 @media (max-width: 560px) {
     body {
         flex-direction: column;
