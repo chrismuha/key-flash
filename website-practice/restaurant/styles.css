@@ -42,6 +42,7 @@ body {
     display: flex;
     min-height: 100vh;
     min-height: 100dvh;
+    align-items: stretch; /* ensure columns stretch to tallest content */
 }
 
 /* Section: Left Rail Navigation */
@@ -50,10 +51,12 @@ body {
     flex-direction: column;
     gap: var(--gap);
     padding: var(--gap) calc(var(--gap) * 1.333);
-    flex-shrink: 0;
-    position: relative;
-    z-index: 1;
     width: var(--rail-width);
+    position: fixed; /* occupy full left side of viewport */
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
     align-items: flex-start;
     background: #dba37f;
     overflow: auto;
@@ -75,7 +78,7 @@ main {
     flex: 0 1 auto;
     max-width: 75ch;
     min-width: 0;
-    padding: var(--gap) var(--gap) var(--gap) calc(var(--gap) * 2);
+    padding: calc(var(--gap) * 4) var(--gap) var(--gap) calc(var(--gap) * 2);
     border: none;
     line-height: 1.5;
     font-size: 16px;
@@ -83,6 +86,7 @@ main {
     overflow-wrap: break-word;
     word-break: break-word;
     margin-inline: 0 auto;
+    margin-left: var(--rail-width);
 }
 
 /* Section: Theme (Dark) */
@@ -101,6 +105,10 @@ body.theme-dark main summary.menu-summary::before {
 /* Links inside main inherit white so they remain readable */
 body.theme-dark main a {
     color: #fff;
+}
+/* Make fieldset borders white in dark theme */
+body.theme-dark main fieldset {
+    border-color: #fff;
 }
 
 /* Theme toggle button */
@@ -128,13 +136,14 @@ body.theme-dark .theme-toggle {
 body.page2 main {
     border: none;
     position: relative;
+    padding-bottom: 96px; /* ensure content clears fixed Next button */
 }
 
 /* Section: Page 2 Next Button */
 body.page2 .next-button {
-    position: absolute;
-    right: var(--gap);
-    bottom: var(--gap);
+    position: fixed; /* keep consistent placement */
+    right: 16px;
+    bottom: 16px;
     padding: 8px 14px;
     background: var(--box-bg);
     border: 2px solid var(--box-border);
@@ -142,6 +151,7 @@ body.page2 .next-button {
     font-weight: 700;
     text-decoration: none;
     border-radius: 6px;
+    z-index: 1000;
 }
 
 body.page2 .next-button:hover {
@@ -270,9 +280,14 @@ body.page2 input[type="checkbox"][disabled] {
 }
 
 body.page2 label.required {
-    color: #000;
+    color: inherit; /* follow theme (light/dark) */
     opacity: 1;
     cursor: not-allowed;
+}
+/* Dark theme text color for required label (explicit for safety) */
+body.theme-dark.page2 label.required,
+body.theme-dark .page2 label.required {
+    color: #fff;
 }
 
 /* Remove focus outline and tap highlight on restricted */
@@ -549,5 +564,12 @@ main details[open]>summary.menu-summary::before {
 
     .left-rail {
         width: 100%;
+        position: static; /* stack on top on small screens */
+        height: auto;
+    }
+
+    main {
+        margin-left: 0; /* no offset on small screens */
+        padding-top: calc(var(--gap) * 4);
     }
 }
