@@ -281,7 +281,7 @@ main details[open] > summary.menu-summary::before {
     height: var(--box-height);
     width: 100%;
     background: var(--box-bg);
-    border: 2px solid var(--box-border);
+    border: none; /* default: no outline */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -289,6 +289,12 @@ main details[open] > summary.menu-summary::before {
     font-weight: 600;
     user-select: none;
     align-self: center;
+}
+
+/* outline only for the active page link */
+.left-rail .box.active,
+.left-rail .box[aria-current="page"] {
+    border: 2px solid var(--box-border);
 }
 
 .box,
