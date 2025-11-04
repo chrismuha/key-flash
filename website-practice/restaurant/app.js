@@ -8,7 +8,12 @@
   const STORAGE_KEYS = {
     orderType: 'restaurant.orderType',
     ingredients: 'restaurant.ingredients',
-    theme: 'restaurant.theme'
+    theme: 'restaurant.theme',
+    deliveryName: 'restaurant.delivery.name',
+    deliveryAddress: 'restaurant.delivery.address',
+    deliveryType: 'restaurant.delivery.type',
+    deliverySubDiv: 'restaurant.delivery.subdiv',
+    deliveryCity: 'restaurant.delivery.city'
   };
 
   // [B] TEXT UTILS
@@ -118,9 +123,38 @@
     if (body.classList.contains('order-type')) {
       const cards = document.querySelectorAll('.order-card');
       cards.forEach((card) => {
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (e) => {
           const type = card.dataset.type || '';
-          if (type) saveOrderType(type);
+          if (!type) return;
+          if (type === 'delivery') {
+            // Expand delivery details instead of navigating immediately
+            e.preventDefault();
+            const form = document.getElementById('delivery-details');
+            if (form) {
+              form.hidden = false;
+              // Restore previous values if any
+              try {
+                const n = localStorage.getItem(STORAGE_KEYS.deliveryName) || '';
+                const a = localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '';
+                const t = localStorage.getItem(STORAGE_KEYS.deliveryType) || 'House';
+                const sd = localStorage.getItem(STORAGE_KEYS.deliverySubDiv) || '';
+                const c = localStorage.getItem(STORAGE_KEYS.deliveryCity) || '';
+                const z = '';
+                if (n) form.querySelector('#delivery-name').value = n;
+                if (a) form.querySelector('#delivery-address').value = a;
+                const sel = form.querySelector('#delivery-type'); if (sel) sel.value = t;
+                if (sd) form.querySelector('#delivery-subdiv').value = sd;
+                if (c) form.querySelector('#delivery-city').value = c;
+                // zip removed
+              } catch {}
+              // Focus first input
+              const first = form.querySelector('input');
+              if (first) first.focus();
+            }
+          } else {
+            // Dine/Carryout proceeds immediately
+            saveOrderType(type);
+          }
         });
       });
 
@@ -129,6 +163,63 @@
       if (selected) {
         const el = document.querySelector(`.order-card[data-type="${selected}"]`);
         if (el) el.classList.add('selected');
+        // If prior choice was delivery, show details
+        if (selected === 'delivery') {
+          const form = document.getElementById('delivery-details');
+          if (form) {
+            form.hidden = false;
+            try {
+              const n = localStorage.getItem(STORAGE_KEYS.deliveryName) || '';
+              const ph = localStorage.getItem(STORAGE_KEYS.deliveryPhone) || '';
+              const a = localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '';
+              const t = localStorage.getItem(STORAGE_KEYS.deliveryType) || 'House';
+              const sd = localStorage.getItem(STORAGE_KEYS.deliverySubDiv) || '';
+              const c = localStorage.getItem(STORAGE_KEYS.deliveryCity) || '';
+              const z = '';
+              if (n) form.querySelector('#delivery-name').value = n;
+              if (ph) form.querySelector('#delivery-phone').value = ph;
+              if (a) form.querySelector('#delivery-address').value = a;
+              const sel = form.querySelector('#delivery-type'); if (sel) sel.value = t;
+              if (sd) form.querySelector('#delivery-subdiv').value = sd;
+              if (c) form.querySelector('#delivery-city').value = c;
+              // zip removed
+            } catch {}
+          }
+        }
+      }
+
+      // Handle delivery form submit
+      const dForm = document.getElementById('delivery-details');
+      if (dForm) {
+        dForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const name = dForm.querySelector('#delivery-name').value.trim();
+          const phone = dForm.querySelector('#delivery-phone').value.trim();
+          const addr = dForm.querySelector('#delivery-address').value.trim();
+          const type = (dForm.querySelector('#delivery-type')?.value || '').trim();
+          const subdiv = dForm.querySelector('#delivery-subdiv').value.trim();
+          const city = dForm.querySelector('#delivery-city').value.trim();
+          const zip = '';
+          if (!name || !phone || !addr || !city || !type) {
+            // basic UI feedback
+            dForm.querySelectorAll('input[required], select[required]').forEach((inp) => {
+              if (!inp.value.trim()) inp.reportValidity?.();
+            });
+            return;
+          }
+          try {
+            localStorage.setItem(STORAGE_KEYS.deliveryName, name);
+            localStorage.setItem(STORAGE_KEYS.deliveryPhone, phone);
+            localStorage.setItem(STORAGE_KEYS.deliveryAddress, addr);
+            localStorage.setItem(STORAGE_KEYS.deliveryType, type || 'House');
+            localStorage.setItem(STORAGE_KEYS.deliverySubDiv, subdiv);
+            localStorage.setItem(STORAGE_KEYS.deliveryCity, city);
+            // zip removed
+          } catch {}
+          saveOrderType('delivery');
+          // Navigate to page 2
+          window.location.href = 'page2.html';
+        });
       }
     }
 
@@ -201,6 +292,55 @@
         const p = document.createElement('p');
         p.textContent = type ? (type === 'dine' ? 'Dine In/Carryout' : 'Delivery') : 'Not selected';
         frag.appendChild(p);
+
+        // Delivery details block (multi-line formatting)
+        if (type === 'delivery') {
+          const d = document.createElement('div');
+          const h = document.createElement('h3');
+          h.textContent = 'Delivery Details';
+          d.appendChild(h);
+
+          const dn = localStorage.getItem(STORAGE_KEYS.deliveryName) || '';
+          const dph = localStorage.getItem(STORAGE_KEYS.deliveryPhone) || '';
+          const da = localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '';
+          const dt = localStorage.getItem(STORAGE_KEYS.deliveryType) || '';
+          const sd = localStorage.getItem(STORAGE_KEYS.deliverySubDiv) || '';
+          const city = localStorage.getItem(STORAGE_KEYS.deliveryCity) || '';
+          const zip = '';
+
+          const block = document.createElement('div');
+          block.className = 'address-block';
+
+          if (dn || dt) {
+            const line = document.createElement('div');
+            line.textContent = dt ? `${dn} (${dt})` : dn;
+            block.appendChild(line);
+          }
+          if (dph) {
+            const line = document.createElement('div');
+            line.textContent = `Phone: ${dph}`;
+            block.appendChild(line);
+          }
+          if (da) {
+            const line = document.createElement('div');
+            line.textContent = da;
+            block.appendChild(line);
+          }
+          if (sd) {
+            const line = document.createElement('div');
+            line.textContent = sd;
+            block.appendChild(line);
+          }
+          // Street line removed; Street Address is shown via 'da'
+          if (city) {
+            const line = document.createElement('div');
+            line.textContent = city;
+            block.appendChild(line);
+          }
+
+          d.appendChild(block);
+          frag.appendChild(d);
+        }
 
         const h3i = document.createElement('h3');
         h3i.textContent = 'Selected Ingredients';

@@ -387,6 +387,61 @@ body.order-type .order-options {
     margin: 24px 0 8px;
 }
 
+/* Delivery details panel under cards */
+body.order-type .delivery-details {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid #000;
+    max-width: 520px;
+    background: #fff;
+}
+body.theme-dark.order-type .delivery-details {
+    background: #000;
+    color: #fff;
+    border-color: #fff;
+}
+body.order-type .delivery-details .field { margin-bottom: 10px; }
+body.order-type .delivery-details label { display: block; margin-bottom: 4px; }
+body.order-type .delivery-details .req { color: #c00; }
+body.order-type .delivery-details input[type="text"],
+body.order-type .delivery-details input[type="tel"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    background: #fff;
+    color: #000;
+}
+body.order-type .delivery-details select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    background: #fff;
+    color: #000;
+}
+body.theme-dark.order-type .delivery-details input[type="text"],
+body.theme-dark.order-type .delivery-details input[type="tel"] {
+    background: #111;
+    color: #fff;
+    border-color: #fff;
+}
+body.theme-dark.order-type .delivery-details select {
+    background: #111;
+    color: #fff;
+    border-color: #fff;
+}
+body.order-type .delivery-details .delivery-continue {
+    padding: 8px 14px;
+    background: var(--box-bg);
+    border: 2px solid var(--box-border);
+    color: #000;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
 body.order-type .order-card {
     width: 180px;
     height: 180px;

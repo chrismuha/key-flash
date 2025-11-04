@@ -51,6 +51,42 @@
             </a>
         </div>
 
+        <!-- Delivery details (shown when Delivery is selected) -->
+        <form id="delivery-details" class="delivery-details" hidden novalidate>
+            <h2>Delivery Details</h2>
+            <div class="field">
+                <label for="delivery-name">Name <span class="req">*</span></label>
+                <input type="text" id="delivery-name" name="delivery_name" autocomplete="name" required>
+            </div>
+            <div class="field">
+                <label for="delivery-phone">Phone Number <span class="req">*</span></label>
+                <input type="tel" id="delivery-phone" name="delivery_phone" autocomplete="tel" inputmode="tel" required>
+            </div>
+            <div class="field">
+                <label for="delivery-address">Street Address <span class="req">*</span></label>
+                <input type="text" id="delivery-address" name="delivery_address" autocomplete="street-address" required>
+            </div>
+            <div class="field">
+                <label for="delivery-type">Residence Type <span class="req">*</span></label>
+                <select id="delivery-type" name="delivery_type" required>
+                    <option value="Hotel">Hotel</option>
+                    <option value="School">School</option>
+                    <option value="Business">Business</option>
+                    <option value="Apartment">Apartment</option>
+                    <option value="House" selected>House</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="delivery-subdiv">Sub-Div (optional)</label>
+                <input type="text" id="delivery-subdiv" name="delivery_subdiv" autocomplete="address-line2">
+            </div>
+            <div class="field">
+                <label for="delivery-city">City <span class="req">*</span></label>
+                <input type="text" id="delivery-city" name="delivery_city" required>
+            </div>
+            <button type="submit" class="delivery-continue">Continue »</button>
+        </form>
+
         <!-- Helper note under choices -->
         <p class="order-note">Confirm your selection of Dine-In or Carryout or Delivery on the next page.</p>
 
