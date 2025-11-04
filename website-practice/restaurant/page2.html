@@ -8,29 +8,64 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 
-<body>
+<body class="page2">
 
     <!-- Left rail -->
     <nav class="left-rail">
         <a class="box" href="page1.html">Page 1</a>
         <a class="box" href="page2.html">Page 2</a>
         <a class="box" href="page3.html">Page 3</a>
-        <a class="box" href="page4.html">Page 4</a>
-        <a class="box" href="page5.html">Page 5</a>
-        <a class="box" href="page6.html">Page 6</a>
-        <a class="box" href="page7.html">Page 7</a>
-        <a class="box" href="page8.html">Page 8</a>
-        <a class="box" href="page9.html">Page 9</a>
-        <a class="box" href="page10.html">Page 10</a>
-        <a class="box" href="page11.html">Page 11</a>
-        <a class="box" href="page12.html">Page 12</a>
     </nav>
 
     <!-- Right-side content area -->
     <main>
-        <h1>Main Content</h1>
-        <p>This is where main page content goes.</p>
-    </main>
+        <h1>Menu Builder</h1>
+        <p>Select ingredients for each menu item below.</p>
+
+        <section>
+            <details>
+                <summary class="menu-summary">Pizza</summary>
+                <form>
+                    <fieldset>
+                        <legend>Choose Ingredients</legend>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="cheese"> Cheese</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="tomato"> Tomato</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="lettuce"> Lettuce</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="onion"> Onion</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="pickles"> Pickles</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="bacon"> Bacon</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="mushrooms"> Mushrooms</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="olives"> Olives</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="jalapenos"> Jalapeños</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="extra_sauce"> Extra Sauce</label>
+                    </fieldset>
+                </form>
+            </details>
+        </section>
+
+        <section>
+            <details>
+                <summary class="menu-summary">Burger</summary>
+                <form>
+                    <fieldset>
+                        <legend>Choose Ingredients</legend>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="cheese"> Cheese</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="tomato"> Tomato</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="lettuce"> Lettuce</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="onion"> Onion</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="pickles"> Pickles</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="bacon"> Bacon</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="mushrooms"> Mushrooms</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="olives"> Olives</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="jalapenos"> Jalapeños</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="extra_sauce"> Extra Sauce</label>
+                    </fieldset>
+                </form>
+            </details>
+        </section>
+
+        <a class="next-button" href="page3.html" aria-label="Go to next page">Next »</a>
+        </main>
 
 </body>
 

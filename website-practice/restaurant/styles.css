@@ -8,6 +8,10 @@
 
 * {
     box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 html,
@@ -51,19 +55,46 @@ body {
 
 /* Right-side content area */
 main {
-    border-color: var(--box-border);
     background: #fff;
     flex: 0 1 auto;
     max-width: 75ch;
     min-width: 0;
-    padding: calc(var(--gap) - 2px) var(--gap) var(--gap) calc(var(--gap) * 2);
-    border: 2px solid var(--box-border);
+    padding: var(--gap) var(--gap) var(--gap) calc(var(--gap) * 2);
+    border: none;
     line-height: 1.5;
     font-size: 16px;
     font-family: system-ui, sans-serif;
     overflow-wrap: break-word;
     word-break: break-word;
     margin-inline: 0 auto;
+}
+
+/* Only Page 2 should show bordered builder */
+body.page2 main {
+    border: 2px solid var(--box-border);
+    position: relative;
+}
+
+/* Next button inside builder */
+body.page2 .next-button {
+    position: absolute;
+    right: var(--gap);
+    bottom: var(--gap);
+    padding: 8px 14px;
+    background: var(--box-bg);
+    border: 2px solid var(--box-border);
+    color: #000;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+body.page2 .next-button:hover {
+    filter: brightness(0.95);
+}
+
+body.page2 .next-button:active {
+    transform: translateY(1px);
 }
 
 main> :first-child {
@@ -131,6 +162,47 @@ main h6 {
     line-height: 24px;
 }
 
+/* Expandable menu sections */
+main details {
+    margin-bottom: var(--gap);
+}
+
+main summary.menu-summary {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 36px;
+    font-weight: 700;
+    margin: 0;
+    list-style: none; /* ensure no default marker in Firefox */
+}
+
+/* hide default marker in WebKit/Blink */
+main summary.menu-summary::-webkit-details-marker {
+    display: none;
+}
+
+/* custom black arrow marker */
+main summary.menu-summary::before {
+    content: "\25B8"; /* small black right-pointing triangle ▸ */
+    display: inline-block;
+    width: 1em;
+    margin-right: 8px;
+    color: #000;
+    transition: transform 0.2s ease;
+}
+
+/* slight spacing when open */
+main details[open] > summary.menu-summary {
+    margin-bottom: 8px;
+}
+
+/* rotate arrow when open */
+main details[open] > summary.menu-summary::before {
+    transform: rotate(90deg);
+}
+
 /* boxes */
 .box {
     margin: 0;
@@ -161,6 +233,8 @@ main h6 {
     outline: 2px solid #000;
     outline-offset: 2px;
 }
+
+/* keep default focus outline for accessibility */
 
 *,
 *::before,
