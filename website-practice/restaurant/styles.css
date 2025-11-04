@@ -87,6 +87,7 @@ main {
 
 /* Section: Theme (Dark) */
 /* Only flips the main content background to black and text to white */
+body.theme-dark { background: #000; }
 body.theme-dark main {
     background: #000;
     color: #fff;
@@ -104,9 +105,9 @@ body.theme-dark main a {
 
 /* Theme toggle button */
 .theme-toggle {
-    position: absolute;
-    top: var(--gap);
-    right: calc(var(--gap) + 4px);
+    position: fixed;
+    top: 8px;
+    right: 8px;
     padding: 6px 10px;
     font-weight: 600;
     border: 1px solid #000;
@@ -114,6 +115,7 @@ body.theme-dark main a {
     color: #000;
     border-radius: 4px;
     cursor: pointer;
+    z-index: 1000;
 }
 
 body.theme-dark .theme-toggle {
@@ -346,7 +348,7 @@ body.page3 #order-summary a:focus {
 
 /* Section: Page 1 Order Type */
 body.order-type main {
-    text-align: center;
+    text-align: left;
 }
 
 body.order-type main h1 {
@@ -358,13 +360,13 @@ body.order-type main h1 {
     /* match other headers' weight */
     margin-bottom: 28px;
     /* consistent spacing before options */
-    text-align: center;
+    text-align: left;
 }
 
 body.order-type .order-options {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: flex-start;
     /* ensure vertical alignment under heading */
     gap: 48px;
     margin: 24px 0 8px;
@@ -383,16 +385,16 @@ body.order-type .order-card {
     justify-content: center;
     color: #000;
     text-decoration: none;
-    transition: background 0.2s ease;
+    background: #fff; /* always white */
 }
 
 body.order-type .order-card:hover {
-    background: #f5f5f5;
+    background: #fff; /* keep white on hover */
 }
 
 /* Visual selection if user returns to index */
 body.order-type .order-card.selected {
-    background: #f0f0f0;
+    background: #fff; /* keep white when selected */
 }
 
 body.order-type .order-card svg {
@@ -406,7 +408,7 @@ body.order-type .order-label {
 }
 
 body.order-type .order-note {
-    color: #444;
+    color: inherit; /* auto-adjusts with theme */
     margin-top: 18px;
 }
 
