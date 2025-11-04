@@ -129,6 +129,22 @@
           saveIngredients();
         }
       });
+      // Reset buttons per group
+      document.querySelectorAll('.reset-group[data-group]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const group = btn.getAttribute('data-group');
+          if (!group) return;
+          document.querySelectorAll(`input[type="checkbox"][name="${group}"]`).forEach((cb) => {
+            if (cb.dataset.required === 'true' || cb.disabled) {
+              // keep required selections checked
+              cb.checked = true;
+            } else {
+              cb.checked = false;
+            }
+          });
+          saveIngredients();
+        });
+      });
       // Also save when clicking Next
       const next = document.querySelector('.next-button');
       if (next) {

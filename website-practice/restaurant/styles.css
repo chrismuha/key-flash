@@ -269,15 +269,17 @@ body.order-type main {
 }
 
 body.order-type main h1 {
-    font-size: 40px;
-    line-height: 1.2;
-    font-weight: 800;
-    margin-bottom: 28px;
+    font-size: 32px; /* match Menu Builder */
+    line-height: 48px; /* match Menu Builder */
+    font-weight: 700; /* match other headers' weight */
+    margin-bottom: 28px; /* consistent spacing before options */
+    text-align: center;
 }
 
 body.order-type .order-options {
     display: flex;
     justify-content: center;
+    align-items: center; /* ensure vertical alignment under heading */
     gap: 48px;
     margin: 24px 0 8px;
 }
@@ -355,6 +357,19 @@ main summary.menu-summary {
     margin: 0;
     list-style: none; /* ensure no default marker in Firefox */
 }
+
+/* Reset buttons */
+main .reset-group {
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: #f7f7f7;
+    border: 1px solid #000;
+    border-radius: 4px;
+    color: #000;
+    font-weight: 600;
+    cursor: pointer;
+}
+main .reset-group:hover { background: #eee; }
 
 /* hide default marker in WebKit/Blink */
 main summary.menu-summary::-webkit-details-marker {
