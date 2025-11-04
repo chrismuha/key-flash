@@ -1,0 +1,180 @@
+:root {
+    --rail-width: clamp(260px, 35vw, 420px);
+    --box-height: 56px;
+    --gap: 12px;
+    --box-bg: #2ecc71;
+    --box-border: #000;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+/* Left rail */
+.left-rail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    padding: var(--gap) calc(var(--gap) * 1.333);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    width: var(--rail-width);
+    align-items: flex-start;
+    background: #dba37f;
+    overflow: auto;
+    scrollbar-gutter: stable both-edges;
+}
+
+.left-rail::before {
+    content: "";
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Right-side content area */
+main {
+    border-color: var(--box-border);
+    background: #fff;
+    flex: 0 1 auto;
+    max-width: 75ch;
+    min-width: 0;
+    padding: calc(var(--gap) - 2px) var(--gap) var(--gap) calc(var(--gap) * 2);
+    border: 2px solid var(--box-border);
+    line-height: 1.5;
+    font-size: 16px;
+    font-family: system-ui, sans-serif;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    margin-inline: 0 auto;
+}
+
+main> :first-child {
+    margin-top: 0;
+}
+
+main> :last-child {
+    margin-bottom: 0;
+}
+
+main img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+main h1,
+main h2,
+main h3,
+main h4,
+main h5,
+main h6,
+main p,
+main ul,
+main ol,
+main blockquote,
+main pre {
+    margin-top: 0;
+    margin-bottom: var(--gap);
+}
+
+main ul,
+main ol {
+    margin: 0;
+    padding-left: calc(var(--gap) * 2);
+}
+
+main h1 {
+    font-size: 32px;
+    line-height: 48px;
+}
+
+main h2 {
+    font-size: 24px;
+    line-height: 36px;
+}
+
+main h3 {
+    font-size: 20px;
+    line-height: 24px;
+}
+
+main h4 {
+    font-size: 18px;
+    line-height: 24px;
+}
+
+main h5 {
+    font-size: 16px;
+    line-height: 24px;
+}
+
+main h6 {
+    font-size: 14px;
+    line-height: 24px;
+}
+
+/* boxes */
+.box {
+    margin: 0;
+    height: var(--box-height);
+    width: 100%;
+    background: var(--box-bg);
+    border: 2px solid var(--box-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: system-ui, sans-serif;
+    font-weight: 600;
+    user-select: none;
+    align-self: center;
+}
+
+.box,
+.box:link,
+.box:visited,
+.box:hover,
+.box:active,
+.box:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+
+@media (max-width: 560px) {
+    body {
+        flex-direction: column;
+    }
+
+    .left-rail {
+        width: 100%;
+    }
+}
