@@ -162,6 +162,78 @@ main h6 {
     line-height: 24px;
 }
 
+/* Order type (index) */
+body.order-type main {
+    text-align: center;
+}
+
+body.order-type main h1 {
+    font-size: 40px;
+    line-height: 1.2;
+    font-weight: 800;
+    margin-bottom: 28px;
+}
+
+body.order-type .order-options {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    margin: 24px 0 8px;
+}
+
+body.order-type .order-card {
+    width: 180px;
+    height: 180px; /* square boxes */
+    border: 2px solid #000;
+    border-radius: 0; /* square edges */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+body.order-type .order-card:hover {
+    background: #f5f5f5;
+}
+
+body.order-type .order-card svg {
+    margin-bottom: 10px;
+}
+
+body.order-type .order-label {
+    font-size: 18px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+body.order-type .order-note {
+    color: #444;
+    margin-top: 18px;
+}
+
+body.order-type .order-links,
+body.order-type .order-powered {
+    margin: 18px 0 0;
+}
+
+body.order-type .order-links a,
+body.order-type .order-powered a {
+    color: #000;
+}
+
+@media (max-width: 600px) {
+    body.order-type .order-options {
+        gap: 16px;
+    }
+    body.order-type .order-card {
+        width: 140px;
+        height: 140px;
+    }
+}
+
 /* Expandable menu sections */
 main details {
     margin-bottom: var(--gap);
