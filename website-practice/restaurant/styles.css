@@ -165,7 +165,8 @@ body.page2 label.required * {
     transition: none !important;
 }
 /* Completely suppress hover/interaction on required Burger labels */
-body.page2 label.required { pointer-events: none !important; }
+/* allow interaction; JS enforces requirement only when section is active */
+body.page2 label.required { pointer-events: auto !important; }
 
 /* Section: Page 2 Scoped (Builder Container) */
 body.page2 main {
@@ -288,7 +289,7 @@ main input[type="checkbox"] {
 }
 
 main input[type="checkbox"]:checked {
-    background-color: var(--box-bg);
+    background-color: #e53935; /* red fill when checked */
 }
 
 main input[type="checkbox"]::after {
@@ -303,15 +304,17 @@ main input[type="checkbox"]::after {
 
 main input[type="checkbox"]:checked::after {
     opacity: 1;
+    /* green checkmark to contrast red */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%232ecc71' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='4,10 8,14 16,6'/></svg>");
+}
+/* Required + disabled items keep black checkmark for clarity */
+body.page2 input[type="checkbox"][data-required="true"][disabled]:checked::after {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='4,10 8,14 16,6'/></svg>");
 }
 
 /* Section: Restricted/Required Overrides */
 body.page2 input[type="checkbox"][disabled] {
-    opacity: 1;
-    /* don't gray out */
-    accent-color: var(--box-bg);
-    /* keep green when supported */
+    opacity: 1; /* don't gray out */
 }
 
 body.page2 label.required {
@@ -340,15 +343,11 @@ body.page2 label.required * {
 body.page2 label.required:hover,
 body.page2 label.required:active,
 body.page2 label.required:focus {
-    color: #000;
-    background: transparent;
+    color: inherit !important;
+    background: transparent !important;
 }
 
-body.page2 label.required:hover input[type="checkbox"][data-required="true"],
-body.page2 label.required:active input[type="checkbox"][data-required="true"],
-body.page2 label.required:focus input[type="checkbox"][data-required="true"] {
-    accent-color: var(--box-bg);
-}
+/* block any accent/hover styling overrides for required */
 
 /* Custom-render the restricted, disabled checkbox to keep green box + black check */
 body.page2 input[type="checkbox"][data-required="true"][disabled] {
@@ -358,6 +357,12 @@ body.page2 input[type="checkbox"][data-required="true"][disabled] {
     transform: translateY(1px);
     /* nudge to match native checkbox baselines */
 }
+/* deactivate required labels' hover completely */
+body.page2 label.required { pointer-events: none !important; }
+
+/* Dim any ingredient text until its checkbox is checked */
+main fieldset label:has(> input:not(:checked)) { opacity: 0.6; }
+body.theme-dark main fieldset label:has(> input:not(:checked)) { color: #bbb; }
 
 body.page2 input[type="checkbox"][data-required="true"][disabled]:checked {
     background-color: var(--box-bg);
@@ -526,7 +531,9 @@ body.order-type .order-card:hover {
 
 /* Visual selection if user returns to index */
 body.order-type .order-card.selected {
-    background: #fff; /* keep white when selected */
+    background: var(--box-bg); /* stay green when active */
+    color: #000;
+    box-shadow: 0 0 0 3px #000 inset; /* outline active card */
 }
 
 body.order-type .order-card svg {

@@ -14,7 +14,8 @@
     deliveryAddress: 'restaurant.delivery.address',
     deliveryType: 'restaurant.delivery.type',
     deliveryCity: 'restaurant.delivery.city',
-    deliveryZip: 'restaurant.delivery.zip'
+    deliveryZip: 'restaurant.delivery.zip',
+    activeSections: 'restaurant.activeSections'
   };
 
   // [B] TEXT UTILS
@@ -123,13 +124,15 @@
       }
     } catch {}
 
-    // Go Back button handler (falls back to index)
+    // Go Back button handler: cycle within pages 1-3
     const backBtn = document.querySelector('.go-back');
     if (backBtn) {
       backBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        if (window.history.length > 1) {
-          window.history.back();
+        if (body.classList.contains('page3')) {
+          window.location.href = 'page2.html';
+        } else if (body.classList.contains('page2')) {
+          window.location.href = 'index.html';
         } else {
           window.location.href = 'index.html';
         }
@@ -175,10 +178,14 @@
       }
 
       const cards = document.querySelectorAll('.order-card');
+      const setActive = (clicked) => {
+        cards.forEach(c => c.classList.toggle('selected', c === clicked));
+      };
       cards.forEach((card) => {
         card.addEventListener('click', (e) => {
           const type = card.dataset.type || '';
           if (!type) return;
+          setActive(card);
           if (type === 'delivery') {
             // Expand delivery details instead of navigating immediately
             e.preventDefault();
@@ -350,14 +357,69 @@
       // Enforce required Burger Patty and Bun to be checked
       const patty = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="patty"]');
       const bun = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="bun"]');
+      const pizzaSauce = document.querySelector('input[type="checkbox"][name="pizza_ingredients[]"][value="tomato_sauce"]');
       const enforceReq = (el) => {
         if (!el) return;
         el.checked = true;
       };
       enforceReq(patty);
       enforceReq(bun);
+      enforceReq(pizzaSauce);
       // Ensure storage includes them
       saveIngredients();
+
+      // Section toggles: require checkbox to expand
+      const toggles = document.querySelectorAll('.section-toggle');
+      const detailsBySection = {
+        pizza: document.getElementById('pizza'),
+        burger: document.getElementById('burger'),
+        sauces: document.getElementById('sauces')
+      };
+      // Reset on load: clear any previously saved active sections and start unchecked/closed
+      try { localStorage.removeItem(STORAGE_KEYS.activeSections); } catch {}
+      let activeSections = {};
+      toggles.forEach((t) => {
+        const section = t.dataset.section;
+        t.checked = false;
+        const d = detailsBySection[section];
+        if (d) d.open = false;
+        // Ensure clicking the checkbox doesn't bubble to summary
+        t.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+        });
+        t.addEventListener('change', () => {
+          const d2 = detailsBySection[section];
+          if (d2) d2.open = t.checked;
+          // If activated, enforce required items in that section
+          if (t.checked && d2) {
+            d2.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => {
+              cb.checked = true;
+            });
+            saveIngredients();
+          }
+          // If deactivated, clear all selections (including required) in that section
+          if (!t.checked && d2) {
+            d2.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => {
+              cb.checked = false;
+            });
+            saveIngredients();
+          }
+          activeSections[section] = t.checked;
+          try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(activeSections)); } catch {}
+        });
+      });
+      // Summary click toggles the section checkbox (and thus open state)
+      document.querySelectorAll('summary.menu-summary').forEach((s) => {
+        s.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const t = s.querySelector('.section-toggle');
+          if (t) {
+            t.checked = !t.checked;
+            t.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+      });
       // Save on any change
       document.addEventListener('change', (e) => {
         const t = e.target;
@@ -381,24 +443,13 @@
           saveIngredients();
         });
       });
-      // Validate before navigating on Next
+      // Next simply saves and allows navigation; no extra ingredient requirement
       const next = document.querySelector('.next-button');
       if (next) {
-        next.addEventListener('click', (e) => {
+        next.addEventListener('click', () => {
           saveIngredients();
-          // Count any non-required selection across all groups
-          const checked = Array.from(document.querySelectorAll('input[type="checkbox"][name$="ingredients[]"]:checked'))
-            .filter((el) => !(el.disabled || el.dataset.required === 'true'));
           const err = document.getElementById('builder-error');
-          if (checked.length === 0) {
-            e.preventDefault();
-            if (err) {
-              err.hidden = false;
-              err.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-          } else {
-            if (err) err.hidden = true;
-          }
+          if (err) err.hidden = true;
         });
       }
     }
@@ -413,6 +464,8 @@
           const raw = localStorage.getItem(STORAGE_KEYS.ingredients);
           ingredients = raw ? JSON.parse(raw) : {};
         } catch { ingredients = {}; }
+        let activeSections = {};
+        try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
 
         // Build summary HTML
         const frag = document.createDocumentFragment();
@@ -482,6 +535,8 @@
           nonEmpty.forEach(([group, values]) => {
             const key = group.replace(/_ingredients\[\]$/, '');
             const prettyGroup = key.replace(/_/g, ' ');
+            // Skip categories that are not active (checkbox not selected on Page 2)
+            if (!activeSections[key]) return;
 
             const header = document.createElement('div');
             const listTitle = document.createElement('strong');
@@ -494,16 +549,7 @@
             edit.style.marginLeft = '8px';
             header.appendChild(edit);
 
-            // For burger, only show section if more than patty selected (ignore bun and patty in count)
-            if (key === 'burger') {
-              const countNonRequired = (values || []).filter((item) => {
-                const val = (typeof item === 'string') ? item : (item && item.value);
-                return val !== 'patty' && val !== 'bun';
-              }).length;
-              if (countNonRequired === 0) {
-                return; // skip rendering burger section
-              }
-            }
+            // Burger now allowed with only required items; no special skip
 
             frag.appendChild(header);
             const ul = document.createElement('ul');
