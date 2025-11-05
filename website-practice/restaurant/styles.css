@@ -350,6 +350,8 @@ body.page3 #order-summary h3 {
 body.page3 #order-summary ul {
     margin: 0 0 8px 0;
 }
+/* spacing under multi-line address block */
+body.page3 #order-summary .address-block { margin-bottom: 12px; }
 
 /* Keep Edit links black even after visited */
 body.page3 #order-summary a,

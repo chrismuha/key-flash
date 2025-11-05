@@ -10,10 +10,11 @@
     ingredients: 'restaurant.ingredients',
     theme: 'restaurant.theme',
     deliveryName: 'restaurant.delivery.name',
+    deliveryPhone: 'restaurant.delivery.phone',
     deliveryAddress: 'restaurant.delivery.address',
     deliveryType: 'restaurant.delivery.type',
-    deliverySubDiv: 'restaurant.delivery.subdiv',
-    deliveryCity: 'restaurant.delivery.city'
+    deliveryCity: 'restaurant.delivery.city',
+    deliveryZip: 'restaurant.delivery.zip'
   };
 
   // [B] TEXT UTILS
@@ -135,17 +136,17 @@
               // Restore previous values if any
               try {
                 const n = localStorage.getItem(STORAGE_KEYS.deliveryName) || '';
+                const ph = localStorage.getItem(STORAGE_KEYS.deliveryPhone) || '';
                 const a = localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '';
                 const t = localStorage.getItem(STORAGE_KEYS.deliveryType) || 'House';
-                const sd = localStorage.getItem(STORAGE_KEYS.deliverySubDiv) || '';
                 const c = localStorage.getItem(STORAGE_KEYS.deliveryCity) || '';
-                const z = '';
+                const z = localStorage.getItem(STORAGE_KEYS.deliveryZip) || '';
                 if (n) form.querySelector('#delivery-name').value = n;
+                if (ph) form.querySelector('#delivery-phone').value = ph;
                 if (a) form.querySelector('#delivery-address').value = a;
                 const sel = form.querySelector('#delivery-type'); if (sel) sel.value = t;
-                if (sd) form.querySelector('#delivery-subdiv').value = sd;
                 if (c) form.querySelector('#delivery-city').value = c;
-                // zip removed
+                if (z) form.querySelector('#delivery-zip').value = z;
               } catch {}
               // Focus first input
               const first = form.querySelector('input');
@@ -173,16 +174,14 @@
               const ph = localStorage.getItem(STORAGE_KEYS.deliveryPhone) || '';
               const a = localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '';
               const t = localStorage.getItem(STORAGE_KEYS.deliveryType) || 'House';
-              const sd = localStorage.getItem(STORAGE_KEYS.deliverySubDiv) || '';
               const c = localStorage.getItem(STORAGE_KEYS.deliveryCity) || '';
-              const z = '';
+              const z = localStorage.getItem(STORAGE_KEYS.deliveryZip) || '';
               if (n) form.querySelector('#delivery-name').value = n;
               if (ph) form.querySelector('#delivery-phone').value = ph;
               if (a) form.querySelector('#delivery-address').value = a;
               const sel = form.querySelector('#delivery-type'); if (sel) sel.value = t;
-              if (sd) form.querySelector('#delivery-subdiv').value = sd;
               if (c) form.querySelector('#delivery-city').value = c;
-              // zip removed
+              if (z) form.querySelector('#delivery-zip').value = z;
             } catch {}
           }
         }
@@ -191,20 +190,49 @@
       // Handle delivery form submit
       const dForm = document.getElementById('delivery-details');
       if (dForm) {
+        // Restrict phone to digits only
+        const phoneEl = dForm.querySelector('#delivery-phone');
+        if (phoneEl) {
+          phoneEl.addEventListener('input', () => {
+            phoneEl.value = phoneEl.value.replace(/\D+/g, '');
+          });
+        }
         dForm.addEventListener('submit', (e) => {
           e.preventDefault();
           const name = dForm.querySelector('#delivery-name').value.trim();
-          const phone = dForm.querySelector('#delivery-phone').value.trim();
+          const phoneEl = dForm.querySelector('#delivery-phone');
+          const phone = phoneEl ? phoneEl.value.replace(/\D+/g, '') : '';
           const addr = dForm.querySelector('#delivery-address').value.trim();
           const type = (dForm.querySelector('#delivery-type')?.value || '').trim();
-          const subdiv = dForm.querySelector('#delivery-subdiv').value.trim();
           const city = dForm.querySelector('#delivery-city').value.trim();
-          const zip = '';
-          if (!name || !phone || !addr || !city || !type) {
+          const zipEl = dForm.querySelector('#delivery-zip');
+          const zip = zipEl ? zipEl.value.trim() : '';
+          // clear any previous custom validity
+          if (phoneEl) phoneEl.setCustomValidity('');
+          if (zipEl) zipEl.setCustomValidity('');
+          if (!name || !phone || !addr || !city || !type || !zip) {
             // basic UI feedback
             dForm.querySelectorAll('input[required], select[required]').forEach((inp) => {
               if (!inp.value.trim()) inp.reportValidity?.();
             });
+            return;
+          }
+          // Phone must be exactly 10 digits
+          if (phone.length !== 10) {
+            if (phoneEl) {
+              phoneEl.setCustomValidity('Enter a 10-digit phone number');
+              phoneEl.reportValidity();
+              setTimeout(() => phoneEl.setCustomValidity(''), 1500);
+            }
+            return;
+          }
+          // Enforce service area zip
+          if (zip !== '13309') {
+            if (zipEl) {
+              zipEl.setCustomValidity('We currently serve zip code 13309 only.');
+              zipEl.reportValidity();
+              setTimeout(() => zipEl.setCustomValidity(''), 2000);
+            }
             return;
           }
           try {
@@ -212,9 +240,8 @@
             localStorage.setItem(STORAGE_KEYS.deliveryPhone, phone);
             localStorage.setItem(STORAGE_KEYS.deliveryAddress, addr);
             localStorage.setItem(STORAGE_KEYS.deliveryType, type || 'House');
-            localStorage.setItem(STORAGE_KEYS.deliverySubDiv, subdiv);
             localStorage.setItem(STORAGE_KEYS.deliveryCity, city);
-            // zip removed
+            localStorage.setItem(STORAGE_KEYS.deliveryZip, zip);
           } catch {}
           saveOrderType('delivery');
           // Navigate to page 2
@@ -304,9 +331,8 @@
           const dph = localStorage.getItem(STORAGE_KEYS.deliveryPhone) || '';
           const da = localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '';
           const dt = localStorage.getItem(STORAGE_KEYS.deliveryType) || '';
-          const sd = localStorage.getItem(STORAGE_KEYS.deliverySubDiv) || '';
           const city = localStorage.getItem(STORAGE_KEYS.deliveryCity) || '';
-          const zip = '';
+          const zip = localStorage.getItem(STORAGE_KEYS.deliveryZip) || '';
 
           const block = document.createElement('div');
           block.className = 'address-block';
@@ -326,15 +352,10 @@
             line.textContent = da;
             block.appendChild(line);
           }
-          if (sd) {
-            const line = document.createElement('div');
-            line.textContent = sd;
-            block.appendChild(line);
-          }
           // Street line removed; Street Address is shown via 'da'
-          if (city) {
+          if (city || zip) {
             const line = document.createElement('div');
-            line.textContent = city;
+            line.textContent = [city, zip].filter(Boolean).join(' ');
             block.appendChild(line);
           }
 

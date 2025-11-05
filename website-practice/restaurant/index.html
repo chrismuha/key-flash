@@ -60,7 +60,7 @@
             </div>
             <div class="field">
                 <label for="delivery-phone">Phone Number <span class="req">*</span></label>
-                <input type="tel" id="delivery-phone" name="delivery_phone" autocomplete="tel" inputmode="tel" required>
+                <input type="tel" id="delivery-phone" name="delivery_phone" autocomplete="tel" inputmode="numeric" pattern="[0-9]*" data-digits-only required>
             </div>
             <div class="field">
                 <label for="delivery-address">Street Address <span class="req">*</span></label>
@@ -77,12 +77,12 @@
                 </select>
             </div>
             <div class="field">
-                <label for="delivery-subdiv">Sub-Div (optional)</label>
-                <input type="text" id="delivery-subdiv" name="delivery_subdiv" autocomplete="address-line2">
-            </div>
-            <div class="field">
                 <label for="delivery-city">City <span class="req">*</span></label>
                 <input type="text" id="delivery-city" name="delivery_city" required>
+            </div>
+            <div class="field">
+                <label for="delivery-zip">Zip <span class="req">*</span></label>
+                <input type="text" id="delivery-zip" name="delivery_zip" inputmode="numeric" pattern="13309" title="Zip must be 13309" required>
             </div>
             <button type="submit" class="delivery-continue">Continue »</button>
         </form>
