@@ -190,23 +190,66 @@
       // Handle delivery form submit
       const dForm = document.getElementById('delivery-details');
       if (dForm) {
-        // Restrict phone to digits only
+        // Helpers for inputs
         const phoneEl = dForm.querySelector('#delivery-phone');
+        const zipEl = dForm.querySelector('#delivery-zip');
+
+        // Live phone formatting to (000)-000-0000
+        const formatPhone = (digits) => {
+          const d = digits.replace(/\D+/g, '').slice(0, 10);
+          const a = d.slice(0, 3);
+          const b = d.slice(3, 6);
+          const c = d.slice(6, 10);
+          let out = '';
+          if (a) out = `(${a}`;
+          if (a.length === 3) out += `)`;
+          if (b) out += `-${b}`;
+          if (c) out += `-${c}`;
+          return out;
+        };
+
+        const formatZipPlus4 = (value) => {
+          // Keep only digits, limit to 9 (ZIP+4)
+          const d = (value || '').replace(/\D+/g, '').slice(0, 9);
+          const first = d.slice(0, 5);
+          const plus4 = d.slice(5);
+          return plus4 ? `${first}-${plus4}` : first;
+        };
+
         if (phoneEl) {
+          if (phoneEl.value) phoneEl.value = formatPhone(phoneEl.value);
           phoneEl.addEventListener('input', () => {
-            phoneEl.value = phoneEl.value.replace(/\D+/g, '');
+            phoneEl.value = formatPhone(phoneEl.value);
+            if (phoneEl.maxLength > 0 && phoneEl.value.length > phoneEl.maxLength) {
+              phoneEl.value = phoneEl.value.slice(0, phoneEl.maxLength);
+            }
+          });
+        }
+
+        // Zip: live-format to ZIP+4 (#####-####), max 10 chars
+        if (zipEl) {
+          if (zipEl.value) zipEl.value = formatZipPlus4(zipEl.value);
+          zipEl.addEventListener('input', () => {
+            zipEl.setCustomValidity('');
+            zipEl.value = formatZipPlus4(zipEl.value);
+            if (zipEl.maxLength > 0 && zipEl.value.length > zipEl.maxLength) {
+              zipEl.value = zipEl.value.slice(0, zipEl.maxLength);
+            }
           });
         }
         dForm.addEventListener('submit', (e) => {
           e.preventDefault();
           const name = dForm.querySelector('#delivery-name').value.trim();
-          const phoneEl = dForm.querySelector('#delivery-phone');
           const phone = phoneEl ? phoneEl.value.replace(/\D+/g, '') : '';
           const addr = dForm.querySelector('#delivery-address').value.trim();
           const type = (dForm.querySelector('#delivery-type')?.value || '').trim();
           const city = dForm.querySelector('#delivery-city').value.trim();
-          const zipEl = dForm.querySelector('#delivery-zip');
-          const zip = zipEl ? zipEl.value.trim() : '';
+          const zip = zipEl ? (zipEl.value || '').trim() : '';
+          // clear any previous custom validity
+          if (phoneEl) phoneEl.setCustomValidity('');
+          if (zipEl) zipEl.setCustomValidity('');
+          const errEl = document.getElementById('delivery-error');
+          if (errEl) errEl.hidden = true;
           // clear any previous custom validity
           if (phoneEl) phoneEl.setCustomValidity('');
           if (zipEl) zipEl.setCustomValidity('');
@@ -220,18 +263,30 @@
           // Phone must be exactly 10 digits
           if (phone.length !== 10) {
             if (phoneEl) {
-              phoneEl.setCustomValidity('Enter a 10-digit phone number');
+              const msg = 'Please contact us if you are having trouble placing your order online. Please let us know what the issue is so we can have it fixed in a timely manner.';
+              phoneEl.setCustomValidity(msg);
               phoneEl.reportValidity();
-              setTimeout(() => phoneEl.setCustomValidity(''), 1500);
+            }
+            // Optional inline helper display (same single message)
+            const errEl = document.getElementById('delivery-error');
+            if (errEl) {
+              errEl.textContent = 'Please contact us if you are having trouble placing your order online. Please let us know what the issue is so we can have it fixed in a timely manner.';
+              errEl.hidden = false;
             }
             return;
           }
-          // Enforce service area zip
-          if (zip !== '13309') {
+          // Enforce service area zip with single custom message (compare digits only)
+          // Expect ZIP+4: 9 digits where first 5 must be 13309
+          const zipDigits = zip.replace(/\D+/g, '');
+          if (zipDigits.length !== 9 || zipDigits.slice(0, 5) !== '13309') {
             if (zipEl) {
-              zipEl.setCustomValidity('We currently serve zip code 13309 only.');
+              zipEl.setCustomValidity('Sorry, we cannot accept your order. We currently serve zip code 13309 only.');
               zipEl.reportValidity();
-              setTimeout(() => zipEl.setCustomValidity(''), 2000);
+              // Do not set a timeout reset; cleared on next submit attempt above
+            }
+            if (errEl) {
+              errEl.textContent = 'Sorry, we cannot accept your order. We currently serve zip code 13309 only.';
+              errEl.hidden = false;
             }
             return;
           }
@@ -332,7 +387,12 @@
           const da = localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '';
           const dt = localStorage.getItem(STORAGE_KEYS.deliveryType) || '';
           const city = localStorage.getItem(STORAGE_KEYS.deliveryCity) || '';
-          const zip = localStorage.getItem(STORAGE_KEYS.deliveryZip) || '';
+          const zipRaw = localStorage.getItem(STORAGE_KEYS.deliveryZip) || '';
+          const zip = (function(){
+            const d = String(zipRaw).replace(/\D+/g,'').slice(0,9);
+            if (!d) return '';
+            return d.length > 5 ? d.slice(0,5) + '-' + d.slice(5) : d;
+          })();
 
           const block = document.createElement('div');
           block.className = 'address-block';
@@ -344,7 +404,20 @@
           }
           if (dph) {
             const line = document.createElement('div');
-            line.textContent = `Phone: ${dph}`;
+            // format saved digits for display as (000)-000-0000
+            const prettyPhone = (function () {
+              const d = String(dph).replace(/\D+/g, '').slice(0, 10);
+              const a = d.slice(0, 3);
+              const b = d.slice(3, 6);
+              const c = d.slice(6, 10);
+              let out = '';
+              if (a) out = `(${a}`;
+              if (a.length === 3) out += `)`;
+              if (b) out += `-${b}`;
+              if (c) out += `-${c}`;
+              return out || dph;
+            })();
+            line.textContent = `Phone: ${prettyPhone}`;
             block.appendChild(line);
           }
           if (da) {

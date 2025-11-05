@@ -405,6 +405,10 @@ body.theme-dark.order-type .delivery-details {
 body.order-type .delivery-details .field { margin-bottom: 10px; }
 body.order-type .delivery-details label { display: block; margin-bottom: 4px; }
 body.order-type .delivery-details .req { color: #c00; }
+body.order-type .delivery-details .form-error {
+    color: #c00;
+    margin: 8px 0;
+}
 body.order-type .delivery-details input[type="text"],
 body.order-type .delivery-details input[type="tel"] {
     width: 100%;

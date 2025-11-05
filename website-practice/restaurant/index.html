@@ -56,15 +56,15 @@
             <h2>Delivery Details</h2>
             <div class="field">
                 <label for="delivery-name">Name <span class="req">*</span></label>
-                <input type="text" id="delivery-name" name="delivery_name" autocomplete="name" required>
+                <input type="text" id="delivery-name" name="delivery_name" autocomplete="name" required maxlength="60">
             </div>
             <div class="field">
                 <label for="delivery-phone">Phone Number <span class="req">*</span></label>
-                <input type="tel" id="delivery-phone" name="delivery_phone" autocomplete="tel" inputmode="numeric" pattern="[0-9]*" data-digits-only required>
+                <input type="tel" id="delivery-phone" name="delivery_phone" autocomplete="tel" inputmode="numeric" pattern="[0-9]*" data-digits-only required maxlength="14">
             </div>
             <div class="field">
                 <label for="delivery-address">Street Address <span class="req">*</span></label>
-                <input type="text" id="delivery-address" name="delivery_address" autocomplete="street-address" required>
+                <input type="text" id="delivery-address" name="delivery_address" autocomplete="street-address" required maxlength="100">
             </div>
             <div class="field">
                 <label for="delivery-type">Residence Type <span class="req">*</span></label>
@@ -78,12 +78,13 @@
             </div>
             <div class="field">
                 <label for="delivery-city">City <span class="req">*</span></label>
-                <input type="text" id="delivery-city" name="delivery_city" required>
+                <input type="text" id="delivery-city" name="delivery_city" required maxlength="50">
             </div>
             <div class="field">
                 <label for="delivery-zip">Zip <span class="req">*</span></label>
-                <input type="text" id="delivery-zip" name="delivery_zip" inputmode="numeric" pattern="13309" title="Zip must be 13309" required>
+                <input type="text" id="delivery-zip" name="delivery_zip" inputmode="numeric" pattern="[0-9-]*" title="Digits and hyphens only" required maxlength="10">
             </div>
+            <p id="delivery-error" class="form-error" hidden>Sorry, we cannot accept your order. We currently serve zip code 13309 only.</p>
             <button type="submit" class="delivery-continue">Continue »</button>
         </form>
 
