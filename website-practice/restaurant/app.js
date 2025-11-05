@@ -122,6 +122,26 @@
 
     // [H1] INDEX: ORDER TYPE
     if (body.classList.contains('order-type')) {
+      // On page load/refresh of index, reset any previously saved order + delivery details
+      try {
+        localStorage.removeItem(STORAGE_KEYS.orderType);
+        localStorage.removeItem(STORAGE_KEYS.deliveryName);
+        localStorage.removeItem(STORAGE_KEYS.deliveryPhone);
+        localStorage.removeItem(STORAGE_KEYS.deliveryAddress);
+        localStorage.removeItem(STORAGE_KEYS.deliveryType);
+        localStorage.removeItem(STORAGE_KEYS.deliveryCity);
+        localStorage.removeItem(STORAGE_KEYS.deliveryZip);
+      } catch {}
+      const dFormInit = document.getElementById('delivery-details');
+      if (dFormInit) {
+        dFormInit.hidden = true;
+        dFormInit.querySelectorAll('input[type="text"], input[type="tel"]').forEach((el) => { el.value = ''; el.setCustomValidity && el.setCustomValidity(''); });
+        const typeSel = dFormInit.querySelector('#delivery-type');
+        if (typeSel) typeSel.value = 'House';
+        const errEl = document.getElementById('delivery-error');
+        if (errEl) errEl.hidden = true;
+      }
+
       const cards = document.querySelectorAll('.order-card');
       cards.forEach((card) => {
         card.addEventListener('click', (e) => {
@@ -247,6 +267,36 @@
           // Navigate to page 2
           window.location.href = 'page2.html';
         });
+
+        // Clear all text/tel fields and reset validation
+        const clearBtn = document.querySelector('.delivery-clear');
+        if (clearBtn) {
+          clearBtn.addEventListener('click', () => {
+            dForm.querySelectorAll('input[type="text"], input[type="tel"]').forEach((el) => {
+              el.value = '';
+              el.setCustomValidity && el.setCustomValidity('');
+            });
+            const typeSel = dForm.querySelector('#delivery-type');
+            if (typeSel) {
+              // Default to House explicitly
+              const target = 'House';
+              const hasHouse = Array.from(typeSel.options).some(o => o.value === target || o.text === target);
+              if (hasHouse) typeSel.value = target; else typeSel.selectedIndex = 0;
+            }
+            // Hide inline error if shown
+            const errEl = document.getElementById('delivery-error');
+            if (errEl) errEl.hidden = true;
+            // Clear persisted delivery details
+            try {
+              localStorage.removeItem(STORAGE_KEYS.deliveryName);
+              localStorage.removeItem(STORAGE_KEYS.deliveryPhone);
+              localStorage.removeItem(STORAGE_KEYS.deliveryAddress);
+              localStorage.removeItem(STORAGE_KEYS.deliveryType);
+              localStorage.removeItem(STORAGE_KEYS.deliveryCity);
+              localStorage.removeItem(STORAGE_KEYS.deliveryZip);
+            } catch {}
+          });
+        }
       }
     }
 
@@ -256,18 +306,17 @@
       restoreIngredients();
       // Auto-open a section from hash (e.g., #pizza or #burger)
       openSectionFromHash();
-      // Enforce required Burger Patty to be checked but styled like normal
+      // Enforce required Burger Patty and Bun to be checked
       const patty = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="patty"]');
-      if (patty) {
-        const enforceChecked = (e) => {
-          if (e) e.preventDefault();
-          patty.checked = true;
-          saveIngredients();
-        };
-        // Ensure it's set
-        enforceChecked();
-        // The input is disabled, so no further event handling needed
-      }
+      const bun = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="bun"]');
+      const enforceReq = (el) => {
+        if (!el) return;
+        el.checked = true;
+      };
+      enforceReq(patty);
+      enforceReq(bun);
+      // Ensure storage includes them
+      saveIngredients();
       // Save on any change
       document.addEventListener('change', (e) => {
         const t = e.target;
@@ -388,6 +437,17 @@
             edit.textContent = 'Edit';
             edit.style.marginLeft = '8px';
             header.appendChild(edit);
+
+            // For burger, only show section if more than patty selected (ignore bun and patty in count)
+            if (key === 'burger') {
+              const countNonRequired = (values || []).filter((item) => {
+                const val = (typeof item === 'string') ? item : (item && item.value);
+                return val !== 'patty' && val !== 'bun';
+              }).length;
+              if (countNonRequired === 0) {
+                return; // skip rendering burger section
+              }
+            }
 
             frag.appendChild(header);
             const ul = document.createElement('ul');

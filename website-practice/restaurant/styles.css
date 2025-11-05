@@ -447,6 +447,19 @@ body.order-type .delivery-details .delivery-continue {
     border-radius: 6px;
     cursor: pointer;
 }
+body.order-type .delivery-details .delivery-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+body.order-type .delivery-details .delivery-clear {
+    padding: 8px 14px;
+    background: #f7f7f7;
+    border: 1px solid #000;
+    color: #000;
+    border-radius: 6px;
+    cursor: pointer;
+}
 
 body.order-type .order-card {
     width: 180px;

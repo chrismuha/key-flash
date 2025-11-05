@@ -85,7 +85,10 @@
                 <input type="text" id="delivery-zip" name="delivery_zip" inputmode="numeric" pattern="[0-9-]*" title="Digits and hyphens only" required maxlength="10">
             </div>
             <p id="delivery-error" class="form-error" hidden>Sorry, we cannot accept your order. We currently serve zip code 13309 only.</p>
-            <button type="submit" class="delivery-continue">Continue »</button>
+            <div class="delivery-actions">
+                <button type="button" class="delivery-clear">Clear All Fields</button>
+                <button type="submit" class="delivery-continue">Continue »</button>
+            </div>
         </form>
 
         <!-- Helper note under choices -->
