@@ -63,6 +63,10 @@ body {
     scrollbar-gutter: stable both-edges;
 }
 
+/* Disable nav bar (dev only) — hide completely */
+.left-rail { display: none !important; }
+body main { margin-left: 0 !important; }
+
 .left-rail::before {
     content: "";
     display: none;
@@ -131,6 +135,37 @@ body.theme-dark .theme-toggle {
     background: #222;
     color: #fff;
 }
+
+/* Go Back button (fixed, next to theme toggle) */
+.go-back {
+    position: fixed;
+    top: 8px;
+    left: 8px; /* top-left position on every page */
+    padding: 6px 10px;
+    font-weight: 600;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    color: #000;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 1000;
+}
+body.theme-dark .go-back { border-color: #fff; background: #222; color: #fff; }
+
+/* Prevent hover animation/color change on required Burger items */
+body.page2 label.required,
+body.page2 label.required:hover,
+body.page2 label.required:active,
+body.page2 label.required:focus {
+    color: inherit !important;
+    background: transparent !important;
+}
+body.page2 label.required,
+body.page2 label.required * {
+    transition: none !important;
+}
+/* Completely suppress hover/interaction on required Burger labels */
+body.page2 label.required { pointer-events: none !important; }
 
 /* Section: Page 2 Scoped (Builder Container) */
 body.page2 main {
@@ -406,6 +441,12 @@ body.order-type .delivery-details .field { margin-bottom: 10px; }
 body.order-type .delivery-details label { display: block; margin-bottom: 4px; }
 body.order-type .delivery-details .req { color: #c00; }
 body.order-type .delivery-details .form-error {
+    color: #c00;
+    margin: 8px 0;
+}
+
+/* Generic inline form error styling */
+.form-error {
     color: #c00;
     margin: 8px 0;
 }

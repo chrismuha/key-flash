@@ -104,6 +104,38 @@
   document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
 
+    // Disable nav bar interactions (dev only)
+    try {
+      document.querySelectorAll('.left-rail a').forEach((a) => {
+        a.setAttribute('tabindex', '-1');
+        a.setAttribute('aria-disabled', 'true');
+        a.addEventListener('click', (e) => e.preventDefault());
+      });
+    } catch {}
+
+    // If user refreshes a non-index page, redirect to index
+    try {
+      const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+      const isReload = nav && nav.type === 'reload';
+      if (!body.classList.contains('order-type') && isReload) {
+        window.location.replace('index.html');
+        return;
+      }
+    } catch {}
+
+    // Go Back button handler (falls back to index)
+    const backBtn = document.querySelector('.go-back');
+    if (backBtn) {
+      backBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          window.location.href = 'index.html';
+        }
+      });
+    }
+
     // Theme init
     try {
       const savedTheme = localStorage.getItem(STORAGE_KEYS.theme);
@@ -340,11 +372,24 @@
           saveIngredients();
         });
       });
-      // Also save when clicking Next
+      // Validate before navigating on Next
       const next = document.querySelector('.next-button');
       if (next) {
-        next.addEventListener('click', () => {
+        next.addEventListener('click', (e) => {
           saveIngredients();
+          // Count any non-required selection across all groups
+          const checked = Array.from(document.querySelectorAll('input[type="checkbox"][name$="ingredients[]"]:checked'))
+            .filter((el) => !(el.disabled || el.dataset.required === 'true'));
+          const err = document.getElementById('builder-error');
+          if (checked.length === 0) {
+            e.preventDefault();
+            if (err) {
+              err.hidden = false;
+              err.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          } else {
+            if (err) err.hidden = true;
+          }
         });
       }
     }
@@ -362,12 +407,14 @@
 
         // Build summary HTML
         const frag = document.createDocumentFragment();
-        const h3 = document.createElement('h3');
-        h3.textContent = 'Order Type';
-        frag.appendChild(h3);
-        const p = document.createElement('p');
-        p.textContent = type ? (type === 'dine' ? 'Dine In/Carryout' : 'Delivery') : 'Not selected';
-        frag.appendChild(p);
+        if (type) {
+          const h3 = document.createElement('h3');
+          h3.textContent = 'Order Type';
+          frag.appendChild(h3);
+          const p = document.createElement('p');
+          p.textContent = (type === 'dine' ? 'Dine In/Carryout' : 'Delivery');
+          frag.appendChild(p);
+        }
 
         // Delivery details block (multi-line formatting)
         if (type === 'delivery') {
