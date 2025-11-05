@@ -452,6 +452,13 @@ body.order-type .delivery-details .form-error {
     margin: 8px 0;
 }
 
+/* Live invalid highlighting for delivery details */
+body.order-type .delivery-details .field.invalid input,
+body.order-type .delivery-details .field.invalid select {
+    outline: 2px solid #c00;
+    outline-offset: 2px;
+}
+
 /* Generic inline form error styling */
 .form-error {
     color: #c00;

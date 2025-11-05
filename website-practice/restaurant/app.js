@@ -210,6 +210,8 @@
               // Focus first input
               const first = form.querySelector('input');
               if (first) first.focus();
+              // Attach live validation
+              attachDeliveryLiveValidation(form);
             }
           } else {
             // Dine/Carryout proceeds immediately
@@ -322,6 +324,9 @@
             if (errEl) errEl.hidden = true;
           });
         }
+        // attach live validation once form is visible
+        attachDeliveryLiveValidation(dForm);
+
         dForm.addEventListener('submit', (e) => {
           e.preventDefault();
           const name = dForm.querySelector('#delivery-name').value.trim();
@@ -337,18 +342,10 @@
           if (zipEl) zipEl.setCustomValidity('');
           const errEl = document.getElementById('delivery-error');
           if (errEl) errEl.hidden = true;
-          if (!name || !phone || !addr || !city || !type || !zip) {
-            const missing = [];
-            if (!name) missing.push('Name');
-            if (!phone) missing.push('Phone Number');
-            if (!addr) missing.push('Street Address');
-            if (!type) missing.push('Residence Type');
-            if (!city) missing.push('City');
-            if (!zip) missing.push('Zip');
-            if (errEl) {
-              errEl.textContent = `Please complete the following required fields: ${missing.join(', ')}.`;
-              errEl.hidden = false;
-            }
+          // run live validation function for message + highlights
+          const { ok, message } = validateDeliveryForm(dForm);
+          if (!ok) {
+            if (errEl && message) { errEl.textContent = message; errEl.hidden = false; }
             return;
           }
           // Phone must be exactly 10 digits
@@ -415,6 +412,58 @@
           });
         }
       }
+    }
+
+    // Live validation utilities for delivery form
+    function validateDeliveryForm(form) {
+      const errEl = document.getElementById('delivery-error');
+      const name = form.querySelector('#delivery-name');
+      const phoneEl = form.querySelector('#delivery-phone');
+      const addr = form.querySelector('#delivery-address');
+      const typeSel = form.querySelector('#delivery-type');
+      const city = form.querySelector('#delivery-city');
+      const zipEl = form.querySelector('#delivery-zip');
+
+      // Clear previous highlights
+      form.querySelectorAll('.field').forEach(f => f.classList.remove('invalid'));
+
+      const missing = [];
+      if (!name.value.trim()) { missing.push('Name'); name.closest('.field')?.classList.add('invalid'); }
+      const phoneDigits = (phoneEl?.value || '').replace(/\D+/g,'');
+      if (!phoneDigits) { missing.push('Phone Number'); phoneEl.closest('.field')?.classList.add('invalid'); }
+      if (!addr.value.trim()) { missing.push('Street Address'); addr.closest('.field')?.classList.add('invalid'); }
+      if (!typeSel.value.trim()) { missing.push('Residence Type'); typeSel.closest('.field')?.classList.add('invalid'); }
+      if (!city.value.trim()) { missing.push('City'); city.closest('.field')?.classList.add('invalid'); }
+      if (!zipEl.value.trim()) { missing.push('Zip'); zipEl.closest('.field')?.classList.add('invalid'); }
+
+      if (missing.length > 0) {
+        return { ok: false, message: `Please complete the following required fields: ${missing.join(', ')}.` };
+      }
+      // specific checks
+      if (phoneDigits.length !== 10) {
+        phoneEl.closest('.field')?.classList.add('invalid');
+        return { ok: false, message: 'Please contact us if you are having trouble placing your order online. Please let us know what the issue is so we can have it fixed in a timely manner.' };
+      }
+      const zDigits = zipEl.value.replace(/\D+/g,'');
+      const okZip = (zDigits.length === 5 && zDigits === '13309') || (zDigits.length === 9 && zDigits.slice(0,5) === '13309');
+      if (!okZip) {
+        zipEl.closest('.field')?.classList.add('invalid');
+        return { ok: false, message: 'Sorry, we cannot accept your order. We currently serve zip code 13309 only.' };
+      }
+      return { ok: true, message: '' };
+    }
+
+    function attachDeliveryLiveValidation(form) {
+      const handler = () => {
+        const res = validateDeliveryForm(form);
+        const errEl = document.getElementById('delivery-error');
+        if (!res.ok) {
+          if (errEl) { errEl.textContent = res.message; errEl.hidden = false; }
+        } else {
+          if (errEl) errEl.hidden = true;
+        }
+      };
+      ['input','change'].forEach(evt => form.addEventListener(evt, handler));
     }
 
     // [H2] PAGE 2: MENU BUILDER
