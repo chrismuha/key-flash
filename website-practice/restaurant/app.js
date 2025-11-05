@@ -157,6 +157,8 @@
 
     // [H1] INDEX: ORDER TYPE
     if (body.classList.contains('order-type')) {
+      // Track delivery submit failures to show fallback help after 2 failed attempts
+      let deliveryFailCount = 0;
       // On page load/refresh of index, reset any previously saved order + delivery details
       try {
         localStorage.removeItem(STORAGE_KEYS.orderType);
@@ -281,9 +283,8 @@
         if (phoneEl) {
           if (phoneEl.value) phoneEl.value = formatPhone(phoneEl.value);
           phoneEl.addEventListener('input', () => {
+            // Only format; let live validator manage tooltips + inline error
             phoneEl.value = formatPhone(phoneEl.value);
-            const errEl = document.getElementById('delivery-error');
-            if (errEl) errEl.hidden = true;
           });
           // Special handling for Backspace so formatting characters don't block deletion
           phoneEl.addEventListener('keydown', (e) => {
@@ -319,9 +320,8 @@
         if (zipEl) {
           if (zipEl.value) zipEl.value = formatZipPlus4(zipEl.value);
           zipEl.addEventListener('input', () => {
+            // Only format; live validator handles tooltip + inline error
             zipEl.value = formatZipPlus4(zipEl.value);
-            const errEl = document.getElementById('delivery-error');
-            if (errEl) errEl.hidden = true;
           });
         }
         // attach live validation once form is visible
@@ -337,38 +337,26 @@
           const city = dForm.querySelector('#delivery-city').value.trim();
           const zipEl = dForm.querySelector('#delivery-zip');
           const zip = zipEl ? zipEl.value.trim() : '';
-          // clear any previous custom validity
-          if (phoneEl) phoneEl.setCustomValidity('');
-          if (zipEl) zipEl.setCustomValidity('');
+          // Do not clear tooltips preemptively; validate first
           const errEl = document.getElementById('delivery-error');
-          if (errEl) errEl.hidden = true;
           // run live validation function for message + highlights
           const { ok, message } = validateDeliveryForm(dForm);
           if (!ok) {
-            if (errEl && message) { errEl.textContent = message; errEl.hidden = false; }
-            return;
-          }
-          // Phone must be exactly 10 digits
-          if (phone.length !== 10) {
-            if (phoneEl) {
-              phoneEl.setCustomValidity('Enter a 10-digit phone number');
-              phoneEl.reportValidity();
-              setTimeout(() => phoneEl.setCustomValidity(''), 1500);
+            deliveryFailCount += 1;
+            if (errEl && message) {
+              let finalMsg = message;
+              if (deliveryFailCount >= 2) {
+                finalMsg += ' Please contact us if you are having trouble placing your order online. Please let us know what the issue is so we can have it fixed in a timely manner.';
+              }
+              errEl.textContent = finalMsg;
+              errEl.hidden = false;
             }
             return;
+          } else {
+            // reset failure counter on successful validation
+            deliveryFailCount = 0;
           }
-          // Enforce service area zip with single custom message
-          const zipDigits = zip.replace(/\D+/g, '');
-          const okZip = (zipDigits.length === 5 && zipDigits === '13309') ||
-                        (zipDigits.length === 9 && zipDigits.slice(0,5) === '13309');
-          if (!okZip) {
-            if (zipEl) {
-              zipEl.setCustomValidity('Sorry, we cannot accept your order. We currently serve zip code 13309 only.');
-              zipEl.reportValidity();
-              // Do not set a timeout reset; cleared on next submit attempt above
-            }
-            return;
-          }
+          // At this point, live validation has passed; proceed
           try {
             localStorage.setItem(STORAGE_KEYS.deliveryName, name);
             localStorage.setItem(STORAGE_KEYS.deliveryPhone, phone);
@@ -430,7 +418,7 @@
       const missing = [];
       if (!name.value.trim()) { missing.push('Name'); name.closest('.field')?.classList.add('invalid'); }
       const phoneDigits = (phoneEl?.value || '').replace(/\D+/g,'');
-      if (!phoneDigits) { missing.push('Phone Number'); phoneEl.closest('.field')?.classList.add('invalid'); }
+      if (!phoneDigits) { missing.push('Phone Number'); phoneEl.closest('.field')?.classList.add('invalid'); phoneEl.setCustomValidity('It has to have 10 digits.'); }
       if (!addr.value.trim()) { missing.push('Street Address'); addr.closest('.field')?.classList.add('invalid'); }
       if (!typeSel.value.trim()) { missing.push('Residence Type'); typeSel.closest('.field')?.classList.add('invalid'); }
       if (!city.value.trim()) { missing.push('City'); city.closest('.field')?.classList.add('invalid'); }
@@ -440,15 +428,24 @@
         return { ok: false, message: `Please complete the following required fields: ${missing.join(', ')}.` };
       }
       // specific checks
-      if (phoneDigits.length !== 10) {
+      if (phoneDigits.length > 0 && phoneDigits.length !== 10) {
         phoneEl.closest('.field')?.classList.add('invalid');
-        return { ok: false, message: 'Please contact us if you are having trouble placing your order online. Please let us know what the issue is so we can have it fixed in a timely manner.' };
+        // Set tooltip message on the input itself in addition to inline error
+        phoneEl.setCustomValidity('It has to have 10 digits.');
+        return { ok: false, message: 'It has to have 10 digits.' };
+      } else {
+        phoneEl.setCustomValidity('');
       }
       const zDigits = zipEl.value.replace(/\D+/g,'');
       const okZip = (zDigits.length === 5 && zDigits === '13309') || (zDigits.length === 9 && zDigits.slice(0,5) === '13309');
-      if (!okZip) {
+      if (zDigits.length > 0 && !okZip) {
         zipEl.closest('.field')?.classList.add('invalid');
+        // Set tooltip error for invalid service area zip
+        zipEl.setCustomValidity('Sorry, we cannot accept your order. We currently serve zip code 13309 only.');
         return { ok: false, message: 'Sorry, we cannot accept your order. We currently serve zip code 13309 only.' };
+      } else {
+        // Clear sticky tooltip when corrected
+        zipEl.setCustomValidity('');
       }
       return { ok: true, message: '' };
     }
@@ -459,6 +456,23 @@
         const errEl = document.getElementById('delivery-error');
         if (!res.ok) {
           if (errEl) { errEl.textContent = res.message; errEl.hidden = false; }
+          // If phone invalid, trigger tooltip immediately
+          const phoneEl = form.querySelector('#delivery-phone');
+          const phoneDigits = (phoneEl?.value || '').replace(/\D+/g,'');
+          if (phoneEl && phoneDigits.length > 0 && phoneDigits.length !== 10) {
+            phoneEl.setCustomValidity('It has to have 10 digits.');
+            phoneEl.focus({ preventScroll: true });
+            phoneEl.reportValidity();
+          }
+          // If zip invalid, trigger tooltip immediately
+          const zipEl = form.querySelector('#delivery-zip');
+          const zDigits = (zipEl?.value || '').replace(/\D+/g,'');
+          const zipBad = !((zDigits.length === 5 && zDigits === '13309') || (zDigits.length === 9 && zDigits.slice(0,5) === '13309'));
+          if (zipEl && zDigits.length > 0 && zipBad) {
+            zipEl.setCustomValidity('Sorry, we cannot accept your order. We currently serve zip code 13309 only.');
+            zipEl.focus({ preventScroll: true });
+            zipEl.reportValidity();
+          }
         } else {
           if (errEl) errEl.hidden = true;
         }
