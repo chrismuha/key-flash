@@ -168,6 +168,8 @@
         localStorage.removeItem(STORAGE_KEYS.deliveryType);
         localStorage.removeItem(STORAGE_KEYS.deliveryCity);
         localStorage.removeItem(STORAGE_KEYS.deliveryZip);
+        localStorage.removeItem(STORAGE_KEYS.ingredients);
+        localStorage.removeItem(STORAGE_KEYS.activeSections);
       } catch { }
       const dFormInit = document.getElementById('delivery-details');
       if (dFormInit) {
@@ -769,8 +771,6 @@
             edit.textContent = 'Edit';
             edit.style.marginLeft = '8px';
             header.appendChild(edit);
-
-            // Burger now allowed with only required items; no special skip
 
             frag.appendChild(header);
             const ul = document.createElement('ul');
