@@ -591,6 +591,12 @@ main summary.menu-summary {
     list-style: none;
     /* ensure no default marker in Firefox */
 }
+/* Visual cue for invalid/attention-needed sections */
+main summary.menu-summary.invalid {
+    outline: 2px solid #c00;
+    outline-offset: 4px;
+    border-radius: 6px;
+}
 
 /* Section: Reset Buttons */
 main .reset-group {

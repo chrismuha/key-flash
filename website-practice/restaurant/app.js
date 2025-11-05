@@ -280,6 +280,8 @@
           if (phoneEl.value) phoneEl.value = formatPhone(phoneEl.value);
           phoneEl.addEventListener('input', () => {
             phoneEl.value = formatPhone(phoneEl.value);
+            const errEl = document.getElementById('delivery-error');
+            if (errEl) errEl.hidden = true;
           });
           // Special handling for Backspace so formatting characters don't block deletion
           phoneEl.addEventListener('keydown', (e) => {
@@ -308,12 +310,16 @@
             // Set caret, clamped within bounds
             const pos = Math.min(newCaret, formatted.length);
             phoneEl.setSelectionRange(pos, pos);
+            const errEl = document.getElementById('delivery-error');
+            if (errEl) errEl.hidden = true;
           });
         }
         if (zipEl) {
           if (zipEl.value) zipEl.value = formatZipPlus4(zipEl.value);
           zipEl.addEventListener('input', () => {
             zipEl.value = formatZipPlus4(zipEl.value);
+            const errEl = document.getElementById('delivery-error');
+            if (errEl) errEl.hidden = true;
           });
         }
         dForm.addEventListener('submit', (e) => {
@@ -482,11 +488,46 @@
           }
         });
       });
+      // Live update builder error on any relevant change
+      const updateBuilderError = () => {
+        const err = document.getElementById('builder-error');
+        if (!err) return;
+        const togglesArr = Array.from(document.querySelectorAll('.section-toggle'));
+        const anySectionActive = togglesArr.some((t) => t.checked);
+        const saucesActive = togglesArr.some((t) => t.dataset.section === 'sauces' && t.checked);
+        const saucesSelected = Array.from(document.querySelectorAll('input[type="checkbox"][name="sauces_ingredients[]"]:checked')).length > 0;
+        let message = '';
+        if (!anySectionActive) {
+          message = 'Please select at least one menu category before continuing.';
+        } else if (saucesActive && !saucesSelected) {
+          message = 'Please select at least one sauce or uncheck Sauces.';
+        }
+        // Clear previous invalid highlights
+        document.querySelectorAll('summary.menu-summary').forEach((s) => s.classList.remove('invalid'));
+        if (!anySectionActive) {
+          // highlight all summaries when nothing is selected
+          document.querySelectorAll('summary.menu-summary').forEach((s) => s.classList.add('invalid'));
+        } else if (saucesActive && !saucesSelected) {
+          const s = document.querySelector('#sauces > summary.menu-summary');
+          if (s) s.classList.add('invalid');
+        }
+        if (message) {
+          err.textContent = message;
+          err.hidden = false;
+        } else {
+          err.hidden = true;
+        }
+      };
+      // Hook into changes for live validation
+      document.querySelectorAll('.section-toggle, input[type="checkbox"][name^="sauces_ingredients"]').forEach((el) => {
+        el.addEventListener('change', updateBuilderError);
+      });
       // Save on any change
       document.addEventListener('change', (e) => {
         const t = e.target;
         if (t && t.matches && t.matches('input[type="checkbox"][name]')) {
           saveIngredients();
+          updateBuilderError();
         }
       });
       // Reset buttons per group
