@@ -505,18 +505,26 @@
           saveIngredients();
         });
       });
-      // Next: must have at least one menu section checked
+      // Next: must have at least one menu section checked; if Sauces is active, require at least one sauce
       const next = document.querySelector('.next-button');
       if (next) {
         next.addEventListener('click', (e) => {
           saveIngredients();
           const err = document.getElementById('builder-error');
-          const anySectionActive = Array.from(document.querySelectorAll('.section-toggle'))
-            .some((t) => t.checked);
+          const togglesArr = Array.from(document.querySelectorAll('.section-toggle'));
+          const anySectionActive = togglesArr.some((t) => t.checked);
+          const saucesActive = togglesArr.some((t) => t.dataset.section === 'sauces' && t.checked);
+          const saucesSelected = Array.from(document.querySelectorAll('input[type="checkbox"][name="sauces_ingredients[]"]:checked')).length > 0;
+          let message = '';
           if (!anySectionActive) {
+            message = 'Please select at least one menu category before continuing.';
+          } else if (saucesActive && !saucesSelected) {
+            message = 'Please select at least one sauce or uncheck Sauces.';
+          }
+          if (message) {
             e.preventDefault();
             if (err) {
-              err.textContent = 'Please select at least one menu category before continuing.';
+              err.textContent = message;
               err.hidden = false;
               err.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
