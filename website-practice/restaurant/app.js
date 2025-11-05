@@ -438,33 +438,32 @@
         burger: document.getElementById('burger'),
         sauces: document.getElementById('sauces')
       };
-      // Reset on load: clear any previously saved active sections and start unchecked/closed
-      try { localStorage.removeItem(STORAGE_KEYS.activeSections); } catch {}
+      // Restore previously saved active sections (so Go Back preserves state)
       let activeSections = {};
+      try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
       toggles.forEach((t) => {
         const section = t.dataset.section;
-        t.checked = false;
         const d = detailsBySection[section];
-        if (d) d.open = false;
-        // Ensure clicking the checkbox doesn't bubble to summary
-        t.addEventListener('click', (ev) => {
-          ev.stopPropagation();
-        });
+        const isActive = !!activeSections[section];
+        t.checked = isActive;
+        if (d) d.open = isActive;
+        // If active on restore, enforce required items
+        if (isActive && d) {
+          d.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
+        }
+        // Prevent checkbox click from toggling summary directly
+        t.addEventListener('click', (ev) => { ev.stopPropagation(); });
         t.addEventListener('change', () => {
           const d2 = detailsBySection[section];
           if (d2) d2.open = t.checked;
-          // If activated, enforce required items in that section
           if (t.checked && d2) {
-            d2.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => {
-              cb.checked = true;
-            });
+            // Enforce required when activating
+            d2.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
             saveIngredients();
           }
-          // If deactivated, clear all selections (including required) in that section
           if (!t.checked && d2) {
-            d2.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => {
-              cb.checked = false;
-            });
+            // Clear all selections in that section when deactivating
+            d2.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => { cb.checked = false; });
             saveIngredients();
           }
           activeSections[section] = t.checked;
