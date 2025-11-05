@@ -249,11 +249,71 @@
       // Handle delivery form submit
       const dForm = document.getElementById('delivery-details');
       if (dForm) {
-        // Restrict phone to digits only
+        // Live formatting helpers
         const phoneEl = dForm.querySelector('#delivery-phone');
+        const zipEl = dForm.querySelector('#delivery-zip');
+        const formatPhone = (v) => {
+          const d = String(v || '').replace(/\D+/g, '').slice(0, 10);
+          const a = d.slice(0, 3);
+          const b = d.slice(3, 6);
+          const c = d.slice(6, 10);
+          let out = '';
+          if (!a) {
+            out = '';
+          } else if (a.length < 3) {
+            // Don't show parentheses until 3 digits entered
+            out = a;
+          } else {
+            out = `(${a})`;
+          }
+          if (b) out += `-${b}`;
+          if (c) out += `-${c}`;
+          return out;
+        };
+        const formatZipPlus4 = (v) => {
+          const d = String(v || '').replace(/\D+/g, '').slice(0, 9);
+          const first = d.slice(0, 5);
+          const plus4 = d.slice(5);
+          return plus4 ? `${first}-${plus4}` : first;
+        };
         if (phoneEl) {
+          if (phoneEl.value) phoneEl.value = formatPhone(phoneEl.value);
           phoneEl.addEventListener('input', () => {
-            phoneEl.value = phoneEl.value.replace(/\D+/g, '');
+            phoneEl.value = formatPhone(phoneEl.value);
+          });
+          // Special handling for Backspace so formatting characters don't block deletion
+          phoneEl.addEventListener('keydown', (e) => {
+            if (e.key !== 'Backspace') return; // do not handle Delete or others
+            // Compute digit index before the caret
+            const caret = phoneEl.selectionStart || 0;
+            const raw = String(phoneEl.value || '');
+            const digits = raw.replace(/\D+/g, '');
+            const digitsBefore = raw.slice(0, caret).replace(/\D+/g, '');
+            if (digitsBefore.length === 0) return; // nothing to delete
+            e.preventDefault();
+            const deleteIndex = digitsBefore.length - 1; // remove the digit just before caret
+            const newDigits = digits.slice(0, deleteIndex) + digits.slice(deleteIndex + 1);
+            const formatted = formatPhone(newDigits);
+            // place caret after the deleted digit's position in the new formatted string
+            let targetDigitPos = deleteIndex; // number of digits before caret
+            let newCaret = 0, seen = 0;
+            for (let i = 0; i < formatted.length; i++) {
+              if (/\d/.test(formatted[i])) {
+                if (seen === targetDigitPos) { newCaret = i; break; }
+                seen++;
+                newCaret = i + 1; // default to after last processed digit
+              }
+            }
+            phoneEl.value = formatted;
+            // Set caret, clamped within bounds
+            const pos = Math.min(newCaret, formatted.length);
+            phoneEl.setSelectionRange(pos, pos);
+          });
+        }
+        if (zipEl) {
+          if (zipEl.value) zipEl.value = formatZipPlus4(zipEl.value);
+          zipEl.addEventListener('input', () => {
+            zipEl.value = formatZipPlus4(zipEl.value);
           });
         }
         dForm.addEventListener('submit', (e) => {
@@ -295,7 +355,10 @@
             return;
           }
           // Enforce service area zip with single custom message
-          if (zip !== '13309') {
+          const zipDigits = zip.replace(/\D+/g, '');
+          const okZip = (zipDigits.length === 5 && zipDigits === '13309') ||
+                        (zipDigits.length === 9 && zipDigits.slice(0,5) === '13309');
+          if (!okZip) {
             if (zipEl) {
               zipEl.setCustomValidity('Sorry, we cannot accept your order. We currently serve zip code 13309 only.');
               zipEl.reportValidity();
@@ -443,13 +506,24 @@
           saveIngredients();
         });
       });
-      // Next simply saves and allows navigation; no extra ingredient requirement
+      // Next: must have at least one menu section checked
       const next = document.querySelector('.next-button');
       if (next) {
-        next.addEventListener('click', () => {
+        next.addEventListener('click', (e) => {
           saveIngredients();
           const err = document.getElementById('builder-error');
-          if (err) err.hidden = true;
+          const anySectionActive = Array.from(document.querySelectorAll('.section-toggle'))
+            .some((t) => t.checked);
+          if (!anySectionActive) {
+            e.preventDefault();
+            if (err) {
+              err.textContent = 'Please select at least one menu category before continuing.';
+              err.hidden = false;
+              err.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          } else {
+            if (err) err.hidden = true;
+          }
         });
       }
     }
@@ -502,7 +576,12 @@
           }
           if (dph) {
             const line = document.createElement('div');
-            line.textContent = `Phone: ${dph}`;
+            const pretty = (function(v){
+              const d = String(v||'').replace(/\D+/g,'').slice(0,10);
+              const a=d.slice(0,3), b=d.slice(3,6), c=d.slice(6,10);
+              let out=''; if(a) out=`(${a}`; if(a.length===3) out+=`)`; if(b) out+=`-${b}`; if(c) out+=`-${c}`; return out||v;
+            })(dph);
+            line.textContent = `Phone: ${pretty}`;
             block.appendChild(line);
           }
           if (da) {
