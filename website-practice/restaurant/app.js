@@ -262,11 +262,20 @@
           // clear any previous custom validity
           if (phoneEl) phoneEl.setCustomValidity('');
           if (zipEl) zipEl.setCustomValidity('');
+          const errEl = document.getElementById('delivery-error');
+          if (errEl) errEl.hidden = true;
           if (!name || !phone || !addr || !city || !type || !zip) {
-            // basic UI feedback
-            dForm.querySelectorAll('input[required], select[required]').forEach((inp) => {
-              if (!inp.value.trim()) inp.reportValidity?.();
-            });
+            const missing = [];
+            if (!name) missing.push('Name');
+            if (!phone) missing.push('Phone Number');
+            if (!addr) missing.push('Street Address');
+            if (!type) missing.push('Residence Type');
+            if (!city) missing.push('City');
+            if (!zip) missing.push('Zip');
+            if (errEl) {
+              errEl.textContent = `Please complete the following required fields: ${missing.join(', ')}.`;
+              errEl.hidden = false;
+            }
             return;
           }
           // Phone must be exactly 10 digits

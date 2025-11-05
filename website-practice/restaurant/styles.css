@@ -515,11 +515,13 @@ body.order-type .order-card {
     justify-content: center;
     color: #000;
     text-decoration: none;
-    background: #fff; /* always white */
+    background: #fff; /* default */
+    transition: background 0.2s ease;
 }
 
 body.order-type .order-card:hover {
-    background: #fff; /* keep white on hover */
+    background: var(--box-bg); /* green like Next button */
+    color: #000;
 }
 
 /* Visual selection if user returns to index */
