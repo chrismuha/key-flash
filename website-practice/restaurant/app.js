@@ -112,7 +112,7 @@
         a.setAttribute('aria-disabled', 'true');
         a.addEventListener('click', (e) => e.preventDefault());
       });
-    } catch {}
+    } catch { }
 
     // If user refreshes a non-index page, redirect to index
     try {
@@ -122,7 +122,7 @@
         window.location.replace('index.html');
         return;
       }
-    } catch {}
+    } catch { }
 
     // Go Back button handler: cycle within pages 1-3
     const backBtn = document.querySelector('.go-back');
@@ -168,7 +168,7 @@
         localStorage.removeItem(STORAGE_KEYS.deliveryType);
         localStorage.removeItem(STORAGE_KEYS.deliveryCity);
         localStorage.removeItem(STORAGE_KEYS.deliveryZip);
-      } catch {}
+      } catch { }
       const dFormInit = document.getElementById('delivery-details');
       if (dFormInit) {
         dFormInit.hidden = true;
@@ -208,7 +208,7 @@
                 const sel = form.querySelector('#delivery-type'); if (sel) sel.value = t;
                 if (c) form.querySelector('#delivery-city').value = c;
                 if (z) form.querySelector('#delivery-zip').value = z;
-              } catch {}
+              } catch { }
               // Focus first input
               const first = form.querySelector('input');
               if (first) first.focus();
@@ -245,7 +245,7 @@
               const sel = form.querySelector('#delivery-type'); if (sel) sel.value = t;
               if (c) form.querySelector('#delivery-city').value = c;
               if (z) form.querySelector('#delivery-zip').value = z;
-            } catch {}
+            } catch { }
           }
         }
       }
@@ -283,8 +283,15 @@
         if (phoneEl) {
           if (phoneEl.value) phoneEl.value = formatPhone(phoneEl.value);
           phoneEl.addEventListener('input', () => {
-            // Only format; let live validator manage tooltips + inline error
             phoneEl.value = formatPhone(phoneEl.value);
+            const d = phoneEl.value.replace(/\D+/g, '');
+            if (d.length === 10 || d.length === 0) {
+              // proactively clear any lingering tooltip in Chrome
+              try {
+                phoneEl.setCustomValidity('');
+                if (typeof phoneEl.reportValidity === 'function') phoneEl.reportValidity();
+              } catch { }
+            }
           });
           // Special handling for Backspace so formatting characters don't block deletion
           phoneEl.addEventListener('keydown', (e) => {
@@ -313,15 +320,21 @@
             // Set caret, clamped within bounds
             const pos = Math.min(newCaret, formatted.length);
             phoneEl.setSelectionRange(pos, pos);
-            const errEl = document.getElementById('delivery-error');
-            if (errEl) errEl.hidden = true;
+            // Do not hide inline error here; live validator manages visibility
           });
         }
         if (zipEl) {
           if (zipEl.value) zipEl.value = formatZipPlus4(zipEl.value);
           zipEl.addEventListener('input', () => {
-            // Only format; live validator handles tooltip + inline error
             zipEl.value = formatZipPlus4(zipEl.value);
+            const z = zipEl.value.replace(/\D+/g, '');
+            const ok = (z.length === 5 && z === '13309') || (z.length === 9 && z.slice(0, 5) === '13309') || z.length === 0;
+            if (ok) {
+              try {
+                zipEl.setCustomValidity('');
+                if (typeof zipEl.reportValidity === 'function') zipEl.reportValidity();
+              } catch { }
+            }
           });
         }
         // attach live validation once form is visible
@@ -364,7 +377,7 @@
             localStorage.setItem(STORAGE_KEYS.deliveryType, type || 'House');
             localStorage.setItem(STORAGE_KEYS.deliveryCity, city);
             localStorage.setItem(STORAGE_KEYS.deliveryZip, zip);
-          } catch {}
+          } catch { }
           saveOrderType('delivery');
           // Navigate to page 2
           window.location.href = 'page2.html';
@@ -396,7 +409,7 @@
               localStorage.removeItem(STORAGE_KEYS.deliveryType);
               localStorage.removeItem(STORAGE_KEYS.deliveryCity);
               localStorage.removeItem(STORAGE_KEYS.deliveryZip);
-            } catch {}
+            } catch { }
           });
         }
       }
@@ -417,7 +430,7 @@
 
       const missing = [];
       if (!name.value.trim()) { missing.push('Name'); name.closest('.field')?.classList.add('invalid'); }
-      const phoneDigits = (phoneEl?.value || '').replace(/\D+/g,'');
+      const phoneDigits = (phoneEl?.value || '').replace(/\D+/g, '');
       if (!phoneDigits) { missing.push('Phone Number'); phoneEl.closest('.field')?.classList.add('invalid'); phoneEl.setCustomValidity('It has to have 10 digits.'); }
       if (!addr.value.trim()) { missing.push('Street Address'); addr.closest('.field')?.classList.add('invalid'); }
       if (!typeSel.value.trim()) { missing.push('Residence Type'); typeSel.closest('.field')?.classList.add('invalid'); }
@@ -436,8 +449,8 @@
       } else {
         phoneEl.setCustomValidity('');
       }
-      const zDigits = zipEl.value.replace(/\D+/g,'');
-      const okZip = (zDigits.length === 5 && zDigits === '13309') || (zDigits.length === 9 && zDigits.slice(0,5) === '13309');
+      const zDigits = zipEl.value.replace(/\D+/g, '');
+      const okZip = (zDigits.length === 5 && zDigits === '13309') || (zDigits.length === 9 && zDigits.slice(0, 5) === '13309');
       if (zDigits.length > 0 && !okZip) {
         zipEl.closest('.field')?.classList.add('invalid');
         // Set tooltip error for invalid service area zip
@@ -450,6 +463,18 @@
       return { ok: true, message: '' };
     }
 
+    // Helper: force-clear any lingering UA tooltip on an input
+    function clearInputTooltip(el) {
+      if (!el) return;
+      try {
+        el.setCustomValidity('');
+        if (typeof el.reportValidity === 'function') el.reportValidity();
+        // Chrome sometimes keeps the bubble until focus changes
+        el.blur();
+        el.focus({ preventScroll: true });
+      } catch { }
+    }
+
     function attachDeliveryLiveValidation(form) {
       const handler = () => {
         const res = validateDeliveryForm(form);
@@ -458,7 +483,7 @@
           if (errEl) { errEl.textContent = res.message; errEl.hidden = false; }
           // If phone invalid, trigger tooltip immediately
           const phoneEl = form.querySelector('#delivery-phone');
-          const phoneDigits = (phoneEl?.value || '').replace(/\D+/g,'');
+          const phoneDigits = (phoneEl?.value || '').replace(/\D+/g, '');
           if (phoneEl && phoneDigits.length > 0 && phoneDigits.length !== 10) {
             phoneEl.setCustomValidity('It has to have 10 digits.');
             phoneEl.focus({ preventScroll: true });
@@ -466,8 +491,8 @@
           }
           // If zip invalid, trigger tooltip immediately
           const zipEl = form.querySelector('#delivery-zip');
-          const zDigits = (zipEl?.value || '').replace(/\D+/g,'');
-          const zipBad = !((zDigits.length === 5 && zDigits === '13309') || (zDigits.length === 9 && zDigits.slice(0,5) === '13309'));
+          const zDigits = (zipEl?.value || '').replace(/\D+/g, '');
+          const zipBad = !((zDigits.length === 5 && zDigits === '13309') || (zDigits.length === 9 && zDigits.slice(0, 5) === '13309'));
           if (zipEl && zDigits.length > 0 && zipBad) {
             zipEl.setCustomValidity('Sorry, we cannot accept your order. We currently serve zip code 13309 only.');
             zipEl.focus({ preventScroll: true });
@@ -475,9 +500,12 @@
           }
         } else {
           if (errEl) errEl.hidden = true;
+          // Force-clear any lingering tooltip bubbles in Chrome
+          clearInputTooltip(form.querySelector('#delivery-phone'));
+          clearInputTooltip(form.querySelector('#delivery-zip'));
         }
       };
-      ['input','change'].forEach(evt => form.addEventListener(evt, handler));
+      ['input', 'change'].forEach(evt => form.addEventListener(evt, handler));
     }
 
     // [H2] PAGE 2: MENU BUILDER
@@ -536,7 +564,7 @@
             saveIngredients();
           }
           activeSections[section] = t.checked;
-          try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(activeSections)); } catch {}
+          try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(activeSections)); } catch { }
         });
       });
       // Summary click toggles the section checkbox (and thus open state)
@@ -687,10 +715,10 @@
           }
           if (dph) {
             const line = document.createElement('div');
-            const pretty = (function(v){
-              const d = String(v||'').replace(/\D+/g,'').slice(0,10);
-              const a=d.slice(0,3), b=d.slice(3,6), c=d.slice(6,10);
-              let out=''; if(a) out=`(${a}`; if(a.length===3) out+=`)`; if(b) out+=`-${b}`; if(c) out+=`-${c}`; return out||v;
+            const pretty = (function (v) {
+              const d = String(v || '').replace(/\D+/g, '').slice(0, 10);
+              const a = d.slice(0, 3), b = d.slice(3, 6), c = d.slice(6, 10);
+              let out = ''; if (a) out = `(${a}`; if (a.length === 3) out += `)`; if (b) out += `-${b}`; if (c) out += `-${c}`; return out || v;
             })(dph);
             line.textContent = `Phone: ${pretty}`;
             block.appendChild(line);

@@ -29,21 +29,26 @@
         <!-- Menu Item: Pizza -->
         <section>
             <details id="pizza">
-                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="pizza"> <span>Pizza</span></summary>
+                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="pizza">
+                    <span>Pizza</span>
+                </summary>
                 <form>
                     <fieldset>
                         <legend>Choose Ingredients</legend>
                         <!-- Alphabetical order -->
                         <label><input type="checkbox" name="pizza_ingredients[]" value="bacon"> Bacon</label><br>
                         <label><input type="checkbox" name="pizza_ingredients[]" value="cheese"> Cheese</label><br>
-                        <label><input type="checkbox" name="pizza_ingredients[]" value="jalapenos"> Jalapeños</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="jalapenos">
+                            Jalapeños</label><br>
                         <label><input type="checkbox" name="pizza_ingredients[]" value="lettuce"> Lettuce</label><br>
-                        <label><input type="checkbox" name="pizza_ingredients[]" value="mushrooms"> Mushrooms</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="mushrooms">
+                            Mushrooms</label><br>
                         <label><input type="checkbox" name="pizza_ingredients[]" value="olives"> Olives</label><br>
                         <label><input type="checkbox" name="pizza_ingredients[]" value="onion"> Onion</label><br>
                         <label><input type="checkbox" name="pizza_ingredients[]" value="pickles"> Pickles</label><br>
                         <label><input type="checkbox" name="pizza_ingredients[]" value="tomato"> Tomato</label><br>
-                        <label class="required" title="Required"><input type="checkbox" name="pizza_ingredients[]" value="tomato_sauce" data-required="true"> Tomato Sauce (Required)</label>
+                        <label class="required" title="Required"><input type="checkbox" name="pizza_ingredients[]"
+                                value="tomato_sauce" data-required="true"> Tomato Sauce (Required)</label>
                     </fieldset>
                     <button type="button" class="reset-group" data-group="pizza_ingredients[]">Reset Pizza</button>
                 </form>
@@ -53,20 +58,26 @@
         <!-- Menu Item: Burger -->
         <section>
             <details id="burger">
-                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="burger"> <span>Burger</span></summary>
+                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="burger">
+                    <span>Burger</span>
+                </summary>
                 <form>
                     <fieldset>
                         <legend>Choose Ingredients</legend>
                         <!-- Alphabetical order -->
                         <label><input type="checkbox" name="burger_ingredients[]" value="bacon"> Bacon</label><br>
-                        <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]" value="bun" data-required="true" title="Required"> Bun (Required)</label><br>
+                        <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]"
+                                value="bun" data-required="true" title="Required"> Bun (Required)</label><br>
                         <label><input type="checkbox" name="burger_ingredients[]" value="cheese"> Cheese</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="jalapenos"> Jalapeños</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="jalapenos">
+                            Jalapeños</label><br>
                         <label><input type="checkbox" name="burger_ingredients[]" value="lettuce"> Lettuce</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="mushrooms"> Mushrooms</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="mushrooms">
+                            Mushrooms</label><br>
                         <label><input type="checkbox" name="burger_ingredients[]" value="olives"> Olives</label><br>
                         <label><input type="checkbox" name="burger_ingredients[]" value="onion"> Onion</label><br>
-                        <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]" value="patty" data-required="true" title="Required"> Patty (Required)</label><br>
+                        <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]"
+                                value="patty" data-required="true" title="Required"> Patty (Required)</label><br>
                         <label><input type="checkbox" name="burger_ingredients[]" value="pickles"> Pickles</label><br>
                         <label><input type="checkbox" name="burger_ingredients[]" value="tomato"> Tomato</label><br>
                         <label><input type="checkbox" name="burger_ingredients[]" value="tomato_sauce"> Sauce</label>
@@ -79,7 +90,9 @@
         <!-- Menu Item: Sauces -->
         <section>
             <details id="sauces">
-                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="sauces"> <span>Sauces</span></summary>
+                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="sauces">
+                    <span>Sauces</span>
+                </summary>
                 <form>
                     <fieldset>
                         <legend>Choose Ingredients</legend>
@@ -101,7 +114,8 @@
             </details>
         </section>
         <!-- Validation error for builder -->
-        <p id="builder-error" class="form-error" hidden>Please select at least one additional ingredient before continuing.</p>
+        <p id="builder-error" class="form-error" hidden>Please select at least one additional ingredient before
+            continuing.</p>
         <!-- Next page button -->
         <a class="next-button" href="page3.html" aria-label="Go to next page">Next »</a>
     </main>
