@@ -320,7 +320,8 @@
             // Set caret, clamped within bounds
             const pos = Math.min(newCaret, formatted.length);
             phoneEl.setSelectionRange(pos, pos);
-            // Do not hide inline error here; live validator manages visibility
+            // Trigger form-level input handler so live validator re-evaluates
+            try { phoneEl.dispatchEvent(new Event('input', { bubbles: true })); } catch { }
           });
         }
         if (zipEl) {
