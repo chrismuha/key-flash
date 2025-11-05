@@ -486,8 +486,9 @@
           const phoneDigits = (phoneEl?.value || '').replace(/\D+/g, '');
           if (phoneEl && phoneDigits.length > 0 && phoneDigits.length !== 10) {
             phoneEl.setCustomValidity('It has to have 10 digits.');
-            phoneEl.focus({ preventScroll: true });
-            phoneEl.reportValidity();
+            if (document.activeElement === phoneEl && typeof phoneEl.reportValidity === 'function') {
+              phoneEl.reportValidity();
+            }
           }
           // If zip invalid, trigger tooltip immediately
           const zipEl = form.querySelector('#delivery-zip');
@@ -495,8 +496,9 @@
           const zipBad = !((zDigits.length === 5 && zDigits === '13309') || (zDigits.length === 9 && zDigits.slice(0, 5) === '13309'));
           if (zipEl && zDigits.length > 0 && zipBad) {
             zipEl.setCustomValidity('Sorry, we cannot accept your order. We currently serve zip code 13309 only.');
-            zipEl.focus({ preventScroll: true });
-            zipEl.reportValidity();
+            if (document.activeElement === zipEl && typeof zipEl.reportValidity === 'function') {
+              zipEl.reportValidity();
+            }
           }
         } else {
           if (errEl) errEl.hidden = true;
