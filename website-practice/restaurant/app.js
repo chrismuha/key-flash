@@ -19,7 +19,10 @@
     navEnabled: 'restaurant.nav.enabled',
     settingsExpandOnly: 'restaurant.settings.expandOnly',
     settingsLabelSelects: 'restaurant.settings.labelSelects',
-    settingsTitleSelects: 'restaurant.settings.titleSelects'
+    settingsTitleSelects: 'restaurant.settings.titleSelects',
+    settingsResetOnDeselect: 'restaurant.settings.resetOnDeselect',
+    quantities: 'restaurant.quantities',
+    quantitiesSections: 'restaurant.quantities.sections'
   };
 
   // [B] TEXT UTILS
@@ -30,6 +33,12 @@
       .split(/\s+/)
       .map(w => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
+  }
+  // Strip any trailing inline quantity like (x12) that might have been
+  // embedded into labels by UI controls on the builder page.
+  function stripInlineQty(str) {
+    if (!str) return '';
+    return String(str).replace(/\(x\d+\)/gi, '').replace(/\s{2,}/g, ' ').trim();
   }
 
   // [C] ORDER TYPE: SAVE/GET
@@ -53,12 +62,14 @@
       const name = input.getAttribute('name');
       if (!data[name]) data[name] = [];
       if (input.checked) {
-        // Try to find the label text associated with this input
+        // Find the associated label and strip any dynamic controls (e.g., quantity widgets)
         let labelText = '';
         const label = input.closest('label') || document.querySelector(`label[for="${input.id}"]`);
         if (label) {
-          // Get text content without the input's value
-          labelText = (label.textContent || '').trim();
+          const clone = label.cloneNode(true);
+          // Remove the checkbox itself and any qty controls inside labels
+          clone.querySelectorAll('input, .sauce-qty, .qty-controls, button').forEach((el) => el.remove());
+          labelText = (clone.textContent || '').trim();
         }
         data[name].push({ value: input.value, label: labelText || titleCase(input.value) });
       }
@@ -275,6 +286,7 @@
     const settingExpandOnly = document.querySelector('.setting-expand-only');
     const settingLabelSelects = document.querySelector('.setting-label-selects');
     const settingTitleSelects = document.querySelector('.setting-title-selects');
+    const settingResetOnDeselect = document.querySelector('.setting-reset-on-deselect');
     const settingsResetBtn = document.querySelector('.settings-reset');
     // Settings defaults: all ON by default
     let expandOnly = true;
@@ -295,6 +307,13 @@
       titleSelects = v === null ? true : v === 'true';
     } catch { titleSelects = true; }
     if (settingTitleSelects) settingTitleSelects.checked = titleSelects;
+    // Reset-on-deselect: default OFF
+    let resetOnDeselect = false;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsResetOnDeselect);
+      resetOnDeselect = v === 'true';
+    } catch { resetOnDeselect = false; }
+    if (settingResetOnDeselect) settingResetOnDeselect.checked = resetOnDeselect;
 
     const closeSettings = () => {
       if (!settingsPanel || !settingsBtn) return;
@@ -334,6 +353,12 @@
       settingTitleSelects.addEventListener('change', () => {
         titleSelects = !!settingTitleSelects.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, String(titleSelects)); } catch { }
+      });
+    }
+    if (settingResetOnDeselect) {
+      settingResetOnDeselect.addEventListener('change', () => {
+        resetOnDeselect = !!settingResetOnDeselect.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, String(resetOnDeselect)); } catch { }
       });
     }
 
@@ -831,6 +856,115 @@
       // Ensure storage includes them
       saveIngredients();
 
+      // Load/save quantities for sections (pizza/burger) and sauces
+      let qtySections = {};
+      try { qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}'); } catch { qtySections = {}; }
+      let qtyMap = {};
+      try { qtyMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'); } catch { qtyMap = {}; }
+      const saveQtySections = () => { try { localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections)); } catch { } };
+      const saveQtyMap = () => { try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { } };
+
+      // Decorate section summaries (Pizza/Burger) with quantity controls (1-12)
+      ['pizza', 'burger'].forEach((sec) => {
+        const d = document.getElementById(sec);
+        if (!d) return;
+        const summary = d.querySelector('summary.menu-summary');
+        if (!summary) return;
+        // Avoid duplicate controls
+        if (summary.querySelector('.qty-controls')) return;
+        // Allow zero so an unselected section shows (x0)
+        let current = Math.max(0, Math.min(12, parseInt(qtySections[sec] || '0', 10) || 0));
+        const wrap = document.createElement('span');
+        wrap.className = 'qty-controls';
+        wrap.style.marginLeft = '12px';
+        const label = document.createElement('span');
+        label.textContent = `(x${current})`;
+        label.style.marginRight = '6px';
+        const dec = document.createElement('button');
+        dec.type = 'button'; dec.textContent = '−'; dec.setAttribute('aria-label', `Decrease ${sec} quantity`);
+        dec.style.marginRight = '4px';
+        const inc = document.createElement('button');
+        inc.type = 'button'; inc.textContent = '+'; inc.setAttribute('aria-label', `Increase ${sec} quantity`);
+        const update = (next) => {
+          current = Math.max(0, Math.min(12, (next|0)));
+          qtySections[sec] = current; saveQtySections();
+          label.textContent = `(x${current})`;
+          // If quantity reaches 0, deselect the section checkbox to make the item inactive
+          if (current === 0) {
+            const toggle = d.querySelector('.section-toggle');
+            if (toggle && toggle.checked) {
+              toggle.checked = false;
+              toggle.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          } else {
+            // Ensure the section is active when qty goes from 0 -> 1+
+            const toggle = d.querySelector('.section-toggle');
+            if (toggle && !toggle.checked) {
+              toggle.checked = true;
+              toggle.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          }
+        };
+        dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current - 1); });
+        inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current + 1); });
+        wrap.appendChild(label); wrap.appendChild(dec); wrap.appendChild(inc);
+        summary.appendChild(wrap);
+      });
+
+      // Add per-ingredient qty controls for Sauces on builder (shown when checked)
+      document.querySelectorAll('input[type="checkbox"][name="sauces_ingredients[]"]').forEach((cb) => {
+        const labelEl = cb.closest('label');
+        if (!labelEl) return;
+        // Avoid duplicate
+        if (labelEl.querySelector('.sauce-qty')) {
+          return;
+        }
+        const value = cb.value;
+        const qKey = `sauces_ingredients[]|${value}`;
+        let current = Math.max(1, Math.min(12, parseInt(qtyMap[qKey] || '1', 10) || 1));
+        const wrap = document.createElement('span');
+        wrap.className = 'sauce-qty';
+        wrap.style.marginLeft = '8px';
+        const txt = document.createElement('span');
+        txt.textContent = `(x${current})`;
+        txt.style.marginRight = '4px';
+        const dec = document.createElement('button'); dec.type = 'button'; dec.textContent = '−'; dec.style.marginRight = '2px';
+        const inc = document.createElement('button'); inc.type = 'button'; inc.textContent = '+';
+        const update = (next) => {
+          current = Math.max(1, Math.min(12, (next|0)));
+          qtyMap[qKey] = current; saveQtyMap();
+          txt.textContent = `(x${current})`;
+          // If quantity reaches 0 (via minus click from 1), uncheck the sauce to make it inactive
+          if (current === 0) {
+            if (cb.checked) {
+              cb.checked = false;
+              cb.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          } else {
+            // Ensure it's checked if qty increased from 0 -> 1
+            if (!cb.checked) {
+              cb.checked = true;
+              cb.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          }
+        };
+        dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current - 1); });
+        inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current + 1); });
+        wrap.appendChild(txt); wrap.appendChild(dec); wrap.appendChild(inc);
+        // Show controls only when checked
+        const setVisible = () => { wrap.style.display = cb.checked ? 'inline-flex' : 'none'; };
+        setVisible();
+        cb.addEventListener('change', () => {
+          if (!cb.checked) {
+            // If item is not selected, its quantity becomes 0
+            qtyMap[qKey] = 0; saveQtyMap();
+            txt.textContent = `(x0)`;
+          }
+          setVisible();
+        });
+        labelEl.appendChild(wrap);
+      });
+
       // Section toggles: require checkbox to expand
       const toggles = document.querySelectorAll('.section-toggle');
       const detailsBySection = {
@@ -860,11 +994,34 @@
             // Enforce required when activating
             d2.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
             saveIngredients();
+            // If activating Pizza/Burger, ensure quantity is at least 1 (was 0 when deselected)
+            if (section === 'pizza' || section === 'burger') {
+              try {
+                let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
+                const cur = parseInt(qtySections[section] || '0', 10) || 0;
+                if (cur <= 0) {
+                  qtySections[section] = 1;
+                  localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections));
+                  const sum = d2.querySelector('summary.menu-summary .qty-controls span');
+                  if (sum) sum.textContent = `(x1)`;
+                }
+              } catch { }
+            }
           }
           if (!t.checked && d2) {
             // Clear all selections in that section when deactivating
             d2.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => { cb.checked = false; });
             saveIngredients();
+            // If the menu item (section) is not selected, its quantity becomes 0
+            if (section === 'pizza' || section === 'burger') {
+              try {
+                let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
+                qtySections[section] = 0;
+                localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections));
+              } catch { }
+              const sum = d2.querySelector('summary.menu-summary .qty-controls span');
+              if (sum) sum.textContent = `(x0)`;
+            }
           }
           activeSections[section] = t.checked;
           try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(activeSections)); } catch { }
@@ -1109,6 +1266,12 @@
         frag.appendChild(h3i);
 
         const entries = Object.entries(ingredients || {});
+        // Load saved per-ingredient quantities (legacy, not used for display now)
+        let qtyMap = {};
+        try { qtyMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'); } catch { qtyMap = {}; }
+        // Load per-section quantities (pizza/burger)
+        let qtySections = {};
+        try { qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}'); } catch { qtySections = {}; }
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
         if (entries.length === 0 || nonEmpty.length === 0) {
           const none = document.createElement('p');
@@ -1120,6 +1283,12 @@
             const prettyGroup = key.replace(/_/g, ' ');
             // Skip categories that are not active (checkbox not selected on Page 2)
             if (!activeSections[key]) return;
+            // Also skip Pizza/Burger if their section quantity is 0
+            if ((key === 'pizza' || key === 'burger')) {
+              let qv = 0;
+              try { qv = parseInt(qtySections[key] || '0', 10) || 0; } catch { qv = 0; }
+              if (qv <= 0) return;
+            }
 
             const header = document.createElement('div');
             const listTitle = document.createElement('strong');
@@ -1132,12 +1301,144 @@
             edit.style.marginLeft = '8px';
             header.appendChild(edit);
 
+            // Section-level quantity controls for Pizza and Burger
+            if (key === 'pizza' || key === 'burger') {
+              const qWrap = document.createElement('span');
+              qWrap.style.marginLeft = '12px';
+              const qKey = key; // 'pizza' or 'burger'
+              // Allow 0 if previously set via deselection; otherwise controls clamp to 1..12
+              let current = Math.max(0, Math.min(12, parseInt(qtySections[qKey] || '0', 10) || 0));
+
+              const labelSpan = document.createElement('span');
+              labelSpan.textContent = `(x${current})`;
+              labelSpan.style.marginRight = '6px';
+
+              const dec = document.createElement('button');
+              dec.type = 'button';
+              dec.textContent = '−';
+              dec.setAttribute('aria-label', `Decrease ${key} quantity`);
+              dec.style.marginRight = '4px';
+
+              const inc = document.createElement('button');
+              inc.type = 'button';
+              inc.textContent = '+';
+              inc.setAttribute('aria-label', `Increase ${key} quantity`);
+
+              const updateQty = (next) => {
+                const val = Math.max(0, Math.min(12, (next|0)));
+                current = val;
+                qtySections[qKey] = val;
+                try { localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections)); } catch { }
+                labelSpan.textContent = `(x${val})`;
+                if (val === 0) {
+                  // Deselect item on Page 2 state: deactivate section and clear its ingredients
+                  try {
+                    // activeSections
+                    let act = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}');
+                    act[key] = false;
+                    localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
+                    // ingredients
+                    let ing = JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}');
+                    const gname = key + '_ingredients[]';
+                    ing[gname] = [];
+                    localStorage.setItem(STORAGE_KEYS.ingredients, JSON.stringify(ing));
+                  } catch { }
+                  // Remove this section from summary immediately
+                  const listEl = header.nextElementSibling;
+                  if (listEl && listEl.tagName && listEl.tagName.toLowerCase() === 'ul') {
+                    listEl.remove();
+                  }
+                  header.remove();
+                }
+              };
+
+              dec.addEventListener('click', () => { updateQty(current - 1); });
+              inc.addEventListener('click', () => { updateQty(current + 1); });
+
+              qWrap.appendChild(labelSpan);
+              qWrap.appendChild(dec);
+              qWrap.appendChild(inc);
+              header.appendChild(qWrap);
+            }
+
             frag.appendChild(header);
             const ul = document.createElement('ul');
             values.forEach((item) => {
               const li = document.createElement('li');
-              const label = (typeof item === 'string') ? titleCase(item) : (item && item.label ? item.label : titleCase(item && item.value));
-              li.textContent = label;
+              const value = (typeof item === 'string') ? item : (item && item.value ? item.value : '');
+              let label = (typeof item === 'string') ? titleCase(item) : (item && item.label ? item.label : titleCase(value));
+              label = stripInlineQty(label);
+
+              if (key === 'sauces') {
+                // Per-ingredient quantity controls for sauces
+                const qKey = `${group}|${value}`;
+                let current = Math.max(1, Math.min(12, parseInt(qtyMap[qKey] || '1', 10) || 1));
+
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = `${label} (x${current})`;
+                nameSpan.style.marginRight = '8px';
+                li.appendChild(nameSpan);
+
+                const dec = document.createElement('button');
+                dec.type = 'button';
+                dec.textContent = '−';
+                dec.setAttribute('aria-label', `Decrease ${label}`);
+                dec.style.marginRight = '4px';
+
+                const inc = document.createElement('button');
+                inc.type = 'button';
+                inc.textContent = '+';
+                inc.setAttribute('aria-label', `Increase ${label}`);
+
+                const updateQty = (next) => {
+                  const val = Math.max(0, Math.min(12, next|0));
+                  current = val;
+                  qtyMap[qKey] = current;
+                  try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { }
+                  if (val === 0) {
+                    // Remove from stored ingredients and UI, and possibly deactivate Sauces section if empty
+                    try {
+                      let ing = JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}');
+                      const arr = Array.isArray(ing[group]) ? ing[group] : [];
+                      const filtered = arr.filter((it) => {
+                        const v = (typeof it === 'string') ? it : (it && it.value);
+                        return v && v !== value;
+                      });
+                      ing[group] = filtered;
+                      localStorage.setItem(STORAGE_KEYS.ingredients, JSON.stringify(ing));
+                      // If no sauces left, deactivate section
+                      if (filtered.length === 0) {
+                        let act = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}');
+                        act['sauces'] = false;
+                        localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
+                        // Remove header and list from summary
+                        const ulEl = li.parentElement;
+                        const hdr = ulEl ? ulEl.previousElementSibling : null;
+                        // Remove just this li; if ul becomes empty, remove header and ul
+                        li.remove();
+                        if (ulEl && ulEl.children.length === 0) {
+                          ulEl.remove();
+                          if (hdr) hdr.remove();
+                        }
+                        return;
+                      }
+                    } catch { }
+                    // Remove just this li from UI
+                    li.remove();
+                    return;
+                  }
+                  nameSpan.textContent = `${label} (x${val})`;
+                };
+
+                dec.addEventListener('click', () => { updateQty(current - 1); });
+                inc.addEventListener('click', () => { updateQty(current + 1); });
+
+                li.appendChild(dec);
+                li.appendChild(inc);
+              } else {
+                // No per-ingredient quantity; simple label (sans any inline qty)
+                li.textContent = label;
+              }
               ul.appendChild(li);
             });
             frag.appendChild(ul);
