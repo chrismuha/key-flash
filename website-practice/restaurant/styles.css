@@ -12,9 +12,8 @@
 
 /* Section: CSS Variables */
 :root {
-    /* Fixed rail and spacing consistent with screenshot */
-    /* Slightly widened to accommodate 292px buttons + side padding */
-    --rail-width: 324px;
+    /* Nav rail sized to fit 204px logo + side padding */
+    --rail-width: 236px; /* 204px image + 2 * 16px side padding */
     --box-height: 56px;
     --gap: 12px;
     --box-bg: #2ecc71;
@@ -82,29 +81,30 @@ body {
     left: 50%;
     transform: translateX(-50%);
     display: block;
-    /* Match screenshot: roomy side spacing and framed image */
-    width: calc(100% - (var(--gap) * 2.666));
-    height: auto; /* keep intrinsic aspect ratio */
-    max-height: var(--nav-logo-h);
+    /* Fixed logo size as requested */
+    width: 204px;
+    height: 155px;
     object-fit: contain;
-    border: 2px solid #000;
-    border-radius: 8px;
+    border: none;
+    border-radius: 0;
 }
 
 
 /* Settings gear in left rail */
 .settings-button {
     margin-top: auto;
-    padding: 6px 10px;
+    padding: 0 10px; /* fit within 33px height */
     font-weight: 600;
-    font-size: inherit;
+    font-size: 16px; /* comfortable within 33px */
     border: 1px solid #000;
     background: #f7f7f7;
     color: #000;
     border-radius: 4px;
     cursor: pointer;
-    /* match page button width */
-    width: 292px;
+    /* match page button size */
+    width: 190px;
+    height: 33px;
+    line-height: 33px;
     align-self: center;
 }
 
@@ -913,9 +913,9 @@ main details[open]>summary.menu-summary::before {
 /* Section: Left Rail Boxes (Links) */
 .box {
     margin: 0;
-    /* Requested fixed button width; small height like Settings */
-    width: 292px;
-    height: 36px;
+    /* Green page buttons: 190x33 */
+    width: 190px;
+    height: 33px;
     background: var(--box-bg);
     border: none;
     display: flex;
@@ -952,8 +952,8 @@ main details[open]>summary.menu-summary::before {
 
 /* Align left-rail items with collapsible menu rows on all pages */
 .left-rail .box {
-    height: 36px; /* small height to match Settings */
-    line-height: 36px;
+    height: 33px; /* match fixed button height */
+    line-height: 33px;
     font-size: 24px;
 }
 
