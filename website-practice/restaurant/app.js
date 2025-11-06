@@ -965,6 +965,33 @@
         labelEl.appendChild(wrap);
       });
 
+      // Add per-ingredient qty controls for Burger Patty (max 3)
+      (function addPattyQty() {
+        const cb = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="patty"]');
+        if (!cb) return;
+        const labelEl = cb.closest('label');
+        if (!labelEl) return;
+        if (labelEl.querySelector('.patty-qty')) return;
+        const qKey = 'burger_ingredients[]|patty';
+        let current = 1;
+        try { current = Math.max(1, Math.min(3, parseInt(qtyMap[qKey] || '1', 10) || 1)); } catch { current = 1; }
+        const wrap = document.createElement('span');
+        wrap.className = 'patty-qty';
+        wrap.style.marginLeft = '8px';
+        const txt = document.createElement('span'); txt.textContent = `(x${current})`; txt.style.marginRight = '4px';
+        const dec = document.createElement('button'); dec.type = 'button'; dec.textContent = '−'; dec.style.marginRight = '2px';
+        const inc = document.createElement('button'); inc.type = 'button'; inc.textContent = '+';
+        const savePatty = () => { qtyMap[qKey] = current; try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { } };
+        const update = (next) => { current = Math.max(1, Math.min(3, (next|0))); txt.textContent = `(x${current})`; savePatty(); };
+        dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current - 1); });
+        inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current + 1); });
+        wrap.appendChild(txt); wrap.appendChild(dec); wrap.appendChild(inc);
+        const setVisible = () => { wrap.style.display = cb.checked ? 'inline-flex' : 'none'; };
+        setVisible();
+        cb.addEventListener('change', () => { setVisible(); });
+        labelEl.appendChild(wrap);
+      })();
+
       // Section toggles: require checkbox to expand
       const toggles = document.querySelectorAll('.section-toggle');
       const detailsBySection = {
@@ -1433,6 +1460,32 @@
                 dec.addEventListener('click', () => { updateQty(current - 1); });
                 inc.addEventListener('click', () => { updateQty(current + 1); });
 
+                li.appendChild(dec);
+                li.appendChild(inc);
+              } else if (key === 'burger' && value === 'patty') {
+                // Patty has per-ingredient quantity controls (max 3)
+                const qKey = `${group}|${value}`;
+                let current = 1;
+                try { current = Math.max(1, Math.min(3, parseInt(qtyMap[qKey] || '1', 10) || 1)); } catch { current = 1; }
+
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = `${label} (x${current})`;
+                nameSpan.style.marginRight = '8px';
+                li.appendChild(nameSpan);
+
+                const dec = document.createElement('button');
+                dec.type = 'button'; dec.textContent = '−'; dec.style.marginRight = '4px';
+                const inc = document.createElement('button');
+                inc.type = 'button'; inc.textContent = '+';
+
+                const updateQty = (next) => {
+                  current = Math.max(1, Math.min(3, next|0));
+                  qtyMap[qKey] = current;
+                  try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { }
+                  nameSpan.textContent = `${label} (x${current})`;
+                };
+                dec.addEventListener('click', () => { updateQty(current - 1); });
+                inc.addEventListener('click', () => { updateQty(current + 1); });
                 li.appendChild(dec);
                 li.appendChild(inc);
               } else {

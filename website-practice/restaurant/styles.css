@@ -589,6 +589,12 @@ body.page2 label.required {
     pointer-events: none !important;
 }
 
+/* Re-enable interaction for required labels so embedded controls (e.g., Patty qty) are clickable */
+/* This overrides the earlier block and should appear later in the file */
+body.page2 label.required {
+    pointer-events: auto !important;
+}
+
 /* Dim any ingredient text until its checkbox is checked */
 main fieldset label:has(> input:not(:checked)) {
     opacity: 0.6;
