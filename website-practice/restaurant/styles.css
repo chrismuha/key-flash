@@ -17,7 +17,6 @@
     --logo-w: 204px;
     --logo-h: 155px;
     --rail-side-gap: calc(var(--gap) - 6px);
-    /* tightened by 1px */
     --rail-width: calc(var(--logo-w) + (var(--rail-side-gap) * 2));
     --box-height: 56px;
     --box-bg: #2ecc71;
@@ -62,7 +61,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: var(--gap);
-    /* left/right padding slightly reduced to match visual space */
     padding: var(--gap) var(--rail-side-gap);
     width: var(--rail-width);
     position: fixed;
@@ -72,7 +70,6 @@ body {
     z-index: 1;
     align-items: flex-start;
     background: #dba37f;
-    /* Prevent an inner scrollbar when Settings opens */
     overflow: hidden;
     scrollbar-gutter: stable both-edges;
 }
@@ -89,7 +86,6 @@ body {
     left: 50%;
     transform: translateX(-50%);
     display: block;
-    /* Fixed logo size as requested */
     width: var(--logo-w);
     height: var(--logo-h);
     object-fit: contain;
@@ -102,16 +98,13 @@ body {
 .settings-button {
     margin-top: auto;
     padding: 0 10px;
-    /* fit within 33px height */
     font-weight: 600;
     font-size: 16px;
-    /* comfortable within 33px */
     border: 1px solid #000;
     background: #f7f7f7;
     color: #000;
     border-radius: 4px;
     cursor: pointer;
-    /* match page button size */
     width: 190px;
     height: 33px;
     line-height: 33px;
@@ -132,7 +125,6 @@ body.theme-dark .settings-button {
     color: #000;
     border-radius: 6px;
     padding: 8px;
-    /* Do not allow an internal scrollbar; let the page/nav handle scrolling */
     max-height: none;
     overflow: visible;
 }
@@ -192,7 +184,6 @@ body:not(.nav-enabled) main {
 main {
     background: #fff;
     flex: 0 1 auto;
-    /* Always fit beside the rail at the smallest window */
     width: calc(100vw - var(--rail-width));
     max-width: 75ch;
     min-width: 520px;
@@ -416,7 +407,6 @@ body.page2 main {
     border: none;
     position: relative;
     padding-bottom: 96px;
-    /* ensure content clears fixed Next button */
 }
 
 /* Section: Page 2 Next Button */
@@ -928,7 +918,6 @@ main details[open]>summary.menu-summary::before {
 /* Section: Left Rail Boxes (Links) */
 .box {
     margin: 0;
-    /* Green page buttons: 190x33 */
     width: 190px;
     height: 33px;
     background: var(--box-bg);
@@ -940,7 +929,6 @@ main details[open]>summary.menu-summary::before {
     font-weight: 600;
     user-select: none;
     align-self: center;
-    /* center within the rail */
 }
 
 /* outline only for the active page link */
@@ -969,7 +957,6 @@ main details[open]>summary.menu-summary::before {
 /* Align left-rail items with collapsible menu rows on all pages */
 .left-rail .box {
     height: 33px;
-    /* match fixed button height */
     line-height: 33px;
     font-size: 24px;
 }
