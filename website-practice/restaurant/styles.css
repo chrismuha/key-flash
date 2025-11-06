@@ -64,8 +64,9 @@ body {
 }
 
 /* Disable nav bar (dev only) — hide completely */
-.left-rail { display: none !important; }
-body main { margin-left: 0 !important; }
+body:not(.nav-enabled) .left-rail { display: none !important; }
+body.nav-enabled .left-rail { display: flex; }
+body:not(.nav-enabled) main { margin-left: 0 !important; }
 
 .left-rail::before {
     content: "";
@@ -115,11 +116,19 @@ body.theme-dark main fieldset {
     border-color: #fff;
 }
 
-/* Theme toggle button */
-.theme-toggle {
+/* Theme dropdown */
+.theme-dropdown {
     position: fixed;
     top: 8px;
     right: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    z-index: 1000;
+}
+
+.theme-toggle {
     padding: 6px 10px;
     font-weight: 600;
     border: 1px solid #000;
@@ -127,13 +136,53 @@ body.theme-dark main fieldset {
     color: #000;
     border-radius: 4px;
     cursor: pointer;
-    z-index: 1000;
+    width: 100%;
+}
+
+.theme-menu {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    color: #000;
+    border-radius: 6px;
+    padding: 4px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    min-width: 160px;
+}
+
+.theme-option {
+    border: none;
+    background: transparent;
+    text-align: left;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+.theme-option:hover,
+.theme-option:focus-visible {
+    background: rgba(0, 0, 0, 0.08);
+    outline: none;
 }
 
 body.theme-dark .theme-toggle {
     border-color: #fff;
     background: #222;
     color: #fff;
+}
+
+body.theme-dark .theme-menu {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+body.theme-dark .theme-option:hover,
+body.theme-dark .theme-option:focus-visible {
+    background: rgba(255, 255, 255, 0.15);
 }
 
 /* Go Back button (fixed, next to theme toggle) */

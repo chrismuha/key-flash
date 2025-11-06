@@ -19,8 +19,15 @@
 
     <!-- Right-side content area (Page 1 / Order Type) -->
     <main>
-        <!-- Theme toggle -->
-        <button class="theme-toggle" type="button" aria-label="Toggle theme">Toggle Theme</button>
+        <!-- Theme dropdown -->
+        <div class="theme-dropdown">
+            <button class="theme-toggle" type="button" aria-haspopup="menu" aria-expanded="false"
+                aria-label="Open theme menu">Themes</button>
+            <div class="theme-menu" role="menu" hidden>
+                <button type="button" class="theme-option theme-mode-toggle" role="menuitem">Dark Mode</button>
+                <button type="button" class="theme-option nav-toggle" role="menuitem">Enable Navigation</button>
+            </div>
+        </div>
         <!-- Page title -->
         <h1>Please select your order type</h1>
 
