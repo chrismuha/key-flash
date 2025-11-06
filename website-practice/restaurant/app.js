@@ -148,10 +148,31 @@
         return sauces.length > 0;
       } catch { return false; }
     }
+    function hasValidDeliveryDetails() {
+      // Validate saved delivery details (used to unlock Page 2 for delivery)
+      try {
+        const name = (localStorage.getItem(STORAGE_KEYS.deliveryName) || '').trim();
+        const phone = (localStorage.getItem(STORAGE_KEYS.deliveryPhone) || '').replace(/\D+/g, '');
+        const addr = (localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '').trim();
+        const type = (localStorage.getItem(STORAGE_KEYS.deliveryType) || '').trim();
+        const city = (localStorage.getItem(STORAGE_KEYS.deliveryCity) || '').trim();
+        const rawZip = (localStorage.getItem(STORAGE_KEYS.deliveryZip) || '').trim();
+        const z = rawZip.replace(/\D+/g, '');
+        const zipOk = (z.length === 5 && z === '13309') || (z.length === 9 && z.slice(0, 5) === '13309');
+        return !!(name && phone.length === 10 && addr && type && city && zipOk);
+      } catch {
+        return false;
+      }
+    }
     function updatePageNavLocks() {
       const okType = hasOrderTypeSelected();
       const okMenu = hasMenuSelection();
-      const okPage2 = okType; // Page 2 unlocks with order type alone
+      // Page 2 unlocks with order type unless it's Delivery, which needs valid delivery details
+      let okPage2 = okType;
+      try {
+        const t = localStorage.getItem(STORAGE_KEYS.orderType) || '';
+        if (t === 'delivery') okPage2 = okType && hasValidDeliveryDetails();
+      } catch { }
       const okPage3 = okType && okMenu; // Page 3 needs both
 
       document.querySelectorAll('.left-rail a[href$="page2.html"]').forEach((a) => {
@@ -164,7 +185,14 @@
           a.setAttribute('aria-disabled', 'true');
           a.setAttribute('tabindex', '-1');
           a.addEventListener('click', preventNavClick);
-          a.setAttribute('title', 'Select an order type to enable Page 2');
+          let tip = 'Select an order type to enable Page 2';
+          try {
+            const t = localStorage.getItem(STORAGE_KEYS.orderType) || '';
+            if (t === 'delivery' && okType && !hasValidDeliveryDetails()) {
+              tip = 'Complete delivery details to enable Page 2';
+            }
+          } catch { }
+          a.setAttribute('title', tip);
         }
       });
       document.querySelectorAll('.left-rail a[href$="page3.html"]').forEach((a) => {
