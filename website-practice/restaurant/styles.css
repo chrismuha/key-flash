@@ -673,6 +673,7 @@ main summary.menu-summary.invalid {
     outline: 2px solid #c00;
     outline-offset: 4px;
     border-radius: 6px;
+    margin-bottom: 8px; /* add breathing room below red border */
 }
 
 /* Section: Reset Buttons */
