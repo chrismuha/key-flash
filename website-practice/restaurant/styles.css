@@ -65,7 +65,8 @@ body {
     z-index: 1;
     align-items: flex-start;
     background: #dba37f;
-    overflow: auto;
+    /* Prevent an inner scrollbar when Settings opens */
+    overflow: hidden;
     scrollbar-gutter: stable both-edges;
 }
 
@@ -122,6 +123,9 @@ body.theme-dark .settings-button {
     color: #000;
     border-radius: 6px;
     padding: 8px;
+    /* Do not allow an internal scrollbar; let the page/nav handle scrolling */
+    max-height: none;
+    overflow: visible;
 }
 
 body.theme-dark .settings-panel {
