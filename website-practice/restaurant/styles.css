@@ -12,13 +12,17 @@
 
 /* Section: CSS Variables */
 :root {
-    /* Nav rail sized to fit 204px logo + side padding */
-    --rail-width: 236px; /* 204px image + 2 * 16px side padding */
-    --box-height: 56px;
+    /* Fine-tuned spacing so left/right visually match top/bottom */
     --gap: 12px;
+    --logo-w: 204px;
+    --logo-h: 155px;
+    --rail-side-gap: calc(var(--gap) - 6px);
+    /* tightened by 1px */
+    --rail-width: calc(var(--logo-w) + (var(--rail-side-gap) * 2));
+    --box-height: 56px;
     --box-bg: #2ecc71;
     --box-border: #000;
-    --nav-logo-h: 155px; /* match pizza image height for even spacing */
+    --nav-logo-h: var(--logo-h);
 }
 
 /* Section: Global Resets */
@@ -58,8 +62,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: var(--gap);
-    /* restore original comfortable side padding */
-    padding: var(--gap) calc(var(--gap) * 1.333);
+    /* left/right padding slightly reduced to match visual space */
+    padding: var(--gap) var(--rail-side-gap);
     width: var(--rail-width);
     position: fixed;
     top: 0;
@@ -86,8 +90,8 @@ body {
     transform: translateX(-50%);
     display: block;
     /* Fixed logo size as requested */
-    width: 204px;
-    height: 155px;
+    width: var(--logo-w);
+    height: var(--logo-h);
     object-fit: contain;
     border: none;
     border-radius: 0;
@@ -97,9 +101,11 @@ body {
 /* Settings gear in left rail */
 .settings-button {
     margin-top: auto;
-    padding: 0 10px; /* fit within 33px height */
+    padding: 0 10px;
+    /* fit within 33px height */
     font-weight: 600;
-    font-size: 16px; /* comfortable within 33px */
+    font-size: 16px;
+    /* comfortable within 33px */
     border: 1px solid #000;
     background: #f7f7f7;
     color: #000;
@@ -933,7 +939,8 @@ main details[open]>summary.menu-summary::before {
     font-family: system-ui, sans-serif;
     font-weight: 600;
     user-select: none;
-    align-self: center; /* center within the rail */
+    align-self: center;
+    /* center within the rail */
 }
 
 /* outline only for the active page link */
@@ -961,7 +968,8 @@ main details[open]>summary.menu-summary::before {
 
 /* Align left-rail items with collapsible menu rows on all pages */
 .left-rail .box {
-    height: 33px; /* match fixed button height */
+    height: 33px;
+    /* match fixed button height */
     line-height: 33px;
     font-size: 24px;
 }
