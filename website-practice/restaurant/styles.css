@@ -18,7 +18,7 @@
     --gap: 12px;
     --box-bg: #2ecc71;
     --box-border: #000;
-    --nav-logo-h: 160px; /* reserved space for logo area */
+    --nav-logo-h: 155px; /* match pizza image height for even spacing */
 }
 
 /* Section: Global Resets */
@@ -40,6 +40,8 @@ body {
     font-family: system-ui, sans-serif;
     font-size: 16px;
     min-width: 920px;
+    /* Allow vertical scroll when needed, prevent horizontal scroll */
+    overflow-x: hidden;
 }
 
 /* Section: App Layout (Body Flex) */
@@ -48,6 +50,7 @@ body {
     min-height: 100vh;
     min-height: 100dvh;
     align-items: stretch;
+    overflow-y: auto;
 }
 
 /* Section: Left Rail Navigation */
@@ -183,8 +186,10 @@ body:not(.nav-enabled) main {
 main {
     background: #fff;
     flex: 0 1 auto;
+    /* Always fit beside the rail at the smallest window */
+    width: calc(100vw - var(--rail-width));
     max-width: 75ch;
-    min-width: 640px;
+    min-width: 520px;
     padding: calc(var(--gap) * 4) var(--gap) var(--gap) calc(var(--gap) * 2);
     border: none;
     line-height: 1.5;
@@ -677,8 +682,8 @@ body.order-type .order-options {
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
-    gap: 48px;
-    margin: 24px 0 8px;
+    gap: 36px;
+    margin: 16px 0 8px;
 }
 
 /* Delivery details panel under cards */
