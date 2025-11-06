@@ -65,6 +65,45 @@ body {
     scrollbar-gutter: stable both-edges;
 }
 
+/* Settings gear in left rail */
+.settings-button {
+    margin-top: auto;
+    padding: 6px 10px;
+    font-weight: 600;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    color: #000;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+body.theme-dark .settings-button {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+.settings-panel {
+    margin-top: 6px;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    color: #000;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+body.theme-dark .settings-panel {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+.settings-panel label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 /* Disable nav bar (dev only) — hide completely */
 body:not(.nav-enabled) .left-rail {
     display: none !important;

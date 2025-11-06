@@ -15,6 +15,14 @@
         <a class="box" href="index.html">Page 1</a>
         <a class="box" href="page2.html">Page 2</a>
         <a class="box active" href="page3.html" aria-current="page">Page 3</a>
+        <button class="settings-button" type="button" aria-haspopup="dialog" aria-expanded="false"
+            aria-controls="settings-panel" aria-label="Open settings">⚙️ Settings</button>
+        <div class="settings-panel" id="settings-panel" hidden>
+            <label title="Clicking section arrows expands/collapses only; checkboxes control selection">
+                <input type="checkbox" class="setting-expand-only">
+                Summary arrow expands/collapses only
+            </label>
+        </div>
     </nav>
 
     <!-- Right-side content area (Page 3 / Summary + POS) -->

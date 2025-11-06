@@ -16,7 +16,8 @@
     deliveryCity: 'restaurant.delivery.city',
     deliveryZip: 'restaurant.delivery.zip',
     activeSections: 'restaurant.activeSections',
-    navEnabled: 'restaurant.nav.enabled'
+    navEnabled: 'restaurant.nav.enabled',
+    settingsExpandOnly: 'restaurant.settings.expandOnly'
   };
 
   // [B] TEXT UTILS
@@ -169,6 +170,43 @@
     const themeMenu = themeDropdown ? themeDropdown.querySelector('.theme-menu') : null;
     const themeModeBtn = themeDropdown ? themeDropdown.querySelector('.theme-mode-toggle') : null;
     const navToggleBtn = themeDropdown ? themeDropdown.querySelector('.nav-toggle') : null;
+
+    // Settings (gear) in left rail
+    const settingsBtn = document.querySelector('.settings-button');
+    const settingsPanel = document.getElementById('settings-panel');
+    const settingExpandOnly = document.querySelector('.setting-expand-only');
+    let expandOnly = false;
+    try { expandOnly = localStorage.getItem(STORAGE_KEYS.settingsExpandOnly) === 'true'; } catch { expandOnly = false; }
+    if (settingExpandOnly) settingExpandOnly.checked = expandOnly;
+
+    const closeSettings = () => {
+      if (!settingsPanel || !settingsBtn) return;
+      settingsPanel.hidden = true;
+      settingsBtn.setAttribute('aria-expanded', 'false');
+    };
+    const openSettings = () => {
+      if (!settingsPanel || !settingsBtn) return;
+      settingsPanel.hidden = false;
+      settingsBtn.setAttribute('aria-expanded', 'true');
+    };
+    if (settingsBtn && settingsPanel) {
+      settingsBtn.addEventListener('click', () => {
+        if (settingsPanel.hidden) openSettings(); else closeSettings();
+      });
+      document.addEventListener('click', (evt) => {
+        if (settingsPanel.hidden) return;
+        if (!document.querySelector('.left-rail')?.contains(evt.target)) closeSettings();
+      });
+      document.addEventListener('keydown', (evt) => {
+        if (evt.key === 'Escape') closeSettings();
+      });
+    }
+    if (settingExpandOnly) {
+      settingExpandOnly.addEventListener('change', () => {
+        expandOnly = !!settingExpandOnly.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, String(expandOnly)); } catch { }
+      });
+    }
 
     const updateThemeModeLabel = () => {
       if (!themeModeBtn) return;
@@ -697,15 +735,22 @@
           try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(activeSections)); } catch { }
         });
       });
-      // Summary click toggles the section checkbox (and thus open state)
+      // Summary behavior: either toggle checkbox (default) or expand/collapse only (setting)
       document.querySelectorAll('summary.menu-summary').forEach((s) => {
         s.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          const t = s.querySelector('.section-toggle');
-          if (t) {
-            t.checked = !t.checked;
-            t.dispatchEvent(new Event('change', { bubbles: true }));
+          if (expandOnly) {
+            const d = s.parentElement;
+            if (d && d.tagName && d.tagName.toLowerCase() === 'details') {
+              d.open = !d.open;
+            }
+          } else {
+            const t = s.querySelector('.section-toggle');
+            if (t) {
+              t.checked = !t.checked;
+              t.dispatchEvent(new Event('change', { bubbles: true }));
+            }
           }
         });
       });
