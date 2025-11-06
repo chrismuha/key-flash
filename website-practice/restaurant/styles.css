@@ -68,6 +68,8 @@ body {
     overflow: auto;
     scrollbar-gutter: stable both-edges;
 }
+/* Align page links with collapsed menu rows globally */
+.left-rail { padding-top: 168px; }
 
 /* Settings gear in left rail */
 .settings-button {
@@ -81,6 +83,7 @@ body {
     color: #000;
     border-radius: 4px;
     cursor: pointer;
+    width: 100%; /* match Themes button width */
 }
 
 body.theme-dark .settings-button {
@@ -924,6 +927,20 @@ main details[open]>summary.menu-summary::before {
     text-decoration: none;
 }
 
+/* Disabled nav links: allow hover for tooltip, block clicks via JS */
+.left-rail a[aria-disabled="true"] {
+    opacity: 0.5;
+    filter: grayscale(0.3);
+    cursor: not-allowed;
+}
+
+/* Align left-rail items with collapsible menu rows on all pages */
+.left-rail .box {
+    height: 36px;      /* match summary.menu-summary line-height */
+    line-height: 36px; /* vertical centering to match summaries */
+    font-size: 24px;   /* match summary.menu-summary font-size */
+}
+
 /* Section: Focus Styles */
 :focus-visible {
     outline: 2px solid #000;
@@ -950,6 +967,8 @@ main details[open]>summary.menu-summary::before {
         position: static;
         /* stack on top on small screens */
         height: auto;
+        /* Remove large desktop alignment offset on mobile */
+        padding-top: var(--gap);
     }
 
     main {

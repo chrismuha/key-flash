@@ -129,11 +129,76 @@
         });
       }
     };
+
+    // Lock Page 2/3 navigation until prerequisites are met
+    function hasOrderTypeSelected() {
+      try { return !!localStorage.getItem(STORAGE_KEYS.orderType); } catch { return false; }
+    }
+    function hasMenuSelection() {
+      // Align with builder rules: at least one section active; if Sauces active, at least one sauce selected
+      let activeSections = {};
+      try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
+      const anySectionActive = Object.values(activeSections).some(Boolean);
+      if (!anySectionActive) return false;
+      const saucesActive = !!activeSections.sauces;
+      if (!saucesActive) return true;
+      try {
+        const ing = JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}');
+        const sauces = Array.isArray(ing['sauces_ingredients[]']) ? ing['sauces_ingredients[]'] : [];
+        return sauces.length > 0;
+      } catch { return false; }
+    }
+    function updatePageNavLocks() {
+      const okType = hasOrderTypeSelected();
+      const okMenu = hasMenuSelection();
+      const okPage2 = okType; // Page 2 unlocks with order type alone
+      const okPage3 = okType && okMenu; // Page 3 needs both
+
+      document.querySelectorAll('.left-rail a[href$="page2.html"]').forEach((a) => {
+        if (okPage2) {
+          a.removeAttribute('aria-disabled');
+          a.removeAttribute('tabindex');
+          a.removeEventListener('click', preventNavClick);
+          a.removeAttribute('title');
+        } else {
+          a.setAttribute('aria-disabled', 'true');
+          a.setAttribute('tabindex', '-1');
+          a.addEventListener('click', preventNavClick);
+          a.setAttribute('title', 'Select an order type to enable Page 2');
+        }
+      });
+      document.querySelectorAll('.left-rail a[href$="page3.html"]').forEach((a) => {
+        if (okPage3) {
+          a.removeAttribute('aria-disabled');
+          a.removeAttribute('tabindex');
+          a.removeEventListener('click', preventNavClick);
+          a.removeAttribute('title');
+        } else {
+          a.setAttribute('aria-disabled', 'true');
+          a.setAttribute('tabindex', '-1');
+          a.addEventListener('click', preventNavClick);
+          const needsType = !okType;
+          const needsMenu = !okMenu;
+          let msg = '';
+          if (needsType && needsMenu) {
+            msg = 'Select an order type and choose at least one menu item to enable Page 3';
+          } else if (needsType) {
+            msg = 'Select an order type to enable Page 3';
+          } else {
+            msg = 'Choose at least one menu item to enable Page 3';
+          }
+          a.setAttribute('title', msg);
+        }
+      });
+    }
+
     let navInitialEnabled = false;
     try {
       navInitialEnabled = localStorage.getItem(STORAGE_KEYS.navEnabled) === 'true';
     } catch { }
     setNavState(navInitialEnabled);
+    // Apply initial page navigation locks
+    updatePageNavLocks();
 
     // If user refreshes a non-index page, redirect to index
     try {
@@ -346,6 +411,7 @@
           setActive(card);
           // Always persist the user's latest choice
           saveOrderType(type);
+          updatePageNavLocks();
           if (type === 'delivery') {
             // Expand delivery details instead of navigating immediately
             e.preventDefault();
@@ -733,6 +799,7 @@
           }
           activeSections[section] = t.checked;
           try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(activeSections)); } catch { }
+          updatePageNavLocks();
         });
       });
       // Summary behavior: either toggle checkbox (default) or expand/collapse only (setting)
@@ -811,6 +878,7 @@
           }
           saveIngredients();
           updateBuilderError();
+          updatePageNavLocks();
         }
       });
       // Reset buttons per group
