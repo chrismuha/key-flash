@@ -35,6 +35,10 @@ body {
     height: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-family: system-ui, sans-serif;
+    /* unify site font */
+    font-size: 16px;
+    /* unify base size */
 }
 
 /* Section: App Layout (Body Flex) */
@@ -70,6 +74,8 @@ body {
     margin-top: auto;
     padding: 6px 10px;
     font-weight: 600;
+    font-size: inherit;
+    /* revert any size change */
     border: 1px solid #000;
     background: #f7f7f7;
     color: #000;
@@ -85,6 +91,8 @@ body.theme-dark .settings-button {
 
 .settings-panel {
     margin-top: 6px;
+    font-size: inherit;
+    /* revert any size change */
     border: 1px solid #000;
     background: #f7f7f7;
     color: #000;
@@ -135,8 +143,6 @@ main {
     padding: calc(var(--gap) * 4) var(--gap) var(--gap) calc(var(--gap) * 2);
     border: none;
     line-height: 1.5;
-    font-size: 16px;
-    font-family: system-ui, sans-serif;
     overflow-wrap: break-word;
     word-break: break-word;
     margin-inline: 0 auto;
