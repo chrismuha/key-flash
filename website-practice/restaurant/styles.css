@@ -74,6 +74,24 @@ body {
     padding-top: 168px;
 }
 
+/* Left-rail logo occupies the padded space above links */
+.left-rail .nav-logo {
+    position: absolute;
+    top: var(--gap);
+    left: 50%;
+    transform: translateX(-50%);
+    display: block;
+    width: calc(100% - (var(--gap) * 2.666));
+    max-width: 100%;
+    height: auto;
+    border: 2px solid #000;
+    border-radius: 8px;
+}
+
+body.theme-dark .left-rail .nav-logo {
+    border-color: #fff;
+}
+
 /* Settings gear in left rail */
 .settings-button {
     margin-top: auto;
@@ -1005,6 +1023,13 @@ main details[open]>summary.menu-summary::before {
         height: auto;
         /* Remove large desktop alignment offset on mobile */
         padding-top: var(--gap);
+    }
+
+    .left-rail .nav-logo {
+        position: static;
+        transform: none;
+        width: 100%;
+        margin-bottom: var(--gap);
     }
 
     main {

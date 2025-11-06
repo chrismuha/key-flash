@@ -383,14 +383,21 @@
         expandOnly = true;
         labelSelects = true;
         titleSelects = true;
+        // Defaults: reset-related toggles OFF
+        resetOnDeselect = false;
+        resetDisables = false;
         try {
           localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
         } catch { }
         if (settingExpandOnly) settingExpandOnly.checked = true;
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
+        if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
+        if (settingResetDisables) settingResetDisables.checked = false;
       });
     }
 
