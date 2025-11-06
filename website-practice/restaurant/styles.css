@@ -79,10 +79,11 @@ body {
     left: 50%;
     transform: translateX(-50%);
     display: block;
-    width: calc(100% - (var(--gap) * 2.666));
-    max-width: 100%;
-    height: var(--nav-logo-h);
-    object-fit: cover;
+    width: auto;              /* do not upscale beyond intrinsic width */
+    height: auto;             /* maintain intrinsic aspect ratio */
+    max-width: calc(100% - (var(--gap) * 2.666));
+    max-height: var(--nav-logo-h); /* cap to reserved space */
+    object-fit: contain;      /* avoid cropping; no growth */
     border: 2px solid #000;
     border-radius: 8px;
 }
@@ -973,28 +974,5 @@ main details[open]>summary.menu-summary::before {
 }
 
 
-/* Section: Global Responsive (Stack Layout) */
-@media (max-width: 560px) {
-    body {
-        flex-direction: column;
-    }
-
-    .left-rail {
-        width: 100%;
-        position: static;
-        height: auto;
-        padding-top: var(--gap);
-    }
-
-    .left-rail .nav-logo {
-        position: static;
-        transform: none;
-        width: 100%;
-        margin-bottom: var(--gap);
-    }
-
-    main {
-        margin-left: 0;
-        padding-top: calc(var(--gap) * 4);
-    }
-}
+/* Section: Global Responsive (Stack Layout) — disabled to keep side rail always */
+/* Intentionally left blank to maintain persistent side layout on all sizes */
