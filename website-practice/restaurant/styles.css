@@ -12,13 +12,14 @@
 
 /* Section: CSS Variables */
 :root {
-    --rail-width: clamp(260px, 35vw, 420px);
+    /* Fixed rail and spacing consistent with screenshot */
+    /* Slightly widened to accommodate 292px buttons + side padding */
+    --rail-width: 324px;
     --box-height: 56px;
     --gap: 12px;
     --box-bg: #2ecc71;
     --box-border: #000;
-    --nav-logo-h: 160px;
-    /* desktop logo height */
+    --nav-logo-h: 160px; /* reserved space for logo area */
 }
 
 /* Section: Global Resets */
@@ -55,6 +56,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: var(--gap);
+    /* restore original comfortable side padding */
     padding: var(--gap) calc(var(--gap) * 1.333);
     width: var(--rail-width);
     position: fixed;
@@ -80,22 +82,15 @@ body {
     left: 50%;
     transform: translateX(-50%);
     display: block;
-    width: auto;
-    /* do not upscale beyond intrinsic width */
-    height: auto;
-    /* maintain intrinsic aspect ratio */
-    max-width: calc(100% - (var(--gap) * 2.666));
+    /* Match screenshot: roomy side spacing and framed image */
+    width: calc(100% - (var(--gap) * 2.666));
+    height: auto; /* keep intrinsic aspect ratio */
     max-height: var(--nav-logo-h);
-    /* cap to reserved space */
     object-fit: contain;
-    /* avoid cropping; no growth */
     border: 2px solid #000;
     border-radius: 8px;
 }
 
-body.theme-dark .left-rail .nav-logo {
-    border-color: #fff;
-}
 
 /* Settings gear in left rail */
 .settings-button {
@@ -108,7 +103,9 @@ body.theme-dark .left-rail .nav-logo {
     color: #000;
     border-radius: 4px;
     cursor: pointer;
-    width: 100%;
+    /* match page button width */
+    width: 292px;
+    align-self: center;
 }
 
 body.theme-dark .settings-button {
@@ -916,8 +913,9 @@ main details[open]>summary.menu-summary::before {
 /* Section: Left Rail Boxes (Links) */
 .box {
     margin: 0;
-    height: var(--box-height);
-    width: 100%;
+    /* Requested fixed button width; small height like Settings */
+    width: 292px;
+    height: 36px;
     background: var(--box-bg);
     border: none;
     display: flex;
@@ -926,7 +924,7 @@ main details[open]>summary.menu-summary::before {
     font-family: system-ui, sans-serif;
     font-weight: 600;
     user-select: none;
-    align-self: center;
+    align-self: center; /* center within the rail */
 }
 
 /* outline only for the active page link */
@@ -954,7 +952,7 @@ main details[open]>summary.menu-summary::before {
 
 /* Align left-rail items with collapsible menu rows on all pages */
 .left-rail .box {
-    height: 36px;
+    height: 36px; /* small height to match Settings */
     line-height: 36px;
     font-size: 24px;
 }
