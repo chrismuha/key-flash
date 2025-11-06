@@ -43,8 +43,8 @@ body {
     -moz-osx-font-smoothing: grayscale;
     font-family: system-ui, sans-serif;
     font-size: 16px;
-    min-width: 920px;
-    /* Allow vertical scroll when needed, prevent horizontal scroll */
+    min-width: 2204px;
+    min-height: 1856px;
     overflow-x: hidden;
 }
 
@@ -986,13 +986,8 @@ main details[open]>summary.menu-summary::before {
 }
 
 /* keep default focus outline for accessibility */
-
 *,
 *::before,
 *::after {
     box-sizing: border-box;
 }
-
-
-/* Section: Global Responsive (Stack Layout) — disabled to keep side rail always */
-/* Intentionally left blank to maintain persistent side layout on all sizes */
