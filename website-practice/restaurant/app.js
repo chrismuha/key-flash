@@ -290,13 +290,24 @@
 
       const cards = document.querySelectorAll('.order-card');
       const setActive = (clicked) => {
-        cards.forEach(c => c.classList.toggle('selected', c === clicked));
+        cards.forEach(c => {
+          if (c === clicked) {
+            c.classList.add('selected');
+          } else {
+            c.classList.remove('selected');
+            // Hard reset any transient inline styles just in case
+            c.style.background = '';
+            c.style.boxShadow = '';
+          }
+        });
       };
       cards.forEach((card) => {
         card.addEventListener('click', (e) => {
           const type = card.dataset.type || '';
           if (!type) return;
           setActive(card);
+          // Always persist the user's latest choice
+          saveOrderType(type);
           if (type === 'delivery') {
             // Expand delivery details instead of navigating immediately
             e.preventDefault();
@@ -325,8 +336,13 @@
               attachDeliveryLiveValidation(form);
             }
           } else {
-            // Dine/Carryout proceeds immediately
-            saveOrderType(type);
+            // Dine/Carryout: clear previous selection and navigate immediately
+            e.preventDefault();
+            const form = document.getElementById('delivery-details');
+            if (form) form.hidden = true;
+            setActive(card);
+            const href = card.getAttribute('href') || 'page2.html';
+            window.location.href = href;
           }
         });
       });
@@ -334,6 +350,8 @@
       // Restore visual selection if user returns
       const selected = getOrderType();
       if (selected) {
+        // Ensure only one visual selection is active
+        cards.forEach(c => c.classList.remove('selected'));
         const el = document.querySelector(`.order-card[data-type="${selected}"]`);
         if (el) el.classList.add('selected');
         // If prior choice was delivery, show details

@@ -42,7 +42,8 @@ body {
     display: flex;
     min-height: 100vh;
     min-height: 100dvh;
-    align-items: stretch; /* ensure columns stretch to tallest content */
+    align-items: stretch;
+    /* ensure columns stretch to tallest content */
 }
 
 /* Section: Left Rail Navigation */
@@ -52,7 +53,8 @@ body {
     gap: var(--gap);
     padding: var(--gap) calc(var(--gap) * 1.333);
     width: var(--rail-width);
-    position: fixed; /* occupy full left side of viewport */
+    position: fixed;
+    /* occupy full left side of viewport */
     top: 0;
     bottom: 0;
     left: 0;
@@ -64,9 +66,17 @@ body {
 }
 
 /* Disable nav bar (dev only) — hide completely */
-body:not(.nav-enabled) .left-rail { display: none !important; }
-body.nav-enabled .left-rail { display: flex; }
-body:not(.nav-enabled) main { margin-left: 0 !important; }
+body:not(.nav-enabled) .left-rail {
+    display: none !important;
+}
+
+body.nav-enabled .left-rail {
+    display: flex;
+}
+
+body:not(.nav-enabled) main {
+    margin-left: 0 !important;
+}
 
 .left-rail::before {
     content: "";
@@ -96,7 +106,10 @@ main {
 
 /* Section: Theme (Dark) */
 /* Only flips the main content background to black and text to white */
-body.theme-dark { background: #000; }
+body.theme-dark {
+    background: #000;
+}
+
 body.theme-dark main {
     background: #000;
     color: #fff;
@@ -111,6 +124,7 @@ body.theme-dark main summary.menu-summary::before {
 body.theme-dark main a {
     color: #fff;
 }
+
 /* Make fieldset borders white in dark theme */
 body.theme-dark main fieldset {
     border-color: #fff;
@@ -151,8 +165,10 @@ body.theme-dark main fieldset {
     transform: rotate(45deg);
     transition: transform 120ms ease;
 }
+
 .theme-toggle[aria-expanded="true"]::after {
-    transform: rotate(-135deg); /* points up when expanded */
+    transform: rotate(-135deg);
+    /* points up when expanded */
 }
 
 .theme-menu {
@@ -210,7 +226,8 @@ body.theme-dark .theme-option:focus-visible {
 .go-back {
     position: fixed;
     top: 8px;
-    left: 8px; /* top-left position on every page */
+    left: 8px;
+    /* top-left position on every page */
     padding: 6px 10px;
     font-weight: 600;
     border: 1px solid #000;
@@ -220,7 +237,60 @@ body.theme-dark .theme-option:focus-visible {
     cursor: pointer;
     z-index: 1000;
 }
-body.theme-dark .go-back { border-color: #fff; background: #222; color: #fff; }
+
+body.theme-dark .go-back {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+/* Hide Go Back when navigation is enabled */
+body.nav-enabled .go-back {
+    display: none !important;
+}
+
+/* Dark theme: make all key outlines/borders white for contrast */
+body.theme-dark :focus-visible {
+    outline-color: #fff;
+}
+
+body.theme-dark main input[type="checkbox"] {
+    border-color: #fff;
+    background: #000;
+}
+
+body.theme-dark main .reset-group {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+body.theme-dark.page3 #order-summary {
+    border-color: #fff;
+    background: #000;
+    color: #fff;
+}
+
+body.theme-dark.order-type .delivery-details .delivery-clear {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+body.theme-dark.order-type .order-card {
+    border-color: #fff;
+    background: #111;
+    color: #fff;
+}
+
+body.theme-dark.order-type .order-card.selected {
+    box-shadow: 0 0 0 3px #fff inset;
+    color: #fff;
+}
+
+body.theme-dark .left-rail .box.active {
+    border-color: #fff;
+}
 
 /* Prevent hover animation/color change on required Burger items */
 body.page2 label.required,
@@ -230,24 +300,30 @@ body.page2 label.required:focus {
     color: inherit !important;
     background: transparent !important;
 }
+
 body.page2 label.required,
 body.page2 label.required * {
     transition: none !important;
 }
+
 /* Completely suppress hover/interaction on required Burger labels */
 /* allow interaction; JS enforces requirement only when section is active */
-body.page2 label.required { pointer-events: auto !important; }
+body.page2 label.required {
+    pointer-events: auto !important;
+}
 
 /* Section: Page 2 Scoped (Builder Container) */
 body.page2 main {
     border: none;
     position: relative;
-    padding-bottom: 96px; /* ensure content clears fixed Next button */
+    padding-bottom: 96px;
+    /* ensure content clears fixed Next button */
 }
 
 /* Section: Page 2 Next Button */
 body.page2 .next-button {
-    position: fixed; /* keep consistent placement */
+    position: fixed;
+    /* keep consistent placement */
     right: 16px;
     bottom: 16px;
     padding: 8px 14px;
@@ -341,7 +417,8 @@ main fieldset label {
     align-items: center;
     gap: 6px;
     line-height: 1.25;
-    cursor: pointer; /* hand when hovering label + checkbox */
+    cursor: pointer;
+    /* hand when hovering label + checkbox */
 }
 
 /* Section: Checkboxes (Unified Custom Style) */
@@ -357,11 +434,20 @@ main input[type="checkbox"] {
     position: relative;
     vertical-align: middle;
     margin-right: 6px;
-    cursor: pointer; /* show hand on hover */
+    cursor: pointer;
+    /* show hand on hover */
 }
 
 main input[type="checkbox"]:checked {
-    background-color: #e53935; /* red fill when checked */
+    background-color: #e53935;
+    /* red fill when checked */
+}
+
+/* Ensure dark mode keeps the red fill when checked */
+body.theme-dark main input[type="checkbox"]:checked {
+    background-color: #e53935;
+    border-color: #fff;
+    /* keep white border for contrast */
 }
 
 main input[type="checkbox"]::after {
@@ -379,6 +465,7 @@ main input[type="checkbox"]:checked::after {
     /* green checkmark to contrast red */
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%232ecc71' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='4,10 8,14 16,6'/></svg>");
 }
+
 /* Required + disabled items keep black checkmark for clarity */
 body.page2 input[type="checkbox"][data-required="true"][disabled]:checked::after {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='4,10 8,14 16,6'/></svg>");
@@ -386,14 +473,17 @@ body.page2 input[type="checkbox"][data-required="true"][disabled]:checked::after
 
 /* Section: Restricted/Required Overrides */
 body.page2 input[type="checkbox"][disabled] {
-    opacity: 1; /* don't gray out */
+    opacity: 1;
+    /* don't gray out */
 }
 
 body.page2 label.required {
-    color: inherit; /* follow theme (light/dark) */
+    color: inherit;
+    /* follow theme (light/dark) */
     opacity: 1;
     cursor: not-allowed;
 }
+
 /* Dark theme text color for required label (explicit for safety) */
 body.theme-dark.page2 label.required,
 body.theme-dark .page2 label.required {
@@ -429,12 +519,20 @@ body.page2 input[type="checkbox"][data-required="true"][disabled] {
     transform: translateY(1px);
     /* nudge to match native checkbox baselines */
 }
+
 /* deactivate required labels' hover completely */
-body.page2 label.required { pointer-events: none !important; }
+body.page2 label.required {
+    pointer-events: none !important;
+}
 
 /* Dim any ingredient text until its checkbox is checked */
-main fieldset label:has(> input:not(:checked)) { opacity: 0.6; }
-body.theme-dark main fieldset label:has(> input:not(:checked)) { color: #bbb; }
+main fieldset label:has(> input:not(:checked)) {
+    opacity: 0.6;
+}
+
+body.theme-dark main fieldset label:has(> input:not(:checked)) {
+    color: #bbb;
+}
 
 body.page2 input[type="checkbox"][data-required="true"][disabled]:checked {
     background-color: var(--box-bg);
@@ -462,8 +560,11 @@ body.page3 #order-summary h3 {
 body.page3 #order-summary ul {
     margin: 0 0 8px 0;
 }
+
 /* spacing under multi-line address block */
-body.page3 #order-summary .address-block { margin-bottom: 12px; }
+body.page3 #order-summary .address-block {
+    margin-bottom: 12px;
+}
 
 /* Keep Edit links black even after visited */
 body.page3 #order-summary a,
@@ -509,14 +610,26 @@ body.order-type .delivery-details {
     max-width: 520px;
     background: #fff;
 }
+
 body.theme-dark.order-type .delivery-details {
     background: #000;
     color: #fff;
     border-color: #fff;
 }
-body.order-type .delivery-details .field { margin-bottom: 10px; }
-body.order-type .delivery-details label { display: block; margin-bottom: 4px; }
-body.order-type .delivery-details .req { color: #c00; }
+
+body.order-type .delivery-details .field {
+    margin-bottom: 10px;
+}
+
+body.order-type .delivery-details label {
+    display: block;
+    margin-bottom: 4px;
+}
+
+body.order-type .delivery-details .req {
+    color: #c00;
+}
+
 body.order-type .delivery-details .form-error {
     color: #c00;
     margin: 8px 0;
@@ -534,6 +647,7 @@ body.order-type .delivery-details .field.invalid select {
     color: #c00;
     margin: 8px 0;
 }
+
 body.order-type .delivery-details input[type="text"],
 body.order-type .delivery-details input[type="tel"] {
     width: 100%;
@@ -543,6 +657,7 @@ body.order-type .delivery-details input[type="tel"] {
     background: #fff;
     color: #000;
 }
+
 body.order-type .delivery-details select {
     width: 100%;
     padding: 8px;
@@ -551,17 +666,20 @@ body.order-type .delivery-details select {
     background: #fff;
     color: #000;
 }
+
 body.theme-dark.order-type .delivery-details input[type="text"],
 body.theme-dark.order-type .delivery-details input[type="tel"] {
     background: #111;
     color: #fff;
     border-color: #fff;
 }
+
 body.theme-dark.order-type .delivery-details select {
     background: #111;
     color: #fff;
     border-color: #fff;
 }
+
 body.order-type .delivery-details .delivery-continue {
     padding: 8px 14px;
     background: var(--box-bg);
@@ -572,11 +690,13 @@ body.order-type .delivery-details .delivery-continue {
     border-radius: 6px;
     cursor: pointer;
 }
+
 body.order-type .delivery-details .delivery-actions {
     display: flex;
     gap: 12px;
     margin-top: 8px;
 }
+
 body.order-type .delivery-details .delivery-clear {
     padding: 8px 14px;
     background: #f7f7f7;
@@ -599,20 +719,25 @@ body.order-type .order-card {
     justify-content: center;
     color: #000;
     text-decoration: none;
-    background: #fff; /* default */
-    transition: background 0.2s ease;
+    background: #fff;
+    /* default */
+    /* Make state changes instant (no fade) */
+    transition: none;
 }
 
 body.order-type .order-card:hover {
-    background: var(--box-bg); /* green like Next button */
+    background: var(--box-bg);
+    /* green like Next button */
     color: #000;
 }
 
 /* Visual selection if user returns to index */
 body.order-type .order-card.selected {
-    background: var(--box-bg); /* stay green when active */
+    background: var(--box-bg);
+    /* stay green when active */
     color: #000;
-    box-shadow: 0 0 0 3px #000 inset; /* outline active card */
+    box-shadow: 0 0 0 3px #000 inset;
+    /* outline active card */
 }
 
 body.order-type .order-card svg {
@@ -626,7 +751,8 @@ body.order-type .order-label {
 }
 
 body.order-type .order-note {
-    color: inherit; /* auto-adjusts with theme */
+    color: inherit;
+    /* auto-adjusts with theme */
     margin-top: 18px;
 }
 
@@ -668,12 +794,14 @@ main summary.menu-summary {
     list-style: none;
     /* ensure no default marker in Firefox */
 }
+
 /* Visual cue for invalid/attention-needed sections */
 main summary.menu-summary.invalid {
     outline: 2px solid #c00;
     outline-offset: 4px;
     border-radius: 6px;
-    margin-bottom: 8px; /* add breathing room below red border */
+    margin-bottom: 8px;
+    /* add breathing room below red border */
 }
 
 /* Section: Reset Buttons */
@@ -774,12 +902,14 @@ main details[open]>summary.menu-summary::before {
 
     .left-rail {
         width: 100%;
-        position: static; /* stack on top on small screens */
+        position: static;
+        /* stack on top on small screens */
         height: auto;
     }
 
     main {
-        margin-left: 0; /* no offset on small screens */
+        margin-left: 0;
+        /* no offset on small screens */
         padding-top: calc(var(--gap) * 4);
     }
 }
