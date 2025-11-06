@@ -788,10 +788,27 @@
       document.querySelectorAll('.section-toggle, input[type="checkbox"][name^="sauces_ingredients"]').forEach((el) => {
         el.addEventListener('change', updateBuilderError);
       });
-      // Save on any change
+      // Save on any change and auto-activate section when ingredient is checked
       document.addEventListener('change', (e) => {
         const t = e.target;
         if (t && t.matches && t.matches('input[type="checkbox"][name]')) {
+          // If a non-required ingredient inside a section is checked, ensure the section is activated
+          const name = t.getAttribute('name') || '';
+          const isRequired = t.dataset && t.dataset.required === 'true';
+          if (!isRequired && t.checked) {
+            let section = '';
+            if (name.startsWith('pizza_')) section = 'pizza';
+            else if (name.startsWith('burger_')) section = 'burger';
+            else if (name.startsWith('sauces_')) section = 'sauces';
+            if (section) {
+              const d = detailsBySection[section];
+              const toggle = d ? d.querySelector('.section-toggle') : null;
+              if (toggle && !toggle.checked) {
+                toggle.checked = true;
+                toggle.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+            }
+          }
           saveIngredients();
           updateBuilderError();
         }
