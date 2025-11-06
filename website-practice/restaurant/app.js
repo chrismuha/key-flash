@@ -1105,7 +1105,7 @@
         }
 
         const h3i = document.createElement('h3');
-        h3i.textContent = 'Your Selections';
+        h3i.textContent = 'Selections';
         frag.appendChild(h3i);
 
         const entries = Object.entries(ingredients || {});
