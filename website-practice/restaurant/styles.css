@@ -79,11 +79,15 @@ body {
     left: 50%;
     transform: translateX(-50%);
     display: block;
-    width: auto;              /* do not upscale beyond intrinsic width */
-    height: auto;             /* maintain intrinsic aspect ratio */
+    width: auto;
+    /* do not upscale beyond intrinsic width */
+    height: auto;
+    /* maintain intrinsic aspect ratio */
     max-width: calc(100% - (var(--gap) * 2.666));
-    max-height: var(--nav-logo-h); /* cap to reserved space */
-    object-fit: contain;      /* avoid cropping; no growth */
+    max-height: var(--nav-logo-h);
+    /* cap to reserved space */
+    object-fit: contain;
+    /* avoid cropping; no growth */
     border: 2px solid #000;
     border-radius: 8px;
 }

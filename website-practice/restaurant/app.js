@@ -121,7 +121,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
 
-    
+
 
     // Migration: rename legacy ingredient value 'tomato' -> 'tomatoes' (pizza/burger)
     (function migrateLegacyIngredients() {
