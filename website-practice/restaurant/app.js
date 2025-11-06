@@ -121,6 +121,35 @@
   document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
 
+    // Migration: rename legacy ingredient value 'tomato' -> 'tomatoes' (pizza/burger)
+    (function migrateLegacyIngredients() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEYS.ingredients);
+        if (!raw) return;
+        let data = {};
+        try { data = JSON.parse(raw) || {}; } catch { data = {}; }
+        const groups = ['pizza_ingredients[]', 'burger_ingredients[]'];
+        let changed = false;
+        groups.forEach((g) => {
+          const arr = Array.isArray(data[g]) ? data[g] : [];
+          const newArr = arr.map((it) => {
+            if (typeof it === 'string') {
+              if (it === 'tomato') { changed = true; return 'tomatoes'; }
+              return it;
+            }
+            if (it && typeof it === 'object') {
+              const v = it.value;
+              if (v === 'tomato') { changed = true; return { ...it, value: 'tomatoes', label: (it.label || '').replace(/Tomato\b/i, 'Tomatoes') || 'Tomatoes' }; }
+              return it;
+            }
+            return it;
+          });
+          if (changed) data[g] = newArr;
+        });
+        if (changed) localStorage.setItem(STORAGE_KEYS.ingredients, JSON.stringify(data));
+      } catch { /* ignore */ }
+    })();
+
     // Disable nav bar interactions (dev only)
     const navLinks = Array.from(document.querySelectorAll('.left-rail a'));
     const preventNavClick = (event) => event.preventDefault();
@@ -878,6 +907,23 @@
       // Ensure storage includes them
       saveIngredients();
 
+      // Hard-lock required items so they cannot be unchecked directly
+      try {
+        document.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => {
+          // Block click toggling
+          cb.addEventListener('click', (e) => {
+            // Keep it checked and suppress default toggle
+            if (!cb.checked) cb.checked = true;
+            e.preventDefault();
+            e.stopPropagation();
+          });
+          // Block programmatic/user change events
+          cb.addEventListener('change', () => {
+            if (!cb.checked) cb.checked = true;
+          });
+        });
+      } catch { }
+
       // Load/save quantities for sections (pizza/burger) and sauces
       let qtySections = {};
       try { qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}'); } catch { qtySections = {}; }
@@ -885,6 +931,36 @@
       try { qtyMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'); } catch { qtyMap = {}; }
       const saveQtySections = () => { try { localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections)); } catch { } };
       const saveQtyMap = () => { try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { } };
+
+      // Helper: ensure Burger "Tomato(s)" label reflects Burger item quantity
+      const updateBurgerTomatoLabel = () => {
+        try {
+          const burgerQty = Math.max(0, parseInt(qtySections['burger'] || '0', 10) || 0);
+          const tomatoInput = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="tomatoes"], input[type="checkbox"][name="burger_ingredients[]"][value="tomato"]');
+          if (!tomatoInput) return;
+          const labelEl = tomatoInput.closest('label');
+          if (!labelEl) return;
+          // Clean any previously injected text/duplicates
+          labelEl.querySelectorAll('.label-text').forEach(el => el.remove());
+          // Remove stray text nodes so we don't end up with "Tomato Tomatoes"
+          Array.from(labelEl.childNodes).forEach((node) => {
+            if (node.nodeType === 3) { // text node
+              const t = String(node.textContent || '').trim();
+              if (t) node.parentNode.removeChild(node);
+            }
+          });
+          // Insert a single normalized label immediately after the input
+          const textSpan = document.createElement('span');
+          textSpan.className = 'label-text';
+          const word = burgerQty > 1 ? 'Tomatoes' : 'Tomato';
+          textSpan.textContent = ` ${word}`;
+          if (tomatoInput.nextSibling) {
+            labelEl.insertBefore(textSpan, tomatoInput.nextSibling);
+          } else {
+            labelEl.appendChild(textSpan);
+          }
+        } catch { }
+      };
 
       // Decorate section summaries (Pizza/Burger) with quantity controls (1-12)
       ['pizza', 'burger'].forEach((sec) => {
@@ -928,12 +1004,16 @@
               toggle.dispatchEvent(new Event('change', { bubbles: true }));
             }
           }
+          if (sec === 'burger') updateBurgerTomatoLabel();
         };
         dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current - 1); });
         inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current + 1); });
         wrap.appendChild(label); wrap.appendChild(dec); wrap.appendChild(inc);
         summary.appendChild(wrap);
       });
+
+      // Initialize Burger tomato label once on load
+      updateBurgerTomatoLabel();
 
       // Add per-ingredient qty controls for Sauces on builder (shown when checked)
       document.querySelectorAll('input[type="checkbox"][name="sauces_ingredients[]"]').forEach((cb) => {
@@ -983,6 +1063,13 @@
             // If item is not selected, its quantity becomes 0
             qtyMap[qKey] = 0; saveQtyMap();
             txt.textContent = `(x0)`;
+          } else {
+            // When re-checked, if stored 0 bump back to 1 (do not show 0 when rechecked)
+            const prev = (qtyMap[qKey] | 0);
+            if (prev === 0) {
+              qtyMap[qKey] = 1; saveQtyMap();
+              txt.textContent = `(x1)`;
+            }
           }
           setVisible();
         });
@@ -1026,6 +1113,57 @@
         setVisible();
         cb.addEventListener('change', () => { setVisible(); });
         labelEl.appendChild(wrap);
+      })();
+
+      // Add per-ingredient qty controls for Burger ingredients (except doneness options)
+      (function addBurgerIngredientQty() {
+        const cbs = document.querySelectorAll('input[type="checkbox"][name="burger_ingredients[]"]');
+        cbs.forEach((cb) => {
+          const value = cb.value;
+          // Skip controls we already handle or should exclude
+          if (value === 'patty' || value === 'well_done' || value === 'medium_well' || value === 'rare') return;
+          const labelEl = cb.closest('label');
+          if (!labelEl) return;
+          if (labelEl.querySelector('.burger-qty')) return;
+          const qKey = `burger_ingredients[]|${value}`;
+          let current = 1;
+          try { current = Math.max(1, Math.min(12, parseInt((JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'))[qKey] || '1', 10) || 1)); } catch { current = 1; }
+          const wrap = document.createElement('span');
+          wrap.className = 'burger-qty';
+          wrap.style.marginLeft = '8px';
+          const txt = document.createElement('span'); txt.textContent = `(x${current})`; txt.style.marginRight = '4px';
+          const dec = document.createElement('button'); dec.type = 'button'; dec.textContent = '−'; dec.style.marginRight = '2px'; dec.classList.add('pointer');
+          const inc = document.createElement('button'); inc.type = 'button'; inc.textContent = '+'; inc.classList.add('pointer');
+          const save = () => {
+            try {
+              const qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
+              qm[qKey] = current; localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
+            } catch { }
+          };
+          const update = (next) => { current = Math.max(1, Math.min(12, (next | 0))); txt.textContent = `(x${current})`; save(); };
+          dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current - 1); });
+          inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current + 1); });
+          wrap.appendChild(txt); wrap.appendChild(dec); wrap.appendChild(inc);
+          const setVisible = () => { wrap.style.display = cb.checked ? 'inline-flex' : 'none'; };
+          setVisible();
+          cb.addEventListener('change', () => {
+            if (!cb.checked) {
+              // When item is unchecked, set quantity to 0 for storage and hide
+              try {
+                const qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
+                qm[qKey] = 0; localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
+              } catch { }
+            } else {
+              // When re-checked, if stored 0 bump to 1 and reflect
+              try {
+                const qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
+                if ((qm[qKey] | 0) === 0) { current = 1; txt.textContent = `(x1)`; qm[qKey] = 1; localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm)); }
+              } catch { }
+            }
+            setVisible();
+          });
+          labelEl.appendChild(wrap);
+        });
       })();
 
       // Section toggles: require checkbox to expand
@@ -1136,8 +1274,9 @@
           const cb = lbl.querySelector('input[type="checkbox"][name]');
           if (!cb) return;
           if (cb.disabled) return;
-          // Let native label behavior handle it normally; this is a safety net for non-direct clicks
-          // Ensure it toggles explicitly when the click target isn't the checkbox itself
+          // Do NOT toggle required items (e.g., Patty, Bun, Tomato Sauce)
+          if (cb.dataset && cb.dataset.required === 'true') return;
+          // Ensure only non-checkbox clicks trigger the manual toggle
           if (e.target !== cb) {
             cb.checked = !cb.checked;
             cb.dispatchEvent(new Event('change', { bubbles: true }));
@@ -1484,12 +1623,24 @@
             values.forEach((item) => {
               const li = document.createElement('li');
               const value = (typeof item === 'string') ? item : (item && item.value ? item.value : '');
-              let label = (typeof item === 'string') ? titleCase(item) : (item && item.label ? item.label : titleCase(value));
+              // Tomato/tomatoes display rules
+              let normValue = value;
+              // Pizza: always "Tomatoes"
+              if (key === 'pizza' && value === 'tomato') normValue = 'tomatoes';
+              // Build initial label from value or provided label
+              let label = (typeof item === 'string') ? titleCase(normValue) : (item && item.label ? item.label : titleCase(normValue));
+              // Burger: pluralize based on burger item quantity (>1 -> "Tomatoes", else "Tomato")
+              if (key === 'burger' && (value === 'tomato' || value === 'tomatoes' || /\bTomato\b/i.test(label))) {
+                let bq = 0;
+                try { bq = parseInt(qtySections['burger'] || '0', 10) || 0; } catch { bq = 0; }
+                const desired = bq > 1 ? 'Tomatoes' : 'Tomato';
+                label = label.replace(/\bTomatoes\b|\bTomato\b/i, desired);
+              }
               label = stripInlineQty(label);
 
               if (key === 'sauces') {
                 // Per-ingredient quantity controls for sauces
-                const qKey = `${group}|${value}`;
+                const qKey = `${group}|${normValue}`;
                 let current = Math.max(1, Math.min(12, parseInt(qtyMap[qKey] || '1', 10) || 1));
 
                 const nameSpan = document.createElement('span');
@@ -1553,9 +1704,9 @@
 
                 li.appendChild(dec);
                 li.appendChild(inc);
-              } else if (key === 'burger' && value === 'patty') {
+              } else if (key === 'burger' && normValue === 'patty') {
                 // Patty has per-ingredient quantity controls (max 3)
-                const qKey = `${group}|${value}`;
+                const qKey = `${group}|${normValue}`;
                 let current = 1;
                 try { current = Math.max(1, Math.min(3, parseInt(qtyMap[qKey] || '1', 10) || 1)); } catch { current = 1; }
 
