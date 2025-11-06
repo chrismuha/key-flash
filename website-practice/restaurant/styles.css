@@ -139,6 +139,22 @@ body.theme-dark main fieldset {
     width: 100%;
 }
 
+/* Visual disclosure indicator */
+.theme-toggle::after {
+    content: "";
+    display: inline-block;
+    width: 0.6em;
+    height: 0.6em;
+    margin-left: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 120ms ease;
+}
+.theme-toggle[aria-expanded="true"]::after {
+    transform: rotate(-135deg); /* points up when expanded */
+}
+
 .theme-menu {
     display: flex;
     flex-direction: column;
@@ -149,6 +165,11 @@ body.theme-dark main fieldset {
     padding: 4px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
     min-width: 160px;
+}
+
+/* Ensure hidden attribute actually hides the menu */
+.theme-menu[hidden] {
+    display: none !important;
 }
 
 .theme-option {
