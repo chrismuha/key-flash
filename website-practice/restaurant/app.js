@@ -17,7 +17,9 @@
     deliveryZip: 'restaurant.delivery.zip',
     activeSections: 'restaurant.activeSections',
     navEnabled: 'restaurant.nav.enabled',
-    settingsExpandOnly: 'restaurant.settings.expandOnly'
+    settingsExpandOnly: 'restaurant.settings.expandOnly',
+    settingsLabelSelects: 'restaurant.settings.labelSelects',
+    settingsTitleSelects: 'restaurant.settings.titleSelects'
   };
 
   // [B] TEXT UTILS
@@ -169,11 +171,11 @@
       const okMenu = hasMenuSelection();
       // Page 2 unlocks with order type unless it's Delivery, which needs valid delivery details
       let okPage2 = okType;
-      try {
-        const t = localStorage.getItem(STORAGE_KEYS.orderType) || '';
-        if (t === 'delivery') okPage2 = okType && hasValidDeliveryDetails();
-      } catch { }
-      const okPage3 = okType && okMenu; // Page 3 needs both
+      let typeNow = '';
+      try { typeNow = localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { typeNow = ''; }
+      if (typeNow === 'delivery') okPage2 = okType && hasValidDeliveryDetails();
+      // Page 3: if Delivery, also require valid delivery details in addition to menu validity
+      const okPage3 = okType && okMenu && (typeNow !== 'delivery' || hasValidDeliveryDetails());
 
       document.querySelectorAll('.left-rail a[href$="page2.html"]').forEach((a) => {
         if (okPage2) {
@@ -207,11 +209,14 @@
           a.addEventListener('click', preventNavClick);
           const needsType = !okType;
           const needsMenu = !okMenu;
+          const needsDelivery = (typeNow === 'delivery') && !hasValidDeliveryDetails();
           let msg = '';
           if (needsType && needsMenu) {
             msg = 'Select an order type and choose at least one menu item to enable Page 3';
           } else if (needsType) {
             msg = 'Select an order type to enable Page 3';
+          } else if (needsDelivery) {
+            msg = 'Complete delivery details to enable Page 3';
           } else {
             msg = 'Choose at least one menu item to enable Page 3';
           }
@@ -268,9 +273,23 @@
     const settingsBtn = document.querySelector('.settings-button');
     const settingsPanel = document.getElementById('settings-panel');
     const settingExpandOnly = document.querySelector('.setting-expand-only');
+    const settingLabelSelects = document.querySelector('.setting-label-selects');
+    const settingTitleSelects = document.querySelector('.setting-title-selects');
     let expandOnly = false;
     try { expandOnly = localStorage.getItem(STORAGE_KEYS.settingsExpandOnly) === 'true'; } catch { expandOnly = false; }
     if (settingExpandOnly) settingExpandOnly.checked = expandOnly;
+    let labelSelects = true;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsLabelSelects);
+      labelSelects = v === null ? true : v === 'true';
+    } catch { labelSelects = true; }
+    if (settingLabelSelects) settingLabelSelects.checked = labelSelects;
+    let titleSelects = true;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsTitleSelects);
+      titleSelects = v === null ? true : v === 'true';
+    } catch { titleSelects = true; }
+    if (settingTitleSelects) settingTitleSelects.checked = titleSelects;
 
     const closeSettings = () => {
       if (!settingsPanel || !settingsBtn) return;
@@ -298,6 +317,18 @@
       settingExpandOnly.addEventListener('change', () => {
         expandOnly = !!settingExpandOnly.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, String(expandOnly)); } catch { }
+      });
+    }
+    if (settingLabelSelects) {
+      settingLabelSelects.addEventListener('change', () => {
+        labelSelects = !!settingLabelSelects.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, String(labelSelects)); } catch { }
+      });
+    }
+    if (settingTitleSelects) {
+      settingTitleSelects.addEventListener('change', () => {
+        titleSelects = !!settingTitleSelects.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, String(titleSelects)); } catch { }
       });
     }
 
@@ -397,24 +428,12 @@
     if (body.classList.contains('order-type')) {
       // Track delivery submit failures to show fallback help after 2 failed attempts
       let deliveryFailCount = 0;
-      // On page load/refresh of index, reset any previously saved order + delivery details
-      try {
-        localStorage.removeItem(STORAGE_KEYS.orderType);
-        localStorage.removeItem(STORAGE_KEYS.deliveryName);
-        localStorage.removeItem(STORAGE_KEYS.deliveryPhone);
-        localStorage.removeItem(STORAGE_KEYS.deliveryAddress);
-        localStorage.removeItem(STORAGE_KEYS.deliveryType);
-        localStorage.removeItem(STORAGE_KEYS.deliveryCity);
-        localStorage.removeItem(STORAGE_KEYS.deliveryZip);
-        localStorage.removeItem(STORAGE_KEYS.ingredients);
-        localStorage.removeItem(STORAGE_KEYS.activeSections);
-      } catch { }
+      // Do not clear persisted state on return; keep order type, delivery details, and builder selections
       const dFormInit = document.getElementById('delivery-details');
       if (dFormInit) {
-        dFormInit.hidden = true;
-        dFormInit.querySelectorAll('input[type="text"], input[type="tel"]').forEach((el) => { el.value = ''; el.setCustomValidity && el.setCustomValidity(''); });
-        const typeSel = dFormInit.querySelector('#delivery-type');
-        if (typeSel) typeSel.value = 'House';
+        const savedType = getOrderType();
+        const show = savedType === 'delivery';
+        dFormInit.hidden = !show;
         const errEl = document.getElementById('delivery-error');
         if (errEl) errEl.hidden = true;
       }
@@ -830,25 +849,61 @@
           updatePageNavLocks();
         });
       });
-      // Summary behavior: either toggle checkbox (default) or expand/collapse only (setting)
+      // Summary behavior:
+      // - If titleSelects is ON, clicking the title text toggles the checkbox (not expand)
+      // - If expandOnly is ON, clicking elsewhere on summary expands/collapses
+      // - Otherwise (default), clicking summary toggles the checkbox
       document.querySelectorAll('summary.menu-summary').forEach((s) => {
         s.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (expandOnly) {
-            const d = s.parentElement;
-            if (d && d.tagName && d.tagName.toLowerCase() === 'details') {
-              d.open = !d.open;
-            }
-          } else {
+          const titleEl = s.querySelector('span');
+          const isTitleClick = titleEl && titleEl.contains(e.target);
+          if (titleSelects && isTitleClick) {
+            e.preventDefault();
+            e.stopPropagation();
             const t = s.querySelector('.section-toggle');
             if (t) {
               t.checked = !t.checked;
               t.dispatchEvent(new Event('change', { bubbles: true }));
             }
+            return;
+          }
+          if (expandOnly) {
+            e.preventDefault();
+            e.stopPropagation();
+            const d = s.parentElement;
+            if (d && d.tagName && d.tagName.toLowerCase() === 'details') {
+              d.open = !d.open;
+            }
+            return;
+          }
+          // Default: toggle checkbox when clicking summary (anywhere)
+          e.preventDefault();
+          e.stopPropagation();
+          const t = s.querySelector('.section-toggle');
+          if (t) {
+            t.checked = !t.checked;
+            t.dispatchEvent(new Event('change', { bubbles: true }));
           }
         });
       });
+      // Delegate clicks on ingredient labels to toggle their checkbox when enabled
+      if (labelSelects) {
+        document.addEventListener('click', (e) => {
+          const lbl = e.target.closest('label');
+          if (!lbl) return;
+          const cb = lbl.querySelector('input[type="checkbox"][name]');
+          if (!cb) return;
+          if (cb.disabled) return;
+          // Let native label behavior handle it normally; this is a safety net for non-direct clicks
+          // Ensure it toggles explicitly when the click target isn't the checkbox itself
+          if (e.target !== cb) {
+            cb.checked = !cb.checked;
+            cb.dispatchEvent(new Event('change', { bubbles: true }));
+            e.preventDefault();
+          }
+        });
+      }
+
       // Live update builder error on any relevant change
       const updateBuilderError = () => {
         const err = document.getElementById('builder-error');
