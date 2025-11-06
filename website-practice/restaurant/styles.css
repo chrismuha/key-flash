@@ -68,8 +68,11 @@ body {
     overflow: auto;
     scrollbar-gutter: stable both-edges;
 }
+
 /* Align page links with collapsed menu rows globally */
-.left-rail { padding-top: 168px; }
+.left-rail {
+    padding-top: 168px;
+}
 
 /* Settings gear in left rail */
 .settings-button {
@@ -83,7 +86,8 @@ body {
     color: #000;
     border-radius: 4px;
     cursor: pointer;
-    width: 100%; /* match Themes button width */
+    width: 100%;
+    /* match Themes button width */
 }
 
 body.theme-dark .settings-button {
@@ -113,7 +117,8 @@ body.theme-dark .settings-panel {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 8px; /* add breathing room between settings */
+    margin-bottom: 8px;
+    /* add breathing room between settings */
 }
 
 .settings-panel .settings-reset {
@@ -125,6 +130,7 @@ body.theme-dark .settings-panel {
     border-radius: 4px;
     cursor: pointer;
 }
+
 body.theme-dark .settings-panel .settings-reset {
     border-color: #fff;
     background: #222;
@@ -958,15 +964,23 @@ main details[open]>summary.menu-summary::before {
 
 /* Align left-rail items with collapsible menu rows on all pages */
 .left-rail .box {
-    height: 36px;      /* match summary.menu-summary line-height */
-    line-height: 36px; /* vertical centering to match summaries */
-    font-size: 24px;   /* match summary.menu-summary font-size */
+    height: 36px;
+    /* match summary.menu-summary line-height */
+    line-height: 36px;
+    /* vertical centering to match summaries */
+    font-size: 24px;
+    /* match summary.menu-summary font-size */
 }
 
 /* Section: Focus Styles */
 :focus-visible {
     outline: 2px solid #000;
     outline-offset: 2px;
+}
+
+/* Utility: always show pointer cursor */
+.pointer {
+    cursor: pointer !important;
 }
 
 /* keep default focus outline for accessibility */

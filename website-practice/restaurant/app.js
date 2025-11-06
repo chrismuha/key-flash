@@ -21,6 +21,7 @@
     settingsLabelSelects: 'restaurant.settings.labelSelects',
     settingsTitleSelects: 'restaurant.settings.titleSelects',
     settingsResetOnDeselect: 'restaurant.settings.resetOnDeselect',
+    settingsResetDisables: 'restaurant.settings.resetDisables',
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantities.sections'
   };
@@ -287,6 +288,7 @@
     const settingLabelSelects = document.querySelector('.setting-label-selects');
     const settingTitleSelects = document.querySelector('.setting-title-selects');
     const settingResetOnDeselect = document.querySelector('.setting-reset-on-deselect');
+    const settingResetDisables = document.querySelector('.setting-reset-disables');
     const settingsResetBtn = document.querySelector('.settings-reset');
     // Settings defaults: all ON by default
     let expandOnly = true;
@@ -314,6 +316,13 @@
       resetOnDeselect = v === 'true';
     } catch { resetOnDeselect = false; }
     if (settingResetOnDeselect) settingResetOnDeselect.checked = resetOnDeselect;
+    // Reset button disables item: default OFF
+    let resetDisables = false;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsResetDisables);
+      resetDisables = v === 'true';
+    } catch { resetDisables = false; }
+    if (settingResetDisables) settingResetDisables.checked = resetDisables;
 
     const closeSettings = () => {
       if (!settingsPanel || !settingsBtn) return;
@@ -359,6 +368,12 @@
       settingResetOnDeselect.addEventListener('change', () => {
         resetOnDeselect = !!settingResetOnDeselect.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, String(resetOnDeselect)); } catch { }
+      });
+    }
+    if (settingResetDisables) {
+      settingResetDisables.addEventListener('change', () => {
+        resetDisables = !!settingResetDisables.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsResetDisables, String(resetDisables)); } catch { }
       });
     }
 
@@ -883,10 +898,12 @@
         const dec = document.createElement('button');
         dec.type = 'button'; dec.textContent = '−'; dec.setAttribute('aria-label', `Decrease ${sec} quantity`);
         dec.style.marginRight = '4px';
+        dec.classList.add('pointer');
         const inc = document.createElement('button');
         inc.type = 'button'; inc.textContent = '+'; inc.setAttribute('aria-label', `Increase ${sec} quantity`);
+        inc.classList.add('pointer');
         const update = (next) => {
-          current = Math.max(0, Math.min(12, (next|0)));
+          current = Math.max(0, Math.min(12, (next | 0)));
           qtySections[sec] = current; saveQtySections();
           label.textContent = `(x${current})`;
           // If quantity reaches 0, deselect the section checkbox to make the item inactive
@@ -928,10 +945,10 @@
         const txt = document.createElement('span');
         txt.textContent = `(x${current})`;
         txt.style.marginRight = '4px';
-        const dec = document.createElement('button'); dec.type = 'button'; dec.textContent = '−'; dec.style.marginRight = '2px';
-        const inc = document.createElement('button'); inc.type = 'button'; inc.textContent = '+';
+        const dec = document.createElement('button'); dec.type = 'button'; dec.textContent = '−'; dec.style.marginRight = '2px'; dec.classList.add('pointer');
+        const inc = document.createElement('button'); inc.type = 'button'; inc.textContent = '+'; inc.classList.add('pointer');
         const update = (next) => {
-          current = Math.max(1, Math.min(12, (next|0)));
+          current = Math.max(1, Math.min(12, (next | 0)));
           qtyMap[qKey] = current; saveQtyMap();
           txt.textContent = `(x${current})`;
           // If quantity reaches 0 (via minus click from 1), uncheck the sauce to make it inactive
@@ -979,10 +996,22 @@
         wrap.className = 'patty-qty';
         wrap.style.marginLeft = '8px';
         const txt = document.createElement('span'); txt.textContent = `(x${current})`; txt.style.marginRight = '4px';
-        const dec = document.createElement('button'); dec.type = 'button'; dec.textContent = '−'; dec.style.marginRight = '2px';
-        const inc = document.createElement('button'); inc.type = 'button'; inc.textContent = '+';
+        const dec = document.createElement('button'); dec.type = 'button'; dec.textContent = '−'; dec.style.marginRight = '2px'; dec.classList.add('pointer');
+        const inc = document.createElement('button'); inc.type = 'button'; inc.textContent = '+'; inc.classList.add('pointer');
+        // Suppress parent label tooltip when hovering buttons
+        const stashTitle = () => { if (!labelEl) return ''; const t = labelEl.getAttribute('title'); labelEl.removeAttribute('title'); return t; };
+        const restoreTitle = (t) => { if (!labelEl) return; if (t) labelEl.setAttribute('title', t); };
+        let savedTitle = null;
+        ['mouseenter', 'focus'].forEach(evt => {
+          dec.addEventListener(evt, () => { if (savedTitle === null) savedTitle = stashTitle(); });
+          inc.addEventListener(evt, () => { if (savedTitle === null) savedTitle = stashTitle(); });
+        });
+        ['mouseleave', 'blur'].forEach(evt => {
+          dec.addEventListener(evt, () => { if (savedTitle !== null) { restoreTitle(savedTitle); savedTitle = null; } });
+          inc.addEventListener(evt, () => { if (savedTitle !== null) { restoreTitle(savedTitle); savedTitle = null; } });
+        });
         const savePatty = () => { qtyMap[qKey] = current; try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { } };
-        const update = (next) => { current = Math.max(1, Math.min(3, (next|0))); txt.textContent = `(x${current})`; savePatty(); };
+        const update = (next) => { current = Math.max(1, Math.min(3, (next | 0))); txt.textContent = `(x${current})`; savePatty(); };
         dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current - 1); });
         inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current + 1); });
         wrap.appendChild(txt); wrap.appendChild(dec); wrap.appendChild(inc);
@@ -1184,6 +1213,61 @@
             }
           });
           saveIngredients();
+          // Additionally normalize key quantities for the group being reset
+          try {
+            let qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
+            if (group.startsWith('burger_')) {
+              const pattyKey = 'burger_ingredients[]|patty';
+              // Patty quantity has a minimum of 1, even if disabling the item
+              qm[pattyKey] = 1;
+              localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
+              // Update visible Patty qty widget on builder if present
+              const pattyCb = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="patty"]');
+              const pattyLabel = pattyCb ? pattyCb.closest('label') : null;
+              const pattyQtyTxt = pattyLabel ? pattyLabel.querySelector('.patty-qty > span') : null;
+              if (pattyQtyTxt) pattyQtyTxt.textContent = `(x1)`;
+            }
+          } catch { }
+          if (resetDisables) {
+            // Map group to section key
+            let section = '';
+            if (group.startsWith('pizza_')) section = 'pizza';
+            else if (group.startsWith('burger_')) section = 'burger';
+            else if (group.startsWith('sauces_')) section = 'sauces';
+            if (section) {
+              const d2 = document.getElementById(section);
+              const toggle = d2 ? d2.querySelector('.section-toggle') : null;
+              if (toggle && toggle.checked) {
+                toggle.checked = false;
+                toggle.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+              // Ensure activeSections reflects disabled
+              try {
+                let act = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}');
+                act[section] = false;
+                localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
+              } catch { }
+              // Reset quantities as appropriate
+              if (section === 'pizza' || section === 'burger') {
+                try {
+                  let qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
+                  qs[section] = 0;
+                  localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qs));
+                } catch { }
+                const sum = d2 && d2.querySelector('summary.menu-summary .qty-controls span');
+                if (sum) sum.textContent = `(x0)`;
+              } else if (section === 'sauces') {
+                // Zero out all sauce qtys
+                try {
+                  let qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
+                  Object.keys(qm).forEach((k) => { if (k.startsWith('sauces_ingredients[]|')) qm[k] = 0; });
+                  localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
+                } catch { }
+                // Hide sauce qty widgets if present
+                document.querySelectorAll('.sauce-qty').forEach(el => el.style.display = 'none');
+              }
+            }
+          }
         });
       });
       // Next: must have at least one menu section checked; if Sauces is active, require at least one sauce
@@ -1352,7 +1436,7 @@
               inc.setAttribute('aria-label', `Increase ${key} quantity`);
 
               const updateQty = (next) => {
-                const val = Math.max(0, Math.min(12, (next|0)));
+                const val = Math.max(0, Math.min(12, (next | 0)));
                 current = val;
                 qtySections[qKey] = val;
                 try { localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections)); } catch { }
@@ -1418,7 +1502,7 @@
                 inc.setAttribute('aria-label', `Increase ${label}`);
 
                 const updateQty = (next) => {
-                  const val = Math.max(0, Math.min(12, next|0));
+                  const val = Math.max(0, Math.min(12, next | 0));
                   current = val;
                   qtyMap[qKey] = current;
                   try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { }
@@ -1475,11 +1559,12 @@
 
                 const dec = document.createElement('button');
                 dec.type = 'button'; dec.textContent = '−'; dec.style.marginRight = '4px';
+                dec.classList.add('pointer');
                 const inc = document.createElement('button');
-                inc.type = 'button'; inc.textContent = '+';
+                inc.type = 'button'; inc.textContent = '+'; inc.classList.add('pointer');
 
                 const updateQty = (next) => {
-                  current = Math.max(1, Math.min(3, next|0));
+                  current = Math.max(1, Math.min(3, next | 0));
                   qtyMap[qKey] = current;
                   try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { }
                   nameSpan.textContent = `${label} (x${current})`;
