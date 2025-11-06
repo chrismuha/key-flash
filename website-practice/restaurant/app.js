@@ -275,8 +275,13 @@
     const settingExpandOnly = document.querySelector('.setting-expand-only');
     const settingLabelSelects = document.querySelector('.setting-label-selects');
     const settingTitleSelects = document.querySelector('.setting-title-selects');
-    let expandOnly = false;
-    try { expandOnly = localStorage.getItem(STORAGE_KEYS.settingsExpandOnly) === 'true'; } catch { expandOnly = false; }
+    const settingsResetBtn = document.querySelector('.settings-reset');
+    // Settings defaults: all ON by default
+    let expandOnly = true;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsExpandOnly);
+      expandOnly = v === null ? true : v === 'true';
+    } catch { expandOnly = true; }
     if (settingExpandOnly) settingExpandOnly.checked = expandOnly;
     let labelSelects = true;
     try {
@@ -329,6 +334,23 @@
       settingTitleSelects.addEventListener('change', () => {
         titleSelects = !!settingTitleSelects.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, String(titleSelects)); } catch { }
+      });
+    }
+
+    if (settingsResetBtn) {
+      settingsResetBtn.addEventListener('click', () => {
+        // Defaults: all ON
+        expandOnly = true;
+        labelSelects = true;
+        titleSelects = true;
+        try {
+          localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
+        } catch { }
+        if (settingExpandOnly) settingExpandOnly.checked = true;
+        if (settingLabelSelects) settingLabelSelects.checked = true;
+        if (settingTitleSelects) settingTitleSelects.checked = true;
       });
     }
 
@@ -1083,7 +1105,7 @@
         }
 
         const h3i = document.createElement('h3');
-        h3i.textContent = 'Selected Ingredients';
+        h3i.textContent = 'Your Selections';
         frag.appendChild(h3i);
 
         const entries = Object.entries(ingredients || {});

@@ -19,7 +19,7 @@
             aria-controls="settings-panel" aria-label="Open settings">⚙️ Settings</button>
         <div class="settings-panel" id="settings-panel" hidden>
             <label title="Clicking section arrows expands/collapses only; checkboxes control selection">
-                <input type="checkbox" class="setting-expand-only">
+                <input type="checkbox" class="setting-expand-only" checked>
                 Summary arrow expands/collapses only
             </label>
             <label title="Clicking an ingredient label also toggles its checkbox">
@@ -30,6 +30,7 @@
                 <input type="checkbox" class="setting-title-selects" checked>
                 Section title toggles checkbox
             </label>
+            <button type="button" class="settings-reset" aria-label="Reset settings to defaults">Reset to defaults</button>
         </div>
     </nav>
 
