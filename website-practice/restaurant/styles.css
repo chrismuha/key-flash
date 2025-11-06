@@ -36,9 +36,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-family: system-ui, sans-serif;
-    /* unify site font */
     font-size: 16px;
-    /* unify base size */
 }
 
 /* Section: App Layout (Body Flex) */
@@ -47,7 +45,6 @@ body {
     min-height: 100vh;
     min-height: 100dvh;
     align-items: stretch;
-    /* ensure columns stretch to tallest content */
 }
 
 /* Section: Left Rail Navigation */
@@ -58,7 +55,6 @@ body {
     padding: var(--gap) calc(var(--gap) * 1.333);
     width: var(--rail-width);
     position: fixed;
-    /* occupy full left side of viewport */
     top: 0;
     bottom: 0;
     left: 0;
@@ -71,7 +67,7 @@ body {
 
 /* Align page links with collapsed menu rows globally */
 .left-rail {
-    padding-top: 168px;
+    padding-top: 184px;
 }
 
 /* Left-rail logo occupies the padded space above links */
@@ -98,14 +94,12 @@ body.theme-dark .left-rail .nav-logo {
     padding: 6px 10px;
     font-weight: 600;
     font-size: inherit;
-    /* revert any size change */
     border: 1px solid #000;
     background: #f7f7f7;
     color: #000;
     border-radius: 4px;
     cursor: pointer;
     width: 100%;
-    /* match Themes button width */
 }
 
 body.theme-dark .settings-button {
@@ -117,7 +111,6 @@ body.theme-dark .settings-button {
 .settings-panel {
     margin-top: 6px;
     font-size: inherit;
-    /* revert any size change */
     border: 1px solid #000;
     background: #f7f7f7;
     color: #000;
@@ -136,7 +129,6 @@ body.theme-dark .settings-panel {
     align-items: center;
     gap: 8px;
     margin-bottom: 8px;
-    /* add breathing room between settings */
 }
 
 .settings-panel .settings-reset {
@@ -256,7 +248,6 @@ body.theme-dark main fieldset {
 
 .theme-toggle[aria-expanded="true"]::after {
     transform: rotate(-135deg);
-    /* points up when expanded */
 }
 
 .theme-menu {
@@ -315,7 +306,6 @@ body.theme-dark .theme-option:focus-visible {
     position: fixed;
     top: 8px;
     left: 8px;
-    /* top-left position on every page */
     padding: 6px 10px;
     font-weight: 600;
     border: 1px solid #000;
@@ -411,7 +401,6 @@ body.page2 main {
 /* Section: Page 2 Next Button */
 body.page2 .next-button {
     position: fixed;
-    /* keep consistent placement */
     right: 16px;
     bottom: 16px;
     padding: 8px 14px;
@@ -506,7 +495,6 @@ main fieldset label {
     gap: 6px;
     line-height: 1.25;
     cursor: pointer;
-    /* hand when hovering label + checkbox */
 }
 
 /* Section: Checkboxes (Unified Custom Style) */
@@ -523,19 +511,16 @@ main input[type="checkbox"] {
     vertical-align: middle;
     margin-right: 6px;
     cursor: pointer;
-    /* show hand on hover */
 }
 
 main input[type="checkbox"]:checked {
     background-color: #e53935;
-    /* red fill when checked */
 }
 
 /* Ensure dark mode keeps the red fill when checked */
 body.theme-dark main input[type="checkbox"]:checked {
     background-color: #e53935;
     border-color: #fff;
-    /* keep white border for contrast */
 }
 
 main input[type="checkbox"]::after {
@@ -550,7 +535,6 @@ main input[type="checkbox"]::after {
 
 main input[type="checkbox"]:checked::after {
     opacity: 1;
-    /* green checkmark to contrast red */
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%232ecc71' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='4,10 8,14 16,6'/></svg>");
 }
 
@@ -562,12 +546,10 @@ body.page2 input[type="checkbox"][data-required="true"][disabled]:checked::after
 /* Section: Restricted/Required Overrides */
 body.page2 input[type="checkbox"][disabled] {
     opacity: 1;
-    /* don't gray out */
 }
 
 body.page2 label.required {
     color: inherit;
-    /* follow theme (light/dark) */
     opacity: 1;
     cursor: not-allowed;
 }
@@ -602,10 +584,8 @@ body.page2 label.required:focus {
 /* Custom-render the restricted, disabled checkbox to keep green box + black check */
 body.page2 input[type="checkbox"][data-required="true"][disabled] {
     opacity: 1;
-    /* don't gray out */
     cursor: not-allowed;
     transform: translateY(1px);
-    /* nudge to match native checkbox baselines */
 }
 
 /* deactivate required labels' hover completely */
@@ -677,13 +657,9 @@ body.order-type main {
 
 body.order-type main h1 {
     font-size: 32px;
-    /* match Menu Builder */
     line-height: 48px;
-    /* match Menu Builder */
     font-weight: 700;
-    /* match other headers' weight */
     margin-bottom: 28px;
-    /* consistent spacing before options */
     text-align: left;
 }
 
@@ -691,7 +667,6 @@ body.order-type .order-options {
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
-    /* ensure vertical alignment under heading */
     gap: 48px;
     margin: 24px 0 8px;
 }
@@ -803,10 +778,8 @@ body.order-type .delivery-details .delivery-clear {
 body.order-type .order-card {
     width: 180px;
     height: 180px;
-    /* square boxes */
     border: 2px solid #000;
     border-radius: 0;
-    /* square edges */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -814,24 +787,19 @@ body.order-type .order-card {
     color: #000;
     text-decoration: none;
     background: #fff;
-    /* default */
-    /* Make state changes instant (no fade) */
     transition: none;
 }
 
 body.order-type .order-card:hover {
     background: var(--box-bg);
-    /* green like Next button */
     color: #000;
 }
 
 /* Visual selection if user returns to index */
 body.order-type .order-card.selected {
     background: var(--box-bg);
-    /* stay green when active */
     color: #000;
     box-shadow: 0 0 0 3px #000 inset;
-    /* outline active card */
 }
 
 body.order-type .order-card svg {
@@ -846,7 +814,6 @@ body.order-type .order-label {
 
 body.order-type .order-note {
     color: inherit;
-    /* auto-adjusts with theme */
     margin-top: 18px;
 }
 
@@ -886,7 +853,6 @@ main summary.menu-summary {
     font-weight: 700;
     margin: 0;
     list-style: none;
-    /* ensure no default marker in Firefox */
 }
 
 /* Visual cue for invalid/attention-needed sections */
@@ -895,7 +861,6 @@ main summary.menu-summary.invalid {
     outline-offset: 4px;
     border-radius: 6px;
     margin-bottom: 8px;
-    /* add breathing room below red border */
 }
 
 /* Section: Reset Buttons */
@@ -922,7 +887,6 @@ main summary.menu-summary::-webkit-details-marker {
 /* custom black arrow marker */
 main summary.menu-summary::before {
     content: "\25B8";
-    /* small black right-pointing triangle ▸ */
     display: inline-block;
     width: 1em;
     margin-right: 8px;
@@ -947,7 +911,6 @@ main details[open]>summary.menu-summary::before {
     width: 100%;
     background: var(--box-bg);
     border: none;
-    /* default: no outline */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -983,11 +946,8 @@ main details[open]>summary.menu-summary::before {
 /* Align left-rail items with collapsible menu rows on all pages */
 .left-rail .box {
     height: 36px;
-    /* match summary.menu-summary line-height */
     line-height: 36px;
-    /* vertical centering to match summaries */
     font-size: 24px;
-    /* match summary.menu-summary font-size */
 }
 
 /* Section: Focus Styles */
@@ -1019,9 +979,7 @@ main details[open]>summary.menu-summary::before {
     .left-rail {
         width: 100%;
         position: static;
-        /* stack on top on small screens */
         height: auto;
-        /* Remove large desktop alignment offset on mobile */
         padding-top: var(--gap);
     }
 
@@ -1034,7 +992,6 @@ main details[open]>summary.menu-summary::before {
 
     main {
         margin-left: 0;
-        /* no offset on small screens */
         padding-top: calc(var(--gap) * 4);
     }
 }
