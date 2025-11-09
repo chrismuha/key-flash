@@ -1,8 +1,10 @@
+/* Section: Flash Variables */
 :root {
   --flash-color: #ffff99;
   --flash-ring-color: rgba(255, 255, 153, 1);
 }
 
+/* Section: Switch Root */
 #theme-switch .ts-root {
   position: relative;
   display: inline-grid;
@@ -15,6 +17,7 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, .12);
 }
 
+/* Section: Track */
 #theme-switch .ts-track {
   position: absolute;
   top: 6px;
@@ -24,6 +27,7 @@
   pointer-events: none;
 }
 
+/* Section: Thumb */
 #theme-switch .ts-thumb {
   position: absolute;
   top: 0;
@@ -37,6 +41,7 @@
   will-change: transform;
 }
 
+/* Section: Thumb Flash Layers */
 #theme-switch .ts-thumb span {
   position: absolute;
   inset: 0;
@@ -44,18 +49,21 @@
   border-radius: inherit;
 }
 
+/* Section: Flash Base */
 .flash-base {
   background: var(--flash-color);
   opacity: 0;
   transition: none;
 }
 
+/* Section: Flash Ring */
 .flash-ring {
   inset: -4px;
   box-shadow: 0 0 0 6px var(--flash-ring-color);
   transition: none;
 }
 
+/* Section: Option Buttons */
 #theme-switch .ts-option {
   position: relative;
   z-index: 1;
@@ -70,40 +78,48 @@
   outline: none;
 }
 
+/* Section: Active Option */
 #theme-switch .ts-option[aria-checked="true"] {
   color: #0b5fff;
 }
 
+/* Section: Keyboard Focus */
 #theme-switch .ts-option:focus-visible {
   outline: 2px solid #0b5fff;
   outline-offset: 2px;
 }
 
+/* Section: Theme Colors - Light */
 :root[data-theme="light"] {
   background-color: #ffffff;
   color: #1b1f23;
 }
 
+/* Section: Theme Colors - Dark */
 :root[data-theme="dark"] {
   background-color: #0b0f14;
   color: #e8edf2;
 }
 
+/* Section: Theme Colors - Solarized */
 :root[data-theme="solarized"] {
   background-color: #fdf6e3;
   color: #073642;
 }
 
+/* Section: Theme Colors - High Contrast */
 :root[data-theme="contrast"] {
   background-color: #000000;
   color: #ffffff;
 }
 
+/* Section: Theme Colors - System (default) */
 :root[data-theme="system"] {
   background-color: #ffffff;
   color: #1b1f23;
 }
 
+/* Section: System Dark Preference */
 @media (prefers-color-scheme: dark) {
   :root[data-theme="system"] {
     background-color: #0b0f14;
@@ -111,6 +127,7 @@
   }
 }
 
+/* Section: Demo Card */
 .card {
   background: #e6e8eb;
   border: 1px solid #cccccc;
@@ -120,6 +137,7 @@
   margin-top: 16px;
 }
 
+/* Section: Demo Button */
 button.demo {
   padding: 8px 12px;
   border: 1px solid #cccccc;

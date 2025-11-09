@@ -1,8 +1,11 @@
+// Section: IIFE Wrapper
 (() => {
+  // Section: Constants and Media Query
   const THEME_KEY = "app.theme";
   const THEMES = ["system", "light", "dark", "solarized", "contrast"];
   const media = matchMedia("(prefers-color-scheme: dark)");
 
+  // Section: Theme Resolution and Application
   function resolveTheme(source) {
     if (source === "system") return media.matches ? "dark" : "light";
     return source;
@@ -15,12 +18,14 @@
     document.dispatchEvent(new CustomEvent("themechange", { detail: { source, theme: resolved } }));
   }
 
+  // Section: Persistence Helpers
   function getSavedTheme() {
     try { return localStorage.getItem(THEME_KEY) || "system"; } catch { return "system"; }
   }
 
   function saveTheme(theme) { try { localStorage.setItem(THEME_KEY, theme); } catch { } }
 
+  // Section: Visual Flash Helper
   function makeFlasher(el, baseMs = 400, pulseMs = 300) {
     const base = document.createElement("span");
     base.className = "flash-base";
@@ -33,6 +38,7 @@
     let lastOn = 0;
     let pulseStart = -1;
 
+    // Section: Animation Loop
     function loop(t) {
       const on = t - lastOn < baseMs;
       base.style.opacity = on ? "1" : "0";
@@ -52,6 +58,7 @@
     }
     requestAnimationFrame(loop);
 
+    // Section: Trigger Flash
     return function flash() {
       const now = performance.now();
       lastOn = now;
@@ -59,6 +66,7 @@
     };
   }
 
+  // Section: Build Switch UI
   function buildSwitch(currentSource) {
     const wrap = document.createElement("div");
     wrap.id = "theme-switch";
@@ -102,8 +110,10 @@
       root.appendChild(btn);
     });
 
+    // Section: Options Helper
     function options() { return root.querySelectorAll(".ts-option"); }
 
+    // Section: Measurement
     let meas = [];
     function measure() {
       const opts = options();
@@ -115,6 +125,7 @@
       });
     }
 
+    // Section: Thumb Positioning
     function positionThumb(i, scale = 1) {
       const m = meas[i];
       if (!m) return;
@@ -122,6 +133,7 @@
       thumb.style.transform = `translateX(${m.left}px) scale(${scale})`;
     }
 
+    // Section: Pending State
     let pendingIndex = currentIndex;
     let pendingFocus = false;
     let scheduled = false;
@@ -148,18 +160,21 @@
       flash();
     }
 
+    // Section: Update Scheduling
     function scheduleUpdate() {
       if (scheduled) return;
       scheduled = true;
       requestAnimationFrame(applyPending);
     }
 
+    // Section: Selection API
     function select(i, focus = false) {
       pendingIndex = i;
       pendingFocus = focus || pendingFocus;
       scheduleUpdate();
     }
 
+    // Section: Hit Testing
     function nearestIndexFromClientX(clientX) {
       if (!meas.length) return currentIndex;
       const firstLeft = options()[0].getBoundingClientRect().left;
@@ -172,9 +187,11 @@
       return best;
     }
 
+    // Section: Drag State
     let dragging = false;
     let pointerId = null;
 
+    // Section: Pointer Events - Start
     root.addEventListener("pointerdown", (e) => {
       if (e.button !== 0) return;
       dragging = true;
@@ -187,6 +204,7 @@
       e.preventDefault();
     });
 
+    // Section: Pointer Events - Move
     root.addEventListener("pointermove", (e) => {
       if (!dragging) return;
       const idx = nearestIndexFromClientX(e.clientX);
@@ -199,6 +217,7 @@
       e.preventDefault();
     });
 
+    // Section: Pointer Events - End
     function endDrag(e) {
       if (!dragging) return;
       dragging = false;
@@ -214,22 +233,26 @@
     root.addEventListener("pointercancel", endDrag);
     root.addEventListener("click", (e) => { if (dragging) e.preventDefault(); }, true);
 
+    // Section: Resize Observation
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => {
       measure();
       positionThumb(currentIndex);
     }) : null;
     if (ro) ro.observe(root);
 
+    // Section: Window Resize
     window.addEventListener("resize", () => {
       measure();
       positionThumb(currentIndex);
     });
 
+    // Section: Initial Layout
     requestAnimationFrame(() => {
       measure();
       positionThumb(currentIndex);
     });
 
+    // Section: System Theme Changes
     const handleMediaChange = () => {
       if ((getSavedTheme() || "system") === "system") applyTheme("system");
     };
@@ -239,6 +262,7 @@
     return wrap;
   }
 
+  // Section: Public API
   const Theme = {
     init({ mount = document.body, defaultTheme = "system" } = {}) {
       const saved = THEMES.includes(getSavedTheme()) ? getSavedTheme() : defaultTheme;
@@ -255,6 +279,7 @@
     onChange(cb) { document.addEventListener("themechange", e => cb(e.detail.theme, e.detail.source)); }
   };
 
+  // Section: Export
   window.ThemeToggle = Theme;
 })();
 
