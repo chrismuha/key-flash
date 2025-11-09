@@ -1,5 +1,7 @@
 (() => {
   const STORAGE_KEY = "boxify.counts";
+  const ENABLED_KEY = "boxify.enabled";
+  const TEMPLATES_KEY = "boxify.templates";
 
   function loadCounts() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
@@ -7,6 +9,33 @@
   }
   function saveCounts(map) {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(map)); } catch { }
+  }
+
+  function loadEnabled() {
+    try {
+      const raw = localStorage.getItem(ENABLED_KEY);
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr.map(String) : [];
+    } catch { return []; }
+  }
+  function saveEnabled(list) {
+    try { localStorage.setItem(ENABLED_KEY, JSON.stringify(Array.from(list || []))); } catch { }
+  }
+
+  const DEFAULT_TEMPLATES = [
+    'SSD', 'RAM', 'GPU', 'CPU', 'Motherboard', 'Power Supply', 'Cooling', 'Case', 'Monitor', 'Accessory'
+  ];
+  function loadTemplates() {
+    try {
+      const raw = localStorage.getItem(TEMPLATES_KEY);
+      if (!raw) return DEFAULT_TEMPLATES.slice();
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) && arr.length ? arr.map(String) : DEFAULT_TEMPLATES.slice();
+    } catch { return DEFAULT_TEMPLATES.slice(); }
+  }
+  function saveTemplates(list) {
+    try { localStorage.setItem(TEMPLATES_KEY, JSON.stringify(Array.from(list || []))); } catch { }
   }
 
   function ensureWrapper(el, label) {
@@ -54,6 +83,47 @@
     wrapper.appendChild(controls);
 
     el.replaceWith(wrapper);
+    return wrapper;
+  }
+
+  // Create a box wrapper from just a label (no source element)
+  function createWrapper(label) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "boxify";
+    wrapper.setAttribute("data-boxify-id", label.toLowerCase().replace(/\s+/g, "-"));
+    wrapper.setAttribute("aria-label", label + " quantity");
+    wrapper.setAttribute("aria-live", "polite");
+    wrapper.tabIndex = 0;
+
+    const title = document.createElement("div");
+    title.className = "boxify-title";
+    title.textContent = label;
+
+    const controls = document.createElement("div");
+    controls.className = "boxify-controls";
+
+    const minusBtn = document.createElement("button");
+    minusBtn.type = "button";
+    minusBtn.className = "boxify-btn minus";
+    minusBtn.textContent = "-";
+    minusBtn.setAttribute("aria-label", "Decrease " + label);
+
+    const qty = document.createElement("div");
+    qty.className = "boxify-qty";
+    qty.textContent = "0";
+
+    const plusBtn = document.createElement("button");
+    plusBtn.type = "button";
+    plusBtn.className = "boxify-btn plus";
+    plusBtn.textContent = "+";
+    plusBtn.setAttribute("aria-label", "Increase " + label);
+
+    controls.appendChild(minusBtn);
+    controls.appendChild(qty);
+    controls.appendChild(plusBtn);
+
+    wrapper.appendChild(title);
+    wrapper.appendChild(controls);
     return wrapper;
   }
 
@@ -127,6 +197,8 @@
       qtyEl.textContent = String(n);
       wrapper.setAttribute("aria-label", id + " quantity " + n);
       saveCounts(counts);
+      updateLogLine(id, n);
+      saveCounts(counts);
       if (onChange) onChange({ id, quantity: n, el: wrapper });
       updateLogLine(id, n);
     }
@@ -179,9 +251,12 @@
       const selector = opts && opts.selector ? opts.selector : ".ui-item";
       const gridSelector = opts && opts.gridSelector ? opts.gridSelector : null;
       const onChange = opts && opts.onChange ? opts.onChange : null;
+      const enabledFromOpts = opts && Array.isArray(opts.enabled) ? opts.enabled.map(String) : null;
+      const enabled = new Set(enabledFromOpts && enabledFromOpts.length ? enabledFromOpts : loadEnabled());
 
+      let grid = null;
       if (gridSelector) {
-        const grid = document.querySelector(gridSelector);
+        grid = document.querySelector(gridSelector);
         if (grid && !grid.classList.contains("box-grid")) grid.classList.add("box-grid");
       }
 
@@ -189,20 +264,62 @@
       const nodes = Array.from(document.querySelectorAll(selector));
       const wrappers = [];
 
-      nodes.forEach((el, idx) => {
-        const label =
-          el.getAttribute("data-label") ||
-          el.getAttribute("aria-label") ||
-          el.textContent.trim() ||
-          "Item " + (idx + 1);
+      // If nothing is enabled, do not create any boxes by default
+      if (enabled.size === 0) {
+        return wrappers;
+      }
 
-        const wrapper = ensureWrapper(el, label);
-        const id = wrapper.getAttribute("data-boxify-id") || ("item-" + (idx + 1));
+      // Hide original placeholders; render boxes contiguously in the grid
+      nodes.forEach(el => { el.style.display = "none"; });
+
+      const enabledList = Array.from(enabled);
+      const sourceLabels = nodes.map((el, idx) =>
+        el.getAttribute("data-label") || el.getAttribute("aria-label") || el.textContent.trim() || ("Item " + (idx + 1))
+      );
+      const templateLabels = loadTemplates();
+
+      const getLabelFor = (key) => {
+        const slugKey = String(key).toLowerCase();
+        // 1) Match source slugs (legacy placeholders)
+        const srcIdx = sourceLabels.findIndex(l => l.toLowerCase().replace(/\s+/g, "-") === slugKey);
+        if (srcIdx >= 0) return sourceLabels[srcIdx];
+        // 2) Match template slugs
+        const tmpl = templateLabels.find(l => l.toLowerCase().replace(/\s+/g, "-") === slugKey);
+        if (tmpl) return tmpl;
+        // 3) Fallback to key as label
+        return String(key);
+      };
+
+      if (grid) {
+        // Remove any existing rendered boxes (keep other content like reset button)
+        Array.from(grid.querySelectorAll('.boxify')).forEach(n => n.remove());
+      }
+
+      enabledList.forEach((key, i) => {
+        const label = getLabelFor(key);
+        const wrapper = createWrapper(label);
+        const id = wrapper.getAttribute("data-boxify-id") || ("item-" + (i + 1));
+        // Ensure wrapper is in the DOM before wiring handlers so the log picks up the correct label
+        if (grid) {
+          grid.insertBefore(wrapper, grid.querySelector('#reset-all') || null);
+        }
         applyHandlers(wrapper, id, counts, onChange);
         wrappers.push(wrapper);
       });
 
       return wrappers;
+    },
+
+    // Persist and apply enabled list for which boxes should render
+    setEnabled(list) {
+      const arr = Array.isArray(list) ? list.map(String) : [];
+      saveEnabled(arr);
+      return arr;
+    },
+    setTemplates(list) {
+      const arr = Array.isArray(list) ? list.map(String) : [];
+      saveTemplates(arr);
+      return arr;
     },
 
     setQuantity(id, qty) {

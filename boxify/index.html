@@ -10,6 +10,44 @@
 
 <body>
   <h1>Boxify Demo</h1>
+  <div style="text-align:center; margin: 8px 0 0;">
+    <button id="open-settings" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="settings-panel">
+      ⚙️ Settings
+    </button>
+  </div>
+
+  <div id="settings-panel" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title"
+    style="max-width:680px;margin:12px auto;padding:12px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <h2 id="settings-title" style="margin:0;font: 600 18px/1.2 Arial, sans-serif;">Boxify Settings</h2>
+      <button id="close-settings" type="button" aria-label="Close settings">✖</button>
+    </div>
+    <p style="margin:8px 0 12px;opacity:.85;">Choose which items should have boxes. You can also manage templates. Changes are saved.
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:8px;align-items:start;">
+      <div>
+        <h3 style="margin:0 0 6px;font:600 15px Arial, sans-serif;">Enable Items</h3>
+        <div id="settings-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+        <div id="add-enabled-wrap" style="display:flex;gap:6px;margin-top:8px;">
+          <input id="new-enabled" type="text" placeholder="Add item name" style="flex:1;padding:6px 8px;">
+          <button id="add-enabled" type="button">Add Item</button>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin:0 0 6px;font:600 15px Arial, sans-serif;">Templates</h3>
+        <div id="templates-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+        <div style="display:flex;gap:6px;margin-top:6px;">
+          <input id="new-template" type="text" placeholder="Add new template name" style="flex:1;padding:6px 8px;">
+          <button id="add-template" type="button">Add</button>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+      <button id="enable-all" type="button">Enable All</button>
+      <button id="disable-all" type="button">Disable All</button>
+      <button id="save-settings" type="button" class="primary">Save</button>
+    </div>
+  </div>
   <p> <b> <u> Desktop use shortcuts: </u> </b>
     <br> Left Click to increase quantities.
     <br> Right Click to decrease quantities.
@@ -20,17 +58,6 @@
   </p>
 
   <div id="inventory">
-    <div class="ui-item" data-label="SSD"></div>
-    <div class="ui-item" data-label="RAM"></div>
-    <div class="ui-item" data-label="GPU"></div>
-    <div class="ui-item" data-label="CPU"></div>
-    <div class="ui-item" data-label="Motherboard"></div>
-    <div class="ui-item" data-label="Power Supply"></div>
-    <div class="ui-item" data-label="Cooling"></div>
-    <div class="ui-item" data-label="Case"></div>
-    <div class="ui-item" data-label="Monitor"></div>
-    <div class="ui-item" data-label="Accessory"></div>
-
     <!-- Reset button as part of the grid -->
     <button id="reset-all" type="button" aria-label="Reset all quantities">
       Reset All
@@ -40,6 +67,167 @@
   <!-- Scripts -->
   <script src="boxify.js"></script>
   <script src="init.js"></script>
+  <script>
+    // Lightweight UI wiring for settings
+    (function () {
+      const OPEN_BTN = document.getElementById('open-settings');
+      const PANEL = document.getElementById('settings-panel');
+      const CLOSE_BTN = document.getElementById('close-settings');
+      const LIST = document.getElementById('settings-list');
+      const SAVE_BTN = document.getElementById('save-settings');
+      const TEMPLATES_LIST = document.getElementById('templates-list');
+      const NEW_TEMPLATE = document.getElementById('new-template');
+      const ADD_TEMPLATE = document.getElementById('add-template');
+      const NEW_ENABLED = document.getElementById('new-enabled');
+      const ADD_ENABLED = document.getElementById('add-enabled');
+      const ENABLE_ALL_BTN = document.getElementById('enable-all');
+      const DISABLE_ALL_BTN = document.getElementById('disable-all');
+
+      function slug(s) { return String(s || '').toLowerCase().trim().replace(/\s+/g, '-'); }
+
+      // Built-in templates (non-removable)
+      const DEFAULT_TEMPLATES = [
+        'SSD', 'RAM', 'GPU', 'CPU', 'Motherboard', 'Power Supply', 'Cooling', 'Case', 'Monitor', 'Accessory'
+      ];
+
+      function loadEnabled() {
+        try { const v = localStorage.getItem('boxify.enabled'); return v ? JSON.parse(v) : []; } catch { return []; }
+      }
+
+      function loadTemplates() {
+        try { const v = localStorage.getItem('boxify.templates'); return v ? JSON.parse(v) : []; } catch { return []; }
+      }
+      function saveTemplates(arr) {
+        try { localStorage.setItem('boxify.templates', JSON.stringify(arr)); } catch {}
+      }
+
+      function ensureTemplatesSeed() {
+        const cur = loadTemplates();
+        if (cur && cur.length) return cur;
+        saveTemplates(DEFAULT_TEMPLATES.slice());
+        return DEFAULT_TEMPLATES.slice();
+      }
+
+      let enabledWorking = loadEnabled().map(String);
+
+      function renderEnabledList() {
+        LIST.innerHTML = '';
+        if (enabledWorking.length === 0) {
+          const empty = document.createElement('div');
+          empty.textContent = 'No items enabled yet.';
+          empty.style.opacity = '.7';
+          LIST.appendChild(empty);
+          return;
+        }
+        const templates = ensureTemplatesSeed();
+        enabledWorking.forEach((id, idx) => {
+          const row = document.createElement('div');
+          row.style.display = 'flex';
+          row.style.alignItems = 'center';
+          row.style.gap = '8px';
+          const label = (templates.find(t => slug(t) === id)) || id.replace(/-/g, ' ');
+          const span = document.createElement('span');
+          span.textContent = label;
+          span.style.flex = '1';
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.textContent = 'Remove';
+          remove.addEventListener('click', () => {
+            enabledWorking = enabledWorking.filter((_, i) => i !== idx);
+            renderEnabledList();
+          });
+          row.appendChild(span);
+          row.appendChild(remove);
+          LIST.appendChild(row);
+        });
+      }
+
+      function renderList() {
+        renderEnabledList();
+
+        // Render templates list (non-removable) and make them clickable to quick-add
+        const templates = ensureTemplatesSeed();
+        TEMPLATES_LIST.innerHTML = '';
+        templates.forEach((label) => {
+          const row = document.createElement('div');
+          row.style.display = 'flex';
+          row.style.alignItems = 'center';
+          row.style.gap = '8px';
+          const span = document.createElement('span');
+          span.textContent = label;
+          span.style.flex = '1';
+          row.style.cursor = 'pointer';
+          row.title = 'Click to add to enabled items';
+          row.addEventListener('click', () => {
+            const id = slug(label);
+            if (!enabledWorking.includes(id)) {
+              enabledWorking.push(id);
+              renderEnabledList();
+            }
+          });
+          row.appendChild(span);
+          TEMPLATES_LIST.appendChild(row);
+        });
+      }
+
+      function open() {
+        renderList();
+        PANEL.hidden = false;
+        OPEN_BTN.setAttribute('aria-expanded', 'true');
+      }
+      function close() {
+        PANEL.hidden = true;
+        OPEN_BTN.setAttribute('aria-expanded', 'false');
+      }
+
+      OPEN_BTN?.addEventListener('click', () => (PANEL.hidden ? open() : close()));
+      CLOSE_BTN?.addEventListener('click', close);
+
+      ENABLE_ALL_BTN?.addEventListener('click', () => {
+        enabledWorking = ensureTemplatesSeed().map(t => slug(t));
+        renderEnabledList();
+      });
+      DISABLE_ALL_BTN?.addEventListener('click', () => {
+        enabledWorking = [];
+        renderEnabledList();
+      });
+
+      SAVE_BTN?.addEventListener('click', () => {
+        const checked = enabledWorking.slice();
+        // Persist and apply
+        if (window.Boxify && typeof window.Boxify.setEnabled === 'function') {
+          window.Boxify.setEnabled(checked);
+        } else {
+          try { localStorage.setItem('boxify.enabled', JSON.stringify(checked)); } catch { }
+        }
+        // Reload to apply cleanly
+        location.reload();
+      });
+
+      ADD_ENABLED?.addEventListener('click', () => {
+        const name = (NEW_ENABLED.value || '').trim();
+        if (!name) return;
+        const id = slug(name);
+        if (!enabledWorking.includes(id)) {
+          enabledWorking.push(id);
+          renderEnabledList();
+        }
+        NEW_ENABLED.value = '';
+      });
+
+      ADD_TEMPLATE?.addEventListener('click', () => {
+        const name = (NEW_TEMPLATE.value || '').trim();
+        if (!name) return;
+        const templates = ensureTemplatesSeed();
+        if (!templates.includes(name)) {
+          const next = templates.concat([name]);
+          saveTemplates(next);
+        }
+        NEW_TEMPLATE.value = '';
+        renderList();
+      });
+    })();
+  </script>
 </body>
 
 </html>

@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-    Boxify.init({
-        selector: ".ui-item",
-        gridSelector: "#inventory"
-    });
+    const enabled = (() => { try { return JSON.parse(localStorage.getItem('boxify.enabled') || '[]'); } catch { return []; } })();
+    Boxify.init({ selector: ".ui-item", gridSelector: "#inventory", enabled });
 
     const btn = document.getElementById("reset-all");
     btn?.addEventListener("click", () => {
