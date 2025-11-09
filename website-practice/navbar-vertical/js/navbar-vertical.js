@@ -1,3 +1,4 @@
+// Section: Navbar Toggle
 function toggleNavbar() {
     const navbar = document.querySelector('.navbar');
     const content = document.querySelector('.content');
@@ -19,6 +20,7 @@ function toggleNavbar() {
     }
 }
 
+// Section: Close On Outside Click
 function closeNavbarOutside(event) {
     const navbar = document.querySelector('.navbar');
     const rectangle = document.querySelector('#rectangle1');

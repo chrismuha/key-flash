@@ -1,3 +1,4 @@
+// Section: Export PDF (US Letter)
 document.getElementById('exportButton').addEventListener('click', async () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({
@@ -27,6 +28,7 @@ document.getElementById('exportButton').addEventListener('click', async () => {
     // Save the PDF
     doc.save("custom-letter-template.pdf");
 });
+// Section: Helpers
 // Helper function to convert Blob to ImageBitmap
 async function createImageBitmap(blob) {
     return new Promise((resolve, reject));
@@ -36,6 +38,7 @@ img.onload = () => resolve(img);
 // img.onerror = reject;
 // img.src = URL.createObjectURL(blob);
 
+// Section: Theme Switcher (Light/Dark)
 document.querySelectorAll('.themes-switcher div').forEach(theme => {
     theme.addEventListener('click', function () {
         document.querySelectorAll('.themes-switcher div').forEach(div => div.classList.remove('active'));
@@ -49,6 +52,7 @@ document.querySelectorAll('.themes-switcher div').forEach(theme => {
     });
 });
 
+// Section: Quantity Input Styling
 document.addEventListener("DOMContentLoaded", function () {
     let quantityInput = document.getElementById("quantity");
 
@@ -70,6 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+// Section: Phone Number Formatting
 // Phone Number Format Input Value Automations //
 let errorTimeout; // Stores the timeout reference
 
@@ -101,6 +106,7 @@ document.getElementById("phone").addEventListener("input", function (event) {
     }
 });
 
+// Section: Paste Guard
 // Prevent users from pasting invalid input
 document.getElementById("phone").addEventListener("paste", function (event) {
     event.preventDefault();

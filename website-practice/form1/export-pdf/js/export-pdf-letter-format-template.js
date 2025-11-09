@@ -1,3 +1,4 @@
+// Section: Export PDF (US Letter)
 document.getElementById('exportButton').addEventListener('click', async () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({
@@ -23,6 +24,7 @@ document.getElementById('exportButton').addEventListener('click', async () => {
     // Save the PDF
     doc.save("custom-letter-template.pdf");
 });
+// Section: Helpers
 // Helper function to convert Blob to ImageBitmap
 async function createImageBitmap(blob) {
     return new Promise((resolve, reject))

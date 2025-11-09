@@ -1,3 +1,4 @@
+// Section: Navbar Toggle
 function toggleNavbar() {
     const navbar = document.querySelector('.navbar');
     const content = document.querySelector('.content');
