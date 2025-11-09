@@ -6,14 +6,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Boxify Demo</title>
   <link rel="stylesheet" href="boxify.css" />
+  <style>
+    /* Settings drag handle visual */
+    .drag-handle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background: #f7f7f7;
+      font: 16px/1 monospace;
+      cursor: grab;
+      user-select: none;
+    }
+    .drag-handle:active { cursor: grabbing; }
+  </style>
 </head>
 
 <body>
   <h1>Boxify Demo</h1>
-  <div style="text-align:center; margin: 8px 0 0;">
+  <div style="text-align:center; margin: 8px 0 0; display:flex;gap:8px;justify-content:center;align-items:center;">
     <button id="open-settings" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="settings-panel">
       ⚙️ Settings
     </button>
+    <button id="toggle-jiggle" type="button" aria-pressed="false" title="Reorder boxes (drag or use arrow keys)">Reorder</button>
   </div>
 
   <div id="settings-panel" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title"
@@ -125,6 +143,16 @@
           row.style.display = 'flex';
           row.style.alignItems = 'center';
           row.style.gap = '8px';
+          row.tabIndex = 0;
+          row.setAttribute('role', 'listitem');
+          row.setAttribute('aria-label', 'Enabled item ' + (idx + 1));
+          // Visual drag handle
+          const handle = document.createElement('button');
+          handle.type = 'button';
+          handle.className = 'drag-handle';
+          handle.setAttribute('aria-label', 'Drag to reorder');
+          handle.title = 'Drag to reorder';
+          handle.textContent = '≡';
           const label = (templates.find(t => slug(t) === id)) || id.replace(/-/g, ' ');
           const span = document.createElement('span');
           span.textContent = label;
@@ -136,6 +164,43 @@
             enabledWorking = enabledWorking.filter((_, i) => i !== idx);
             renderEnabledList();
           });
+          // Keyboard reorder in settings (Up/Down)
+          row.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+              e.preventDefault();
+              const dir = e.key === 'ArrowUp' ? -1 : 1;
+              const ni = idx + dir;
+              if (ni < 0 || ni >= enabledWorking.length) return;
+              const copy = enabledWorking.slice();
+              const [item] = copy.splice(idx, 1);
+              copy.splice(ni, 0, item);
+              enabledWorking = copy;
+              renderEnabledList();
+              const rows = LIST.querySelectorAll('div[role="listitem"]');
+              rows[ni]?.focus();
+            }
+          });
+          // Drag-and-drop reorder in settings (start drag from handle)
+          handle.draggable = true;
+          handle.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', String(idx));
+            e.dataTransfer.effectAllowed = 'move';
+            row.classList.add('dragging');
+          });
+          handle.addEventListener('dragend', () => { row.classList.remove('dragging'); });
+          row.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+          row.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const from = Number(e.dataTransfer.getData('text/plain'));
+            const to = idx;
+            if (Number.isNaN(from) || from === to) return;
+            const copy = enabledWorking.slice();
+            const [item] = copy.splice(from, 1);
+            copy.splice(to, 0, item);
+            enabledWorking = copy;
+            renderEnabledList();
+          });
+          row.appendChild(handle);
           row.appendChild(span);
           row.appendChild(remove);
           LIST.appendChild(row);
@@ -225,6 +290,84 @@
         }
         NEW_TEMPLATE.value = '';
         renderList();
+      });
+    })();
+  </script>
+  <script>
+    // Jiggle mode: reorder live boxes via drag-and-drop or arrow keys
+    (function () {
+      const TOGGLE = document.getElementById('toggle-jiggle');
+      const GRID = document.getElementById('inventory');
+      function saveOrderFromDOM() {
+        const order = Array.from(GRID.querySelectorAll('.boxify')).map(b => b.getAttribute('data-boxify-id'));
+        try { localStorage.setItem('boxify.enabled', JSON.stringify(order)); } catch { }
+      }
+      function setJiggle(on) {
+        document.body.classList.toggle('jiggle-active', on);
+        TOGGLE?.setAttribute('aria-pressed', on ? 'true' : 'false');
+        GRID?.querySelectorAll('.boxify').forEach(b => { b.draggable = !!on; });
+      }
+      TOGGLE?.addEventListener('click', () => {
+        setJiggle(!document.body.classList.contains('jiggle-active'));
+      });
+      // Drag
+      document.addEventListener('dragstart', (e) => {
+        if (!document.body.classList.contains('jiggle-active')) return;
+        const el = e.target.closest && e.target.closest('.boxify');
+        if (!el) return;
+        el.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      document.addEventListener('dragend', (e) => {
+        const el = e.target.closest && e.target.closest('.boxify');
+        if (el) el.classList.remove('dragging');
+        if (document.body.classList.contains('jiggle-active')) saveOrderFromDOM();
+      });
+      GRID?.addEventListener('dragover', (e) => {
+        if (!document.body.classList.contains('jiggle-active')) return;
+        const dragging = GRID.querySelector('.boxify.dragging');
+        if (!dragging) return;
+        e.preventDefault();
+        const boxes = Array.from(GRID.querySelectorAll('.boxify:not(.dragging)'));
+        const next = boxes.find(node => {
+          const r = node.getBoundingClientRect();
+          return e.clientY < r.top + r.height / 2;
+        });
+        GRID.insertBefore(dragging, next || GRID.querySelector('#reset-all'));
+      });
+      GRID?.addEventListener('drop', () => {
+        if (!document.body.classList.contains('jiggle-active')) return;
+        saveOrderFromDOM();
+      });
+      // Arrow keys
+      document.addEventListener('keydown', (e) => {
+        if (!document.body.classList.contains('jiggle-active')) return;
+        const box = document.activeElement?.closest && document.activeElement.closest('.boxify');
+        if (!box) return;
+        if (["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(e.key)) {
+          e.preventDefault();
+          const boxes = Array.from(GRID.querySelectorAll('.boxify'));
+          const cols = (() => {
+            const s = getComputedStyle(GRID).gridTemplateColumns || '';
+            return Math.max(1, s.split(' ').filter(Boolean).length);
+          })();
+          const idx = boxes.indexOf(box);
+          let delta = 0;
+          if (e.key === 'ArrowLeft') delta = -1;
+          else if (e.key === 'ArrowRight') delta = 1;
+          else if (e.key === 'ArrowUp') delta = -cols;
+          else if (e.key === 'ArrowDown') delta = cols;
+          const ni = Math.min(Math.max(0, idx + delta), boxes.length - 1);
+          if (ni === idx) return;
+          const ref = boxes[ni];
+          if (ni > idx) {
+            GRID.insertBefore(ref, box);
+          } else {
+            GRID.insertBefore(box, ref);
+          }
+          saveOrderFromDOM();
+          box.focus();
+        }
       });
     })();
   </script>

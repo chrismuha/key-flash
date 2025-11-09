@@ -153,3 +153,17 @@ p {
 #reset-all:active {
   transform: translateY(1px);
 }
+
+/* Jiggle mode for reordering */
+.jiggle-active .boxify {
+  animation: boxify-jiggle 0.2s infinite;
+  cursor: grab;
+}
+.jiggle-active .boxify:active {
+  cursor: grabbing;
+}
+@keyframes boxify-jiggle {
+  0% { transform: rotate(-0.4deg); }
+  50% { transform: rotate(0.4deg); }
+  100% { transform: rotate(-0.4deg); }
+}

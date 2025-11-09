@@ -240,7 +240,7 @@
       if (e.key === "ArrowUp" || e.key === "ArrowRight") { e.preventDefault(); setQty(getQty() + 1); }
       else if (e.key === "ArrowDown" || e.key === "ArrowLeft") { e.preventDefault(); setQty(getQty() - 1); }
       else if (e.key === "Backspace" || e.key === "Delete") { e.preventDefault(); setQty(0); }
-      else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setQty(getQty() + 1); }
+      else if (e.key === " ") { e.preventDefault(); setQty(getQty() + 1); }
     });
 
     setQty(getQty());
