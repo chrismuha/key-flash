@@ -78,9 +78,18 @@
     contentHolder.style.opacity = "0.8";
     while (el.firstChild) contentHolder.appendChild(el.firstChild);
 
+    // Remove button (visible in jiggle mode)
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "boxify-remove";
+    removeBtn.setAttribute("aria-label", "Remove box");
+    removeBtn.title = "Remove";
+    removeBtn.textContent = "−";
+
     wrapper.appendChild(title);
     if (contentHolder.childNodes.length) wrapper.appendChild(contentHolder);
     wrapper.appendChild(controls);
+    wrapper.appendChild(removeBtn);
 
     el.replaceWith(wrapper);
     return wrapper;
@@ -122,8 +131,17 @@
     controls.appendChild(qty);
     controls.appendChild(plusBtn);
 
+    // Remove button (visible in jiggle mode)
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "boxify-remove";
+    removeBtn.setAttribute("aria-label", "Remove box");
+    removeBtn.title = "Remove";
+    removeBtn.textContent = "−";
+
     wrapper.appendChild(title);
     wrapper.appendChild(controls);
+    wrapper.appendChild(removeBtn);
     return wrapper;
   }
 
@@ -151,6 +169,15 @@
     return panel;
   }
 
+  function pruneLogPanel() {
+    const panel = document.getElementById("boxify-log");
+    if (!panel) return;
+    // If no lines remain, remove the panel entirely to avoid a tiny dot artifact
+    if (!panel.firstChild) {
+      panel.remove();
+    }
+  }
+
   function getLabelById(id) {
     const t = document.querySelector('[data-boxify-id="' + id + '"] .boxify-title');
     return t ? t.textContent.trim() : id;
@@ -165,6 +192,8 @@
       panel.appendChild(line);
     }
     line.textContent = getLabelById(id) + " = " + qty;
+    // If panel somehow exists with no lines, ensure it's cleaned up
+    pruneLogPanel();
   }
 
   function listBoxes() {
@@ -190,6 +219,7 @@
     const minusBtn = wrapper.querySelector(".boxify-btn.minus");
     const plusBtn = wrapper.querySelector(".boxify-btn.plus");
     const qtyEl = wrapper.querySelector(".boxify-qty");
+    const removeBtn = wrapper.querySelector('.boxify-remove');
 
     function setQty(n) {
       if (n < 0) n = 0;
@@ -244,6 +274,30 @@
     });
 
     setQty(getQty());
+
+    // Remove box when in jiggle mode
+    if (removeBtn) {
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!document.body.classList.contains('jiggle-active')) return;
+        // Remove this id from enabled list
+        try {
+          const raw = localStorage.getItem(ENABLED_KEY);
+          const list = raw ? JSON.parse(raw) : [];
+          const next = list.filter((x) => String(x) !== String(id));
+          localStorage.setItem(ENABLED_KEY, JSON.stringify(next));
+        } catch { }
+        // Remove from DOM
+        wrapper.remove();
+        // Update log panel line removal
+        const panel = document.getElementById('boxify-log');
+        if (panel) {
+          const line = panel.querySelector('[data-log-id="' + id + '"]');
+          if (line) line.remove();
+          pruneLogPanel();
+        }
+      });
+    }
   }
 
   window.Boxify = {
@@ -301,7 +355,8 @@
         const id = wrapper.getAttribute("data-boxify-id") || ("item-" + (i + 1));
         // Ensure wrapper is in the DOM before wiring handlers so the log picks up the correct label
         if (grid) {
-          grid.insertBefore(wrapper, grid.querySelector('#reset-all') || null);
+          const anchor = grid.querySelector('#live-actions') || grid.querySelector('#reset-all');
+          grid.insertBefore(wrapper, anchor || null);
         }
         applyHandlers(wrapper, id, counts, onChange);
         wrappers.push(wrapper);

@@ -22,6 +22,58 @@
       user-select: none;
     }
     .drag-handle:active { cursor: grabbing; }
+
+    /* Toast for non-blocking messages */
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font: 13px/1.3 Arial, sans-serif;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 150ms ease;
+      z-index: 1000000;
+    }
+    #toast.show { opacity: 1; }
+
+    /* Settings: ensure left-aligned content under the header */
+    #settings-panel { text-align: left; }
+    #settings-panel p,
+    #settings-panel h3,
+    #settings-panel label,
+    #settings-panel div { text-align: left; }
+
+    /* Confirm modal */
+    #confirm-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000001;
+    }
+    #confirm-modal {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+      width: min(420px, 92vw);
+      padding: 16px;
+      border: 1px solid #ddd;
+    }
+    #confirm-modal h3 { margin: 0 0 6px; font: 600 18px Arial, sans-serif; }
+    #confirm-modal p { margin: 6px 0 14px; color: #333; }
+    #confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
+    #confirm-save, #confirm-discard { cursor: pointer; padding: 8px 12px; border-radius: 6px; border: 1px solid #bbb; background: #f8f8f8; }
+    #confirm-save { border-color: #2b7; background: #e9fff4; color: #064; }
+    #confirm-save:hover { background: #dcfdea; }
+    #confirm-discard { border-color: #c66; background: #ffecec; color: #700; }
+    #confirm-discard:hover { background: #ffdede; }
   </style>
 </head>
 
@@ -63,7 +115,20 @@
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
       <button id="enable-all" type="button">Enable All</button>
       <button id="disable-all" type="button">Disable All</button>
+      <button id="remove-all-boxes" type="button" style="margin-left:auto;">Remove All Boxes</button>
       <button id="save-settings" type="button" class="primary">Save</button>
+    </div>
+  </div>
+
+  <!-- Save/Discard confirmation modal -->
+  <div id="confirm-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div id="confirm-modal">
+      <h3 id="confirm-title">Save changes?</h3>
+      <p>You have unsaved changes. Would you like to save or discard them?</p>
+      <div id="confirm-actions">
+        <button id="confirm-discard" type="button" aria-label="Discard changes">Discard</button>
+        <button id="confirm-save" type="button" aria-label="Save changes">Save</button>
+      </div>
     </div>
   </div>
   <p> <b> <u> Desktop use shortcuts: </u> </b>
@@ -76,10 +141,11 @@
   </p>
 
   <div id="inventory">
-    <!-- Reset button as part of the grid -->
-    <button id="reset-all" type="button" aria-label="Reset all quantities">
-      Reset All
-    </button>
+    <!-- Actions row: Reset + Remove All side-by-side -->
+    <div id="live-actions" class="live-actions">
+      <button id="reset-all" type="button" aria-label="Reset all quantities">Reset All</button>
+      <button id="remove-all-live" type="button" aria-label="Remove all boxes">Remove All</button>
+    </div>
   </div>
 
   <!-- Scripts -->
@@ -100,6 +166,21 @@
       const ADD_ENABLED = document.getElementById('add-enabled');
       const ENABLE_ALL_BTN = document.getElementById('enable-all');
       const DISABLE_ALL_BTN = document.getElementById('disable-all');
+      const REMOVE_ALL_BTN = document.getElementById('remove-all-boxes');
+      // Toast helper for settings script
+      let localToastTimer;
+      function showLocalToast(msg) {
+        let el = document.getElementById('toast');
+        if (!el) {
+          el = document.createElement('div');
+          el.id = 'toast';
+          document.body.appendChild(el);
+        }
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(localToastTimer);
+        localToastTimer = setTimeout(() => { el.classList.remove('show'); }, 1800);
+      }
 
       function slug(s) { return String(s || '').toLowerCase().trim().replace(/\s+/g, '-'); }
 
@@ -127,6 +208,10 @@
       }
 
       let enabledWorking = loadEnabled().map(String);
+      let originalEnabledSnapshot = null;
+      const CONFIRM_BACKDROP = document.getElementById('confirm-modal-backdrop');
+      const CONFIRM_SAVE = document.getElementById('confirm-save');
+      const CONFIRM_DISCARD = document.getElementById('confirm-discard');
 
       function renderEnabledList() {
         LIST.innerHTML = '';
@@ -228,6 +313,8 @@
             if (!enabledWorking.includes(id)) {
               enabledWorking.push(id);
               renderEnabledList();
+            } else {
+              showLocalToast('Item already exists in your enabled list. It will not be added.');
             }
           });
           row.appendChild(span);
@@ -236,6 +323,7 @@
       }
 
       function open() {
+        originalEnabledSnapshot = loadEnabled().map(String);
         renderList();
         PANEL.hidden = false;
         OPEN_BTN.setAttribute('aria-expanded', 'true');
@@ -245,8 +333,51 @@
         OPEN_BTN.setAttribute('aria-expanded', 'false');
       }
 
-      OPEN_BTN?.addEventListener('click', () => (PANEL.hidden ? open() : close()));
-      CLOSE_BTN?.addEventListener('click', close);
+      function arraysEqual(a, b) {
+        if (!Array.isArray(a) || !Array.isArray(b)) return false;
+        if (a.length !== b.length) return false;
+        for (let i = 0; i < a.length; i++) if (String(a[i]) !== String(b[i])) return false;
+        return true;
+      }
+
+      function tryCloseWithConfirm() {
+        const current = enabledWorking.slice();
+        const original = Array.isArray(originalEnabledSnapshot) ? originalEnabledSnapshot : loadEnabled().map(String);
+        const changed = !arraysEqual(current, original);
+        if (!changed) { close(); return; }
+        // Open modal popup
+        CONFIRM_BACKDROP.style.display = 'flex';
+        const onSave = () => {
+          const checked = current;
+          if (window.Boxify && typeof window.Boxify.setEnabled === 'function') {
+            window.Boxify.setEnabled(checked);
+          } else {
+            try { localStorage.setItem('boxify.enabled', JSON.stringify(checked)); } catch { }
+          }
+          CONFIRM_BACKDROP.style.display = 'none';
+          location.reload();
+        };
+        const onDiscard = () => {
+          enabledWorking = original.slice();
+          CONFIRM_BACKDROP.style.display = 'none';
+          close();
+        };
+        const once = (el, ev, fn) => {
+          const h = (e) => { el.removeEventListener(ev, h); fn(e); };
+          el.addEventListener(ev, h);
+        };
+        once(CONFIRM_SAVE, 'click', onSave);
+        once(CONFIRM_DISCARD, 'click', onDiscard);
+        // Click outside closes and discards
+        const onBackdrop = (e) => { if (e.target === CONFIRM_BACKDROP) { onDiscard(); } };
+        once(CONFIRM_BACKDROP, 'click', onBackdrop);
+        // Escape to discard
+        const onEsc = (e) => { if (e.key === 'Escape') { document.removeEventListener('keydown', onEsc); onDiscard(); } };
+        document.addEventListener('keydown', onEsc);
+      }
+
+      OPEN_BTN?.addEventListener('click', () => (PANEL.hidden ? open() : tryCloseWithConfirm()));
+      CLOSE_BTN?.addEventListener('click', tryCloseWithConfirm);
 
       ENABLE_ALL_BTN?.addEventListener('click', () => {
         enabledWorking = ensureTemplatesSeed().map(t => slug(t));
@@ -255,6 +386,16 @@
       DISABLE_ALL_BTN?.addEventListener('click', () => {
         enabledWorking = [];
         renderEnabledList();
+      });
+
+      REMOVE_ALL_BTN?.addEventListener('click', () => {
+        const ok = confirm('Are you sure you want to remove all boxes? This will clear your enabled items.');
+        if (!ok) return;
+        enabledWorking = [];
+        try { localStorage.setItem('boxify.enabled', JSON.stringify([])); } catch { }
+        renderEnabledList();
+        // Apply immediately
+        location.reload();
       });
 
       SAVE_BTN?.addEventListener('click', () => {
@@ -276,20 +417,34 @@
         if (!enabledWorking.includes(id)) {
           enabledWorking.push(id);
           renderEnabledList();
+        } else {
+          showLocalToast('Item already exists in your enabled list. It will not be added.');
         }
         NEW_ENABLED.value = '';
+      });
+      // Allow Enter to add item with same duplicate checks
+      NEW_ENABLED?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); ADD_ENABLED?.click(); }
       });
 
       ADD_TEMPLATE?.addEventListener('click', () => {
         const name = (NEW_TEMPLATE.value || '').trim();
         if (!name) return;
         const templates = ensureTemplatesSeed();
-        if (!templates.includes(name)) {
+        const toSlug = (s) => String(s).toLowerCase().trim().replace(/\s+/g, '-');
+        const exists = templates.some(t => String(t).toLowerCase() === name.toLowerCase() || toSlug(t) === toSlug(name));
+        if (exists) {
+          showLocalToast('Template already exists. It will not be added.');
+        } else {
           const next = templates.concat([name]);
           saveTemplates(next);
         }
         NEW_TEMPLATE.value = '';
         renderList();
+      });
+      // Allow Enter to add template with same duplicate checks
+      NEW_TEMPLATE?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); ADD_TEMPLATE?.click(); }
       });
     })();
   </script>
@@ -298,6 +453,20 @@
     (function () {
       const TOGGLE = document.getElementById('toggle-jiggle');
       const GRID = document.getElementById('inventory');
+      // Toast helper
+      let toastTimer;
+      function showToast(msg) {
+        let el = document.getElementById('toast');
+        if (!el) {
+          el = document.createElement('div');
+          el.id = 'toast';
+          document.body.appendChild(el);
+        }
+        el.textContent = msg;
+        el.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => { el.classList.remove('show'); }, 1800);
+      }
       function saveOrderFromDOM() {
         const order = Array.from(GRID.querySelectorAll('.boxify')).map(b => b.getAttribute('data-boxify-id'));
         try { localStorage.setItem('boxify.enabled', JSON.stringify(order)); } catch { }
@@ -307,7 +476,24 @@
         TOGGLE?.setAttribute('aria-pressed', on ? 'true' : 'false');
         GRID?.querySelectorAll('.boxify').forEach(b => { b.draggable = !!on; });
       }
+      function updateReorderState() {
+        const count = GRID?.querySelectorAll('.boxify').length || 0;
+        const none = count === 0;
+        if (TOGGLE) {
+          TOGGLE.title = none ? 'Reorder boxes (enable items first)' : 'Reorder boxes (drag or use arrow keys)';
+        }
+        if (none && document.body.classList.contains('jiggle-active')) {
+          setJiggle(false);
+          showToast('Nothing to reorder yet. Enable items in Settings.');
+        }
+      }
       TOGGLE?.addEventListener('click', () => {
+        const any = GRID?.querySelectorAll('.boxify').length || 0;
+        if (!document.body.classList.contains('jiggle-active') && any === 0) {
+          showToast('Nothing to reorder yet. Enable items in Settings.');
+          updateReorderState();
+          return;
+        }
         setJiggle(!document.body.classList.contains('jiggle-active'));
       });
       // Drag
@@ -325,6 +511,7 @@
       });
       GRID?.addEventListener('dragover', (e) => {
         if (!document.body.classList.contains('jiggle-active')) return;
+        if ((GRID.querySelectorAll('.boxify').length || 0) === 0) return;
         const dragging = GRID.querySelector('.boxify.dragging');
         if (!dragging) return;
         e.preventDefault();
@@ -337,6 +524,7 @@
       });
       GRID?.addEventListener('drop', () => {
         if (!document.body.classList.contains('jiggle-active')) return;
+        if ((GRID.querySelectorAll('.boxify').length || 0) === 0) return;
         saveOrderFromDOM();
       });
       // Arrow keys
@@ -346,6 +534,7 @@
         if (!box) return;
         if (["ArrowLeft","ArrowRight","ArrowUp","ArrowDown"].includes(e.key)) {
           e.preventDefault();
+          if ((GRID.querySelectorAll('.boxify').length || 0) === 0) return;
           const boxes = Array.from(GRID.querySelectorAll('.boxify'));
           const cols = (() => {
             const s = getComputedStyle(GRID).gridTemplateColumns || '';
@@ -368,6 +557,28 @@
           saveOrderFromDOM();
           box.focus();
         }
+      });
+
+      // Observe box list to keep Reorder disabled/enabled appropriately
+      if (window.MutationObserver) {
+        const mo = new MutationObserver(updateReorderState);
+        mo.observe(GRID, { childList: true });
+      }
+      // Initial state
+      updateReorderState();
+
+      // Remove All (live) behavior
+      document.getElementById('remove-all-live')?.addEventListener('click', () => {
+        const boxes = Array.from(GRID.querySelectorAll('.boxify'));
+        if (boxes.length === 0) { showToast('No boxes to remove.'); return; }
+        const ok = confirm('Remove all boxes?');
+        if (!ok) return;
+        try { localStorage.setItem('boxify.enabled', JSON.stringify([])); } catch {}
+        boxes.forEach(b => b.remove());
+        showToast('All boxes removed');
+        // Also remove the status panel if it exists to avoid a small dot artifact
+        const log = document.getElementById('boxify-log');
+        if (log) log.remove();
       });
     })();
   </script>

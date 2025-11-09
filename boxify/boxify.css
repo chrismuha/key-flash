@@ -60,6 +60,7 @@ p {
   display: grid;
   grid-template-rows: auto 1fr auto;
   row-gap: 5px;
+  position: relative;
 }
 
 .boxify:focus {
@@ -129,30 +130,23 @@ p {
   transition: opacity 100ms ease;
 }
 
-/* Reset All Button */
+/* Reset All Button (styled same as Remove All) */
 #reset-all {
-  /* place in its own row spanning all columns */
   grid-column: 1 / -1;
-  /* keep natural button width, centered */
   justify-self: center;
-  /* remaining styling */
-  margin-top: 16px;
+  margin-top: 4px;
   padding: 8px 14px;
   font: 14px Arial, sans-serif;
-  border: 1px solid #bbb;
+  border: 1px solid #c66;
   border-radius: 6px;
-  background: #f8f8f8;
+  background: #ffecec;
+  color: #700;
   cursor: pointer;
   transition: background 0.2s;
 }
 
-#reset-all:hover {
-  background: #e8e8e8;
-}
-
-#reset-all:active {
-  transform: translateY(1px);
-}
+#reset-all:hover { background: #ffdede; }
+#reset-all:active { transform: translateY(1px); }
 
 /* Jiggle mode for reordering */
 .jiggle-active .boxify {
@@ -166,4 +160,62 @@ p {
   0% { transform: rotate(-0.4deg); }
   50% { transform: rotate(0.4deg); }
   100% { transform: rotate(-0.4deg); }
+}
+
+/* Remove (minus) button on boxes; visible in jiggle mode */
+.boxify-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  border: 1px solid #b71c1c;
+  background: #e53935;
+  color: #000;
+  font-weight: bold;
+  line-height: 26px;
+  font-size: 18px;
+  text-align: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+.jiggle-active .boxify-remove { opacity: 1; transform: scale(1); }
+
+/* Pointer cursors for key buttons */
+#open-settings, #toggle-jiggle, #reset-all, #remove-all-live,
+#enable-all, #disable-all, #remove-all-boxes, #save-settings,
+#add-enabled, #add-template {
+  cursor: pointer;
+}
+
+/* Remove All (live) button styling similar to reset */
+#remove-all-live {
+  grid-column: 1 / -1;
+  justify-self: center;
+  margin-top: 4px;
+  padding: 8px 14px;
+  font: 14px Arial, sans-serif;
+  border: 1px solid #c66;
+  border-radius: 6px;
+  background: #ffecec;
+  color: #700;
+  transition: background 0.2s;
+}
+#remove-all-live:hover { background: #ffdede; }
+#remove-all-live:active { transform: translateY(1px); }
+
+/* Live actions container to place buttons side-by-side */
+.live-actions {
+  grid-column: 1 / -1;
+  justify-self: center;
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.live-actions #reset-all,
+.live-actions #remove-all-live {
+  margin-top: 0;
 }
