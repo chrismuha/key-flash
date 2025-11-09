@@ -38,6 +38,7 @@
     try { localStorage.setItem(TEMPLATES_KEY, JSON.stringify(Array.from(list || []))); } catch { }
   }
 
+  // Build Wrapper From Existing Node
   function ensureWrapper(el, label) {
     const wrapper = document.createElement("div");
     wrapper.className = "boxify";
@@ -78,7 +79,6 @@
     contentHolder.style.opacity = "0.8";
     while (el.firstChild) contentHolder.appendChild(el.firstChild);
 
-    // Remove button (visible in jiggle mode)
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
     removeBtn.className = "boxify-remove";
@@ -95,7 +95,7 @@
     return wrapper;
   }
 
-  // Create a box wrapper from just a label (no source element)
+  // Build Wrapper From Label
   function createWrapper(label) {
     const wrapper = document.createElement("div");
     wrapper.className = "boxify";
@@ -131,7 +131,6 @@
     controls.appendChild(qty);
     controls.appendChild(plusBtn);
 
-    // Remove button (visible in jiggle mode)
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
     removeBtn.className = "boxify-remove";
@@ -145,6 +144,7 @@
     return wrapper;
   }
 
+  // Log Panel
   function getLogPanel() {
     let panel = document.getElementById("boxify-log");
     if (!panel) {
@@ -196,6 +196,7 @@
     pruneLogPanel();
   }
 
+  // Navigation Helpers
   function listBoxes() {
     return Array.from(document.querySelectorAll(".boxify"));
   }
@@ -215,6 +216,7 @@
     return Math.max(1, cols);
   }
 
+  // Wire Up Events
   function applyHandlers(wrapper, id, counts, onChange) {
     const minusBtn = wrapper.querySelector(".boxify-btn.minus");
     const plusBtn = wrapper.querySelector(".boxify-btn.plus");
@@ -353,7 +355,6 @@
         const label = getLabelFor(key);
         const wrapper = createWrapper(label);
         const id = wrapper.getAttribute("data-boxify-id") || ("item-" + (i + 1));
-        // Ensure wrapper is in the DOM before wiring handlers so the log picks up the correct label
         if (grid) {
           const anchor = grid.querySelector('#live-actions') || grid.querySelector('#reset-all');
           grid.insertBefore(wrapper, anchor || null);

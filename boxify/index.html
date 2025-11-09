@@ -120,7 +120,7 @@
     </div>
   </div>
 
-  <!-- Save/Discard confirmation modal -->
+  <!-- Confirm Modal -->
   <div id="confirm-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
     <div id="confirm-modal">
       <h3 id="confirm-title">Save changes?</h3>
@@ -152,7 +152,7 @@
   <script src="boxify.js"></script>
   <script src="init.js"></script>
   <script>
-    // Lightweight UI wiring for settings
+    // Settings UI
     (function () {
       const OPEN_BTN = document.getElementById('open-settings');
       const PANEL = document.getElementById('settings-panel');
@@ -295,7 +295,7 @@
       function renderList() {
         renderEnabledList();
 
-        // Render templates list (non-removable) and make them clickable to quick-add
+        // Templates Quick-Add
         const templates = ensureTemplatesSeed();
         TEMPLATES_LIST.innerHTML = '';
         templates.forEach((label) => {
@@ -345,7 +345,7 @@
         const original = Array.isArray(originalEnabledSnapshot) ? originalEnabledSnapshot : loadEnabled().map(String);
         const changed = !arraysEqual(current, original);
         if (!changed) { close(); return; }
-        // Open modal popup
+        // Open Confirm Modal
         CONFIRM_BACKDROP.style.display = 'flex';
         const onSave = () => {
           const checked = current;
@@ -368,10 +368,10 @@
         };
         once(CONFIRM_SAVE, 'click', onSave);
         once(CONFIRM_DISCARD, 'click', onDiscard);
-        // Click outside closes and discards
+        // Close on backdrop click
         const onBackdrop = (e) => { if (e.target === CONFIRM_BACKDROP) { onDiscard(); } };
         once(CONFIRM_BACKDROP, 'click', onBackdrop);
-        // Escape to discard
+        // Close on Escape
         const onEsc = (e) => { if (e.key === 'Escape') { document.removeEventListener('keydown', onEsc); onDiscard(); } };
         document.addEventListener('keydown', onEsc);
       }
@@ -449,7 +449,7 @@
     })();
   </script>
   <script>
-    // Jiggle mode: reorder live boxes via drag-and-drop or arrow keys
+    // Jiggle Mode
     (function () {
       const TOGGLE = document.getElementById('toggle-jiggle');
       const GRID = document.getElementById('inventory');
@@ -559,7 +559,7 @@
         }
       });
 
-      // Observe box list to keep Reorder disabled/enabled appropriately
+      // Observe for Reorder state
       if (window.MutationObserver) {
         const mo = new MutationObserver(updateReorderState);
         mo.observe(GRID, { childList: true });
@@ -567,7 +567,7 @@
       // Initial state
       updateReorderState();
 
-      // Remove All (live) behavior
+      // Remove All (live)
       document.getElementById('remove-all-live')?.addEventListener('click', () => {
         const boxes = Array.from(GRID.querySelectorAll('.boxify'));
         if (boxes.length === 0) { showToast('No boxes to remove.'); return; }
