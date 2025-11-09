@@ -1,3 +1,4 @@
+/* Root Variables */
 :root {
     --bg: #0b0f17;
     --card: #121828;
@@ -11,10 +12,12 @@
     --radius: 14px;
 }
 
+/* Reset / Base */
 * {
     box-sizing: border-box
 }
 
+/* Page Layout */
 body {
     margin: 0;
     background: radial-gradient(1200px 700px at 70% -10%, #16223a 0%, #0b0f17 60%) fixed;
@@ -27,6 +30,7 @@ body {
     padding: 24px;
 }
 
+/* Game Grid */
 .game {
     width: min(980px, 100%);
     display: grid;
@@ -40,6 +44,7 @@ body {
     }
 }
 
+/* Card */
 .card {
     background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(255, 255, 255, 0)), var(--card);
     border-radius: var(--radius);
@@ -47,6 +52,7 @@ body {
     padding: 16px;
 }
 
+/* Title / Header */
 .title {
     display: flex;
     align-items: center;
@@ -60,7 +66,7 @@ body {
         0 0 20px #39ff14,
         0 0 40px #39ff14;
 }
-
+/* Title Accent Dot */
 .title .dot {
     width: 10px;
     height: 10px;
@@ -72,6 +78,7 @@ body {
         0 0 40px #39ff14;
 }
 
+/* Reels / Slots */
 .reels {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -120,6 +127,7 @@ body {
     box-shadow: inset 0 0 0 2px #39ff14cc, 0 0 30px rgba(57, 255, 20, .25);
 }
 
+/* Info Button / Popup */
 .info-btn {
     background: transparent;
     border: 2px solid var(--accent2);
@@ -156,6 +164,7 @@ body {
     box-shadow: 0 0 12px rgba(165, 255, 125, .5);
 }
 
+/* Cells */
 .cell {
     display: flex;
     align-items: center;
@@ -176,6 +185,7 @@ body {
     transform: scale(1.03);
 }
 
+/* HUD / Controls */
 .hud {
     display: flex;
     gap: 10px;
@@ -193,6 +203,7 @@ body {
     align-items: center;
 }
 
+/* Grouped control blocks */
 .stat,
 .select,
 .paytable {
@@ -206,6 +217,7 @@ body {
     color: var(--accent2);
 }
 
+/* Form Elements */
 label {
     font-size: 12px;
     color: var(--muted);
@@ -224,6 +236,7 @@ input[type=number] {
     outline: none;
 }
 
+/* Primary Buttons */
 button {
     border: 0;
     background: radial-gradient(160% 160% at 30% 20%, var(--accent)0%, #2cd3ff 40%, #0aa6ce 100%);
@@ -282,6 +295,7 @@ button:focus-visible,
     box-shadow: 0 0 0 3px rgba(165, 255, 125, .25);
 }
 
+/* Text & Status */
 .muted {
     color: var(--muted);
     font-size: 10pt;
@@ -297,6 +311,7 @@ button:focus-visible,
     text-shadow: 0 0 18px rgba(125, 249, 255, .35);
 }
 
+/* Paytable */
 .sidebar .paytable {
     display: grid;
     gap: 10px;
@@ -327,6 +342,7 @@ button:focus-visible,
     font-weight: 700;
 }
 
+/* Lines Preview */
 .legend {
     font-size: 12px;
     color: var(--muted);
@@ -358,6 +374,7 @@ button:focus-visible,
     opacity: 1 !important;
 }
 
+/* Footer / Credit Controls */
 .footer {
     font-size: 12px;
     color: var(--muted);
@@ -392,6 +409,7 @@ button:focus-visible,
     font-weight: 700;
 }
 
+/* Stat Displays */
 #creditStep {
     width: 90px;
     padding: 8px 10px;
