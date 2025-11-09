@@ -311,6 +311,109 @@
     const themeMenu = themeDropdown ? themeDropdown.querySelector('.theme-menu') : null;
     const themeModeBtn = themeDropdown ? themeDropdown.querySelector('.theme-mode-toggle') : null;
     const navToggleBtn = themeDropdown ? themeDropdown.querySelector('.nav-toggle') : null;
+    const themeChoiceBtns = themeDropdown ? themeDropdown.querySelectorAll('.theme-choice') : [];
+    const themeViews = document.querySelectorAll('[data-theme-view]');
+    const boxifyGrid = document.getElementById('boxify-inventory');
+    const boxifyResetBtn = document.querySelector('.boxify-reset');
+    let boxifyInitialized = false;
+    let currentThemeChoice = 'restaurant';
+    const docEl = document.documentElement;
+
+    const setThemeView = (view) => {
+      if (!themeViews.length) return;
+      themeViews.forEach((panel) => {
+        const name = panel.dataset.themeView || 'restaurant';
+        panel.hidden = name !== view;
+      });
+    };
+
+    const ensureBoxifyInit = () => {
+      if (boxifyInitialized) return;
+      if (!boxifyGrid) return;
+      if (!window.Boxify || typeof window.Boxify.init !== 'function') return;
+      window.Boxify.init({ selector: '#boxify-inventory .ui-item', gridSelector: '#boxify-inventory' });
+      boxifyInitialized = true;
+    };
+
+    const toggleBoxifyLog = (show) => {
+      const logPanel = document.getElementById('boxify-log');
+      if (!logPanel) return;
+      logPanel.style.display = show ? '' : 'none';
+    };
+
+    const updateThemeChoiceUI = () => {
+      if (!themeChoiceBtns || !themeChoiceBtns.length) return;
+      themeChoiceBtns.forEach((btn) => {
+        const target = btn.dataset.theme || 'restaurant';
+        btn.setAttribute('aria-checked', String(target === currentThemeChoice));
+      });
+    };
+
+    const updateThemeModeLabel = () => {
+      if (!themeModeBtn) return;
+      const isDark = body.classList.contains('theme-dark');
+      themeModeBtn.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+    };
+
+    const updateNavToggleLabel = () => {
+      if (!navToggleBtn) return;
+      const navEnabled = body.classList.contains('nav-enabled');
+      navToggleBtn.textContent = navEnabled ? 'Disable Navigation' : 'Enable Navigation';
+    };
+
+    const persistThemeState = () => {
+      const isDark = body.classList.contains('theme-dark');
+      const key = currentThemeChoice === 'boxify'
+        ? (isDark ? 'boxify-dark' : 'boxify-light')
+        : (isDark ? 'restaurant-dark' : 'restaurant-light');
+      try { localStorage.setItem(STORAGE_KEYS.theme, key); } catch { }
+    };
+
+    const applyThemeChoice = (choice, { skipSave = false } = {}) => {
+      currentThemeChoice = choice === 'boxify' ? 'boxify' : 'restaurant';
+      const isBoxify = currentThemeChoice === 'boxify';
+      body.classList.toggle('theme-boxify', isBoxify);
+      docEl.classList.toggle('theme-boxify-root', isBoxify);
+      setThemeView(currentThemeChoice);
+      if (isBoxify) {
+        ensureBoxifyInit();
+        toggleBoxifyLog(true);
+      } else {
+        toggleBoxifyLog(false);
+      }
+      updateThemeChoiceUI();
+      updateThemeModeLabel();
+      updateNavToggleLabel();
+      if (!skipSave) persistThemeState();
+    };
+
+    const parseSavedTheme = () => {
+      let stored = 'restaurant-light';
+      try {
+        stored = localStorage.getItem(STORAGE_KEYS.theme) || 'restaurant-light';
+      } catch { stored = 'restaurant-light'; }
+      switch (stored) {
+        case 'dark':
+          return { choice: 'restaurant', dark: true };
+        case 'light':
+          return { choice: 'restaurant', dark: false };
+        case 'boxify':
+          return { choice: 'boxify', dark: false };
+        case 'boxify-dark':
+          return { choice: 'boxify', dark: true };
+        case 'boxify-light':
+          return { choice: 'boxify', dark: false };
+        case 'restaurant-dark':
+          return { choice: 'restaurant', dark: true };
+        case 'restaurant-light':
+        default:
+          return { choice: 'restaurant', dark: false };
+      }
+    };
+
+    const initialTheme = parseSavedTheme();
+    body.classList.toggle('theme-dark', initialTheme.dark);
+    applyThemeChoice(initialTheme.choice, { skipSave: true });
 
     // Settings (gear) in left rail
     const settingsBtn = document.querySelector('.settings-button');
@@ -431,18 +534,6 @@
         if (settingResetDisables) settingResetDisables.checked = false;
       });
     }
-
-    const updateThemeModeLabel = () => {
-      if (!themeModeBtn) return;
-      const isDark = body.classList.contains('theme-dark');
-      themeModeBtn.textContent = isDark ? 'Light Mode' : 'Dark Mode';
-    };
-
-    const updateNavToggleLabel = () => {
-      if (!navToggleBtn) return;
-      const navEnabled = body.classList.contains('nav-enabled');
-      navToggleBtn.textContent = navEnabled ? 'Disable Navigation' : 'Enable Navigation';
-    };
 
     const closeThemeMenu = () => {
       if (!themeMenu || !themeBtn) return;
