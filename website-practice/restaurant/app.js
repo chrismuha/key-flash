@@ -1,10 +1,10 @@
 // Section: Overview
 // Restaurant Demo App JS
-// - See section tags [A]..[H] for navigation
+// Section guide for navigation-only comments
 
 // Section: IIFE Wrapper
 (function () {
-  // Section: [A] Storage Keys
+  // Section: Storage Keys
   const STORAGE_KEYS = {
     orderType: 'restaurant.orderType',
     ingredients: 'restaurant.ingredients',
@@ -26,7 +26,7 @@
     quantitiesSections: 'restaurant.quantities.sections'
   };
 
-  // Section: [B] Text Utils
+  // Section: Text Utils
   function titleCase(str) {
     if (!str) return '';
     return String(str)
@@ -42,7 +42,7 @@
     return String(str).replace(/\(x\d+\)/gi, '').replace(/\s{2,}/g, ' ').trim();
   }
 
-  // Section: [C] Order Type (Save/Get)
+  // Section: Order Type (Save/Get)
   function saveOrderType(type) {
     try {
       localStorage.setItem(STORAGE_KEYS.orderType, type);
@@ -55,7 +55,7 @@
     } catch { return ''; }
   }
 
-  // Section: [D] Ingredients (Read from DOM)
+  // Section: Ingredients (Read from DOM)
   function readIngredientsFromDOM() {
     const data = {};
     const inputs = document.querySelectorAll('input[type="checkbox"][name]');
@@ -78,7 +78,7 @@
     return data;
   }
 
-  // Section: [E] Ingredients (Save to Storage)
+  // Section: Ingredients (Save to Storage)
   function saveIngredients() {
     const data = readIngredientsFromDOM();
     try {
@@ -86,7 +86,7 @@
     } catch { }
   }
 
-  // Section: [F] Ingredients (Restore from Storage)
+  // Section: Ingredients (Restore from Storage)
   function restoreIngredients() {
     let data = {};
     try {
@@ -104,7 +104,7 @@
     });
   }
 
-  // Section: [G] Nav (Open section from hash)
+  // Section: Navigation (Open section from hash)
   function openSectionFromHash() {
     const hash = (location.hash || '').replace('#', '').trim();
     if (!hash) return;
@@ -117,7 +117,7 @@
     }
   }
 
-  // Section: [H] Page Initialization
+  // Section: Page Initialization
   document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
 
