@@ -1,6 +1,6 @@
-// Very small demo dictionary.
-// In a real app you’d replace this with a large word list or backend API.
-const wordList = [
+// Local base dictionary for fast checks.
+// Anything not found here will be checked via Free Dictionary API.
+const localWordList = [
   "a","able","about","above","accept","access","across","add","after","again",
   "air","all","also","always","an","and","another","any","anything","are","area",
   "as","ask","at","back","because","been","before","best","better","between",
@@ -23,7 +23,10 @@ const wordList = [
   "way","we","well","what","when","where","which","who","why","will","with","word",
   "work","world","would","write","year","you","your"
 ];
-const DICTIONARY = new Set(wordList);
+const LOCAL_DICTIONARY = new Set(localWordList);
+
+// Cache for API results: word -> true (valid) / false (invalid)
+const apiWordCache = Object.create(null);
 
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
@@ -59,6 +62,59 @@ function normalizeWord(token) {
   return token.toLowerCase().replace(/[^a-z']/g, "");
 }
 
+/**
+ * Get the current status of a word:
+ * - "ignore": punctuation/empty (not counted)
+ * - "valid": confirmed valid
+ * - "invalid": confirmed invalid
+ * - "unknown": not yet confirmed, API request may be in-flight
+ */
+function getWordStatus(token) {
+  const word = normalizeWord(token);
+  if (!word) return "ignore";
+  if (/^\d+$/.test(word)) return "valid"; // numbers are treated as valid
+
+  // 1) Fast path: local dictionary
+  if (LOCAL_DICTIONARY.has(word)) {
+    return "valid";
+  }
+
+  // 2) Check cache
+  const cached = apiWordCache[word];
+  if (cached === true) return "valid";
+  if (cached === false) return "invalid";
+
+  // 3) Not known yet -> fire off API lookup
+  fetchWordValidity(word);
+  return "unknown";
+}
+
+/**
+ * Hit the Free Dictionary API for a word (if not already pending).
+ * Uses https://api.dictionaryapi.dev/api/v2/entries/en/<word>
+ */
+function fetchWordValidity(word) {
+  if (apiWordCache[word] === "pending") return; // already requested
+  apiWordCache[word] = "pending";
+
+  fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`)
+    .then(res => {
+      // 200ish means the word exists; 404 typically means “not found”
+      apiWordCache[word] = res.ok;
+    })
+    .catch(() => {
+      // On network error, mark as invalid or leave as unknown.
+      apiWordCache[word] = false;
+    })
+    .finally(() => {
+      // Re-render highlights and stats as new info comes in
+      if (typingArea.innerText.trim().length > 0) {
+        rebuildWithHighlights();
+        updateStats();
+      }
+    });
+}
+
 function analyzeText(text) {
   const rawWords = text.trim().split(/\s+/).filter(Boolean);
   let total = 0;
@@ -66,12 +122,17 @@ function analyzeText(text) {
   let errors = 0;
 
   for (const token of rawWords) {
-    const norm = normalizeWord(token);
-    if (!norm) continue;
+    const status = getWordStatus(token);
+    if (status === "ignore") continue;
+
+    // For "unknown", we don't count it yet (so tallies may increase slightly
+    // as API results come back).
+    if (status === "unknown") continue;
+
     total++;
-    if (DICTIONARY.has(norm)) {
+    if (status === "valid") {
       correct++;
-    } else {
+    } else if (status === "invalid") {
       errors++;
     }
   }
@@ -87,14 +148,13 @@ function rebuildWithHighlights() {
     if (/^\s+$/.test(token)) {
       return token.replace(/ /g, "&nbsp;").replace(/\n/g, "<br>");
     }
-    const norm = normalizeWord(token);
-    if (!norm) {
-      return escapeHtml(token);
-    }
-    if (DICTIONARY.has(norm)) {
-      return escapeHtml(token);
-    } else {
+    const status = getWordStatus(token);
+
+    if (status === "invalid") {
       return `<span class="word-error">${escapeHtml(token)}</span>`;
+    } else {
+      // valid, unknown, ignore -> normal text
+      return escapeHtml(token);
     }
   }).join("");
 
@@ -151,7 +211,7 @@ function adjustTime(unit, delta) {
   let max = 59;
   if (unit === "hours") {
     el = hoursValueEl;
-    max = 5; // cap hours a bit (change if you want)
+    max = 5; // cap hours (change if you want)
   } else if (unit === "minutes") {
     el = minutesValueEl;
   } else if (unit === "seconds") {
@@ -226,7 +286,7 @@ function startTest() {
         stopTest(true);
       }
     }
-    // In no-timer mode, we just keep updating stats; time shows ∞
+    // In no-timer mode, just keep updating stats; time shows ∞
   }, 1000);
 }
 
@@ -248,12 +308,9 @@ function stopTest(auto = false) {
 
   startBtn.disabled = false;
   stopBtn.disabled = true;
-  // Reset button stays enabled so user can clear and reconfigure
   setTimeControlsEnabled(true);
 
-  // If auto stop from timer, timeLeftEl is already at 0
   if (!isTimedMode) {
-    // keep ∞ display for no-timer mode after stopping
     timeLeftEl.textContent = "∞";
   }
 }
