@@ -23,8 +23,6 @@ const localWordList = [
     "work", "world", "would", "write", "year", "you", "your"
 ];
 const LOCAL_DICTIONARY = new Set(localWordList);
-
-// Cache: word -> true (valid) / false (invalid) / "pending"
 const apiWordCache = Object.create(null);
 
 const startBtn = document.getElementById('startBtn');
@@ -41,6 +39,7 @@ const hoursValueEl = document.getElementById('hoursValue');
 const minutesValueEl = document.getElementById('minutesValue');
 const secondsValueEl = document.getElementById('secondsValue');
 const noTimerCheckbox = document.getElementById('noTimerCheckbox');
+const themeToggle = document.getElementById('themeToggle');
 
 let timerId = null;
 let isRunning = false;
@@ -48,8 +47,42 @@ let startTime = null;
 let isTimedMode = true;
 let initialDurationSeconds = 60;
 
-// Helpers
+// Theme management
+function applyTheme(theme) {
+    const body = document.body;
+    if (theme === "dark") {
+        body.classList.add("dark-theme");
+        themeToggle.checked = true;
+    } else {
+        body.classList.remove("dark-theme");
+        themeToggle.checked = false;
+    }
+}
 
+function initTheme() {
+    try {
+        const saved = localStorage.getItem("wpmTheme");
+        if (saved === "dark" || saved === "light") {
+            applyTheme(saved);
+            return;
+        }
+    } catch (_) {
+        // ignore storage errors
+    }
+    applyTheme("light");
+}
+
+themeToggle.addEventListener("change", () => {
+    const newTheme = themeToggle.checked ? "dark" : "light";
+    applyTheme(newTheme);
+    try {
+        localStorage.setItem("wpmTheme", newTheme);
+    } catch (_) {
+        // ignore
+    }
+});
+
+// Helpers
 function escapeHtml(text) {
     return text
         .replace(/&/g, "&amp;")
@@ -61,13 +94,6 @@ function normalizeWord(token) {
     return token.toLowerCase().replace(/[^a-z']/g, "");
 }
 
-/**
- * Status:
- *   "ignore"  - punctuation/empty
- *   "valid"   - confirmed valid
- *   "invalid" - confirmed invalid
- *   "unknown" - not yet confirmed (API pending)
- */
 function getWordStatus(token) {
     const word = normalizeWord(token);
     if (!word) return "ignore";
@@ -168,8 +194,7 @@ function updateStats() {
     totalWordsEl.textContent = total;
 }
 
-// Time config
-
+// Time configuration
 function getSelectedDurationSeconds() {
     const h = parseInt(hoursValueEl.textContent, 10) || 0;
     const m = parseInt(minutesValueEl.textContent, 10) || 0;
@@ -219,7 +244,6 @@ function setTimeControlsEnabled(enabled) {
 }
 
 // Test control
-
 function startTest() {
     if (isRunning) return;
 
@@ -320,7 +344,6 @@ function resetTest() {
 }
 
 // Event wiring
-
 startBtn.addEventListener('click', startTest);
 stopBtn.addEventListener('click', () => stopTest(false));
 resetBtn.addEventListener('click', resetTest);
@@ -348,7 +371,7 @@ noTimerCheckbox.addEventListener('change', () => {
 });
 
 // Initial setup
-
+initTheme();
 updateTimeLeftDisplay();
 setTimeControlsEnabled(true);
 stopBtn.disabled = true;

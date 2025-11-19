@@ -18,17 +18,27 @@
         <!-- Title -->
         <h1>Free Typing WPM Test</h1>
 
-        <!-- Control Buttons -->
+        <!-- Control Row -->
         <div class="controls">
             <div class="controls-left">
+                <!-- Control Buttons -->
                 <button id="startBtn">Start Test</button>
                 <button id="stopBtn" disabled>Stop</button>
                 <button id="resetBtn" disabled>Reset</button>
             </div>
 
-            <!-- Timer Display -->
-            <div class="timer">
-                Time left: <span id="timeLeft">60</span>s
+            <!-- Right Controls -->
+            <div class="controls-right">
+                <!-- Theme Toggle -->
+                <label class="theme-toggle">
+                    <input type="checkbox" id="themeToggle">
+                    Dark mode
+                </label>
+
+                <!-- Timer Display -->
+                <div class="timer">
+                    Time left: <span id="timeLeft">60</span>s
+                </div>
             </div>
         </div>
 

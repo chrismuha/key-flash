@@ -1,7 +1,39 @@
+/* Theme Variables */
+:root {
+    --bg: #f3f4f6;
+    --text: #111827;
+    --card-bg: #ffffff;
+    --border: #d1d5db;
+    --muted: #6b7280;
+    --primary: #2563eb;
+    --primary-shadow: rgba(37, 99, 235, 0.35);
+    --pill-bg: #eef2ff;
+    --stat-pill-bg: #f3f4ff;
+    --typing-bg: #f9fafb;
+    --typing-disabled-bg: #f3f4f6;
+    --error: #dc2626;
+}
+
+body.dark-theme {
+    --bg: #020617;
+    --text: #e5e7eb;
+    --card-bg: #020617;
+    --border: #1f2937;
+    --muted: #9ca3af;
+    --primary: #3b82f6;
+    --primary-shadow: rgba(59, 130, 246, 0.45);
+    --pill-bg: #111827;
+    --stat-pill-bg: #111827;
+    --typing-bg: #020617;
+    --typing-disabled-bg: #020617;
+    --error: #f97373;
+}
+
 /* Page */
 body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    background: #f3f4f6;
+    background: var(--bg);
+    color: var(--text);
     margin: 0;
     padding: 0;
 }
@@ -11,7 +43,7 @@ body {
     max-width: 800px;
     margin: 40px auto;
     padding: 24px;
-    background: #ffffff;
+    background: var(--card-bg);
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
 }
@@ -40,6 +72,12 @@ h1 {
     flex-wrap: wrap;
 }
 
+.controls-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 /* Buttons */
 button {
     padding: 8px 16px;
@@ -48,15 +86,15 @@ button {
     cursor: pointer;
     font-size: 0.95rem;
     font-weight: 600;
-    background: #2563eb;
+    background: var(--primary);
     color: #ffffff;
     transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.15s ease;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+    box-shadow: 0 4px 10px var(--primary-shadow);
 }
 
 button:active {
     transform: translateY(1px);
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 2px 6px var(--primary-shadow);
 }
 
 button:disabled {
@@ -74,7 +112,16 @@ button:disabled {
 .timer span {
     padding: 4px 10px;
     border-radius: 999px;
-    background: #eef2ff;
+    background: var(--pill-bg);
+}
+
+/* Theme Toggle */
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.9rem;
+    color: var(--muted);
 }
 
 /* Time Config Area */
@@ -108,19 +155,21 @@ button:disabled {
     align-items: center;
     justify-content: center;
     font-size: 1rem;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 2px 6px var(--primary-shadow);
 }
 
 .time-value-wrapper {
     border-radius: 8px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border);
     padding: 4px 8px;
     min-width: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 4px;
-    background: #f9fafb;
+    background: var(--typing-bg);
 }
 
 .time-value {
@@ -130,7 +179,7 @@ button:disabled {
 
 .time-unit {
     font-size: 0.8rem;
-    color: #6b7280;
+    color: var(--muted);
 }
 
 /* No Timer Checkbox */
@@ -144,7 +193,7 @@ button:disabled {
 
 /* Typing Box */
 .typing-area {
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--border);
     border-radius: 8px;
     padding: 12px;
     min-height: 150px;
@@ -153,22 +202,23 @@ button:disabled {
     outline: none;
     white-space: pre-wrap;
     overflow-wrap: break-word;
-    background: #f9fafb;
+    background: var(--typing-bg);
+    color: var(--text);
 }
 
 .typing-area.active {
-    background: #ffffff;
-    border-color: #2563eb;
+    background: var(--card-bg);
+    border-color: var(--primary);
     box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.1);
 }
 
 .typing-area.disabled {
-    background: #f3f4f6;
+    background: var(--typing-disabled-bg);
 }
 
 /* Misspelled Words */
 .word-error {
-    color: #dc2626;
+    color: var(--error);
     text-decoration: underline;
     text-decoration-style: wavy;
 }
@@ -185,7 +235,7 @@ button:disabled {
 .stat-pill {
     padding: 6px 12px;
     border-radius: 999px;
-    background: #f3f4ff;
+    background: var(--stat-pill-bg);
 }
 
 .stat-pill strong {
@@ -196,5 +246,5 @@ button:disabled {
 .hint {
     margin-top: 8px;
     font-size: 0.85rem;
-    color: #6b7280;
+    color: var(--muted);
 }
