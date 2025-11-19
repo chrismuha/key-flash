@@ -1,191 +1,200 @@
+/* Page */
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #f3f4f6;
-  margin: 0;
-  padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f3f4f6;
+    margin: 0;
+    padding: 0;
 }
 
+/* Container */
 .container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 24px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.07);
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 24px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
 }
 
+/* Title */
 h1 {
-  margin-top: 0;
-  font-size: 1.8rem;
-  text-align: center;
+    margin-top: 0;
+    font-size: 1.8rem;
+    text-align: center;
 }
 
+/* Top Controls */
 .controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
 }
 
 .controls-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
+/* Buttons */
 button {
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: none;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 600;
-  background: #2563eb;
-  color: #ffffff;
-  transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.15s ease;
-  box-shadow: 0 4px 10px rgba(37,99,235,0.35);
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: #2563eb;
+    color: #ffffff;
+    transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.15s ease;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
 }
 
 button:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 6px rgba(37,99,235,0.3);
+    transform: translateY(1px);
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
 }
 
 button:disabled {
-  opacity: 0.5;
-  cursor: default;
-  box-shadow: none;
+    opacity: 0.5;
+    cursor: default;
+    box-shadow: none;
 }
 
+/* Timer Display */
 .timer {
-  font-size: 1.1rem;
-  font-weight: 600;
+    font-size: 1.1rem;
+    font-weight: 600;
 }
 
 .timer span {
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #eef2ff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #eef2ff;
 }
 
-/* Time configuration (boxes) */
-
+/* Time Config Area */
 .time-config {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
 }
 
 .time-config-label {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-right: 4px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-right: 4px;
 }
 
+/* Time Adjustment Boxes */
 .time-box {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .time-btn {
-  padding: 4px 8px;
-  border-radius: 6px;
-  min-width: 28px;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  box-shadow: 0 2px 6px rgba(37,99,235,0.25);
+    padding: 4px 8px;
+    border-radius: 6px;
+    min-width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
 }
 
 .time-value-wrapper {
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  padding: 4px 8px;
-  min-width: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    padding: 4px 8px;
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: #f9fafb;
 }
 
 .time-value {
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
 }
 
 .time-unit {
-  font-size: 0.8rem;
-  color: #6b7280;
+    font-size: 0.8rem;
+    color: #6b7280;
 }
 
+/* No Timer Checkbox */
 .no-timer-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.9rem;
-  margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.9rem;
+    margin-left: auto;
 }
 
-/* Typing area and stats */
-
+/* Typing Box */
 .typing-area {
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 12px;
-  min-height: 150px;
-  line-height: 1.5;
-  font-size: 1rem;
-  outline: none;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-  background: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 12px;
+    min-height: 150px;
+    line-height: 1.5;
+    font-size: 1rem;
+    outline: none;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    background: #f9fafb;
 }
 
 .typing-area.active {
-  background: #ffffff;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 1px rgba(37,99,235,0.1);
+    background: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.1);
 }
 
 .typing-area.disabled {
-  background: #f3f4f6;
+    background: #f3f4f6;
 }
 
+/* Misspelled Words */
 .word-error {
-  color: #dc2626;
-  text-decoration: underline;
-  text-decoration-style: wavy;
+    color: #dc2626;
+    text-decoration: underline;
+    text-decoration-style: wavy;
 }
 
+/* Stats Display */
 .stats {
-  margin-top: 16px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  font-size: 0.95rem;
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.95rem;
 }
 
 .stat-pill {
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: #f3f4ff;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #f3f4ff;
 }
 
 .stat-pill strong {
-  font-weight: 700;
+    font-weight: 700;
 }
 
+/* Hint Text */
 .hint {
-  margin-top: 8px;
-  font-size: 0.85rem;
-  color: #6b7280;
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: #6b7280;
 }

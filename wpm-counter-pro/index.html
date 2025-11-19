@@ -1,81 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>Free Typing WPM Test</title>
-  <link rel="stylesheet" href="style.css">
+    <!-- Metadata -->
+    <meta charset="UTF-8" />
+    <title>Free Typing WPM Test</title>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <div class="container">
-    <h1>Free Typing WPM Test</h1>
 
-    <div class="controls">
-      <div class="controls-left">
-        <button id="startBtn">Start Test</button>
-        <button id="stopBtn" disabled>Stop</button>
-        <button id="resetBtn" disabled>Reset</button>
-      </div>
-      <div class="timer">
-        Time left: <span id="timeLeft">60</span>s
-      </div>
-    </div>
+    <!-- Container -->
+    <div class="container">
 
-    <!-- Duration configuration with square boxes -->
-    <div class="time-config">
-      <span class="time-config-label">Duration:</span>
+        <!-- Title -->
+        <h1>Free Typing WPM Test</h1>
 
-      <div class="time-box">
-        <button class="time-btn minus" data-unit="hours">−</button>
-        <div class="time-value-wrapper">
-          <span id="hoursValue" class="time-value">0</span>
-          <span class="time-unit">h</span>
+        <!-- Control Buttons -->
+        <div class="controls">
+            <div class="controls-left">
+                <button id="startBtn">Start Test</button>
+                <button id="stopBtn" disabled>Stop</button>
+                <button id="resetBtn" disabled>Reset</button>
+            </div>
+
+            <!-- Timer Display -->
+            <div class="timer">
+                Time left: <span id="timeLeft">60</span>s
+            </div>
         </div>
-        <button class="time-btn plus" data-unit="hours">+</button>
-      </div>
 
-      <div class="time-box">
-        <button class="time-btn minus" data-unit="minutes">−</button>
-        <div class="time-value-wrapper">
-          <span id="minutesValue" class="time-value">1</span>
-          <span class="time-unit">m</span>
+        <!-- Time Configuration -->
+        <div class="time-config">
+            <span class="time-config-label">Duration:</span>
+
+            <!-- Hours -->
+            <div class="time-box">
+                <button class="time-btn minus" data-unit="hours">−</button>
+                <div class="time-value-wrapper">
+                    <span id="hoursValue" class="time-value">0</span>
+                    <span class="time-unit">h</span>
+                </div>
+                <button class="time-btn plus" data-unit="hours">+</button>
+            </div>
+
+            <!-- Minutes -->
+            <div class="time-box">
+                <button class="time-btn minus" data-unit="minutes">−</button>
+                <div class="time-value-wrapper">
+                    <span id="minutesValue" class="time-value">1</span>
+                    <span class="time-unit">m</span>
+                </div>
+                <button class="time-btn plus" data-unit="minutes">+</button>
+            </div>
+
+            <!-- Seconds -->
+            <div class="time-box">
+                <button class="time-btn minus" data-unit="seconds">−</button>
+                <div class="time-value-wrapper">
+                    <span id="secondsValue" class="time-value">0</span>
+                    <span class="time-unit">s</span>
+                </div>
+                <button class="time-btn plus" data-unit="seconds">+</button>
+            </div>
+
+            <!-- No Timer Option -->
+            <label class="no-timer-label">
+                <input type="checkbox" id="noTimerCheckbox">
+                No timer (manual stop)
+            </label>
         </div>
-        <button class="time-btn plus" data-unit="minutes">+</button>
-      </div>
 
-      <div class="time-box">
-        <button class="time-btn minus" data-unit="seconds">−</button>
-        <div class="time-value-wrapper">
-          <span id="secondsValue" class="time-value">0</span>
-          <span class="time-unit">s</span>
+        <!-- Typing Area -->
+        <div id="typingArea" class="typing-area disabled" contenteditable="false" spellcheck="false"></div>
+
+        <!-- Instructions -->
+        <div class="hint">
+            Configure the time, start the test, then type anything you want.
+            Misspelled words turn <span style="color:#dc2626;font-weight:600;">red</span>.
+            In <strong>No timer</strong> mode, use the Stop button when you're done.
         </div>
-        <button class="time-btn plus" data-unit="seconds">+</button>
-      </div>
 
-      <label class="no-timer-label">
-        <input type="checkbox" id="noTimerCheckbox">
-        No timer (manual stop)
-      </label>
+        <!-- Stats Display -->
+        <div class="stats">
+            <div class="stat-pill">WPM: <strong id="wpm">0</strong></div>
+            <div class="stat-pill">Correct words: <strong id="correctWords">0</strong></div>
+            <div class="stat-pill">Errors: <strong id="errorWords">0</strong></div>
+            <div class="stat-pill">Total words: <strong id="totalWords">0</strong></div>
+        </div>
+
     </div>
 
-    <div id="typingArea"
-         class="typing-area disabled"
-         contenteditable="false"
-         spellcheck="false"></div>
-
-    <div class="hint">
-      Configure the time, start the test, then type anything you want.
-      Misspelled words turn <span style="color:#dc2626;font-weight:600;">red</span>.
-      In <strong>No timer</strong> mode, use the Stop button when you're done.
-    </div>
-
-    <div class="stats">
-      <div class="stat-pill">WPM: <strong id="wpm">0</strong></div>
-      <div class="stat-pill">Correct words: <strong id="correctWords">0</strong></div>
-      <div class="stat-pill">Errors: <strong id="errorWords">0</strong></div>
-      <div class="stat-pill">Total words: <strong id="totalWords">0</strong></div>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
+    <!-- Script -->
+    <script src="script.js"></script>
 </body>
+
 </html>
