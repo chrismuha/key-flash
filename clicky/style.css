@@ -5,13 +5,49 @@
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+/* Default = dark theme */
+:root {
+    --bg: #111827;
+    --text: #e5e7eb;
+    --card-bg: #020617;
+    --card-border: #1f2937;
+    --subtitle: #9ca3af;
+    --subtle-text: #6b7280;
+    --accent: #1d4ed8;
+    --accent-active: #1e40af;
+    --btn-bg: #020617;
+    --btn-border: #4b5563;
+    --btn-bg-hover: #030712;
+    --btn-border-hover: #6b7280;
+    --shadow-strong: rgba(0, 0, 0, 0.4);
+    --shadow-tap: rgba(15, 23, 42, 0.8);
+}
+
+/* Light theme overrides */
+body.light-theme {
+    --bg: #f3f4f6;
+    --text: #111827;
+    --card-bg: #ffffff;
+    --card-border: #e5e7eb;
+    --subtitle: #4b5563;
+    --subtle-text: #6b7280;
+    --accent: #2563eb;
+    --accent-active: #1d4ed8;
+    --btn-bg: #f9fafb;
+    --btn-border: #d1d5db;
+    --btn-bg-hover: #e5e7eb;
+    --btn-border-hover: #9ca3af;
+    --shadow-strong: rgba(15, 23, 42, 0.15);
+    --shadow-tap: rgba(15, 23, 42, 0.25);
+}
+
 body {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #111827;
-    color: #e5e7eb;
+    background: var(--bg);
+    color: var(--text);
 }
 
 .app {
@@ -19,9 +55,10 @@ body {
     max-width: 420px;
     padding: 24px;
     border-radius: 16px;
-    background: #020617;
-    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.4);
+    background: var(--card-bg);
+    box-shadow: 0 20px 35px var(--shadow-strong);
     text-align: center;
+    border: 1px solid var(--card-border);
 }
 
 h1 {
@@ -31,7 +68,7 @@ h1 {
 
 .subtitle {
     font-size: 0.9rem;
-    color: #9ca3af;
+    color: var(--subtitle);
     margin-bottom: 20px;
 }
 
@@ -46,13 +83,13 @@ h1 {
     flex: 1;
     padding: 10px;
     border-radius: 12px;
-    background: #020617;
-    border: 1px solid #1f2937;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
 }
 
 .stat-label {
     font-size: 0.75rem;
-    color: #9ca3af;
+    color: var(--subtitle);
     margin-bottom: 4px;
 }
 
@@ -66,7 +103,7 @@ h1 {
     height: 180px;
     border-radius: 16px;
     border: none;
-    background: #1d4ed8;
+    background: var(--accent);
     color: #e5e7eb;
     font-size: 1.4rem;
     font-weight: 600;
@@ -74,28 +111,29 @@ h1 {
     cursor: pointer;
     touch-action: manipulation;
     transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.2s ease;
-    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.7);
+    box-shadow: 0 10px 20px var(--shadow-strong);
 }
 
 #tapArea:active {
     transform: scale(0.97);
-    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
-    background: #1e40af;
+    box-shadow: 0 4px 10px var(--shadow-tap);
+    background: var(--accent-active);
 }
 
 .controls {
     margin-top: 16px;
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
     gap: 10px;
 }
 
 .btn {
     padding: 8px 14px;
     border-radius: 999px;
-    border: 1px solid #4b5563;
-    background: #020617;
-    color: #e5e7eb;
+    border: 1px solid var(--btn-border);
+    background: var(--btn-bg);
+    color: var(--text);
     cursor: pointer;
     font-size: 0.85rem;
     font-weight: 500;
@@ -103,8 +141,8 @@ h1 {
 }
 
 .btn:hover {
-    background: #030712;
-    border-color: #6b7280;
+    background: var(--btn-bg-hover);
+    border-color: var(--btn-border-hover);
 }
 
 .btn:active {
@@ -114,5 +152,5 @@ h1 {
 .hint {
     margin-top: 8px;
     font-size: 0.8rem;
-    color: #6b7280;
+    color: var(--subtle-text);
 }

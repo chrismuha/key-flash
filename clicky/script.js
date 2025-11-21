@@ -1,6 +1,7 @@
 const tapArea = document.getElementById("tapArea");
 const resetBtn = document.getElementById("resetBtn");
 const lockBtn = document.getElementById("lockBtn");
+const themeToggleBtn = document.getElementById("themeToggleBtn");
 
 const clickCountEl = document.getElementById("clickCount");
 const timeElapsedEl = document.getElementById("timeElapsed");
@@ -75,4 +76,13 @@ lockBtn.addEventListener("click", () => {
     hintText.textContent = lockedAt60
         ? "60-second test: CPM will be based on exactly 60 seconds."
         : "First tap starts the timer. CPM updates live.";
+});
+
+// THEME TOGGLING
+let isLight = false; // default = dark
+
+themeToggleBtn.addEventListener("click", () => {
+    isLight = !isLight;
+    document.body.classList.toggle("light-theme", isLight);
+    themeToggleBtn.textContent = isLight ? "Dark mode" : "Light mode";
 });
