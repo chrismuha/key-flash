@@ -15,29 +15,33 @@ let timerId = null;
 let lockedAtSixty = false;
 let finished = false;
 let isLight = false;
-
-// Used only in sixty second mode to compute CPM over a short recent window
 let clickTimes = [];
+
+// Section: Configuration constants
+const freeModeMinWindowSec = 5;
+const lockedModeWindowMs = 5000;
+const lockedModeTotalDurationSec = 60;
 
 // Section: Free mode logic
 function updateFreeStats(eventTimeMs) {
-    if (!startTime) return;
+    if (!startTime) {
+        return;
+    }
 
     const elapsedMs = eventTimeMs - startTime;
     const rawSec = elapsedMs / 1000;
-
-    // Use a minimum effective window to avoid huge CPM on first fast clicks
-    const minWindowSec = 5;
-    const effectiveSec = Math.max(rawSec, minWindowSec);
+    const effectiveSec = Math.max(rawSec, freeModeMinWindowSec);
     const elapsedMin = effectiveSec / 60;
     const cpm = elapsedMin > 0 ? clickCount / elapsedMin : 0;
-
+    
     timeElapsedEl.textContent = rawSec.toFixed(1);
     cpmEl.textContent = Math.round(cpm);
 }
 
 function startFreeRunIfNeeded() {
-    if (startTime !== null) return;
+    if (startTime !== null) {
+        return;
+    }
     startTime = Date.now();
     finished = false;
     hintText.textContent = "Counting. CPM is based on current elapsed time.";
@@ -45,7 +49,9 @@ function startFreeRunIfNeeded() {
 
 // Section: Sixty second mode logic with decaying CPM
 function startLockedRunIfNeeded() {
-    if (startTime !== null) return;
+    if (startTime !== null) {
+        return;
+    }
     startTime = Date.now();
     finished = false;
     clickTimes = [];
@@ -69,8 +75,8 @@ function tickLockedMode() {
     let elapsedMs = now - startTime;
     let elapsedSec = elapsedMs / 1000;
 
-    if (elapsedSec >= 60) {
-        elapsedSec = 60;
+    if (elapsedSec >= lockedModeTotalDurationSec) {
+        elapsedSec = lockedModeTotalDurationSec;
         finished = true;
         if (timerId) {
             clearInterval(timerId);
@@ -79,15 +85,12 @@ function tickLockedMode() {
         hintText.textContent = "Sixty seconds reached. CPM is based on recent clicks.";
     }
 
-    const windowMs = 5000;
-
-    while (clickTimes.length > 0 && now - clickTimes[0] > windowMs) {
+    while (clickTimes.length > 0 && now - clickTimes[0] > lockedModeWindowMs) {
         clickTimes.shift();
     }
 
     const windowClickCount = clickTimes.length;
-
-    const windowSec = windowMs / 1000;
+    const windowSec = lockedModeWindowMs / 1000;
     const cpm = windowClickCount * (60 / windowSec);
 
     timeElapsedEl.textContent = elapsedSec.toFixed(1);
