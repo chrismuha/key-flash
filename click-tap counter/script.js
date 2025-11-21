@@ -33,7 +33,7 @@ function updateFreeStats(eventTimeMs) {
     const effectiveSec = Math.max(rawSec, freeModeMinWindowSec);
     const elapsedMin = effectiveSec / 60;
     const cpm = elapsedMin > 0 ? clickCount / elapsedMin : 0;
-    
+
     timeElapsedEl.textContent = rawSec.toFixed(1);
     cpmEl.textContent = Math.round(cpm);
 }
@@ -55,7 +55,7 @@ function startLockedRunIfNeeded() {
     startTime = Date.now();
     finished = false;
     clickTimes = [];
-    hintText.textContent = "Sixty second mode. CPM uses the last few seconds of clicks.";
+    hintText.textContent = "Sixty second mode. CPM uses the last few seconds of clicks/taps.";
 
     if (!timerId) {
         timerId = setInterval(tickLockedMode, 100);
@@ -82,7 +82,7 @@ function tickLockedMode() {
             clearInterval(timerId);
             timerId = null;
         }
-        hintText.textContent = "Sixty seconds reached. CPM is based on recent clicks.";
+        hintText.textContent = "Sixty seconds reached. CPM is based on recent clicks/taps.";
     }
 
     while (clickTimes.length > 0 && now - clickTimes[0] > lockedModeWindowMs) {
@@ -107,7 +107,7 @@ function resetAll() {
     clickCountEl.textContent = "0";
     timeElapsedEl.textContent = "0.0";
     cpmEl.textContent = "0";
-    hintText.textContent = "First tap starts the timer. CPM updates live.";
+    hintText.textContent = "First click/tap starts the timer. CPM updates live.";
 
     if (timerId) {
         clearInterval(timerId);
@@ -160,8 +160,8 @@ lockBtn.addEventListener("click", () => {
     if (wasLocked !== lockedAtSixty) {
         resetAll();
         hintText.textContent = lockedAtSixty
-            ? "Sixty second mode. Click to begin. CPM will fall toward zero if you stop clicking."
-            : "Free mode. Click to begin. CPM updates on each click.";
+            ? "Sixty second mode. Click/Tap to begin. CPM will fall toward zero if you stop clicking."
+            : "Free mode. Click/Tap to begin. CPM updates on each click.";
     }
 });
 
