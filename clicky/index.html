@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Clicks Per Minute Counter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="app">
+        <h1>Clicks Per Minute</h1>
+        <div class="subtitle">Tap the big button as fast as you can.</div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Clicks</div>
+                <div class="stat-value" id="clickCount">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Time (s)</div>
+                <div class="stat-value" id="timeElapsed">0.0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Clicks / min</div>
+                <div class="stat-value" id="cpm">0</div>
+            </div>
+        </div>
+
+        <button id="tapArea">TAP HERE</button>
+
+        <div class="controls">
+            <button class="btn" id="resetBtn">Reset</button>
+            <button class="btn" id="lockBtn">Lock at 60s</button>
+        </div>
+
+        <div class="hint" id="hintText">
+            First tap starts the timer. CPM updates live.
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
