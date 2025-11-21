@@ -12,24 +12,20 @@ const hintText = document.getElementById("hintText");
 // Section: State variables
 let clickCount = 0;
 let startTime = null;
-let timerId = null;
 let lockedAt60 = false;
 let finished = false;
 let isLight = false;
 
 // Section: Core timer and stats logic
-function updateStats() {
+function updateStats(eventTimeMs) {
     if (!startTime) return;
 
-    const now = Date.now();
-    let elapsedMs = now - startTime;
+    let elapsedMs = eventTimeMs - startTime;
     let elapsedSec = elapsedMs / 1000;
 
     if (lockedAt60 && elapsedSec >= 60) {
         elapsedSec = 60;
         finished = true;
-        clearInterval(timerId);
-        timerId = null;
         hintText.textContent = "60 seconds reached. Reset to try again.";
     }
 
@@ -47,16 +43,17 @@ function startTimerIfNeeded() {
     hintText.textContent = lockedAt60
         ? "Counting for up to 60 seconds."
         : "Counting. CPM is based on current elapsed time.";
-    timerId = setInterval(updateStats, 100);
 }
 
 // Section: Click handling
 tapArea.addEventListener("click", () => {
     if (finished) return;
+
+    const now = Date.now();
     startTimerIfNeeded();
     clickCount += 1;
     clickCountEl.textContent = clickCount;
-    updateStats();
+    updateStats(now);
 });
 
 // Section: Reset handling
@@ -68,11 +65,6 @@ resetBtn.addEventListener("click", () => {
     timeElapsedEl.textContent = "0.0";
     cpmEl.textContent = "0";
     hintText.textContent = "First tap starts the timer. CPM updates live.";
-
-    if (timerId) {
-        clearInterval(timerId);
-        timerId = null;
-    }
 });
 
 // Section: Lock at sixty seconds toggle
