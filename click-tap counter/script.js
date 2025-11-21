@@ -3,7 +3,6 @@ const tapArea = document.getElementById("tapArea");
 const resetBtn = document.getElementById("resetBtn");
 const lockBtn = document.getElementById("lockBtn");
 const themeToggleBtn = document.getElementById("themeToggleBtn");
-
 const clickCountEl = document.getElementById("clickCount");
 const timeElapsedEl = document.getElementById("timeElapsed");
 const cpmEl = document.getElementById("cpm");
@@ -12,21 +11,20 @@ const hintText = document.getElementById("hintText");
 // Section: State variables
 let clickCount = 0;
 let startTime = null;
-let lastClickTime = null;
 let timerId = null;
 let lockedAtSixty = false;
 let finished = false;
 let isLight = false;
 
-const idleThresholdMsLocked = 2000;
+// Used only in sixty second mode to compute CPM over a short recent window
+let clickTimes = [];
 
-// Section: Free mode stats logic
+// Section: Free mode logic
 function updateFreeStats(eventTimeMs) {
     if (!startTime) return;
 
-    let elapsedMs = eventTimeMs - startTime;
-    let elapsedSec = elapsedMs / 1000;
-
+    const elapsedMs = eventTimeMs - startTime;
+    const elapsedSec = elapsedMs / 1000;
     const elapsedMin = elapsedSec / 60;
     const cpm = elapsedMin > 0 ? clickCount / elapsedMin : 0;
 
@@ -41,14 +39,13 @@ function startFreeRunIfNeeded() {
     hintText.textContent = "Counting. CPM is based on current elapsed time.";
 }
 
-// Section: Locked sixty second mode logic
+// Section: Sixty second mode logic with decaying CPM
 function startLockedRunIfNeeded() {
     if (startTime !== null) return;
-    const now = Date.now();
-    startTime = now;
-    lastClickTime = now;
+    startTime = Date.now();
     finished = false;
-    hintText.textContent = "Sixty second test in progress. Clicks reset if you pause.";
+    clickTimes = [];
+    hintText.textContent = "Sixty second mode. CPM uses the last few seconds of clicks.";
 
     if (!timerId) {
         timerId = setInterval(tickLockedMode, 100);
@@ -68,35 +65,41 @@ function tickLockedMode() {
     let elapsedMs = now - startTime;
     let elapsedSec = elapsedMs / 1000;
 
-    if (!finished && clickCount > 0 && lastClickTime && now - lastClickTime > idleThresholdMsLocked) {
-        clickCount = 0;
-        clickCountEl.textContent = "0";
-        cpmEl.textContent = "0";
-    }
-
+    // Clamp at sixty seconds and finish the run
     if (elapsedSec >= 60) {
         elapsedSec = 60;
         finished = true;
-
         if (timerId) {
             clearInterval(timerId);
             timerId = null;
         }
-
-        const finalCpm = clickCount;
-        cpmEl.textContent = String(finalCpm);
-        hintText.textContent = "Sixty seconds reached. Final CPM shown.";
+        hintText.textContent = "Sixty seconds reached. CPM is based on recent clicks.";
     }
 
+    // Rolling window for CPM (for example five seconds)
+    const windowMs = 5000;
+
+    // Remove clicks that are older than the window
+    while (clickTimes.length > 0 && now - clickTimes[0] > windowMs) {
+        clickTimes.shift();
+    }
+
+    const windowClickCount = clickTimes.length;
+
+    // Convert clicks in the window to clicks per minute
+    const windowSec = windowMs / 1000;
+    const cpm = windowClickCount * (60 / windowSec);
+
     timeElapsedEl.textContent = elapsedSec.toFixed(1);
+    cpmEl.textContent = Math.round(cpm);
 }
 
 // Section: Shared reset helpers
 function resetAll() {
     clickCount = 0;
     startTime = null;
-    lastClickTime = null;
     finished = false;
+    clickTimes = [];
 
     clickCountEl.textContent = "0";
     timeElapsedEl.textContent = "0.0";
@@ -112,14 +115,18 @@ function resetAll() {
 // Section: Click handling
 tapArea.addEventListener("click", () => {
     if (lockedAtSixty) {
-        if (finished) return;
+        if (finished) {
+            return;
+        }
 
         const now = Date.now();
         startLockedRunIfNeeded();
-        lastClickTime = now;
 
         clickCount += 1;
-        clickCountEl.textContent = clickCount;
+        clickCountEl.textContent = String(clickCount);
+
+        clickTimes.push(now);
+        tickLockedMode();
         return;
     }
 
@@ -131,7 +138,7 @@ tapArea.addEventListener("click", () => {
     startFreeRunIfNeeded();
 
     clickCount += 1;
-    clickCountEl.textContent = clickCount;
+    clickCountEl.textContent = String(clickCount);
     updateFreeStats(now);
 });
 
@@ -150,8 +157,8 @@ lockBtn.addEventListener("click", () => {
     if (wasLocked !== lockedAtSixty) {
         resetAll();
         hintText.textContent = lockedAtSixty
-            ? "Sixty second test. Click to begin. Clicks reset if you pause."
-            : "Free mode. Click to begin. CPM updates each click.";
+            ? "Sixty second mode. Click to begin. CPM will fall toward zero if you stop clicking."
+            : "Free mode. Click to begin. CPM updates on each click.";
     }
 });
 
