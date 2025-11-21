@@ -24,11 +24,15 @@ function updateFreeStats(eventTimeMs) {
     if (!startTime) return;
 
     const elapsedMs = eventTimeMs - startTime;
-    const elapsedSec = elapsedMs / 1000;
-    const elapsedMin = elapsedSec / 60;
+    const rawSec = elapsedMs / 1000;
+
+    // Use a minimum effective window to avoid huge CPM on first fast clicks
+    const minWindowSec = 5;
+    const effectiveSec = Math.max(rawSec, minWindowSec);
+    const elapsedMin = effectiveSec / 60;
     const cpm = elapsedMin > 0 ? clickCount / elapsedMin : 0;
 
-    timeElapsedEl.textContent = elapsedSec.toFixed(1);
+    timeElapsedEl.textContent = rawSec.toFixed(1);
     cpmEl.textContent = Math.round(cpm);
 }
 
@@ -65,7 +69,6 @@ function tickLockedMode() {
     let elapsedMs = now - startTime;
     let elapsedSec = elapsedMs / 1000;
 
-    // Clamp at sixty seconds and finish the run
     if (elapsedSec >= 60) {
         elapsedSec = 60;
         finished = true;
@@ -76,17 +79,14 @@ function tickLockedMode() {
         hintText.textContent = "Sixty seconds reached. CPM is based on recent clicks.";
     }
 
-    // Rolling window for CPM (for example five seconds)
     const windowMs = 5000;
 
-    // Remove clicks that are older than the window
     while (clickTimes.length > 0 && now - clickTimes[0] > windowMs) {
         clickTimes.shift();
     }
 
     const windowClickCount = clickTimes.length;
 
-    // Convert clicks in the window to clicks per minute
     const windowSec = windowMs / 1000;
     const cpm = windowClickCount * (60 / windowSec);
 
