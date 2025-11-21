@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <!-- Section: Metadata and styles -->
     <meta charset="UTF-8" />
     <title>Clicks Per Minute Counter</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,10 +10,13 @@
 </head>
 
 <body>
+    <!-- Section: App container -->
     <div class="app">
+        <!-- Section: Header -->
         <h1>Clicks Per Minute</h1>
         <div class="subtitle">Tap the big button as fast as you can.</div>
 
+        <!-- Section: Stats display -->
         <div class="stats">
             <div class="stat-card">
                 <div class="stat-label">Clicks</div>
@@ -28,19 +32,23 @@
             </div>
         </div>
 
+        <!-- Section: Tap area -->
         <button id="tapArea">TAP HERE</button>
 
+        <!-- Section: Controls -->
         <div class="controls">
             <button class="btn" id="resetBtn">Reset</button>
             <button class="btn" id="lockBtn">Lock at 60s</button>
             <button class="btn" id="themeToggleBtn">Light mode</button>
         </div>
 
+        <!-- Section: Hint text -->
         <div class="hint" id="hintText">
             First tap starts the timer. CPM updates live.
         </div>
     </div>
 
+    <!-- Section: Script -->
     <script src="script.js"></script>
 </body>
 

@@ -1,3 +1,4 @@
+// Section: DOM element references
 const tapArea = document.getElementById("tapArea");
 const resetBtn = document.getElementById("resetBtn");
 const lockBtn = document.getElementById("lockBtn");
@@ -8,12 +9,15 @@ const timeElapsedEl = document.getElementById("timeElapsed");
 const cpmEl = document.getElementById("cpm");
 const hintText = document.getElementById("hintText");
 
+// Section: State variables
 let clickCount = 0;
 let startTime = null;
 let timerId = null;
 let lockedAt60 = false;
 let finished = false;
+let isLight = false;
 
+// Section: Core timer and stats logic
 function updateStats() {
     if (!startTime) return;
 
@@ -21,7 +25,6 @@ function updateStats() {
     let elapsedMs = now - startTime;
     let elapsedSec = elapsedMs / 1000;
 
-    // If locking at 60s, cap time and stop at 60s
     if (lockedAt60 && elapsedSec >= 60) {
         elapsedSec = 60;
         finished = true;
@@ -31,7 +34,7 @@ function updateStats() {
     }
 
     const elapsedMin = elapsedSec / 60;
-    const cpm = elapsedMin > 0 ? (clickCount / elapsedMin) : 0;
+    const cpm = elapsedMin > 0 ? clickCount / elapsedMin : 0;
 
     timeElapsedEl.textContent = elapsedSec.toFixed(1);
     cpmEl.textContent = Math.round(cpm);
@@ -42,19 +45,21 @@ function startTimerIfNeeded() {
     startTime = Date.now();
     finished = false;
     hintText.textContent = lockedAt60
-        ? "Counting for up to 60 seconds..."
-        : "Counting... CPM is based on current elapsed time.";
+        ? "Counting for up to 60 seconds."
+        : "Counting. CPM is based on current elapsed time.";
     timerId = setInterval(updateStats, 100);
 }
 
+// Section: Click handling
 tapArea.addEventListener("click", () => {
-    if (finished) return; // ignore taps after auto-finish at 60s
+    if (finished) return;
     startTimerIfNeeded();
-    clickCount++;
+    clickCount += 1;
     clickCountEl.textContent = clickCount;
     updateStats();
 });
 
+// Section: Reset handling
 resetBtn.addEventListener("click", () => {
     clickCount = 0;
     startTime = null;
@@ -70,17 +75,16 @@ resetBtn.addEventListener("click", () => {
     }
 });
 
+// Section: Lock at sixty seconds toggle
 lockBtn.addEventListener("click", () => {
     lockedAt60 = !lockedAt60;
-    lockBtn.textContent = lockedAt60 ? "Free Mode" : "Lock at 60s";
+    lockBtn.textContent = lockedAt60 ? "Free mode" : "Lock at 60s";
     hintText.textContent = lockedAt60
-        ? "60-second test: CPM will be based on exactly 60 seconds."
+        ? "Sixty second test. CPM will be based on exactly sixty seconds."
         : "First tap starts the timer. CPM updates live.";
 });
 
-// THEME TOGGLING
-let isLight = false; // default = dark
-
+// Section: Theme toggle
 themeToggleBtn.addEventListener("click", () => {
     isLight = !isLight;
     document.body.classList.toggle("light-theme", isLight);
