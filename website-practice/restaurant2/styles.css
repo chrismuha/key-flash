@@ -24,6 +24,7 @@
     --box-bg: #2ecc71;
     --box-border: #000;
     --nav-logo-h: var(--logo-h);
+    --focus-outline-dark: #ff9800;
 }
 
 /* Section: Global Resets */
@@ -343,7 +344,7 @@ body.nav-enabled .go-back {
 
 /* Dark theme: make all key outlines/borders white for contrast */
 body.theme-dark :focus-visible {
-    outline-color: #fff;
+    outline-color: var(--focus-outline-dark);
 }
 
 body.theme-dark main input[type="checkbox"] {
@@ -952,6 +953,11 @@ body.menu-overlay-open {
     outline-offset: 2px;
 }
 
+body.theme-dark .menu-actions .menu-launch:hover,
+body.theme-dark .menu-actions .menu-launch:focus-visible {
+    outline-color: var(--focus-outline-dark);
+}
+
 .menu-actions .menu-launch.menu-launch-active:hover,
 .menu-actions .menu-launch.menu-launch-active:focus-visible {
     background: #e4fff0;
@@ -1015,6 +1021,11 @@ body.theme-dark .menu-overlay-card {
     background: rgba(0, 0, 0, 0.08);
     outline: 3px solid currentColor;
     outline-offset: 2px;
+}
+
+body.theme-dark .close-overlay:hover,
+body.theme-dark .close-overlay:focus-visible {
+    outline-color: var(--focus-outline-dark);
 }
 
 /* Section: Left Rail Boxes (Links) */
