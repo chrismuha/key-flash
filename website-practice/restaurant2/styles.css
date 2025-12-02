@@ -34,14 +34,9 @@ body {
     -moz-osx-font-smoothing: grayscale;
     font-family: system-ui, sans-serif;
     font-size: 16px;
-    min-width: 2204px;
-<<<<<<< ours
-    min-height: 1856px;
-=======
     /* Keep both for dynamic viewport units (mobile) while still supporting older browsers */
     min-height: 100vh;
     min-height: 100dvh;
->>>>>>> theirs
     overflow-x: hidden;
 }
 
