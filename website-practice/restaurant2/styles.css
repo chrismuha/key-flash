@@ -849,7 +849,7 @@ main summary.menu-summary::-webkit-details-marker {
     display: none;
 }
 
-/* Firefox/Edge: flip arrow to white in dark mode */
+/* Flip arrow to white in dark mode */
 body.theme-dark main summary.menu-summary::marker {
     color: #fff;
 }
