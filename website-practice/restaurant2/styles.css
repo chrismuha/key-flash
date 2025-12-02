@@ -790,12 +790,12 @@ body.order-type .order-powered a {
     }
 }
 
-/* Section: Expandable Menu Sections */
-main details {
+/* Section: Menu Sections */
+main .menu-section {
     margin-bottom: var(--gap);
 }
 
-main summary.menu-summary {
+main .menu-summary {
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -807,7 +807,7 @@ main summary.menu-summary {
 }
 
 /* Visual cue for invalid/attention-needed sections */
-main summary.menu-summary.invalid {
+main .menu-summary.invalid {
     outline: 2px solid #c00;
     outline-offset: 4px;
     border-radius: 6px;
@@ -833,6 +833,11 @@ main .reset-group:hover {
 /* hide default marker in WebKit/Blink */
 main summary.menu-summary::-webkit-details-marker {
     display: none;
+}
+
+/* Flip arrow to white in dark mode */
+body.theme-dark main summary.menu-summary::marker {
+    color: #fff;
 }
 
 /* slight spacing when open */

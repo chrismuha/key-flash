@@ -103,13 +103,12 @@
   function openSectionFromHash() {
     const hash = (location.hash || '').replace('#', '').trim();
     if (!hash) return;
-    const details = document.getElementById(hash);
-    if (details && details.tagName.toLowerCase() === 'details') {
-      details.open = true;
-      // optional: focus the summary for visibility
-      const summary = details.querySelector('summary');
-      if (summary) summary.focus({ preventScroll: false });
-    }
+    const target = document.getElementById(hash);
+    if (!target) return;
+    // Bring the section into view and focus its heading when possible
+    const summary = target.querySelector('.menu-summary');
+    if (summary) summary.focus({ preventScroll: false });
+    else target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   // Section: Page Initialization
@@ -949,9 +948,7 @@
         overlay.hidden = false;
         overlay.classList.add('visible');
         body.classList.add('menu-overlay-open');
-        const details = overlay.querySelector('details');
-        if (details && !details.open) details.open = true;
-        const summary = overlay.querySelector('summary.menu-summary');
+        const summary = overlay.querySelector('.menu-summary');
         if (summary) summary.focus({ preventScroll: true });
       };
       const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
@@ -1063,7 +1060,7 @@
       ['pizza', 'burger'].forEach((sec) => {
         const d = document.getElementById(sec);
         if (!d) return;
-        const summary = d.querySelector('summary.menu-summary');
+        const summary = d.querySelector('.menu-summary');
         if (!summary) return;
         // Avoid duplicate controls
         if (summary.querySelector('.qty-controls')) return;
@@ -1263,7 +1260,7 @@
         });
       })();
 
-      // Section toggles: require checkbox to expand
+      // Section toggles: track active menu sections
       const toggles = document.querySelectorAll('.section-toggle');
       const detailsBySection = {
         pizza: document.getElementById('pizza'),
@@ -1278,7 +1275,6 @@
         const d = detailsBySection[section];
         const isActive = !!activeSections[section];
         t.checked = isActive;
-        if (d) d.open = isActive;
         // If active on restore, enforce required items
         if (isActive && d) {
           d.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
@@ -1287,7 +1283,6 @@
         t.addEventListener('click', (ev) => { ev.stopPropagation(); });
         t.addEventListener('change', () => {
           const d2 = detailsBySection[section];
-          if (d2) d2.open = t.checked;
           if (t.checked && d2) {
             // Enforce required when activating
             d2.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
@@ -1300,7 +1295,7 @@
                 if (cur <= 0) {
                   qtySections[section] = 1;
                   localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections));
-                  const sum = d2.querySelector('summary.menu-summary .qty-controls span');
+                  const sum = d2.querySelector('.menu-summary .qty-controls span');
                   if (sum) sum.textContent = `(x1)`;
                 }
               } catch { }
@@ -1317,7 +1312,7 @@
                 qtySections[section] = 0;
                 localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections));
               } catch { }
-              const sum = d2.querySelector('summary.menu-summary .qty-controls span');
+              const sum = d2.querySelector('.menu-summary .qty-controls span');
               if (sum) sum.textContent = `(x0)`;
             }
           }
@@ -1331,7 +1326,7 @@
       // Summary behavior:
       // - If titleSelects is ON, clicking the title text toggles the checkbox (not expand)
       // - Otherwise, clicking summary toggles the checkbox
-      document.querySelectorAll('summary.menu-summary').forEach((s) => {
+      document.querySelectorAll('.menu-summary').forEach((s) => {
         s.addEventListener('click', (e) => {
           const titleEl = s.querySelector('span');
           const isTitleClick = titleEl && titleEl.contains(e.target);
@@ -1389,12 +1384,12 @@
           message = 'Please select at least one sauce or uncheck Sauces.';
         }
         // Clear previous invalid highlights
-        document.querySelectorAll('summary.menu-summary').forEach((s) => s.classList.remove('invalid'));
+        document.querySelectorAll('.menu-summary').forEach((s) => s.classList.remove('invalid'));
         if (!anySectionActive) {
           // highlight all summaries when nothing is selected
-          document.querySelectorAll('summary.menu-summary').forEach((s) => s.classList.add('invalid'));
+          document.querySelectorAll('.menu-summary').forEach((s) => s.classList.add('invalid'));
         } else if (saucesActive && !saucesSelected) {
-          const s = document.querySelector('#sauces > summary.menu-summary');
+          const s = document.querySelector('#sauces .menu-summary');
           if (s) s.classList.add('invalid');
         }
         if (message) {
@@ -1489,7 +1484,7 @@
                   qs[section] = 0;
                   localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qs));
                 } catch { }
-                const sum = d2 && d2.querySelector('summary.menu-summary .qty-controls span');
+              const sum = d2 && d2.querySelector('.menu-summary .qty-controls span');
                 if (sum) sum.textContent = `(x0)`;
               } else if (section === 'sauces') {
                 // Zero out all sauce qtys
