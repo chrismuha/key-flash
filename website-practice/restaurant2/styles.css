@@ -144,7 +144,7 @@ body.theme-dark .settings-panel .settings-reset {
     color: #fff;
 }
 
-/* Disable nav bar (dev only) — hide completely */
+/* Disable nav bar */
 body:not(.nav-enabled) .left-rail {
     display: none !important;
 }
