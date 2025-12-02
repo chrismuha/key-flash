@@ -1,17 +1,3 @@
-/*
-   Restaurant Demo Styles
-   - Layout (left rail + main)
-   - Headings & typography
-   - Expandable menu sections
-   - Order type (index) UI
-   - Order summary (page 3)
-   - Navigation boxes (left rail)
-   - Form controls (checkboxes, reset buttons)
-   - Responsive rules
-*/
-
-/* Section: File Overview */
-
 /* Section: CSS Variables */
 :root {
     /* Fine-tuned spacing so left/right visually match top/bottom */
@@ -905,6 +891,11 @@ main summary.menu-summary::before {
     margin-right: 8px;
     color: #000;
     transition: transform 0.2s ease;
+}
+
+/* Flip arrow to white in dark mode */
+body.theme-dark main summary.menu-summary::marker {
+    color: #fff;
 }
 
 /* slight spacing when open */
