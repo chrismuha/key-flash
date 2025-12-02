@@ -219,7 +219,7 @@ body.theme-dark main fieldset {
     border: 1px solid #000;
     background: #f7f7f7;
     color: #000;
-    border-radius: 16px;
+    border-radius: 999px;
     padding: 4px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
     min-width: 160px;
