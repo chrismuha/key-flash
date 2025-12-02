@@ -1010,6 +1010,16 @@
           body.classList.remove('menu-overlay-open');
         }
       };
+      const closeAllOverlays = () => {
+        let closedAny = false;
+        overlays.forEach((overlay) => {
+          if (!overlay.hidden) {
+            closedAny = true;
+            closeOverlay(overlay);
+          }
+        });
+        return closedAny;
+      };
       const openOverlay = (section) => {
         const overlay = overlays.find(o => o.dataset.section === section);
         if (!overlay) return;
@@ -1041,6 +1051,19 @@
           if (active) closeOverlay(active);
         }
       });
+      const nextButton = document.querySelector('.next-button');
+      if (nextButton) {
+        nextButton.addEventListener('click', (e) => {
+          const closed = closeAllOverlays();
+          if (closed) {
+            e.preventDefault();
+            const menuActions = document.querySelector('.menu-actions');
+            if (menuActions) menuActions.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const firstButton = document.querySelector('.menu-launch');
+            if (firstButton) firstButton.focus({ preventScroll: true });
+          }
+        });
+      }
       if (location.hash) {
         const hashSection = location.hash.replace('#', '').trim();
         if (hashSection) openOverlay(hashSection);

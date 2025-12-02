@@ -953,7 +953,7 @@ body.menu-overlay-open {
     display: none;
     align-items: flex-start;
     justify-content: center;
-    padding: 24px 12px;
+    padding: 96px 12px 24px;
     overflow: auto;
     z-index: 10;
 }
