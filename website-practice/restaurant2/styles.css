@@ -1,8 +1,8 @@
 /* Section: CSS Variables */
 :root {
     --gap: 12px;
-    --logo-w: 204px;
-    --logo-h: 155px;
+    --logo-w: 120px;
+    --logo-h: 80px;
     --nav-height: calc(var(--logo-h) + var(--gap) * 2);
     --rail-side-gap: calc(var(--gap) - 6px);
     --rail-width: calc(var(--logo-w) + (var(--rail-side-gap) * 2));
@@ -50,7 +50,7 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: var(--gap);
     padding: var(--gap) calc(var(--gap) * 2);
     width: 100%;
@@ -74,6 +74,7 @@ body {
     object-fit: contain;
     border: none;
     border-radius: 0;
+    flex-shrink: 0;
 }
 
 
@@ -93,6 +94,7 @@ body {
     height: 33px;
     line-height: 33px;
     align-self: center;
+    flex-shrink: 0;
 }
 
 body.theme-dark .settings-button {
@@ -1011,6 +1013,7 @@ body.theme-dark .close-overlay:focus-visible {
     height: 33px;
     line-height: 33px;
     font-size: 24px;
+    flex-shrink: 0;
 }
 
 /* Section: Focus Styles */
