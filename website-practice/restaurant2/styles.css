@@ -732,7 +732,7 @@ body.order-type .order-card {
     width: 180px;
     height: 180px;
     border: 2px solid #000;
-    border-radius: 0;
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -954,6 +954,7 @@ body.theme-dark .close-overlay:focus-visible {
     height: 33px;
     background: var(--box-bg);
     border: none;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
