@@ -18,8 +18,11 @@
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    user-select: none;
+    /* Keep both for dynamic viewport units (mobile) while still supporting older browsers */
+    min-height: 100vh;
     min-height: 100dvh;
-    user-select: none;}
+}
 
 /* Section: Base HTML/Body */
 html,

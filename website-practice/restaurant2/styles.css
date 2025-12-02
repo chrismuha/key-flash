@@ -20,6 +20,9 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    /* Keep both for dynamic viewport units (mobile) while still supporting older browsers */
+    min-height: 100vh;
+    min-height: 100dvh;
 }
 
 /* Section: Base HTML/Body */
@@ -32,8 +35,6 @@ body {
     font-family: system-ui, sans-serif;
     font-size: 16px;
     min-width: 2204px;
-    min-height: 100vh;
-    min-height: 100dvh;
     overflow-x: hidden;
 }
 
@@ -248,7 +249,7 @@ body.theme-dark main fieldset {
     border-bottom-right-radius: 12px;
 }
 
-.theme-option + .theme-option {
+.theme-option+.theme-option {
     border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
@@ -269,7 +270,7 @@ body.theme-dark .theme-option:focus-visible {
     background: rgba(255, 255, 255, 0.15);
 }
 
-body.theme-dark .theme-option + .theme-option {
+body.theme-dark .theme-option+.theme-option {
     border-top-color: rgba(255, 255, 255, 0.25);
 }
 
