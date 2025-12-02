@@ -210,11 +210,6 @@ body.theme-dark main {
     color: #fff;
 }
 
-/* Keep summary arrow visible on dark */
-body.theme-dark main summary.menu-summary::before {
-    color: #fff;
-}
-
 /* Links inside main inherit white so they remain readable */
 body.theme-dark main a {
     color: #fff;
@@ -854,24 +849,9 @@ main summary.menu-summary::-webkit-details-marker {
     display: none;
 }
 
-/* custom black arrow marker */
-main summary.menu-summary::before {
-    content: "\25B8";
-    display: inline-block;
-    width: 1em;
-    margin-right: 8px;
-    color: #000;
-    transition: transform 0.2s ease;
-}
-
 /* slight spacing when open */
 main details[open]>summary.menu-summary {
     margin-bottom: 8px;
-}
-
-/* rotate arrow when open */
-main details[open]>summary.menu-summary::before {
-    transform: rotate(90deg);
 }
 
 /* Section: Full-screen menu overlays */
