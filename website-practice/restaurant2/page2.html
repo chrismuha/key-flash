@@ -1,0 +1,171 @@
+<!-- Section: Document Type -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Section: Head Meta -->
+    <meta charset="UTF-8">
+    <title>Restaurant Menu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Section: Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="page2">
+    <!-- Section: Body Content -->
+
+    <!-- Left rail -->
+    <nav class="left-rail">
+        <img src="pizza.webp" alt="" class="nav-logo" aria-hidden="true">
+        <a class="box" href="index.html">Page 1</a>
+        <a class="box active" href="page2.html" aria-current="page">Page 2</a>
+        <a class="box" href="page3.html">Page 3</a>
+        <button class="settings-button" type="button" aria-haspopup="dialog" aria-expanded="false"
+            aria-controls="settings-panel" aria-label="Open settings">⚙️ Settings</button>
+        <div class="settings-panel" id="settings-panel" hidden>
+            <label title="Clicking section arrows expands/collapses only; checkboxes control selection">
+                <input type="checkbox" class="setting-expand-only" checked>
+                Summary arrow expands/collapses only
+            </label>
+            <label title="Clicking an ingredient label also toggles its checkbox">
+                <input type="checkbox" class="setting-label-selects" checked>
+                Ingredient label toggles checkbox
+            </label>
+            <label title="Clicking a section title (e.g., Pizza/Burger/Sauces) toggles its section checkbox">
+                <input type="checkbox" class="setting-title-selects" checked>
+                Section title toggles checkbox
+            </label>
+            <label title="When you uncheck an item/section, its quantity resets to 1">
+                <input type="checkbox" class="setting-reset-on-deselect">
+                Reset quantity when deselecting
+            </label>
+            <label title="Reset buttons also disable the item and clear its selections">
+                <input type="checkbox" class="setting-reset-disables">
+                Reset button disables item
+            </label>
+            <button type="button" class="settings-reset" aria-label="Reset settings to defaults">Reset to
+                defaults</button>
+        </div>
+    </nav>
+
+    <!-- Right-side content area (Page 2 / Menu Builder) -->
+    <main>
+        <!-- Theme toggle -->
+        <button class="go-back" type="button" aria-label="Go back">Go Back</button>
+        <div class="theme-dropdown">
+            <button class="theme-toggle" type="button" aria-haspopup="menu" aria-expanded="false"
+                aria-controls="theme-menu" aria-label="Open theme menu">Themes</button>
+            <div class="theme-menu" role="menu" id="theme-menu" hidden>
+                <button type="button" class="theme-option theme-mode-toggle" role="menuitem">Dark Mode</button>
+                <button type="button" class="theme-option nav-toggle" role="menuitem">Enable Navigation</button>
+            </div>
+        </div>
+        <!-- Page title -->
+        <h1>Menu Builder</h1>
+        <p>Select ingredients for each menu item below.</p>
+
+        <!-- Menu Item: Pizza -->
+        <section>
+            <details id="pizza">
+                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="pizza">
+                    <span>Pizza</span>
+                </summary>
+                <form>
+                    <fieldset>
+                        <legend>Choose Ingredients</legend>
+                        <!-- Alphabetical order -->
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="bacon"> Bacon</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="cheese"> Cheese</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="jalapenos">
+                            Jalapeños</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="lettuce"> Lettuce</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="mushrooms">
+                            Mushrooms</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="olives"> Olives</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="onion"> Onion</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="pickles"> Pickles</label><br>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="tomatoes"> Tomatoes</label><br>
+                        <label class="required" title="Required"><input type="checkbox" name="pizza_ingredients[]"
+                                value="tomato_sauce" data-required="true"> Tomato Sauce (Required)</label>
+                        <label><input type="checkbox" name="pizza_ingredients[]" value="well_done">
+                            Well-done</label><br>
+                    </fieldset>
+                    <button type="button" class="reset-group" data-group="pizza_ingredients[]">Reset Pizza</button>
+                </form>
+            </details>
+        </section>
+
+        <!-- Menu Item: Burger -->
+        <section>
+            <details id="burger">
+                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="burger">
+                    <span>Burger</span>
+                </summary>
+                <form>
+                    <fieldset>
+                        <legend>Choose Ingredients</legend>
+                        <!-- Alphabetical order -->
+                        <label><input type="checkbox" name="burger_ingredients[]" value="bacon"> Bacon</label><br>
+                        <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]"
+                                value="bun" data-required="true" title="Required"> Bun (Required)</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="cheese"> Cheese</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="jalapenos">
+                            Jalapeños</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="lettuce"> Lettuce</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="mushrooms">
+                            Mushrooms</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="olives"> Olives</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="onion"> Onion</label><br>
+                        <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]"
+                                value="patty" data-required="true" title="Required"> Patty (Required)</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="pickles"> Pickles</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="tomatoes"> Tomatoes</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="well_done">
+                            Well-done</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="medium_well">
+                            Medium-well</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="rare"> Rare</label><br>
+                        <label><input type="checkbox" name="burger_ingredients[]" value="tomato_sauce"> Sauce</label>
+                    </fieldset>
+                    <button type="button" class="reset-group" data-group="burger_ingredients[]">Reset Burger</button>
+                </form>
+            </details>
+        </section>
+
+        <!-- Menu Item: Sauces -->
+        <section>
+            <details id="sauces">
+                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="sauces">
+                    <span>Sauces</span>
+                </summary>
+                <form>
+                    <fieldset>
+                        <legend>Choose Ingredients</legend>
+                        <!-- Alphabetical order -->
+                        <label><input type="checkbox" name="sauces_ingredients[]" value="bbq"> BBQ</label><br>
+                        <label><input type="checkbox" name="sauces_ingredients[]" value="butter_milk_ranch"> Butter Milk
+                            Ranch</label><br>
+                        <label><input type="checkbox" name="sauces_ingredients[]" value="honey_bbq"> Honey
+                            BBQ</label><br>
+                        <label><input type="checkbox" name="sauces_ingredients[]" value="honey_mustard"> Honey
+                            Mustard</label><br>
+                        <label><input type="checkbox" name="sauces_ingredients[]" value="mayonnaise">
+                            Mayonnaise</label><br>
+                        <label><input type="checkbox" name="sauces_ingredients[]" value="mustard"> Mustard</label><br>
+                        <label><input type="checkbox" name="sauces_ingredients[]" value="ranch"> Ranch</label>
+                    </fieldset>
+                    <button type="button" class="reset-group" data-group="sauces_ingredients[]">Reset Sauces</button>
+                </form>
+            </details>
+        </section>
+        <!-- Validation error for builder -->
+        <p id="builder-error" class="form-error" hidden>Please select at least one additional ingredient before
+            continuing.</p>
+        <!-- Next page button -->
+        <a class="next-button" href="page3.html" aria-label="Go to next page">Next »</a>
+    </main>
+
+</body>
+<script src="app.js"></script>
+
+</html>

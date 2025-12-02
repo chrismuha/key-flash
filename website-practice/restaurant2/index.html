@@ -1,0 +1,151 @@
+<!-- Section: Document Type -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Section: Head Meta -->
+    <meta charset="UTF-8">
+    <title>Restaurant Mobile Ordering</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Section: Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="order-type">
+    <!-- Section: Body Content -->
+
+    <!-- Left rail (Site Navigation) -->
+    <nav class="left-rail">
+        <img src="pizza.webp" alt="" class="nav-logo" aria-hidden="true">
+        <a class="box active" href="index.html" aria-current="page">Page 1</a>
+        <a class="box" href="page2.html">Page 2</a>
+        <a class="box" href="page3.html">Page 3</a>
+        <button class="settings-button" type="button" aria-haspopup="dialog" aria-expanded="false"
+            aria-controls="settings-panel" aria-label="Open settings">⚙️ Settings</button>
+        <div class="settings-panel" id="settings-panel" hidden>
+            <label title="Clicking section arrows expands/collapses only; checkboxes control selection">
+                <input type="checkbox" class="setting-expand-only" checked>
+                Summary arrow expands/collapses only
+            </label>
+            <label title="Clicking an ingredient label also toggles its checkbox">
+                <input type="checkbox" class="setting-label-selects" checked>
+                Ingredient label toggles checkbox
+            </label>
+            <label title="Clicking a section title (e.g., Pizza/Burger/Sauces) toggles its section checkbox">
+                <input type="checkbox" class="setting-title-selects" checked>
+                Section title toggles checkbox
+            </label>
+            <label title="When you uncheck an item/section, its quantity resets to 1">
+                <input type="checkbox" class="setting-reset-on-deselect">
+                Reset quantity when deselecting
+            </label>
+            <label title="Reset buttons also disable the item and clear its selections">
+                <input type="checkbox" class="setting-reset-disables">
+                Reset button disables item
+            </label>
+            <button type="button" class="settings-reset" aria-label="Reset settings to defaults">Reset to
+                defaults</button>
+        </div>
+    </nav>
+
+    <!-- Right-side content area (Page 1 / Order Type) -->
+    <main>
+        <!-- Theme dropdown -->
+        <div class="theme-dropdown">
+            <button class="theme-toggle" type="button" aria-haspopup="menu" aria-expanded="false"
+                aria-controls="theme-menu" aria-label="Open theme menu">Themes</button>
+            <div class="theme-menu" role="menu" id="theme-menu" hidden>
+                <button type="button" class="theme-option theme-mode-toggle" role="menuitem">Dark Mode</button>
+                <button type="button" class="theme-option nav-toggle" role="menuitem">Enable Navigation</button>
+            </div>
+        </div>
+        <!-- Page title -->
+        <h1>Please select your order type</h1>
+
+        <!-- Order type chooser cards -->
+        <div class="order-options" role="list">
+            <a class="order-card" href="page2.html" role="listitem" aria-label="Dine In or Carryout" data-type="dine">
+                <svg aria-hidden="true" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 10h18" />
+                    <path d="M5 10V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4" />
+                    <path d="M3 10l2 10h14l2-10" />
+                </svg>
+                <div class="order-label">
+                    <strong>Dine</strong><br>In/Carryout
+                </div>
+            </a>
+            <a class="order-card" href="page2.html" role="listitem" aria-label="Delivery" data-type="delivery">
+                <svg aria-hidden="true" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 16V7a1 1 0 0 1 1-1h9v10" />
+                    <path d="M13 9h4l4 4v3h-8" />
+                    <circle cx="7" cy="17" r="2" />
+                    <circle cx="17" cy="17" r="2" />
+                </svg>
+                <div class="order-label">
+                    <strong>Delivery</strong>
+                </div>
+            </a>
+        </div>
+
+        <!-- Delivery details (shown when Delivery is selected) -->
+        <form id="delivery-details" class="delivery-details" hidden novalidate>
+            <h2>Delivery Details</h2>
+            <div class="field">
+                <label for="delivery-name">Name <span class="req">*</span></label>
+                <input type="text" id="delivery-name" name="delivery_name" autocomplete="name" required maxlength="60">
+            </div>
+            <div class="field">
+                <label for="delivery-phone">Phone Number <span class="req">*</span></label>
+                <input type="tel" id="delivery-phone" name="delivery_phone" autocomplete="tel" inputmode="tel" required
+                    maxlength="14">
+            </div>
+            <div class="field">
+                <label for="delivery-address">Street Address <span class="req">*</span></label>
+                <input type="text" id="delivery-address" name="delivery_address" autocomplete="street-address" required
+                    maxlength="100">
+            </div>
+            <div class="field">
+                <label for="delivery-type">Residence Type <span class="req">*</span></label>
+                <select id="delivery-type" name="delivery_type" required>
+                    <option value="Hotel">Hotel</option>
+                    <option value="School">School</option>
+                    <option value="Business">Business</option>
+                    <option value="Apartment">Apartment</option>
+                    <option value="House" selected>House</option>
+                </select>
+            </div>
+            <div class="field">
+                <label for="delivery-city">City <span class="req">*</span></label>
+                <input type="text" id="delivery-city" name="delivery_city" required maxlength="50">
+            </div>
+            <div class="field">
+                <label for="delivery-zip">Zip <span class="req">*</span></label>
+                <input type="text" id="delivery-zip" name="delivery_zip" inputmode="numeric" pattern="[0-9-]*"
+                    title="Digits and hyphens only" required maxlength="10">
+            </div>
+            <p id="delivery-error" class="form-error" hidden>Sorry, we cannot accept your order. We currently serve zip
+                code 13309 only.</p>
+            <div class="delivery-actions">
+                <button type="button" class="delivery-clear">Clear All Fields</button>
+                <button type="submit" class="delivery-continue">Continue »</button>
+            </div>
+        </form>
+
+        <!-- Helper note under choices -->
+        <p class="order-note">Confirm your selection of Dine-In or Carryout or Delivery on the next page.</p>
+        <!-- <p class="order-links">
+            <a href="#">Privacy Policy</a>
+            <span> </span>
+            <a href="#">Terms of Use</a>
+        </p> -->
+        <!-- <p class="order-powered">Powered By <a href="#">Company</a></p> -->
+    </main>
+    <!-- Section: Page Script -->
+    <script src="app.js"></script>
+
+    <!-- Section: End Body -->
+</body>
+
+</html>

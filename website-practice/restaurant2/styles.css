@@ -1,0 +1,982 @@
+/*
+   Restaurant Demo Styles
+   - Layout (left rail + main)
+   - Headings & typography
+   - Expandable menu sections
+   - Order type (index) UI
+   - Order summary (page 3)
+   - Navigation boxes (left rail)
+   - Form controls (checkboxes, reset buttons)
+   - Responsive rules
+*/
+
+/* Section: File Overview */
+
+/* Section: CSS Variables */
+:root {
+    /* Fine-tuned spacing so left/right visually match top/bottom */
+    --gap: 12px;
+    --logo-w: 204px;
+    --logo-h: 155px;
+    --rail-side-gap: calc(var(--gap) - 6px);
+    --rail-width: calc(var(--logo-w) + (var(--rail-side-gap) * 2));
+    --box-height: 56px;
+    --box-bg: #2ecc71;
+    --box-border: #000;
+    --nav-logo-h: var(--logo-h);
+}
+
+/* Section: Global Resets */
+* {
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Section: Base HTML/Body */
+html,
+body {
+    margin: 0;
+    height: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-family: system-ui, sans-serif;
+    font-size: 16px;
+    min-width: 2204px;
+    min-height: 1856px;
+    overflow-x: hidden;
+}
+
+/* Section: App Layout (Body Flex) */
+body {
+    display: flex;
+    min-height: 100vh;
+    min-height: 100dvh;
+    align-items: stretch;
+    overflow-y: auto;
+}
+
+/* Section: Left Rail Navigation */
+.left-rail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    padding: var(--gap) var(--rail-side-gap);
+    width: var(--rail-width);
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    align-items: flex-start;
+    background: #dba37f;
+    overflow: hidden;
+    scrollbar-gutter: stable both-edges;
+}
+
+/* Align page links with collapsed menu rows globally */
+.left-rail {
+    padding-top: calc(var(--gap) * 2 + var(--nav-logo-h));
+}
+
+/* Left-rail logo occupies the padded space above links */
+.left-rail .nav-logo {
+    position: absolute;
+    top: var(--gap);
+    left: 50%;
+    transform: translateX(-50%);
+    display: block;
+    width: var(--logo-w);
+    height: var(--logo-h);
+    object-fit: contain;
+    border: none;
+    border-radius: 0;
+}
+
+
+/* Settings gear in left rail */
+.settings-button {
+    margin-top: auto;
+    padding: 0 10px;
+    font-weight: 600;
+    font-size: 16px;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    color: #000;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 190px;
+    height: 33px;
+    line-height: 33px;
+    align-self: center;
+}
+
+body.theme-dark .settings-button {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+.settings-panel {
+    margin-top: 6px;
+    font-size: inherit;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    color: #000;
+    border-radius: 6px;
+    padding: 8px;
+    max-height: none;
+    overflow: visible;
+}
+
+body.theme-dark .settings-panel {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+.settings-panel label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.settings-panel .settings-reset {
+    margin-top: 8px;
+    padding: 6px 10px;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    color: #000;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+body.theme-dark .settings-panel .settings-reset {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+/* Disable nav bar (dev only) — hide completely */
+body:not(.nav-enabled) .left-rail {
+    display: none !important;
+}
+
+body.nav-enabled .left-rail {
+    display: flex;
+}
+
+body:not(.nav-enabled) main {
+    margin-left: 0 !important;
+}
+
+.left-rail::before {
+    content: "";
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Section: Main Content Area */
+main {
+    background: #fff;
+    flex: 0 1 auto;
+    width: calc(100vw - var(--rail-width));
+    max-width: 75ch;
+    min-width: 520px;
+    padding: calc(var(--gap) * 4) var(--gap) var(--gap) calc(var(--gap) * 2);
+    border: none;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    margin-inline: 0 auto;
+    margin-left: var(--rail-width);
+}
+
+/* Section: Theme (Dark) */
+/* Only flips the main content background to black and text to white */
+body.theme-dark {
+    background: #000;
+}
+
+body.theme-dark main {
+    background: #000;
+    color: #fff;
+}
+
+/* Keep summary arrow visible on dark */
+body.theme-dark main summary.menu-summary::before {
+    color: #fff;
+}
+
+/* Links inside main inherit white so they remain readable */
+body.theme-dark main a {
+    color: #fff;
+}
+
+/* Make fieldset borders white in dark theme */
+body.theme-dark main fieldset {
+    border-color: #fff;
+}
+
+/* Theme dropdown */
+.theme-dropdown {
+    position: fixed;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    z-index: 1000;
+}
+
+.theme-toggle {
+    padding: 6px 10px;
+    font-weight: 600;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    color: #000;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Visual disclosure indicator */
+.theme-toggle::after {
+    content: "";
+    display: inline-block;
+    width: 0.6em;
+    height: 0.6em;
+    margin-left: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 120ms ease;
+}
+
+.theme-toggle[aria-expanded="true"]::after {
+    transform: rotate(-135deg);
+}
+
+.theme-menu {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    color: #000;
+    border-radius: 6px;
+    padding: 4px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    min-width: 160px;
+}
+
+/* Ensure hidden attribute actually hides the menu */
+.theme-menu[hidden] {
+    display: none !important;
+}
+
+.theme-option {
+    border: none;
+    background: transparent;
+    text-align: left;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+
+.theme-option:hover,
+.theme-option:focus-visible {
+    background: rgba(0, 0, 0, 0.08);
+    outline: none;
+}
+
+body.theme-dark .theme-toggle {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+body.theme-dark .theme-menu {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+body.theme-dark .theme-option:hover,
+body.theme-dark .theme-option:focus-visible {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Go Back button (fixed, next to theme toggle) */
+.go-back {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    padding: 6px 10px;
+    font-weight: 600;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    color: #000;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+body.theme-dark .go-back {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+/* Hide Go Back when navigation is enabled */
+body.nav-enabled .go-back {
+    display: none !important;
+}
+
+/* Dark theme: make all key outlines/borders white for contrast */
+body.theme-dark :focus-visible {
+    outline-color: #fff;
+}
+
+body.theme-dark main input[type="checkbox"] {
+    border-color: #fff;
+    background: #000;
+}
+
+body.theme-dark main .reset-group {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+body.theme-dark.page3 #order-summary {
+    border-color: #fff;
+    background: #000;
+    color: #fff;
+}
+
+body.theme-dark.order-type .delivery-details .delivery-clear {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+body.theme-dark.order-type .order-card {
+    border-color: #fff;
+    background: #111;
+    color: #fff;
+}
+
+body.theme-dark.order-type .order-card.selected {
+    box-shadow: 0 0 0 3px #fff inset;
+    color: #fff;
+}
+
+body.theme-dark .left-rail .box.active {
+    border-color: #fff;
+}
+
+/* Prevent hover animation/color change on required Burger items */
+body.page2 label.required,
+body.page2 label.required:hover,
+body.page2 label.required:active,
+body.page2 label.required:focus {
+    color: inherit !important;
+    background: transparent !important;
+}
+
+body.page2 label.required,
+body.page2 label.required * {
+    transition: none !important;
+}
+
+/* Completely suppress hover/interaction on required Burger labels */
+/* allow interaction; JS enforces requirement only when section is active */
+body.page2 label.required {
+    pointer-events: auto !important;
+}
+
+/* Section: Page 2 Scoped (Builder Container) */
+body.page2 main {
+    border: none;
+    position: relative;
+    padding-bottom: 96px;
+}
+
+/* Section: Page 2 Next Button */
+body.page2 .next-button {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    padding: 8px 14px;
+    background: var(--box-bg);
+    border: 2px solid var(--box-border);
+    color: #000;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 6px;
+    z-index: 1000;
+}
+
+body.page2 .next-button:hover {
+    filter: brightness(0.95);
+}
+
+body.page2 .next-button:active {
+    transform: translateY(1px);
+}
+
+/* Section: Main Spacing Helpers */
+main> :first-child {
+    margin-top: 0;
+}
+
+main> :last-child {
+    margin-bottom: 0;
+}
+
+main img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Section: Headings & Typography */
+main h1,
+main h2,
+main h3,
+main h4,
+main h5,
+main h6,
+main p,
+main ul,
+main ol,
+main blockquote,
+main pre {
+    margin-top: 0;
+    margin-bottom: var(--gap);
+}
+
+main ul,
+main ol {
+    margin: 0;
+    padding-left: calc(var(--gap) * 2);
+}
+
+main h1 {
+    font-size: 32px;
+    line-height: 48px;
+}
+
+main h2 {
+    font-size: 24px;
+    line-height: 36px;
+}
+
+main h3 {
+    font-size: 20px;
+    line-height: 24px;
+}
+
+main h4 {
+    font-size: 18px;
+    line-height: 24px;
+}
+
+main h5 {
+    font-size: 16px;
+    line-height: 24px;
+}
+
+main h6 {
+    font-size: 14px;
+    line-height: 24px;
+}
+
+/* Section: Form Label Alignment */
+main fieldset label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.25;
+    cursor: pointer;
+}
+
+/* Section: Checkboxes (Unified Custom Style) */
+main input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #000;
+    border-radius: 3px;
+    background: #fff;
+    position: relative;
+    vertical-align: middle;
+    margin-right: 6px;
+    cursor: pointer;
+}
+
+main input[type="checkbox"]:checked {
+    background-color: #e53935;
+}
+
+/* Ensure dark mode keeps the red fill when checked */
+body.theme-dark main input[type="checkbox"]:checked {
+    background-color: #e53935;
+    border-color: #fff;
+}
+
+main input[type="checkbox"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px 16px;
+    opacity: 0;
+}
+
+main input[type="checkbox"]:checked::after {
+    opacity: 1;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%232ecc71' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='4,10 8,14 16,6'/></svg>");
+}
+
+/* Required + disabled items keep black checkmark for clarity */
+body.page2 input[type="checkbox"][data-required="true"][disabled]:checked::after {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='4,10 8,14 16,6'/></svg>");
+}
+
+/* Section: Restricted/Required Overrides */
+body.page2 input[type="checkbox"][disabled] {
+    opacity: 1;
+}
+
+body.page2 label.required {
+    color: inherit;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+/* Dark theme text color for required label (explicit for safety) */
+body.theme-dark.page2 label.required,
+body.theme-dark .page2 label.required {
+    color: #fff;
+}
+
+/* Remove focus outline and tap highlight on restricted */
+body.page2 label.required:focus-visible,
+body.page2 label.required input:focus-visible {
+    outline: none;
+}
+
+body.page2 label.required,
+body.page2 label.required * {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent any hover color changes on restricted items */
+body.page2 label.required:hover,
+body.page2 label.required:active,
+body.page2 label.required:focus {
+    color: inherit !important;
+    background: transparent !important;
+}
+
+/* block any accent/hover styling overrides for required */
+
+/* Custom-render the restricted, disabled checkbox to keep green box + black check */
+body.page2 input[type="checkbox"][data-required="true"][disabled] {
+    opacity: 1;
+    cursor: not-allowed;
+    transform: translateY(1px);
+}
+
+/* deactivate required labels' hover completely */
+body.page2 label.required {
+    pointer-events: none !important;
+}
+
+/* Re-enable interaction for required labels so embedded controls (e.g., Patty qty) are clickable */
+/* This overrides the earlier block and should appear later in the file */
+body.page2 label.required {
+    pointer-events: auto !important;
+}
+
+/* Dim any ingredient text until its checkbox is checked */
+main fieldset label:has(> input:not(:checked)) {
+    opacity: 0.6;
+}
+
+body.theme-dark main fieldset label:has(> input:not(:checked)) {
+    color: #bbb;
+}
+
+body.page2 input[type="checkbox"][data-required="true"][disabled]:checked {
+    background-color: var(--box-bg);
+}
+
+/* pseudo-element and checked styles are shared above for all checkboxes */
+/* Restricted checkbox: show error cursor and block interaction */
+body.page2 input[type="checkbox"][data-required="true"] {
+    cursor: not-allowed;
+    pointer-events: none;
+    /* hover still hits the label, showing tooltip */
+}
+
+/* Section: Page 3 Order Summary */
+body.page3 #order-summary {
+    border: 1px solid #000;
+    padding: 12px;
+    margin-bottom: 16px;
+}
+
+body.page3 #order-summary h3 {
+    margin: 0 0 8px 0;
+}
+
+body.page3 #order-summary ul {
+    margin: 0 0 8px 0;
+}
+
+/* spacing under multi-line address block */
+body.page3 #order-summary .address-block {
+    margin-bottom: 12px;
+}
+
+/* Keep Edit links black even after visited */
+body.page3 #order-summary a,
+body.page3 #order-summary a:visited,
+body.page3 #order-summary a:hover,
+body.page3 #order-summary a:active,
+body.page3 #order-summary a:focus {
+    color: red;
+    text-decoration: underline;
+}
+
+/* Section: Page 1 Order Type */
+body.order-type main {
+    text-align: left;
+}
+
+body.order-type main h1 {
+    font-size: 32px;
+    line-height: 48px;
+    font-weight: 700;
+    margin-bottom: 28px;
+    text-align: left;
+}
+
+body.order-type .order-options {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 36px;
+    margin: 16px 0 8px;
+}
+
+/* Delivery details panel under cards */
+body.order-type .delivery-details {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid #000;
+    max-width: 520px;
+    background: #fff;
+}
+
+body.theme-dark.order-type .delivery-details {
+    background: #000;
+    color: #fff;
+    border-color: #fff;
+}
+
+body.order-type .delivery-details .field {
+    margin-bottom: 10px;
+}
+
+body.order-type .delivery-details label {
+    display: block;
+    margin-bottom: 4px;
+}
+
+body.order-type .delivery-details .req {
+    color: #c00;
+}
+
+body.order-type .delivery-details .form-error {
+    color: #c00;
+    margin: 8px 0;
+}
+
+/* Live invalid highlighting for delivery details */
+body.order-type .delivery-details .field.invalid input,
+body.order-type .delivery-details .field.invalid select {
+    outline: 2px solid #c00;
+    outline-offset: 2px;
+}
+
+/* Generic inline form error styling */
+.form-error {
+    color: #c00;
+    margin: 8px 0;
+}
+
+body.order-type .delivery-details input[type="text"],
+body.order-type .delivery-details input[type="tel"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    background: #fff;
+    color: #000;
+}
+
+body.order-type .delivery-details select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #000;
+    border-radius: 4px;
+    background: #fff;
+    color: #000;
+}
+
+body.theme-dark.order-type .delivery-details input[type="text"],
+body.theme-dark.order-type .delivery-details input[type="tel"] {
+    background: #111;
+    color: #fff;
+    border-color: #fff;
+}
+
+body.theme-dark.order-type .delivery-details select {
+    background: #111;
+    color: #fff;
+    border-color: #fff;
+}
+
+body.order-type .delivery-details .delivery-continue {
+    padding: 8px 14px;
+    background: var(--box-bg);
+    border: 2px solid var(--box-border);
+    color: #000;
+    font-weight: 700;
+    text-decoration: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+body.order-type .delivery-details .delivery-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+body.order-type .delivery-details .delivery-clear {
+    padding: 8px 14px;
+    background: #f7f7f7;
+    border: 1px solid #000;
+    color: #000;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+body.order-type .order-card {
+    width: 180px;
+    height: 180px;
+    border: 2px solid #000;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #000;
+    text-decoration: none;
+    background: #fff;
+    transition: none;
+}
+
+body.order-type .order-card:hover {
+    background: var(--box-bg);
+    color: #000;
+}
+
+/* Visual selection if user returns to index */
+body.order-type .order-card.selected {
+    background: var(--box-bg);
+    color: #000;
+    box-shadow: 0 0 0 3px #000 inset;
+}
+
+body.order-type .order-card svg {
+    margin-bottom: 10px;
+}
+
+body.order-type .order-label {
+    font-size: 18px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+body.order-type .order-note {
+    color: inherit;
+    margin-top: 18px;
+}
+
+body.order-type .order-links,
+body.order-type .order-powered {
+    margin: 18px 0 0;
+}
+
+body.order-type .order-links a,
+body.order-type .order-powered a {
+    color: #000;
+}
+
+/* Section: Order Type Responsive */
+@media (max-width: 600px) {
+    body.order-type .order-options {
+        gap: 16px;
+    }
+
+    body.order-type .order-card {
+        width: 140px;
+        height: 140px;
+    }
+}
+
+/* Section: Expandable Menu Sections */
+main details {
+    margin-bottom: var(--gap);
+}
+
+main summary.menu-summary {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 24px;
+    line-height: 36px;
+    font-weight: 700;
+    margin: 0;
+    list-style: none;
+}
+
+/* Visual cue for invalid/attention-needed sections */
+main summary.menu-summary.invalid {
+    outline: 2px solid #c00;
+    outline-offset: 4px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+/* Section: Reset Buttons */
+main .reset-group {
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: #f7f7f7;
+    border: 1px solid #000;
+    border-radius: 4px;
+    color: #000;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+main .reset-group:hover {
+    background: #eee;
+}
+
+/* hide default marker in WebKit/Blink */
+main summary.menu-summary::-webkit-details-marker {
+    display: none;
+}
+
+/* custom black arrow marker */
+main summary.menu-summary::before {
+    content: "\25B8";
+    display: inline-block;
+    width: 1em;
+    margin-right: 8px;
+    color: #000;
+    transition: transform 0.2s ease;
+}
+
+/* slight spacing when open */
+main details[open]>summary.menu-summary {
+    margin-bottom: 8px;
+}
+
+/* rotate arrow when open */
+main details[open]>summary.menu-summary::before {
+    transform: rotate(90deg);
+}
+
+/* Section: Left Rail Boxes (Links) */
+.box {
+    margin: 0;
+    width: 190px;
+    height: 33px;
+    background: var(--box-bg);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: system-ui, sans-serif;
+    font-weight: 600;
+    user-select: none;
+    align-self: center;
+}
+
+/* outline only for the active page link */
+.left-rail .box.active,
+.left-rail .box[aria-current="page"] {
+    border: 2px solid var(--box-border);
+}
+
+.box,
+.box:link,
+.box:visited,
+.box:hover,
+.box:active,
+.box:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+/* Disabled nav links: allow hover for tooltip, block clicks via JS */
+.left-rail a[aria-disabled="true"] {
+    opacity: 0.5;
+    filter: grayscale(0.3);
+    cursor: not-allowed;
+}
+
+/* Align left-rail items with collapsible menu rows on all pages */
+.left-rail .box {
+    height: 33px;
+    line-height: 33px;
+    font-size: 24px;
+}
+
+/* Section: Focus Styles */
+:focus-visible {
+    outline: 2px solid #000;
+    outline-offset: 2px;
+}
+
+/* Utility: always show pointer cursor */
+.pointer {
+    cursor: pointer !important;
+}
+
+/* keep default focus outline for accessibility */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}

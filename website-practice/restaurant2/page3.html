@@ -1,0 +1,78 @@
+<!-- Section: Document Type -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Section: Head Meta -->
+    <meta charset="UTF-8">
+    <title>Restaurant Order Submission</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Section: Stylesheets -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="page3">
+    <!-- Section: Body Content -->
+
+    <!-- Left rail -->
+    <nav class="left-rail">
+        <img src="pizza.webp" alt="" class="nav-logo" aria-hidden="true">
+        <a class="box" href="index.html">Page 1</a>
+        <a class="box" href="page2.html">Page 2</a>
+        <a class="box active" href="page3.html" aria-current="page">Page 3</a>
+        <button class="settings-button" type="button" aria-haspopup="dialog" aria-expanded="false"
+            aria-controls="settings-panel" aria-label="Open settings">⚙️ Settings</button>
+        <div class="settings-panel" id="settings-panel" hidden>
+            <label title="Clicking section arrows expands/collapses only; checkboxes control selection">
+                <input type="checkbox" class="setting-expand-only" checked>
+                Summary arrow expands/collapses only
+            </label>
+            <label title="Clicking an ingredient label also toggles its checkbox">
+                <input type="checkbox" class="setting-label-selects" checked>
+                Ingredient label toggles checkbox
+            </label>
+            <label title="Clicking a section title (e.g., Pizza/Burger/Sauces) toggles its section checkbox">
+                <input type="checkbox" class="setting-title-selects" checked>
+                Section title toggles checkbox
+            </label>
+            <label title="When you uncheck an item/section, its quantity resets to 1">
+                <input type="checkbox" class="setting-reset-on-deselect">
+                Reset quantity when deselecting
+            </label>
+            <label title="Reset buttons also disable the item and clear its selections">
+                <input type="checkbox" class="setting-reset-disables">
+                Reset button disables item
+            </label>
+            <button type="button" class="settings-reset" aria-label="Reset settings to defaults">Reset to
+                defaults</button>
+        </div>
+    </nav>
+
+    <!-- Right-side content area (Page 3 / Summary + POS) -->
+    <main>
+        <!-- Theme toggle -->
+        <button class="go-back" type="button" aria-label="Go back">Go Back</button>
+        <div class="theme-dropdown">
+            <button class="theme-toggle" type="button" aria-haspopup="menu" aria-expanded="false"
+                aria-controls="theme-menu" aria-label="Open theme menu">Themes</button>
+            <div class="theme-menu" role="menu" id="theme-menu" hidden>
+                <button type="button" class="theme-option theme-mode-toggle" role="menuitem">Dark Mode</button>
+                <button type="button" class="theme-option nav-toggle" role="menuitem">Enable Navigation</button>
+            </div>
+        </div>
+        <!-- Summary title -->
+        <h1>Order Summary</h1>
+        <!-- Summary block (rendered via app.js) -->
+        <section id="order-summary">
+            <!-- Filled by app.js -->
+        </section>
+
+        <!-- Placeholder for payment step -->
+        <h2>Point of Sale (POS)</h2>
+        <p>This is where payment options and payment submission would be.</p>
+    </main>
+
+</body>
+<script src="app.js"></script>
+
+</html>
