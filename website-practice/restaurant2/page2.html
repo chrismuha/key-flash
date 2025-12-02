@@ -64,98 +64,122 @@
         <h1>Menu Builder</h1>
         <p>Select ingredients for each menu item below.</p>
 
+        <div class="menu-actions" role="list">
+            <button type="button" class="menu-launch" data-target="pizza" role="listitem">Customize Pizza</button>
+            <button type="button" class="menu-launch" data-target="burger" role="listitem">Customize Burger</button>
+            <button type="button" class="menu-launch" data-target="sauces" role="listitem">Customize Sauces</button>
+        </div>
+
         <!-- Menu Item: Pizza -->
-        <section>
-            <details id="pizza">
-                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="pizza">
-                    <span>Pizza</span>
-                </summary>
-                <form>
-                    <fieldset>
-                        <legend>Choose Ingredients</legend>
-                        <!-- Alphabetical order -->
-                        <label><input type="checkbox" name="pizza_ingredients[]" value="bacon"> Bacon</label><br>
-                        <label><input type="checkbox" name="pizza_ingredients[]" value="cheese"> Cheese</label><br>
-                        <label><input type="checkbox" name="pizza_ingredients[]" value="jalapenos">
-                            Jalapeños</label><br>
-                        <label><input type="checkbox" name="pizza_ingredients[]" value="lettuce"> Lettuce</label><br>
-                        <label><input type="checkbox" name="pizza_ingredients[]" value="mushrooms">
-                            Mushrooms</label><br>
-                        <label><input type="checkbox" name="pizza_ingredients[]" value="olives"> Olives</label><br>
-                        <label><input type="checkbox" name="pizza_ingredients[]" value="onion"> Onion</label><br>
-                        <label><input type="checkbox" name="pizza_ingredients[]" value="pickles"> Pickles</label><br>
-                        <label><input type="checkbox" name="pizza_ingredients[]" value="tomatoes"> Tomatoes</label><br>
-                        <label class="required" title="Required"><input type="checkbox" name="pizza_ingredients[]" value="tomato_sauce" data-required="true"> Tomato Sauce (Required)</label><br>
-                        <label><input type="checkbox" name="pizza_ingredients[]" value="well_done"> Well-done</label><br>
-                    </fieldset>
-                    <button type="button" class="reset-group" data-group="pizza_ingredients[]">Reset Pizza</button>
-                </form>
-            </details>
-        </section>
+        <div class="menu-overlay" data-section="pizza" hidden>
+            <div class="menu-overlay-card">
+                <div class="overlay-header">
+                    <h2>Pizza</h2>
+                    <button type="button" class="close-overlay" aria-label="Close Pizza options">✕</button>
+                </div>
+                <details id="pizza">
+                    <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="pizza">
+                        <span>Pizza</span>
+                    </summary>
+                    <form>
+                        <fieldset>
+                            <legend>Choose Ingredients</legend>
+                            <!-- Alphabetical order -->
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="bacon"> Bacon</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="cheese"> Cheese</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="jalapenos">
+                                Jalapeños</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="lettuce"> Lettuce</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="mushrooms">
+                                Mushrooms</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="olives"> Olives</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="onion"> Onion</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="pickles"> Pickles</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="tomatoes"> Tomatoes</label><br>
+                            <label class="required" title="Required"><input type="checkbox" name="pizza_ingredients[]" value="tomato_sauce" data-required="true"> Tomato Sauce (Required)</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="well_done"> Well-done</label><br>
+                        </fieldset>
+                        <button type="button" class="reset-group" data-group="pizza_ingredients[]">Reset Pizza</button>
+                    </form>
+                </details>
+            </div>
+        </div>
 
         <!-- Menu Item: Burger -->
-        <section>
-            <details id="burger">
-                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="burger">
-                    <span>Burger</span>
-                </summary>
-                <form>
-                    <fieldset>
-                        <legend>Choose Ingredients</legend>
-                        <!-- Alphabetical order -->
-                        <label><input type="checkbox" name="burger_ingredients[]" value="bacon"> Bacon</label><br>
-                        <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]"
-                                value="bun" data-required="true" title="Required"> Bun (Required)</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="cheese"> Cheese</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="jalapenos">
-                            Jalapeños</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="lettuce"> Lettuce</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="mushrooms">
-                            Mushrooms</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="olives"> Olives</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="onion"> Onion</label><br>
-                        <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]"
-                                value="patty" data-required="true" title="Required"> Patty (Required)</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="pickles"> Pickles</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="tomatoes"> Tomatoes</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="well_done">
-                            Well-done</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="medium_well">
-                            Medium-well</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="rare"> Rare</label><br>
-                        <label><input type="checkbox" name="burger_ingredients[]" value="tomato_sauce"> Sauce</label>
-                    </fieldset>
-                    <button type="button" class="reset-group" data-group="burger_ingredients[]">Reset Burger</button>
-                </form>
-            </details>
-        </section>
+        <div class="menu-overlay" data-section="burger" hidden>
+            <div class="menu-overlay-card">
+                <div class="overlay-header">
+                    <h2>Burger</h2>
+                    <button type="button" class="close-overlay" aria-label="Close Burger options">✕</button>
+                </div>
+                <details id="burger">
+                    <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="burger">
+                        <span>Burger</span>
+                    </summary>
+                    <form>
+                        <fieldset>
+                            <legend>Choose Ingredients</legend>
+                            <!-- Alphabetical order -->
+                            <label><input type="checkbox" name="burger_ingredients[]" value="bacon"> Bacon</label><br>
+                            <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]"
+                                    value="bun" data-required="true" title="Required"> Bun (Required)</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="cheese"> Cheese</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="jalapenos">
+                                Jalapeños</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="lettuce"> Lettuce</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="mushrooms">
+                                Mushrooms</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="olives"> Olives</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="onion"> Onion</label><br>
+                            <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]"
+                                    value="patty" data-required="true" title="Required"> Patty (Required)</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="pickles"> Pickles</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="tomatoes"> Tomatoes</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="well_done">
+                                Well-done</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="medium_well">
+                                Medium-well</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="rare"> Rare</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="tomato_sauce"> Sauce</label>
+                        </fieldset>
+                        <button type="button" class="reset-group" data-group="burger_ingredients[]">Reset Burger</button>
+                    </form>
+                </details>
+            </div>
+        </div>
 
         <!-- Menu Item: Sauces -->
-        <section>
-            <details id="sauces">
-                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="sauces">
-                    <span>Sauces</span>
-                </summary>
-                <form>
-                    <fieldset>
-                        <legend>Choose Ingredients</legend>
-                        <!-- Alphabetical order -->
-                        <label><input type="checkbox" name="sauces_ingredients[]" value="bbq"> BBQ</label><br>
-                        <label><input type="checkbox" name="sauces_ingredients[]" value="butter_milk_ranch"> Butter Milk
-                            Ranch</label><br>
-                        <label><input type="checkbox" name="sauces_ingredients[]" value="honey_bbq"> Honey
-                            BBQ</label><br>
-                        <label><input type="checkbox" name="sauces_ingredients[]" value="honey_mustard"> Honey
-                            Mustard</label><br>
-                        <label><input type="checkbox" name="sauces_ingredients[]" value="mayonnaise">
-                            Mayonnaise</label><br>
-                        <label><input type="checkbox" name="sauces_ingredients[]" value="mustard"> Mustard</label><br>
-                        <label><input type="checkbox" name="sauces_ingredients[]" value="ranch"> Ranch</label>
-                    </fieldset>
-                    <button type="button" class="reset-group" data-group="sauces_ingredients[]">Reset Sauces</button>
-                </form>
-            </details>
-        </section>
+        <div class="menu-overlay" data-section="sauces" hidden>
+            <div class="menu-overlay-card">
+                <div class="overlay-header">
+                    <h2>Sauces</h2>
+                    <button type="button" class="close-overlay" aria-label="Close Sauces options">✕</button>
+                </div>
+                <details id="sauces">
+                    <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="sauces">
+                        <span>Sauces</span>
+                    </summary>
+                    <form>
+                        <fieldset>
+                            <legend>Choose Ingredients</legend>
+                            <!-- Alphabetical order -->
+                            <label><input type="checkbox" name="sauces_ingredients[]" value="bbq"> BBQ</label><br>
+                            <label><input type="checkbox" name="sauces_ingredients[]" value="butter_milk_ranch"> Butter Milk
+                                Ranch</label><br>
+                            <label><input type="checkbox" name="sauces_ingredients[]" value="honey_bbq"> Honey
+                                BBQ</label><br>
+                            <label><input type="checkbox" name="sauces_ingredients[]" value="honey_mustard"> Honey
+                                Mustard</label><br>
+                            <label><input type="checkbox" name="sauces_ingredients[]" value="mayonnaise">
+                                Mayonnaise</label><br>
+                            <label><input type="checkbox" name="sauces_ingredients[]" value="mustard"> Mustard</label><br>
+                            <label><input type="checkbox" name="sauces_ingredients[]" value="ranch"> Ranch</label>
+                        </fieldset>
+                        <button type="button" class="reset-group" data-group="sauces_ingredients[]">Reset Sauces</button>
+                    </form>
+                </details>
+            </div>
+        </div>
         <!-- Validation error for builder -->
         <p id="builder-error" class="form-error" hidden>Please select at least one additional ingredient before
             continuing.</p>

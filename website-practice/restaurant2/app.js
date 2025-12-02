@@ -1000,6 +1000,52 @@
       // Ensure storage includes them
       saveIngredients();
 
+      // Menu overlay helpers
+      const overlays = Array.from(document.querySelectorAll('.menu-overlay'));
+      const closeOverlay = (overlay) => {
+        if (!overlay) return;
+        overlay.hidden = true;
+        overlay.classList.remove('visible');
+        if (!overlays.some(o => !o.hidden)) {
+          body.classList.remove('menu-overlay-open');
+        }
+      };
+      const openOverlay = (section) => {
+        const overlay = overlays.find(o => o.dataset.section === section);
+        if (!overlay) return;
+        overlays.forEach(o => { if (o !== overlay) closeOverlay(o); });
+        overlay.hidden = false;
+        overlay.classList.add('visible');
+        body.classList.add('menu-overlay-open');
+        const details = overlay.querySelector('details');
+        if (details && !details.open) details.open = true;
+        const summary = overlay.querySelector('summary.menu-summary');
+        if (summary) summary.focus({ preventScroll: true });
+      };
+      document.querySelectorAll('.menu-launch[data-target]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-target');
+          if (target) openOverlay(target);
+        });
+      });
+      overlays.forEach((overlay) => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) closeOverlay(overlay);
+        });
+        const closeBtn = overlay.querySelector('.close-overlay');
+        if (closeBtn) closeBtn.addEventListener('click', () => closeOverlay(overlay));
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const active = overlays.find(o => !o.hidden);
+          if (active) closeOverlay(active);
+        }
+      });
+      if (location.hash) {
+        const hashSection = location.hash.replace('#', '').trim();
+        if (hashSection) openOverlay(hashSection);
+      }
+
       // Hard-lock required items so they cannot be unchecked directly
       try {
         document.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => {
