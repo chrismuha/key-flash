@@ -604,6 +604,8 @@ body.page3 #order-summary a:focus {
 /* Section: Page 1 Order Type */
 body.order-type main {
     text-align: left;
+    /* Leave room for the fixed theme controls so content doesn't sit behind them */
+    padding-top: calc(var(--gap) * 7);
 }
 
 body.order-type main h1 {
