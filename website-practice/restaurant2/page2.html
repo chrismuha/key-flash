@@ -23,10 +23,6 @@
         <button class="settings-button" type="button" aria-haspopup="dialog" aria-expanded="false"
             aria-controls="settings-panel" aria-label="Open settings">⚙️ Settings</button>
         <div class="settings-panel" id="settings-panel" hidden>
-            <label title="Clicking section arrows expands/collapses only; checkboxes control selection">
-                <input type="checkbox" class="setting-expand-only" checked>
-                Summary arrow expands/collapses only
-            </label>
             <label title="Clicking an ingredient label also toggles its checkbox">
                 <input type="checkbox" class="setting-label-selects" checked>
                 Ingredient label toggles checkbox
@@ -52,13 +48,9 @@
     <main>
         <!-- Theme toggle -->
         <button class="go-back" type="button" aria-label="Go back">Go Back</button>
-        <div class="theme-dropdown">
-            <button class="theme-toggle" type="button" aria-haspopup="menu" aria-expanded="false"
-                aria-controls="theme-menu" aria-label="Open theme menu">Themes</button>
-            <div class="theme-menu" role="menu" id="theme-menu" hidden>
-                <button type="button" class="theme-option theme-mode-toggle" role="menuitem">Dark Mode</button>
-                <button type="button" class="theme-option nav-toggle" role="menuitem">Enable Navigation</button>
-            </div>
+        <div class="theme-controls">
+            <button type="button" class="theme-option theme-mode-toggle">Dark Mode</button>
+            <button type="button" class="theme-option nav-toggle">Enable Navigation</button>
         </div>
         <!-- Page title -->
         <h1>Menu Builder</h1>

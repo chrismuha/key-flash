@@ -225,8 +225,8 @@ body.theme-dark main fieldset {
     border-color: #fff;
 }
 
-/* Theme dropdown */
-.theme-dropdown {
+/* Theme controls */
+.theme-controls {
     position: fixed;
     top: 8px;
     right: 8px;
@@ -235,39 +235,6 @@ body.theme-dark main fieldset {
     align-items: stretch;
     gap: 6px;
     z-index: 1000;
-}
-
-.theme-toggle {
-    padding: 6px 10px;
-    font-weight: 600;
-    border: 1px solid #000;
-    background: #f7f7f7;
-    color: #000;
-    border-radius: 4px;
-    cursor: pointer;
-    width: 100%;
-}
-
-/* Visual disclosure indicator */
-.theme-toggle::after {
-    content: "";
-    display: inline-block;
-    width: 0.6em;
-    height: 0.6em;
-    margin-left: 8px;
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: rotate(45deg);
-    transition: transform 120ms ease;
-}
-
-.theme-toggle[aria-expanded="true"]::after {
-    transform: rotate(-135deg);
-}
-
-.theme-menu {
-    display: flex;
-    flex-direction: column;
     border: 1px solid #000;
     background: #f7f7f7;
     color: #000;
@@ -275,11 +242,6 @@ body.theme-dark main fieldset {
     padding: 4px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
     min-width: 160px;
-}
-
-/* Ensure hidden attribute actually hides the menu */
-.theme-menu[hidden] {
-    display: none !important;
 }
 
 .theme-option {
@@ -299,13 +261,7 @@ body.theme-dark main fieldset {
     outline: none;
 }
 
-body.theme-dark .theme-toggle {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
-}
-
-body.theme-dark .theme-menu {
+body.theme-dark .theme-controls {
     border-color: #fff;
     background: #222;
     color: #fff;

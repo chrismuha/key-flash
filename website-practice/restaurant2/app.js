@@ -17,7 +17,6 @@
     deliveryZip: 'restaurant.delivery.zip',
     activeSections: 'restaurant.activeSections',
     navEnabled: 'restaurant.nav.enabled',
-    settingsExpandOnly: 'restaurant.settings.expandOnly',
     settingsLabelSelects: 'restaurant.settings.labelSelects',
     settingsTitleSelects: 'restaurant.settings.titleSelects',
     settingsResetOnDeselect: 'restaurant.settings.resetOnDeselect',
@@ -306,12 +305,9 @@
       const savedTheme = localStorage.getItem(STORAGE_KEYS.theme);
       if (savedTheme === 'dark') body.classList.add('theme-dark');
     } catch { }
-    const themeDropdown = document.querySelector('.theme-dropdown');
-    const themeBtn = themeDropdown ? themeDropdown.querySelector('.theme-toggle') : null;
-    const themeMenu = themeDropdown ? themeDropdown.querySelector('.theme-menu') : null;
-    const themeModeBtn = themeDropdown ? themeDropdown.querySelector('.theme-mode-toggle') : null;
-    const navToggleBtn = themeDropdown ? themeDropdown.querySelector('.nav-toggle') : null;
-    const themeChoiceBtns = themeDropdown ? themeDropdown.querySelectorAll('.theme-choice') : [];
+    const themeModeBtn = document.querySelector('.theme-mode-toggle');
+    const navToggleBtn = document.querySelector('.nav-toggle');
+    const themeChoiceBtns = document.querySelectorAll('.theme-choice');
     const themeViews = document.querySelectorAll('[data-theme-view]');
     const boxifyGrid = document.getElementById('boxify-inventory');
     const boxifyResetBtn = document.querySelector('.boxify-reset');
@@ -418,19 +414,12 @@
     // Settings (gear) in left rail
     const settingsBtn = document.querySelector('.settings-button');
     const settingsPanel = document.getElementById('settings-panel');
-    const settingExpandOnly = document.querySelector('.setting-expand-only');
     const settingLabelSelects = document.querySelector('.setting-label-selects');
     const settingTitleSelects = document.querySelector('.setting-title-selects');
     const settingResetOnDeselect = document.querySelector('.setting-reset-on-deselect');
     const settingResetDisables = document.querySelector('.setting-reset-disables');
     const settingsResetBtn = document.querySelector('.settings-reset');
     // Settings defaults: all ON by default
-    let expandOnly = true;
-    try {
-      const v = localStorage.getItem(STORAGE_KEYS.settingsExpandOnly);
-      expandOnly = v === null ? true : v === 'true';
-    } catch { expandOnly = true; }
-    if (settingExpandOnly) settingExpandOnly.checked = expandOnly;
     let labelSelects = true;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsLabelSelects);
@@ -480,12 +469,6 @@
         if (evt.key === 'Escape') closeSettings();
       });
     }
-    if (settingExpandOnly) {
-      settingExpandOnly.addEventListener('change', () => {
-        expandOnly = !!settingExpandOnly.checked;
-        try { localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, String(expandOnly)); } catch { }
-      });
-    }
     if (settingLabelSelects) {
       settingLabelSelects.addEventListener('change', () => {
         labelSelects = !!settingLabelSelects.checked;
@@ -514,20 +497,17 @@
     if (settingsResetBtn) {
       settingsResetBtn.addEventListener('click', () => {
         // Defaults: all ON
-        expandOnly = true;
         labelSelects = true;
         titleSelects = true;
         // Defaults: reset-related toggles OFF
         resetOnDeselect = false;
         resetDisables = false;
         try {
-          localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
         } catch { }
-        if (settingExpandOnly) settingExpandOnly.checked = true;
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
@@ -535,41 +515,10 @@
       });
     }
 
-    const closeThemeMenu = () => {
-      if (!themeMenu || !themeBtn) return;
-      themeMenu.hidden = true;
-      themeBtn.setAttribute('aria-expanded', 'false');
-    };
-
-    const openThemeMenu = () => {
-      if (!themeMenu || !themeBtn) return;
-      themeMenu.hidden = false;
-      themeBtn.setAttribute('aria-expanded', 'true');
-      const firstOption = themeMenu.querySelector('.theme-option');
-      if (firstOption) {
-        try {
-          firstOption.focus({ preventScroll: true });
-        } catch {
-          firstOption.focus();
-        }
-      }
-    };
-
-    if (themeBtn && themeMenu) {
-      themeBtn.addEventListener('click', () => {
-        if (themeMenu.hidden) {
-          openThemeMenu();
-        } else {
-          closeThemeMenu();
-        }
-      });
-    }
-
     if (themeModeBtn) {
       themeModeBtn.addEventListener('click', () => {
         body.classList.toggle('theme-dark');
         updateThemeModeLabel();
-        closeThemeMenu();
         try {
           const isDark = body.classList.contains('theme-dark');
           localStorage.setItem(STORAGE_KEYS.theme, isDark ? 'dark' : 'light');
@@ -583,32 +532,9 @@
         const nextState = !navEnabled;
         setNavState(nextState);
         updateNavToggleLabel();
-        closeThemeMenu();
         try {
           localStorage.setItem(STORAGE_KEYS.navEnabled, String(nextState));
         } catch { }
-      });
-    }
-
-    if (themeDropdown && themeMenu) {
-      document.addEventListener('click', (event) => {
-        if (!themeDropdown.contains(event.target)) {
-          closeThemeMenu();
-        }
-      });
-
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-          if (themeMenu.hidden) return;
-          closeThemeMenu();
-          if (themeBtn) {
-            try {
-              themeBtn.focus({ preventScroll: true });
-            } catch {
-              themeBtn.focus();
-            }
-          }
-        }
       });
     }
 
@@ -1408,8 +1334,7 @@
       syncMenuLaunchState();
       // Summary behavior:
       // - If titleSelects is ON, clicking the title text toggles the checkbox (not expand)
-      // - If expandOnly is ON, clicking elsewhere on summary expands/collapses
-      // - Otherwise (default), clicking summary toggles the checkbox
+      // - Otherwise, clicking summary toggles the checkbox
       document.querySelectorAll('summary.menu-summary').forEach((s) => {
         s.addEventListener('click', (e) => {
           const titleEl = s.querySelector('span');
@@ -1421,15 +1346,6 @@
             if (t) {
               t.checked = !t.checked;
               t.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-            return;
-          }
-          if (expandOnly) {
-            e.preventDefault();
-            e.stopPropagation();
-            const d = s.parentElement;
-            if (d && d.tagName && d.tagName.toLowerCase() === 'details') {
-              d.open = !d.open;
             }
             return;
           }
