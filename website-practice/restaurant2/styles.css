@@ -35,14 +35,13 @@ body {
     font-family: system-ui, sans-serif;
     font-size: 16px;
     min-width: 2204px;
+    min-height: 1856px;
     overflow-x: hidden;
 }
 
 /* Section: App Layout (Body Flex) */
 body {
     display: flex;
-    min-height: 100vh;
-    min-height: 100dvh;
     align-items: stretch;
     overflow-y: auto;
 }
