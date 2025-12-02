@@ -935,6 +935,11 @@ body.theme-dark .menu-overlay-card {
     color: #f0f0f0;
 }
 
+body.theme-dark .close-overlay {
+    color: #fff;
+    border-color: #fff;
+}
+
 .overlay-header {
     display: flex;
     align-items: center;
