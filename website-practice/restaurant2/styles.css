@@ -4,6 +4,7 @@
     --gap: 12px;
     --logo-w: 204px;
     --logo-h: 155px;
+    --nav-height: 190px;
     --rail-side-gap: calc(var(--gap) - 6px);
     --rail-width: calc(var(--logo-w) + (var(--rail-side-gap) * 2));
     --box-height: 56px;
@@ -39,6 +40,7 @@ body {
 /* Section: App Layout (Body Flex) */
 body {
     display: flex;
+    flex-direction: column;
     min-height: 100vh;
     min-height: 100dvh;
     align-items: stretch;
@@ -48,35 +50,30 @@ body {
 /* Section: Left Rail Navigation */
 .left-rail {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     gap: var(--gap);
-    padding: var(--gap) var(--rail-side-gap);
-    width: var(--rail-width);
+    padding: var(--gap) 24px;
+    width: 100%;
+    height: var(--nav-height);
     position: fixed;
     top: 0;
-    bottom: 0;
     left: 0;
-    z-index: 1;
-    align-items: flex-start;
+    right: 0;
+    z-index: 10;
+    align-items: center;
     background: #dba37f;
     overflow: hidden;
     scrollbar-gutter: stable both-edges;
 }
 
-/* Align page links with collapsed menu rows globally */
-.left-rail {
-    padding-top: calc(var(--gap) * 2 + var(--nav-logo-h));
-}
-
 /* Left-rail logo occupies the padded space above links */
 .left-rail .nav-logo {
-    position: absolute;
-    top: var(--gap);
-    left: 50%;
-    transform: translateX(-50%);
+    position: static;
     display: block;
-    width: var(--logo-w);
-    height: var(--logo-h);
+    max-height: calc(var(--nav-height) - (var(--gap) * 2));
+    width: auto;
+    height: 100%;
     object-fit: contain;
     border: none;
     border-radius: 0;
@@ -173,16 +170,15 @@ body:not(.nav-enabled) main {
 main {
     background: #fff;
     flex: 0 1 auto;
-    width: calc(100vw - var(--rail-width));
+    width: min(75ch, calc(100vw - 32px));
     max-width: 75ch;
     min-width: 520px;
-    padding: calc(var(--gap) * 4) var(--gap) var(--gap) calc(var(--gap) * 2);
+    padding: calc(var(--gap) * 2) var(--gap) var(--gap) calc(var(--gap) * 2);
     border: none;
     line-height: 1.5;
     overflow-wrap: break-word;
     word-break: break-word;
-    margin-inline: 0 auto;
-    margin-left: var(--rail-width);
+    margin: calc(var(--nav-height) + var(--gap)) auto var(--gap);
 }
 
 /* Section: Theme (Dark) */
@@ -209,7 +205,7 @@ body.theme-dark main fieldset {
 /* Theme controls */
 .theme-controls {
     position: fixed;
-    top: 8px;
+    top: calc(var(--nav-height) + 8px);
     right: 8px;
     display: flex;
     flex-direction: column;
@@ -256,7 +252,7 @@ body.theme-dark .theme-option:focus-visible {
 /* Go Back button (fixed, next to theme toggle) */
 .go-back {
     position: fixed;
-    top: 8px;
+    top: calc(var(--nav-height) + 8px);
     left: 8px;
     padding: 6px 10px;
     font-weight: 600;
@@ -605,7 +601,7 @@ body.page3 #order-summary a:focus {
 body.order-type main {
     text-align: left;
     /* Leave room for the fixed theme controls so content doesn't sit behind them */
-    padding-top: calc(var(--gap) * 7);
+    padding-top: calc(var(--gap) * 2);
 }
 
 body.order-type main h1 {
@@ -741,6 +737,7 @@ body.order-type .order-card {
     text-decoration: none;
     background: #fff;
     transition: none;
+    aspect-ratio: 1 / 1;
 }
 
 body.order-type .order-card:hover {
