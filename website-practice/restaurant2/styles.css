@@ -939,11 +939,23 @@ body.menu-overlay-open {
     cursor: pointer;
 }
 
+.menu-actions .menu-launch.menu-launch-active {
+    border-color: #18833d;
+    box-shadow: 0 0 0 3px #3cb371;
+    background: #f0fff4;
+}
+
 .menu-actions .menu-launch:hover,
 .menu-actions .menu-launch:focus-visible {
     background: #e4e4e4;
     outline: 3px solid #000;
     outline-offset: 2px;
+}
+
+.menu-actions .menu-launch.menu-launch-active:hover,
+.menu-actions .menu-launch.menu-launch-active:focus-visible {
+    background: #e4fff0;
+    outline-color: #18833d;
 }
 
 .menu-overlay {

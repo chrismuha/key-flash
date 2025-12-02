@@ -1032,7 +1032,20 @@
         const summary = overlay.querySelector('summary.menu-summary');
         if (summary) summary.focus({ preventScroll: true });
       };
-      document.querySelectorAll('.menu-launch[data-target]').forEach((btn) => {
+      const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
+      const syncMenuLaunchState = () => {
+        const activeLookup = {};
+        document.querySelectorAll('.section-toggle').forEach((toggle) => {
+          const sec = toggle.dataset.section;
+          if (sec) activeLookup[sec] = toggle.checked;
+        });
+        menuLaunchButtons.forEach((btn) => {
+          const target = btn.getAttribute('data-target');
+          const isActive = target ? !!activeLookup[target] : false;
+          btn.classList.toggle('menu-launch-active', isActive);
+        });
+      };
+      menuLaunchButtons.forEach((btn) => {
         btn.addEventListener('click', () => {
           const target = btn.getAttribute('data-target');
           if (target) openOverlay(target);
@@ -1389,8 +1402,10 @@
           activeSections[section] = t.checked;
           try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(activeSections)); } catch { }
           updatePageNavLocks();
+          syncMenuLaunchState();
         });
       });
+      syncMenuLaunchState();
       // Summary behavior:
       // - If titleSelects is ON, clicking the title text toggles the checkbox (not expand)
       // - If expandOnly is ON, clicking elsewhere on summary expands/collapses
