@@ -839,19 +839,26 @@ body.menu-overlay-open {
 
 .menu-actions {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 12px;
     margin: 20px 0;
+    justify-items: center;
 }
 
 .menu-actions .menu-launch {
+    width: 180px;
+    height: 180px;
     padding: 14px 16px;
     font-size: 18px;
     font-weight: 700;
     border: 2px solid #000;
-    border-radius: 8px;
+    border-radius: 50%;
     background: #f3f3f3;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .menu-actions .menu-launch.menu-launch-active {
