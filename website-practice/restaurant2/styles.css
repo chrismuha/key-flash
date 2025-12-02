@@ -830,21 +830,6 @@ main .reset-group:hover {
     background: #eee;
 }
 
-/* hide default marker in WebKit/Blink */
-main summary.menu-summary::-webkit-details-marker {
-    display: none;
-}
-
-/* Flip arrow to white in dark mode */
-body.theme-dark main summary.menu-summary::marker {
-    color: #fff;
-}
-
-/* slight spacing when open */
-main details[open]>summary.menu-summary {
-    margin-bottom: 8px;
-}
-
 /* Section: Full-screen menu overlays */
 body.menu-overlay-open {
     overflow: hidden;
