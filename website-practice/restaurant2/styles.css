@@ -246,7 +246,7 @@ body.theme-dark main fieldset {
 }
 
 .theme-option+.theme-option {
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    border-top: 1px solid #000;
 }
 
 .theme-option:hover,
@@ -267,7 +267,7 @@ body.theme-dark .theme-option:focus-visible {
 }
 
 body.theme-dark .theme-option+.theme-option {
-    border-top-color: rgba(255, 255, 255, 0.25);
+    border-top-color: #fff;
 }
 
 /* Go Back button (fixed, next to theme toggle) */

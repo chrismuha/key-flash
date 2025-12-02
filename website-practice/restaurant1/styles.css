@@ -276,6 +276,10 @@ body.theme-dark main fieldset {
     cursor: pointer;
 }
 
+.theme-option+.theme-option {
+    border-top: 1px solid #000;
+}
+
 .theme-option:hover,
 .theme-option:focus-visible {
     background: rgba(0, 0, 0, 0.08);
@@ -297,6 +301,10 @@ body.theme-dark .theme-menu {
 body.theme-dark .theme-option:hover,
 body.theme-dark .theme-option:focus-visible {
     background: rgba(255, 255, 255, 0.15);
+}
+
+body.theme-dark .theme-option+.theme-option {
+    border-top-color: #fff;
 }
 
 /* Go Back button (fixed, next to theme toggle) */
