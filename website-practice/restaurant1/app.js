@@ -1,7 +1,3 @@
-// Section: Overview
-// Restaurant Demo App JS
-// Section guide for navigation-only comments
-
 // Section: IIFE Wrapper
 (function () {
   // Section: Storage Keys
