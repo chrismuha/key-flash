@@ -18,8 +18,8 @@
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    user-select: none;
-}
+    min-height: 100dvh;
+    user-select: none;}
 
 /* Section: Base HTML/Body */
 html,

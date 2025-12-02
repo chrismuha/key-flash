@@ -32,7 +32,8 @@ body {
     font-family: system-ui, sans-serif;
     font-size: 16px;
     min-width: 2204px;
-    min-height: 1856px;
+    min-height: 100vh;
+    min-height: 100dvh;
     overflow-x: hidden;
 }
 
