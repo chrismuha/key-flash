@@ -1,6 +1,5 @@
 /* Section: CSS Variables */
 :root {
-    /* Fine-tuned spacing so left/right visually match top/bottom */
     --gap: 12px;
     --logo-w: 204px;
     --logo-h: 155px;
