@@ -78,11 +78,7 @@ body {
 /* Settings gear in left rail */
 .settings-button {
     margin-top: 0;
-<<<<<<< ours
     margin-left: auto;
-=======
-    margin-left: 0;
->>>>>>> theirs
     padding: 8px;
     font-weight: 600;
     font-size: 24px;

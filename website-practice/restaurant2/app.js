@@ -263,11 +263,6 @@
       });
     }
 
-    // Ensure initial validation state is visible on load
-    if (body.classList.contains('page2')) {
-      updateBuilderError();
-    }
-
     let navInitialEnabled = false;
     try {
       navInitialEnabled = localStorage.getItem(STORAGE_KEYS.navEnabled) === 'true';
@@ -1542,6 +1537,8 @@
           updatePageNavLocks();
         }
       });
+      // Ensure builder validation state is accurate after initial render/restore
+      updateBuilderError();
       // Reset buttons per group
       document.querySelectorAll('.reset-group[data-group]').forEach((btn) => {
         btn.addEventListener('click', () => {
