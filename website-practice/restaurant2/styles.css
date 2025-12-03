@@ -203,14 +203,16 @@ body.theme-dark .ingredient-qty {
 /* Align ingredient labels when qty dropdown is on the right */
 body.qty-right .menu-section label {
     display: grid;
-    grid-template-columns: auto 1fr auto auto;
+    grid-template-columns: auto minmax(260px, 1fr) minmax(120px, max-content) auto;
     align-items: center;
-    column-gap: 8px;
+    column-gap: 6px;
+    width: calc(100% - 24px);
+    margin: 0 auto 6px;
 }
 
 body.qty-right .menu-section label .ingredient-qty {
     margin-left: 0;
-    min-width: 92px;
+    min-width: 120px;
     justify-self: start;
     grid-column: 3;
 }
