@@ -177,6 +177,11 @@ main {
     margin-inline: auto;
 }
 
+/* Align pages when nav is hidden so headers sit naturally */
+body:not(.nav-enabled) main {
+    padding-top: calc(var(--gap) * 2);
+}
+
 /* Section: Theme (Dark) */
 /* Only flips the main content background to black and text to white */
 body.theme-dark {
@@ -850,14 +855,17 @@ body.menu-overlay-open {
 
 .menu-actions {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 12px;
-    margin: 20px 0;
+    grid-template-columns: repeat(3, minmax(200px, 1fr));
+    gap: 16px;
     justify-items: center;
+    align-items: stretch;
+    margin: 20px 0;
 }
 
 .menu-actions .menu-launch {
-    min-width: 220px;
+    width: 100%;
+    min-width: 200px;
+    max-width: 240px;
     padding: 14px 24px;
     font-size: 18px;
     font-weight: 700;
