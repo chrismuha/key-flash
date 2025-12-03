@@ -20,7 +20,6 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    scrollbar-gutter: stable;
 }
 
 /* Section: Base HTML/Body */
@@ -36,7 +35,7 @@ body {
     min-height: 100vh;
     min-height: 100dvh;
     overflow-x: hidden;
-    scrollbar-gutter: stable;
+    overflow-y: auto;
 }
 
 /* Section: App Layout (Body Flex) */
@@ -44,6 +43,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+    width: 100%;
+    min-width: 100%;
     overflow-y: auto;
 }
 
@@ -55,9 +56,8 @@ body {
     justify-content: flex-start;
     flex-wrap: nowrap;
     gap: calc(var(--gap) - 2px);
-    padding: var(--gap) var(--gap) var(--gap) 0;
+    padding: var(--gap) var(--gap) var(--gap) calc(var(--gap) / 2);
     width: 100%;
-    max-width: 100vw;
     position: fixed;
     top: 0;
     left: 0;
@@ -67,7 +67,6 @@ body {
     background: #dba37f;
     overflow-x: auto;
     overflow-y: hidden;
-    scrollbar-gutter: stable both-edges;
 }
 
 /* Left-rail logo occupies the padded space above links */
