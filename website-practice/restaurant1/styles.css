@@ -364,6 +364,30 @@ body.theme-dark .ingredient-qty {
     color: #fff;
 }
 
+/* Align ingredient labels when qty dropdown is on the right */
+body.qty-right .menu-section label {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    column-gap: 8px;
+}
+
+body.qty-right .menu-section label .ingredient-qty {
+    margin-left: 0;
+    min-width: 92px;
+    justify-self: start;
+    grid-column: 3;
+}
+
+body.qty-right .menu-section label .patty-qty,
+body.qty-right .menu-section label .sauce-qty {
+    grid-column: 4;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 0;
+}
+
 body.theme-dark.page3 #order-summary {
     border-color: #fff;
     background: #000;

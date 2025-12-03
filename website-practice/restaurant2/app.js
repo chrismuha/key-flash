@@ -573,6 +573,7 @@
     }
 
     const applyQtyPlacement = () => {
+      body.classList.toggle('qty-right', qtyRight);
       document.querySelectorAll('select.ingredient-qty').forEach((sel) => {
         const lbl = sel.closest('label');
         if (!lbl) return;
@@ -591,6 +592,8 @@
         applyQtyPlacement();
       });
     }
+    // Apply initial placement/class once quantities are available
+    applyQtyPlacement();
 
     updateThemeModeLabel();
     updateNavToggleLabel();

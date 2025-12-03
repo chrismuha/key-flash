@@ -626,6 +626,7 @@
     updateNavToggleLabel();
 
     const applyQtyPlacement = () => {
+      body.classList.toggle('qty-right', qtyRight);
       document.querySelectorAll('select.ingredient-qty').forEach((sel) => {
         const lbl = sel.closest('label');
         if (!lbl) return;
@@ -644,6 +645,8 @@
         applyQtyPlacement();
       });
     }
+    // Apply initial placement/class for current setting
+    applyQtyPlacement();
 
     // [H1] INDEX: ORDER TYPE
     if (body.classList.contains('order-type')) {
