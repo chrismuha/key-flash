@@ -18,6 +18,7 @@
     settingsTitleSelects: 'restaurant.settings.titleSelects',
     settingsResetOnDeselect: 'restaurant.settings.resetOnDeselect',
     settingsResetDisables: 'restaurant.settings.resetDisables',
+    settingsQtyRight: 'restaurant.settings.qtyRight',
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantities.sections'
   };
@@ -65,7 +66,7 @@
         if (label) {
           const clone = label.cloneNode(true);
           // Remove the checkbox itself and any qty controls inside labels
-          clone.querySelectorAll('input, .sauce-qty, .qty-controls, button').forEach((el) => el.remove());
+          clone.querySelectorAll('input, select, .sauce-qty, .qty-controls, button').forEach((el) => el.remove());
           labelText = (clone.textContent || '').trim();
         }
         data[name].push({ value: input.value, label: labelText || titleCase(input.value) });
@@ -419,6 +420,7 @@
     const settingTitleSelects = document.querySelector('.setting-title-selects');
     const settingResetOnDeselect = document.querySelector('.setting-reset-on-deselect');
     const settingResetDisables = document.querySelector('.setting-reset-disables');
+    const settingQtyRight = document.querySelector('.setting-qty-right');
     const settingsResetBtn = document.querySelector('.settings-reset');
     // Settings defaults: all ON by default
     let expandOnly = true;
@@ -453,6 +455,13 @@
       resetDisables = v === 'true';
     } catch { resetDisables = false; }
     if (settingResetDisables) settingResetDisables.checked = resetDisables;
+    // Quantity dropdown placement: default RIGHT of label
+    let qtyRight = true;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsQtyRight);
+      qtyRight = v === null ? true : v === 'true';
+    } catch { qtyRight = true; }
+    if (settingQtyRight) settingQtyRight.checked = qtyRight;
 
     const closeSettings = () => {
       if (!settingsPanel || !settingsBtn) return;
@@ -516,18 +525,21 @@
         // Defaults: reset-related toggles OFF
         resetOnDeselect = false;
         resetDisables = false;
+        qtyRight = true;
         try {
           localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'true');
         } catch { }
         if (settingExpandOnly) settingExpandOnly.checked = true;
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
         if (settingResetDisables) settingResetDisables.checked = false;
+        if (settingQtyRight) settingQtyRight.checked = true;
       });
     }
 
@@ -610,6 +622,26 @@
 
     updateThemeModeLabel();
     updateNavToggleLabel();
+
+    const applyQtyPlacement = () => {
+      document.querySelectorAll('select.ingredient-qty').forEach((sel) => {
+        const lbl = sel.closest('label');
+        if (!lbl) return;
+        if (qtyRight) {
+          lbl.appendChild(sel);
+        } else {
+          const cb = lbl.querySelector('input[type="checkbox"]');
+          if (cb) cb.insertAdjacentElement('afterend', sel);
+        }
+      });
+    };
+    if (settingQtyRight) {
+      settingQtyRight.addEventListener('change', () => {
+        qtyRight = !!settingQtyRight.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsQtyRight, String(qtyRight)); } catch { }
+        applyQtyPlacement();
+      });
+    }
 
     // [H1] INDEX: ORDER TYPE
     if (body.classList.contains('order-type')) {
@@ -995,6 +1027,61 @@
       enforceReq(pizzaSauce);
       // Ensure storage includes them
       saveIngredients();
+      // Build ingredient quantity dropdowns (Regular/Extra/x3/x4)
+      (function attachIngredientQuantities() {
+        const options = [
+          { label: 'Regular', value: '1' },
+          { label: 'Extra', value: '2' },
+          { label: 'x3', value: '3' },
+          { label: 'x4', value: '4' }
+        ];
+        document.querySelectorAll('input[type="checkbox"][name$="_ingredients[]"]').forEach((cb) => {
+          const lbl = cb.closest('label');
+          if (!lbl) return;
+          const key = `${cb.name}|${cb.value}`;
+          let sel = lbl.querySelector('select.ingredient-qty');
+          if (!sel) {
+            sel = document.createElement('select');
+            sel.className = 'ingredient-qty';
+            options.forEach((opt) => {
+              const o = document.createElement('option');
+              o.value = opt.value;
+              o.textContent = opt.label;
+              sel.appendChild(o);
+            });
+            lbl.appendChild(sel);
+          }
+          let stored = 1;
+          try { stored = Math.max(1, Math.min(4, parseInt((JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'))[key] || '1', 10) || 1)); } catch { stored = 1; }
+          sel.value = String(stored);
+          sel.disabled = !cb.checked;
+          const persistQty = (val) => {
+            try {
+              const qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
+              qm[key] = val;
+              localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
+            } catch { }
+          };
+          sel.addEventListener('change', () => {
+            const next = Math.max(1, Math.min(4, parseInt(sel.value, 10) || 1));
+            sel.value = String(next);
+            persistQty(next);
+          });
+          cb.addEventListener('change', () => {
+            sel.disabled = !cb.checked;
+            if (cb.checked) {
+              const qm = (() => { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'); } catch { return {}; } })();
+              if (!qm[key] || qm[key] === 0) {
+                sel.value = '1';
+                persistQty(1);
+              }
+            } else {
+              persistQty(0);
+            }
+          });
+        });
+        applyQtyPlacement();
+      })();
 
       // Hard-lock required items so they cannot be unchecked directly
       try {
@@ -1821,8 +1908,11 @@
                 li.appendChild(dec);
                 li.appendChild(inc);
               } else {
-                // No per-ingredient quantity; simple label (sans any inline qty)
-                li.textContent = label;
+                // Generic ingredient; display quantity if >1
+                const qKey = `${group}|${normValue}`;
+                let qv = 1;
+                try { qv = Math.max(1, Math.min(4, parseInt(qtyMap[qKey] || '1', 10) || 1)); } catch { qv = 1; }
+                li.textContent = qv > 1 ? `${label} (x${qv})` : label;
               }
               ul.appendChild(li);
             });

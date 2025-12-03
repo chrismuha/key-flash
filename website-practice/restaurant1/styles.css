@@ -349,6 +349,20 @@ body.theme-dark main .reset-group {
     color: #fff;
 }
 
+.ingredient-qty {
+    margin-left: 8px;
+    border: 1px solid #000;
+    border-radius: 8px;
+    padding: 2px 6px;
+    font: inherit;
+}
+
+body.theme-dark .ingredient-qty {
+    border-color: #fff;
+    background: #111;
+    color: #fff;
+}
+
 body.theme-dark.page3 #order-summary {
     border-color: #fff;
     background: #000;

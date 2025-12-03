@@ -17,6 +17,7 @@
     settingsTitleSelects: 'restaurant.settings.titleSelects',
     settingsResetOnDeselect: 'restaurant.settings.resetOnDeselect',
     settingsResetDisables: 'restaurant.settings.resetDisables',
+    settingsQtyRight: 'restaurant.settings.qtyRight',
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantities.sections'
   };
@@ -417,6 +418,7 @@
     const settingResetOnDeselect = document.querySelector('.setting-reset-on-deselect');
     const settingResetDisables = document.querySelector('.setting-reset-disables');
     const settingsResetBtn = document.querySelector('.settings-reset');
+    const settingQtyRight = document.querySelector('.setting-qty-right');
     // Settings defaults: all ON by default
     let labelSelects = true;
     try {
@@ -444,6 +446,13 @@
       resetDisables = v === 'true';
     } catch { resetDisables = false; }
     if (settingResetDisables) settingResetDisables.checked = resetDisables;
+    // Quantity dropdown placement: default RIGHT of label
+    let qtyRight = true;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsQtyRight);
+      qtyRight = v === null ? true : v === 'true';
+    } catch { qtyRight = true; }
+    if (settingQtyRight) settingQtyRight.checked = qtyRight;
 
     const closeSettings = () => {
       if (!settingsOverlay || !settingsBtn) return;
@@ -519,16 +528,20 @@
         // Defaults: reset-related toggles OFF
         resetOnDeselect = false;
         resetDisables = false;
+        // Default: quantity dropdowns on the right
+        qtyRight = true;
         try {
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'true');
         } catch { }
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
         if (settingResetDisables) settingResetDisables.checked = false;
+        if (settingQtyRight) settingQtyRight.checked = true;
       });
     }
 
@@ -552,6 +565,26 @@
         try {
           localStorage.setItem(STORAGE_KEYS.navEnabled, String(nextState));
         } catch { }
+      });
+    }
+
+    const applyQtyPlacement = () => {
+      document.querySelectorAll('select.ingredient-qty').forEach((sel) => {
+        const lbl = sel.closest('label');
+        if (!lbl) return;
+        if (qtyRight) {
+          lbl.appendChild(sel);
+        } else {
+          const cb = lbl.querySelector('input[type="checkbox"]');
+          if (cb) cb.insertAdjacentElement('afterend', sel);
+        }
+      });
+    };
+    if (settingQtyRight) {
+      settingQtyRight.addEventListener('change', () => {
+        qtyRight = !!settingQtyRight.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsQtyRight, String(qtyRight)); } catch { }
+        applyQtyPlacement();
       });
     }
 
@@ -966,7 +999,7 @@
               o.textContent = opt.label;
               sel.appendChild(o);
             });
-            cb.insertAdjacentElement('afterend', sel);
+            lbl.appendChild(sel);
           }
           const stored = Math.max(1, Math.min(4, parseInt(qtyMap[key] || '1', 10) || 1));
           sel.value = String(stored);
@@ -991,6 +1024,8 @@
               persistQty(0);
             }
           });
+          });
+          applyQtyPlacement();
         });
       })();
 
