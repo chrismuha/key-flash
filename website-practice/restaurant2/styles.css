@@ -154,10 +154,6 @@ body.nav-enabled .left-rail {
     display: flex;
 }
 
-body:not(.nav-enabled) main {
-    margin-left: 0 !important;
-}
-
 .left-rail::before {
     content: "";
     display: none;
