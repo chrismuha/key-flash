@@ -20,6 +20,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    scrollbar-gutter: stable;
 }
 
 /* Section: Base HTML/Body */
