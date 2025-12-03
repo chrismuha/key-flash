@@ -1031,7 +1031,6 @@
               persistQty(0);
             }
           });
-          });
           applyQtyPlacement();
         });
       })();
