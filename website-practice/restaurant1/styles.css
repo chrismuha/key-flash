@@ -1,8 +1,8 @@
 /* Section: CSS Variables */
 :root {
     --gap: 12px;
-    --logo-w: 204px;
-    --logo-h: 155px;
+    --logo-w: 184px;
+    --logo-h: 140px;
     --rail-side-gap: calc(var(--gap) - 6px);
     --rail-width: calc(var(--logo-w) + (var(--rail-side-gap) * 2));
     --box-height: 56px;
@@ -113,6 +113,7 @@ body.theme-dark .settings-button {
     padding: 8px;
     max-height: none;
     overflow: visible;
+    align-self: center;
 }
 
 body.theme-dark .settings-panel {
