@@ -969,10 +969,9 @@ body.theme-dark .close-overlay:focus-visible {
 /* Section: Left Rail Boxes (Links) */
 .box {
     margin: 0;
-    width: auto;
-    min-width: 0;
-    height: 26px;
-    background: var(--box-bg);
+    width: 190px;
+    height: 33px;
+    background: transparent;
     border: none;
     border-radius: 999px;
     display: flex;
@@ -1009,9 +1008,9 @@ body.theme-dark .close-overlay:focus-visible {
 
 /* Align left-rail items with collapsible menu rows on all pages */
 .left-rail .box {
-    height: 26px;
-    line-height: 26px;
-    font-size: 18px;
+    height: 33px;
+    line-height: 33px;
+    font-size: 24px;
     padding: 0 10px;
     flex-shrink: 0;
 }
