@@ -55,7 +55,7 @@ body {
     justify-content: flex-start;
     flex-wrap: nowrap;
     gap: calc(var(--gap) - 2px);
-    padding: var(--gap) var(--gap);
+    padding: var(--gap) var(--gap) var(--gap) 0;
     width: 100%;
     max-width: 100vw;
     position: fixed;
@@ -85,7 +85,7 @@ body {
 /* Settings gear in left rail */
 .settings-button {
     margin-top: 0;
-    margin-left: auto;
+    margin-left: 0;
     padding: 0 10px;
     font-weight: 600;
     font-size: 16px;
