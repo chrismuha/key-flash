@@ -567,6 +567,8 @@
         try {
           localStorage.setItem(STORAGE_KEYS.navEnabled, String(nextState));
         } catch { }
+        // Re-apply page access rules anytime nav visibility changes
+        updatePageNavLocks();
       });
     }
 
