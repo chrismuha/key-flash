@@ -79,7 +79,7 @@ body {
 /* Settings gear in left rail */
 .settings-button {
     margin-top: 0;
-    margin-left: 0;
+    margin-left: auto;
     padding: 8px;
     font-weight: 600;
     font-size: 24px;
@@ -973,7 +973,7 @@ body.theme-dark .close-overlay:focus-visible {
 .box {
     margin: 0;
     width: auto;
-    height: auto;
+    height: 48px;
     background: var(--box-bg);
     border: none;
     border-radius: 999px;
@@ -1011,10 +1011,10 @@ body.theme-dark .close-overlay:focus-visible {
 
 /* Align left-rail items with collapsible menu rows on all pages */
 .left-rail .box {
-    height: auto;
-    line-height: 1.2;
+    height: 48px;
+    line-height: 1;
     font-size: 24px;
-    padding: 0 8px;
+    padding: 0 14px;
     flex-shrink: 0;
 }
 
