@@ -1006,7 +1006,7 @@
               o.textContent = opt.label;
               sel.appendChild(o);
             });
-            lbl.appendChild(sel);
+            cb.insertAdjacentElement('afterend', sel);
           }
           const stored = Math.max(1, Math.min(4, parseInt(qtyMap[key] || '1', 10) || 1));
           sel.value = String(stored);
@@ -1031,7 +1031,6 @@
               persistQty(0);
             }
           });
-          applyQtyPlacement();
         });
       })();
 
