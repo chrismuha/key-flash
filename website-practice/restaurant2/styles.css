@@ -72,13 +72,7 @@ body {
 
 /* Left-rail logo occupies the padded space above links */
 .left-rail .nav-logo {
-    display: block;
-    width: var(--logo-w);
-    height: var(--logo-h);
-    object-fit: contain;
-    border: none;
-    border-radius: 0;
-    flex-shrink: 0;
+    display: none;
 }
 
 
@@ -86,17 +80,17 @@ body {
 .settings-button {
     margin-top: 0;
     margin-left: 0;
-    padding: 0 10px;
+    padding: 1px;
     font-weight: 600;
     font-size: 16px;
     border: 1px solid #000;
     background: #f7f7f7;
     color: #000;
-    border-radius: 999px;
+    border-radius: 6px;
     cursor: pointer;
-    width: 190px;
-    height: 33px;
-    line-height: 33px;
+    width: 24px;
+    height: 24px;
+    line-height: 1;
     align-self: center;
     flex-shrink: 0;
 }
@@ -975,8 +969,9 @@ body.theme-dark .close-overlay:focus-visible {
 /* Section: Left Rail Boxes (Links) */
 .box {
     margin: 0;
-    width: 190px;
-    height: 33px;
+    width: auto;
+    min-width: 0;
+    height: 26px;
     background: var(--box-bg);
     border: none;
     border-radius: 999px;
@@ -1014,9 +1009,10 @@ body.theme-dark .close-overlay:focus-visible {
 
 /* Align left-rail items with collapsible menu rows on all pages */
 .left-rail .box {
-    height: 33px;
-    line-height: 33px;
-    font-size: 24px;
+    height: 26px;
+    line-height: 26px;
+    font-size: 18px;
+    padding: 0 10px;
     flex-shrink: 0;
 }
 
