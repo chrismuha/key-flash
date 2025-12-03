@@ -64,7 +64,7 @@
         if (label) {
           const clone = label.cloneNode(true);
           // Remove the checkbox itself and any qty controls inside labels
-          clone.querySelectorAll('input, .sauce-qty, .qty-controls, button').forEach((el) => el.remove());
+          clone.querySelectorAll('input, select, .sauce-qty, .qty-controls, button').forEach((el) => el.remove());
           labelText = (clone.textContent || '').trim();
         }
         data[name].push({ value: input.value, label: labelText || titleCase(input.value) });
@@ -942,6 +942,57 @@
       enforceReq(pizzaSauce);
       // Ensure storage includes them
       saveIngredients();
+      // Build ingredient quantity dropdowns (Regular/Extra/x3/x4)
+      (function attachIngredientQuantities() {
+        let qtyMap = {};
+        try { qtyMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'); } catch { qtyMap = {}; }
+        const options = [
+          { label: 'Regular', value: '1' },
+          { label: 'Extra', value: '2' },
+          { label: 'x3', value: '3' },
+          { label: 'x4', value: '4' }
+        ];
+        document.querySelectorAll('input[type="checkbox"][name$=\"_ingredients[]\"]').forEach((cb) => {
+          const lbl = cb.closest('label');
+          if (!lbl) return;
+          const key = `${cb.name}|${cb.value}`;
+          let sel = lbl.querySelector('select.ingredient-qty');
+          if (!sel) {
+            sel = document.createElement('select');
+            sel.className = 'ingredient-qty';
+            options.forEach((opt) => {
+              const o = document.createElement('option');
+              o.value = opt.value;
+              o.textContent = opt.label;
+              sel.appendChild(o);
+            });
+            cb.insertAdjacentElement('afterend', sel);
+          }
+          const stored = Math.max(1, Math.min(4, parseInt(qtyMap[key] || '1', 10) || 1));
+          sel.value = String(stored);
+          sel.disabled = !cb.checked;
+          const persistQty = (val) => {
+            qtyMap[key] = val;
+            try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { }
+          };
+          sel.addEventListener('change', () => {
+            const next = Math.max(1, Math.min(4, parseInt(sel.value, 10) || 1));
+            sel.value = String(next);
+            persistQty(next);
+          });
+          cb.addEventListener('change', () => {
+            sel.disabled = !cb.checked;
+            if (cb.checked) {
+              if (!qtyMap[key] || qtyMap[key] === 0) {
+                sel.value = '1';
+                persistQty(1);
+              }
+            } else {
+              persistQty(0);
+            }
+          });
+        });
+      })();
 
       // Menu overlay helpers
       const overlays = Array.from(document.querySelectorAll('.menu-overlay'));
@@ -1838,8 +1889,11 @@
                 li.appendChild(dec);
                 li.appendChild(inc);
               } else {
-                // No per-ingredient quantity; simple label (sans any inline qty)
-                li.textContent = label;
+                // Generic ingredient; display quantity if >1
+                const qKey = `${group}|${normValue}`;
+                let qv = 1;
+                try { qv = Math.max(1, Math.min(4, parseInt(qtyMap[qKey] || '1', 10) || 1)); } catch { qv = 1; }
+                li.textContent = qv > 1 ? `${label} (x${qv})` : label;
               }
               ul.appendChild(li);
             });

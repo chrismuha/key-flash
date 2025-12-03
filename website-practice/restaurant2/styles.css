@@ -186,6 +186,20 @@ body.theme-dark .settings-close:focus-visible {
     background: rgba(255, 255, 255, 0.12);
 }
 
+.ingredient-qty {
+    margin-left: 8px;
+    border: 1px solid #000;
+    border-radius: 8px;
+    padding: 2px 6px;
+    font: inherit;
+}
+
+body.theme-dark .ingredient-qty {
+    border-color: #fff;
+    background: #111;
+    color: #fff;
+}
+
 .settings-panel label {
     display: flex;
     align-items: center;
