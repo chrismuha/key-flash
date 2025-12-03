@@ -265,6 +265,11 @@
       });
     }
 
+    // Ensure initial validation state is visible on load
+    if (body.classList.contains('page2')) {
+      updateBuilderError();
+    }
+
     let navInitialEnabled = false;
     try {
       navInitialEnabled = localStorage.getItem(STORAGE_KEYS.navEnabled) === 'true';

@@ -263,6 +263,11 @@
       });
     }
 
+    // Ensure initial validation state is visible on load
+    if (body.classList.contains('page2')) {
+      updateBuilderError();
+    }
+
     let navInitialEnabled = false;
     try {
       navInitialEnabled = localStorage.getItem(STORAGE_KEYS.navEnabled) === 'true';
@@ -495,6 +500,8 @@
     });
     // Close overlay before page is hidden/back/forward cache restores
     window.addEventListener('pagehide', closeSettings);
+    // Force-closed on initial load in case prior state left it open
+    closeSettings();
     if (settingLabelSelects) {
       settingLabelSelects.addEventListener('change', () => {
         labelSelects = !!settingLabelSelects.checked;
