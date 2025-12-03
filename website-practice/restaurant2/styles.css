@@ -971,7 +971,7 @@ body.theme-dark .close-overlay:focus-visible {
     margin: 0;
     width: 190px;
     height: 33px;
-    background: transparent;
+    background: var(--box-bg);
     border: none;
     border-radius: 999px;
     display: flex;
