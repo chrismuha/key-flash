@@ -56,7 +56,7 @@ body {
     justify-content: flex-start;
     flex-wrap: nowrap;
     gap: calc(var(--gap) - 2px);
-    padding: var(--gap) var(--gap) var(--gap) calc(var(--gap) / 2);
+    padding: calc(var(--gap) * 2.25) var(--gap) var(--gap) calc(var(--gap) / 2);
     width: 100%;
     position: fixed;
     top: 0;
@@ -119,6 +119,71 @@ body.theme-dark .settings-panel {
     border-color: #fff;
     background: #222;
     color: #fff;
+}
+
+.settings-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 2000;
+}
+
+.settings-modal {
+    background: #f7f7f7;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 16px;
+    width: min(520px, 100%);
+    max-width: 520px;
+    padding: 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+body.theme-dark .settings-modal {
+    background: #111;
+    color: #fff;
+    border-color: #fff;
+}
+
+body.settings-open {
+    overflow: hidden;
+}
+
+.settings-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.settings-modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.settings-close {
+    background: transparent;
+    border: 2px solid currentColor;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.settings-close:hover,
+.settings-close:focus-visible {
+    background: rgba(0, 0, 0, 0.08);
+    outline: none;
+}
+
+body.theme-dark .settings-close:hover,
+body.theme-dark .settings-close:focus-visible {
+    background: rgba(255, 255, 255, 0.12);
 }
 
 .settings-panel label {
@@ -206,8 +271,8 @@ body.theme-dark main fieldset {
 /* Theme controls */
 .theme-controls {
     position: fixed;
-    top: calc(var(--nav-height) + 8px);
-    right: 20px;
+    top: calc(var(--gap) + 4px);
+    right: calc(var(--gap) + 64px);
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -254,6 +319,11 @@ body.theme-dark main fieldset {
     outline: none;
 }
 
+body:not(.nav-enabled) .nav-theme-controls,
+body.nav-enabled .nav-theme-controls {
+    display: flex;
+}
+
 body.theme-dark .theme-controls {
     border-color: #fff;
     background: #222;
@@ -272,8 +342,8 @@ body.theme-dark .theme-option+.theme-option {
 /* Go Back button (fixed, next to theme toggle) */
 .go-back {
     position: fixed;
-    top: calc(var(--nav-height) + 8px);
-    left: 8px;
+    top: 4px;
+    left: 4px;
     padding: 6px 10px;
     font-weight: 600;
     border: 1px solid #000;
@@ -291,10 +361,6 @@ body.theme-dark .go-back {
 }
 
 /* Hide Go Back when navigation is enabled */
-body.nav-enabled .go-back {
-    display: none !important;
-}
-
 /* Dark theme: make all key outlines/borders white for contrast */
 body.theme-dark :focus-visible {
     outline-color: var(--focus-outline-dark);

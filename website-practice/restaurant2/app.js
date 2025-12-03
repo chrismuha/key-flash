@@ -409,6 +409,9 @@
     // Settings (gear) in left rail
     const settingsBtn = document.querySelector('.settings-button');
     const settingsPanel = document.getElementById('settings-panel');
+    const settingsOverlay = document.getElementById('settings-overlay');
+    const settingsModal = document.querySelector('.settings-modal');
+    const settingsCloseBtn = document.querySelector('.settings-close');
     const settingLabelSelects = document.querySelector('.setting-label-selects');
     const settingTitleSelects = document.querySelector('.setting-title-selects');
     const settingResetOnDeselect = document.querySelector('.setting-reset-on-deselect');
@@ -443,27 +446,46 @@
     if (settingResetDisables) settingResetDisables.checked = resetDisables;
 
     const closeSettings = () => {
-      if (!settingsPanel || !settingsBtn) return;
-      settingsPanel.hidden = true;
+      if (!settingsOverlay || !settingsBtn) return;
+      settingsOverlay.hidden = true;
+      settingsOverlay.style.display = 'none';
+      settingsOverlay.setAttribute('aria-hidden', 'true');
       settingsBtn.setAttribute('aria-expanded', 'false');
+      body.classList.remove('settings-open');
     };
     const openSettings = () => {
-      if (!settingsPanel || !settingsBtn) return;
-      settingsPanel.hidden = false;
+      if (!settingsOverlay || !settingsBtn) return;
+      settingsOverlay.hidden = false;
+      settingsOverlay.style.display = 'flex';
+      settingsOverlay.setAttribute('aria-hidden', 'false');
       settingsBtn.setAttribute('aria-expanded', 'true');
+      body.classList.add('settings-open');
     };
-    if (settingsBtn && settingsPanel) {
+    // ensure closed on fresh load
+    closeSettings();
+    if (settingsBtn && settingsOverlay) {
       settingsBtn.addEventListener('click', () => {
-        if (settingsPanel.hidden) openSettings(); else closeSettings();
-      });
-      document.addEventListener('click', (evt) => {
-        if (settingsPanel.hidden) return;
-        if (!document.querySelector('.left-rail')?.contains(evt.target)) closeSettings();
+        if (settingsOverlay.hidden) openSettings(); else closeSettings();
       });
       document.addEventListener('keydown', (evt) => {
         if (evt.key === 'Escape') closeSettings();
       });
     }
+    if (settingsOverlay) {
+      settingsOverlay.addEventListener('click', (evt) => {
+        const clickedInsideModal = settingsModal && settingsModal.contains(evt.target);
+        if (!clickedInsideModal) closeSettings();
+      });
+    }
+    if (settingsCloseBtn) settingsCloseBtn.addEventListener('click', closeSettings);
+    // Safety: delegate close actions for any dynamically rendered close buttons
+    document.addEventListener('click', (evt) => {
+      if (evt.target.closest('.settings-close')) {
+        closeSettings();
+      }
+    });
+    // Close overlay before page is hidden/back/forward cache restores
+    window.addEventListener('pagehide', closeSettings);
     if (settingLabelSelects) {
       settingLabelSelects.addEventListener('change', () => {
         labelSelects = !!settingLabelSelects.checked;
