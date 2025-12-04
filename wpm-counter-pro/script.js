@@ -221,12 +221,12 @@ function updateOverlayStatus() {
 
 function showOverlay() {
     overlayPanel.classList.remove("hidden");
-    overlayToggleBtn.textContent = "Hide overlay";
+    overlayToggleBtn.classList.add("is-open");
 }
 
 function hideOverlay() {
     overlayPanel.classList.add("hidden");
-    overlayToggleBtn.textContent = "Show overlay";
+    overlayToggleBtn.classList.remove("is-open");
 }
 
 // Time configuration

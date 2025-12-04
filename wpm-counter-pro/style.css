@@ -138,6 +138,18 @@ button:disabled {
     background: var(--typing-bg);
 }
 
+#overlayToggleBtn .label-hide {
+    display: none;
+}
+
+#overlayToggleBtn.is-open .label-show {
+    display: none;
+}
+
+#overlayToggleBtn.is-open .label-hide {
+    display: inline;
+}
+
 /* Timer Display */
 .timer {
     font-size: 1.1rem;
