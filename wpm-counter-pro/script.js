@@ -441,6 +441,24 @@ overlayStartBtn.addEventListener('click', startTest);
 overlayStopBtn.addEventListener('click', () => stopTest(false));
 overlayResetBtn.addEventListener('click', resetTest);
 
+document.addEventListener('keydown', (event) => {
+    if (event.key !== "Enter" || event.repeat) return;
+
+    const target = event.target;
+    const isEditing = target === typingArea || target.isContentEditable;
+    if (isEditing && isRunning) {
+        // Let Enter create a new line while typing.
+        return;
+    }
+
+    event.preventDefault();
+    if (isRunning) {
+        stopTest(false);
+    } else {
+        startTest();
+    }
+});
+
 // Initial setup
 initTheme();
 updateTimeLeftDisplay();
