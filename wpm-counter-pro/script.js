@@ -30,7 +30,9 @@ const stopBtn = document.getElementById('stopBtn');
 const resetBtn = document.getElementById('resetBtn');
 const typingArea = document.getElementById('typingArea');
 const timeLeftEl = document.getElementById('timeLeft');
+const overlayTimeLeftEl = document.getElementById('overlayTimeLeft');
 const wpmEl = document.getElementById('wpm');
+const overlayWpmEl = document.getElementById('overlayWpm');
 const correctWordsEl = document.getElementById('correctWords');
 const errorWordsEl = document.getElementById('errorWords');
 const totalWordsEl = document.getElementById('totalWords');
@@ -40,12 +42,21 @@ const minutesValueEl = document.getElementById('minutesValue');
 const secondsValueEl = document.getElementById('secondsValue');
 const noTimerCheckbox = document.getElementById('noTimerCheckbox');
 const themeToggle = document.getElementById('themeToggle');
+const validationModeInputs = document.querySelectorAll('input[name="validationMode"]');
+const overlayToggleBtn = document.getElementById('overlayToggleBtn');
+const overlayPanel = document.getElementById('overlayPanel');
+const overlayStartBtn = document.getElementById('overlayStartBtn');
+const overlayStopBtn = document.getElementById('overlayStopBtn');
+const overlayResetBtn = document.getElementById('overlayResetBtn');
+const overlayHideBtn = document.getElementById('overlayHideBtn');
+const overlayStatusEl = document.getElementById('overlayStatus');
 
 let timerId = null;
 let isRunning = false;
 let startTime = null;
 let isTimedMode = true;
 let initialDurationSeconds = 60;
+let validationMode = "strict";
 
 // Theme management
 function applyTheme(theme) {
@@ -95,6 +106,10 @@ function normalizeWord(token) {
 }
 
 function getWordStatus(token) {
+    if (validationMode === "freeform") {
+        return token.trim().length ? "valid" : "ignore";
+    }
+
     const word = normalizeWord(token);
     if (!word) return "ignore";
     if (/^\d+$/.test(word)) return "valid";
@@ -189,9 +204,29 @@ function updateStats() {
     const wpm = Math.round(correct / elapsedMinutes);
 
     wpmEl.textContent = isFinite(wpm) ? wpm : 0;
+    overlayWpmEl.textContent = isFinite(wpm) ? wpm : 0;
     correctWordsEl.textContent = correct;
     errorWordsEl.textContent = errors;
     totalWordsEl.textContent = total;
+}
+
+function setTimeLeftDisplayValue(value) {
+    timeLeftEl.textContent = value;
+    overlayTimeLeftEl.textContent = value;
+}
+
+function updateOverlayStatus() {
+    overlayStatusEl.textContent = isRunning ? "Running · background overlay" : "Idle · stays on top";
+}
+
+function showOverlay() {
+    overlayPanel.classList.remove("hidden");
+    overlayToggleBtn.textContent = "Hide overlay";
+}
+
+function hideOverlay() {
+    overlayPanel.classList.add("hidden");
+    overlayToggleBtn.textContent = "Show overlay";
 }
 
 // Time configuration
@@ -204,12 +239,12 @@ function getSelectedDurationSeconds() {
 
 function updateTimeLeftDisplay() {
     if (noTimerCheckbox.checked) {
-        timeLeftEl.textContent = "∞";
+        setTimeLeftDisplayValue("∞");
         return;
     }
     const total = getSelectedDurationSeconds() || 60;
     initialDurationSeconds = total;
-    timeLeftEl.textContent = total.toString();
+    setTimeLeftDisplayValue(total.toString());
 }
 
 function adjustTime(unit, delta) {
@@ -252,10 +287,10 @@ function startTest() {
     if (isTimedMode) {
         const total = getSelectedDurationSeconds() || 60;
         initialDurationSeconds = total;
-        timeLeftEl.textContent = total.toString();
+        setTimeLeftDisplayValue(total.toString());
     } else {
         initialDurationSeconds = null;
-        timeLeftEl.textContent = "∞";
+        setTimeLeftDisplayValue("∞");
     }
 
     typingArea.innerHTML = "";
@@ -265,17 +300,22 @@ function startTest() {
     typingArea.focus();
 
     wpmEl.textContent = "0";
+    overlayWpmEl.textContent = "0";
     correctWordsEl.textContent = "0";
     errorWordsEl.textContent = "0";
     totalWordsEl.textContent = "0";
 
     startBtn.disabled = true;
+    overlayStartBtn.disabled = true;
     stopBtn.disabled = false;
+    overlayStopBtn.disabled = false;
     resetBtn.disabled = false;
+    overlayResetBtn.disabled = false;
     setTimeControlsEnabled(false);
 
     startTime = Date.now();
     isRunning = true;
+    updateOverlayStatus();
 
     timerId = setInterval(() => {
         if (!isRunning) return;
@@ -285,7 +325,7 @@ function startTest() {
         if (isTimedMode && initialDurationSeconds != null) {
             const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
             const remaining = Math.max(0, initialDurationSeconds - elapsedSeconds);
-            timeLeftEl.textContent = remaining.toString();
+            setTimeLeftDisplayValue(remaining.toString());
 
             if (remaining <= 0) {
                 stopTest(true);
@@ -311,12 +351,17 @@ function stopTest(auto = false) {
     typingArea.setAttribute("contenteditable", "false");
 
     startBtn.disabled = false;
+    overlayStartBtn.disabled = false;
     stopBtn.disabled = true;
+    overlayStopBtn.disabled = true;
+    overlayResetBtn.disabled = resetBtn.disabled;
     setTimeControlsEnabled(true);
 
     if (!isTimedMode) {
-        timeLeftEl.textContent = "∞";
+        setTimeLeftDisplayValue("∞");
     }
+
+    updateOverlayStatus();
 }
 
 function resetTest() {
@@ -331,16 +376,21 @@ function resetTest() {
     typingArea.setAttribute("contenteditable", "false");
 
     wpmEl.textContent = "0";
+    overlayWpmEl.textContent = "0";
     correctWordsEl.textContent = "0";
     errorWordsEl.textContent = "0";
     totalWordsEl.textContent = "0";
 
     startBtn.disabled = false;
+    overlayStartBtn.disabled = false;
     stopBtn.disabled = true;
+    overlayStopBtn.disabled = true;
     resetBtn.disabled = true;
+    overlayResetBtn.disabled = true;
     setTimeControlsEnabled(true);
 
     updateTimeLeftDisplay();
+    updateOverlayStatus();
 }
 
 // Event wiring
@@ -370,9 +420,33 @@ noTimerCheckbox.addEventListener('change', () => {
     }
 });
 
+validationModeInputs.forEach(input => {
+    input.addEventListener('change', () => {
+        validationMode = input.value === "freeform" ? "freeform" : "strict";
+        rebuildWithHighlights();
+        updateStats();
+    });
+});
+
+overlayToggleBtn.addEventListener('click', () => {
+    if (overlayPanel.classList.contains("hidden")) {
+        showOverlay();
+    } else {
+        hideOverlay();
+    }
+});
+
+overlayHideBtn.addEventListener('click', hideOverlay);
+overlayStartBtn.addEventListener('click', startTest);
+overlayStopBtn.addEventListener('click', () => stopTest(false));
+overlayResetBtn.addEventListener('click', resetTest);
+
 // Initial setup
 initTheme();
 updateTimeLeftDisplay();
 setTimeControlsEnabled(true);
 stopBtn.disabled = true;
 resetBtn.disabled = true;
+overlayStopBtn.disabled = true;
+overlayResetBtn.disabled = true;
+updateOverlayStatus();

@@ -42,6 +42,19 @@
             </div>
         </div>
 
+        <div class="mode-row">
+            <div class="mode-label">Counting mode:</div>
+            <label class="mode-option">
+                <input type="radio" name="validationMode" value="strict" checked>
+                Validate words
+            </label>
+            <label class="mode-option">
+                <input type="radio" name="validationMode" value="freeform">
+                Free typing (count everything)
+            </label>
+            <button id="overlayToggleBtn" class="ghost-btn">Show overlay</button>
+        </div>
+
         <!-- Time Configuration -->
         <div class="time-config">
             <span class="time-config-label">Duration:</span>
@@ -88,9 +101,9 @@
 
         <!-- Instructions -->
         <div class="hint">
-            Configure the time, start the test, then type anything you want.
-            Misspelled words turn <span style="color:#dc2626;font-weight:600;">red</span>.
-            In <strong>No timer</strong> mode, use the Stop button when you're done.
+            Configure the time, pick whether to validate words, start the test, then type anything you want.
+            Misspelled words turn <span style="color:#dc2626;font-weight:600;">red</span> in validate mode.
+            In <strong>No timer</strong> mode, use the Stop button when you're done or pin the overlay to keep an eye on WPM.
         </div>
 
         <!-- Stats Display -->
@@ -101,6 +114,39 @@
             <div class="stat-pill">Total words: <strong id="totalWords">0</strong></div>
         </div>
 
+    </div>
+
+    <div id="overlayPanel" class="overlay hidden">
+        <div class="overlay-header">
+            <div>
+                <div class="overlay-title">WPM Overlay Service</div>
+                <div id="overlayStatus" class="overlay-subtitle">Idle · stays on top</div>
+            </div>
+            <div class="overlay-header-actions">
+                <button id="overlayHideBtn" class="icon-btn" aria-label="Hide overlay">×</button>
+            </div>
+        </div>
+
+        <div class="overlay-row stats-row">
+            <div class="overlay-pill">
+                <span class="pill-label">WPM</span>
+                <span id="overlayWpm" class="pill-value">0</span>
+            </div>
+            <div class="overlay-pill">
+                <span class="pill-label">Time</span>
+                <span class="pill-value"><span id="overlayTimeLeft">60</span>s</span>
+            </div>
+        </div>
+
+        <div class="overlay-row">
+            <button id="overlayStartBtn">Start</button>
+            <button id="overlayStopBtn" disabled>Stop</button>
+            <button id="overlayResetBtn" disabled>Reset</button>
+        </div>
+
+        <div class="overlay-note">
+            Free typing mode counts every word without validation.
+        </div>
     </div>
 
     <!-- Script -->
