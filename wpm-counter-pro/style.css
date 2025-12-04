@@ -313,6 +313,14 @@ button:disabled {
 .overlay.hidden {
     display: none;
 }
+.overlay.overlay-standalone {
+    position: static;
+    width: auto;
+    box-shadow: none;
+    border-radius: 0;
+    max-height: 100vh;
+    overflow: auto;
+}
 
 .overlay-header {
     display: flex;

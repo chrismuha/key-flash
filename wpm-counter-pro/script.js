@@ -43,13 +43,15 @@ const secondsValueEl = document.getElementById('secondsValue');
 const noTimerCheckbox = document.getElementById('noTimerCheckbox');
 const themeToggle = document.getElementById('themeToggle');
 const validationModeInputs = document.querySelectorAll('input[name="validationMode"]');
-const overlayToggleBtn = document.getElementById('overlayToggleBtn');
+const overlayLaunchBtn = document.getElementById('overlayToggleBtn');
 const overlayPanel = document.getElementById('overlayPanel');
 const overlayStartBtn = document.getElementById('overlayStartBtn');
 const overlayStopBtn = document.getElementById('overlayStopBtn');
 const overlayResetBtn = document.getElementById('overlayResetBtn');
 const overlayHideBtn = document.getElementById('overlayHideBtn');
 const overlayStatusEl = document.getElementById('overlayStatus');
+const isOverlayWindow = window.location.hash === "#overlay";
+const bridge = window.wpmBridge;
 
 let timerId = null;
 let isRunning = false;
@@ -208,25 +210,42 @@ function updateStats() {
     correctWordsEl.textContent = correct;
     errorWordsEl.textContent = errors;
     totalWordsEl.textContent = total;
+    sendStatsUpdate();
 }
 
 function setTimeLeftDisplayValue(value) {
     timeLeftEl.textContent = value;
     overlayTimeLeftEl.textContent = value;
+    sendStatsUpdate();
+}
+
+function sendStatsUpdate() {
+    if (isOverlayWindow || !bridge || typeof bridge.sendStats !== "function") return;
+    bridge.sendStats({
+        wpm: wpmEl.textContent,
+        timeLeft: timeLeftEl.textContent,
+        status: isRunning ? "running" : "idle"
+    });
 }
 
 function updateOverlayStatus() {
     overlayStatusEl.textContent = isRunning ? "Running · background overlay" : "Idle · stays on top";
 }
 
-function showOverlay() {
-    overlayPanel.classList.remove("hidden");
-    overlayToggleBtn.classList.add("is-open");
-}
-
-function hideOverlay() {
-    overlayPanel.classList.add("hidden");
-    overlayToggleBtn.classList.remove("is-open");
+function handleOverlayStatsIncoming(data) {
+    if (!data) return;
+    if (typeof data.wpm !== "undefined") overlayWpmEl.textContent = data.wpm;
+    if (typeof data.timeLeft !== "undefined") overlayTimeLeftEl.textContent = data.timeLeft;
+    overlayStatusEl.textContent = data.status === "running" ? "Running · background overlay" : "Idle · stays on top";
+    if (data.status === "running") {
+        overlayStartBtn.disabled = true;
+        overlayStopBtn.disabled = false;
+        overlayResetBtn.disabled = false;
+    } else {
+        overlayStartBtn.disabled = false;
+        overlayStopBtn.disabled = true;
+        overlayResetBtn.disabled = true;
+    }
 }
 
 // Time configuration
@@ -316,6 +335,7 @@ function startTest() {
     startTime = Date.now();
     isRunning = true;
     updateOverlayStatus();
+    updateStats();
 
     timerId = setInterval(() => {
         if (!isRunning) return;
@@ -394,70 +414,82 @@ function resetTest() {
 }
 
 // Event wiring
-startBtn.addEventListener('click', startTest);
-stopBtn.addEventListener('click', () => stopTest(false));
-resetBtn.addEventListener('click', resetTest);
+function wireMainWindowEvents() {
+    startBtn.addEventListener('click', startTest);
+    stopBtn.addEventListener('click', () => stopTest(false));
+    resetBtn.addEventListener('click', resetTest);
 
-typingArea.addEventListener('input', () => {
-    if (!isRunning) return;
-    window.requestAnimationFrame(() => {
-        rebuildWithHighlights();
-        updateStats();
+    typingArea.addEventListener('input', () => {
+        if (!isRunning) return;
+        window.requestAnimationFrame(() => {
+            rebuildWithHighlights();
+            updateStats();
+        });
     });
-});
 
-document.querySelectorAll(".time-btn").forEach(btn => {
-    btn.addEventListener('click', () => {
-        const unit = btn.getAttribute("data-unit");
-        const isPlus = btn.classList.contains("plus");
-        adjustTime(unit, isPlus ? 1 : -1);
+    document.querySelectorAll(".time-btn").forEach(btn => {
+        btn.addEventListener('click', () => {
+            const unit = btn.getAttribute("data-unit");
+            const isPlus = btn.classList.contains("plus");
+            adjustTime(unit, isPlus ? 1 : -1);
+        });
     });
-});
 
-noTimerCheckbox.addEventListener('change', () => {
-    if (!isRunning) {
-        updateTimeLeftDisplay();
-    }
-});
-
-validationModeInputs.forEach(input => {
-    input.addEventListener('change', () => {
-        validationMode = input.value === "freeform" ? "freeform" : "strict";
-        rebuildWithHighlights();
-        updateStats();
+    noTimerCheckbox.addEventListener('change', () => {
+        if (!isRunning) {
+            updateTimeLeftDisplay();
+        }
     });
-});
 
-overlayToggleBtn.addEventListener('click', () => {
-    if (overlayPanel.classList.contains("hidden")) {
-        showOverlay();
-    } else {
-        hideOverlay();
+    validationModeInputs.forEach(input => {
+        input.addEventListener('change', () => {
+            validationMode = input.value === "freeform" ? "freeform" : "strict";
+            rebuildWithHighlights();
+            updateStats();
+        });
+    });
+
+    overlayLaunchBtn?.addEventListener('click', () => bridge?.openOverlay());
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== "Enter" || event.repeat) return;
+
+        const target = event.target;
+        const isEditing = target === typingArea || target.isContentEditable;
+        if (isEditing && isRunning) {
+            return;
+        }
+
+        event.preventDefault();
+        if (isRunning) {
+            stopTest(false);
+        } else {
+            startTest();
+        }
+    });
+}
+
+function wireOverlayWindowEvents() {
+    document.querySelector(".container").style.display = "none";
+    overlayPanel.classList.remove("hidden");
+    overlayPanel.classList.add("overlay-standalone");
+    overlayHideBtn.addEventListener('click', () => window.close());
+    overlayStartBtn.addEventListener('click', () => bridge?.sendAction("start"));
+    overlayStopBtn.addEventListener('click', () => bridge?.sendAction("stop"));
+    overlayResetBtn.addEventListener('click', () => bridge?.sendAction("reset"));
+    if (bridge && typeof bridge.onStats === "function") {
+        bridge.onStats(handleOverlayStatsIncoming);
     }
-});
+}
 
-overlayHideBtn.addEventListener('click', hideOverlay);
-overlayStartBtn.addEventListener('click', startTest);
-overlayStopBtn.addEventListener('click', () => stopTest(false));
-overlayResetBtn.addEventListener('click', resetTest);
-
-document.addEventListener('keydown', (event) => {
-    if (event.key !== "Enter" || event.repeat) return;
-
-    const target = event.target;
-    const isEditing = target === typingArea || target.isContentEditable;
-    if (isEditing && isRunning) {
-        // Let Enter create a new line while typing.
-        return;
-    }
-
-    event.preventDefault();
-    if (isRunning) {
-        stopTest(false);
-    } else {
-        startTest();
-    }
-});
+function wireOverlayActionListener() {
+    if (!bridge || typeof bridge.onAction !== "function") return;
+    bridge.onAction((action) => {
+        if (action === "start") startTest();
+        if (action === "stop") stopTest(false);
+        if (action === "reset") resetTest();
+    });
+}
 
 // Initial setup
 initTheme();
@@ -468,3 +500,10 @@ resetBtn.disabled = true;
 overlayStopBtn.disabled = true;
 overlayResetBtn.disabled = true;
 updateOverlayStatus();
+
+if (isOverlayWindow) {
+    wireOverlayWindowEvents();
+} else {
+    wireMainWindowEvents();
+    wireOverlayActionListener();
+}
