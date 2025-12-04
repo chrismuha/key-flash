@@ -1,0 +1,12 @@
+{
+  "name": "wpm-counter-pro",
+  "version": "1.0.0",
+  "description": "Typing WPM counter with overlay service, bundled as an Electron app.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^29.0.0"
+  }
+}
