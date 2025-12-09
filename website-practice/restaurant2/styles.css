@@ -69,6 +69,10 @@ body {
     overflow-y: hidden;
 }
 
+.has-go-back .left-rail {
+    padding-top: calc(var(--gap) * 3);
+}
+
 /* Left-rail logo occupies the padded space above links */
 .left-rail .nav-logo {
     display: none;
@@ -387,6 +391,10 @@ body:not(.nav-enabled) main {
         padding: calc(var(--gap) * 1.5) var(--gap) var(--gap);
         gap: 8px;
         overflow: hidden;
+    }
+
+    .has-go-back .left-rail {
+        padding-top: calc(var(--gap) * 3);
     }
 
     body.mobile-ui .left-rail {
