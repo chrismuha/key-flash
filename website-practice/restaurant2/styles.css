@@ -390,8 +390,8 @@ body:not(.nav-enabled) main {
 
 @media (max-width: 768px) {
     .left-rail {
-        padding: calc(var(--gap) * 1.5) var(--gap) var(--gap);
-        gap: 8px;
+        padding: calc(var(--gap) * 1) var(--gap) calc(var(--gap) * 0.75);
+        gap: 6px;
         overflow: hidden;
         flex-wrap: wrap;
     }
@@ -409,11 +409,13 @@ body:not(.nav-enabled) main {
         width: 100%;
         flex: 1 0 100%;
         order: 4;
-        margin-top: 6px;
+        margin-top: 2px;
     }
 
     .mobile-theme-toggle {
         display: inline-flex;
+        order: 2;
+        margin-left: auto;
     }
 
     .theme-controls {
@@ -428,19 +430,23 @@ body:not(.nav-enabled) main {
         font-size: 16px;
         padding: 0 12px;
         height: 44px;
-        margin-top: 12px;
+        margin-top: 4px;
     }
 
     .settings-button {
-        width: 44px;
-        height: 44px;
-        font-size: 22px;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+        order: 3;
+        margin-left: 6px;
+        margin-top: -70px;
     }
 
     .mobile-theme-toggle {
-        width: 44px;
-        height: 44px;
-        font-size: 22px;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+        margin-top: -70px;
     }
 }
 
