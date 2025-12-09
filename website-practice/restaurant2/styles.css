@@ -379,7 +379,7 @@ body.has-go-back main {
 
 @media (max-width: 768px) {
     body.has-go-back main {
-        padding-top: calc(var(--nav-height) + var(--gap) * 5);
+        padding-top: calc(var(--nav-height) + var(--gap) * 3);
     }
 }
 
@@ -538,8 +538,8 @@ body.theme-dark .theme-option+.theme-option {
 /* Go Back button (fixed, next to theme toggle) */
 .go-back {
     position: fixed;
-    top: 4px;
-    left: 4px;
+    top: 12px;
+    left: 12px;
     padding: 6px 10px;
     font-weight: 600;
     border: 1px solid #000;
@@ -1121,18 +1121,17 @@ body.menu-overlay-open {
 
 .menu-actions {
     display: grid;
-    grid-template-columns: repeat(3, minmax(200px, 1fr));
-    gap: 16px;
-    justify-items: center;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    justify-items: stretch;
     align-items: stretch;
     margin: 20px 0;
 }
 
 .menu-actions .menu-launch {
     width: 100%;
-    min-width: 200px;
-    max-width: 240px;
-    padding: 14px 24px;
+    min-width: 0;
+    padding: 14px 18px;
     font-size: 18px;
     font-weight: 700;
     border: 2px solid #000;
