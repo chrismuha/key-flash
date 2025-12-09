@@ -145,15 +145,17 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
 
 .mobile-theme-toggle {
     display: none;
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     align-items: center;
     justify-content: center;
     border: 1px solid #000;
     background: #f7f7f7;
     border-radius: 12px;
-    font-size: 22px;
+    font-size: 24px;
+    font-weight: 600;
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 body.theme-dark .mobile-theme-toggle {
