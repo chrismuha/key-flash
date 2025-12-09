@@ -396,6 +396,10 @@ body:not(.nav-enabled) main {
         flex-wrap: wrap;
     }
 
+    body.order-type .left-rail {
+        padding-top: calc(var(--gap) * 3);
+    }
+
     .has-go-back .left-rail {
         padding-top: calc(var(--gap) * 3);
     }
