@@ -115,6 +115,8 @@
   // Section: Page Initialization
   document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
+    const mobileQuery = window.matchMedia('(max-width: 768px)');
+    const isMobileView = () => mobileQuery.matches;
 
 
 
@@ -151,6 +153,7 @@
     const navLinks = Array.from(document.querySelectorAll('.left-rail a'));
     const preventNavClick = (event) => event.preventDefault();
     const setNavState = (enabled) => {
+      if (isMobileView()) enabled = true;
       if (!navLinks.length) return;
       if (enabled) {
         body.classList.add('nav-enabled');
@@ -263,10 +266,12 @@
       });
     }
 
-    let navInitialEnabled = false;
-    try {
-      navInitialEnabled = localStorage.getItem(STORAGE_KEYS.navEnabled) === 'true';
-    } catch { }
+    let navInitialEnabled = isMobileView();
+    if (!navInitialEnabled) {
+      try {
+        navInitialEnabled = localStorage.getItem(STORAGE_KEYS.navEnabled) === 'true';
+      } catch { navInitialEnabled = false; }
+    }
     setNavState(navInitialEnabled);
     // Apply initial page navigation locks
     updatePageNavLocks();
@@ -284,6 +289,7 @@
     // Go Back button handler: cycle within pages 1-3
     const backBtn = document.querySelector('.go-back');
     if (backBtn) {
+      body.classList.add('has-go-back');
       backBtn.addEventListener('click', (e) => {
         e.preventDefault();
         if (body.classList.contains('page3')) {
@@ -301,7 +307,7 @@
       const savedTheme = localStorage.getItem(STORAGE_KEYS.theme);
       if (savedTheme === 'dark') body.classList.add('theme-dark');
     } catch { }
-    const themeModeBtn = document.querySelector('.theme-mode-toggle');
+    const themeModeBtns = Array.from(document.querySelectorAll('.theme-mode-toggle'));
     const navToggleBtn = document.querySelector('.nav-toggle');
     const themeChoiceBtns = document.querySelectorAll('.theme-choice');
     const themeViews = document.querySelectorAll('[data-theme-view]');
@@ -342,9 +348,14 @@
     };
 
     const updateThemeModeLabel = () => {
-      if (!themeModeBtn) return;
+      if (!themeModeBtns.length) return;
       const isDark = body.classList.contains('theme-dark');
-      themeModeBtn.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+      const mobile = body.classList.contains('mobile-ui');
+      const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+      themeModeBtns.forEach((btn) => {
+        btn.textContent = mobile ? (isDark ? '☀️' : '🌙') : (isDark ? 'Light Mode' : 'Dark Mode');
+        btn.setAttribute('aria-label', label);
+      });
     };
 
     const updateNavToggleLabel = () => {
@@ -446,12 +457,12 @@
       resetDisables = v === 'true';
     } catch { resetDisables = false; }
     if (settingResetDisables) settingResetDisables.checked = resetDisables;
-    // Quantity dropdown placement: default RIGHT of label
-    let qtyRight = true;
+    // Quantity dropdown placement: default BEFORE label (setting unchecked)
+    let qtyRight = false;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsQtyRight);
-      qtyRight = v === null ? true : v === 'true';
-    } catch { qtyRight = true; }
+      qtyRight = v === null ? false : v === 'true';
+    } catch { qtyRight = false; }
     if (settingQtyRight) settingQtyRight.checked = qtyRight;
 
     const closeSettings = () => {
@@ -530,36 +541,57 @@
         // Defaults: reset-related toggles OFF
         resetOnDeselect = false;
         resetDisables = false;
-        // Default: quantity dropdowns on the right
-        qtyRight = true;
+        // Default: quantity dropdowns before the label
+        qtyRight = false;
         try {
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
-          localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
         } catch { }
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
         if (settingResetDisables) settingResetDisables.checked = false;
-        if (settingQtyRight) settingQtyRight.checked = true;
+        if (settingQtyRight) settingQtyRight.checked = false;
       });
     }
 
-    if (themeModeBtn) {
-      themeModeBtn.addEventListener('click', () => {
-        body.classList.toggle('theme-dark');
-        updateThemeModeLabel();
-        try {
-          const isDark = body.classList.contains('theme-dark');
-          localStorage.setItem(STORAGE_KEYS.theme, isDark ? 'dark' : 'light');
-        } catch { }
+    const syncMobileUiState = () => {
+      const mobile = isMobileView();
+      body.classList.toggle('mobile-ui', mobile);
+      if (mobile) {
+        setNavState(true);
+        body.classList.add('nav-enabled');
+      }
+      if (navToggleBtn) {
+        navToggleBtn.hidden = mobile;
+        navToggleBtn.setAttribute('aria-hidden', mobile ? 'true' : 'false');
+        navToggleBtn.disabled = mobile;
+      }
+      updateThemeModeLabel();
+      updateNavToggleLabel();
+    };
+    syncMobileUiState();
+    mobileQuery.addEventListener('change', syncMobileUiState);
+
+    if (themeModeBtns.length) {
+      themeModeBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          body.classList.toggle('theme-dark');
+          updateThemeModeLabel();
+          try {
+            const isDark = body.classList.contains('theme-dark');
+            localStorage.setItem(STORAGE_KEYS.theme, isDark ? 'dark' : 'light');
+          } catch { }
+        });
       });
     }
 
     if (navToggleBtn) {
       navToggleBtn.addEventListener('click', () => {
+        if (isMobileView()) return;
         const navEnabled = body.classList.contains('nav-enabled');
         const nextState = !navEnabled;
         setNavState(nextState);
@@ -1036,6 +1068,40 @@
 
       // Menu overlay helpers
       const overlays = Array.from(document.querySelectorAll('.menu-overlay'));
+      const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
+      const mobileMenuSwiper = document.querySelector('.mobile-menu-swiper');
+      const mobileSwiperTrack = mobileMenuSwiper ? mobileMenuSwiper.querySelector('.swiper-track') : null;
+      const mobileSwiperPrev = mobileMenuSwiper ? mobileMenuSwiper.querySelector('.swiper-arrow-prev') : null;
+      const mobileSwiperNext = mobileMenuSwiper ? mobileMenuSwiper.querySelector('.swiper-arrow-next') : null;
+      const updateSwiperArrows = () => {
+        if (!mobileMenuSwiper || !mobileSwiperTrack || !isMobileView()) return;
+        const maxScroll = mobileSwiperTrack.scrollWidth - mobileSwiperTrack.clientWidth;
+        const atStart = mobileSwiperTrack.scrollLeft <= 0;
+        const atEnd = mobileSwiperTrack.scrollLeft >= (maxScroll - 1);
+        if (mobileSwiperPrev) mobileSwiperPrev.disabled = atStart;
+        if (mobileSwiperNext) mobileSwiperNext.disabled = atEnd;
+      };
+      const scrollSwiper = (dir = 1) => {
+        if (!mobileSwiperTrack) return;
+        const step = Math.max(160, Math.floor(mobileSwiperTrack.clientWidth * 0.6));
+        mobileSwiperTrack.scrollBy({ left: step * dir, behavior: 'smooth' });
+        setTimeout(updateSwiperArrows, 220);
+      };
+      const focusMenuChip = (section) => {
+        if (!section || !mobileSwiperTrack || !isMobileView()) return;
+        const chip = mobileSwiperTrack.querySelector(`.menu-launch[data-target="${section}"]`);
+        if (chip) chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      };
+      if (mobileSwiperPrev) mobileSwiperPrev.addEventListener('click', () => scrollSwiper(-1));
+      if (mobileSwiperNext) mobileSwiperNext.addEventListener('click', () => scrollSwiper(1));
+      if (mobileSwiperTrack) {
+        mobileSwiperTrack.addEventListener('scroll', () => {
+          if (!isMobileView()) return;
+          updateSwiperArrows();
+        });
+        mobileQuery.addEventListener('change', updateSwiperArrows);
+      }
+      updateSwiperArrows();
       const closeOverlay = (overlay) => {
         if (!overlay) return;
         overlay.hidden = true;
@@ -1063,8 +1129,9 @@
         body.classList.add('menu-overlay-open');
         const summary = overlay.querySelector('.menu-summary');
         if (summary) summary.focus({ preventScroll: true });
+        focusMenuChip(section);
+        updateSwiperArrows();
       };
-      const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
       const syncMenuLaunchState = () => {
         const activeLookup = {};
         document.querySelectorAll('.section-toggle').forEach((toggle) => {

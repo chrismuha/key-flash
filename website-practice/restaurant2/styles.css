@@ -75,6 +75,90 @@ body {
 }
 
 
+/* Mobile menu swiper (only visible on small screens) */
+.mobile-menu-swiper {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
+
+.mobile-menu-swiper .swiper-track {
+    display: flex;
+    gap: 8px;
+    overflow: hidden;
+    scroll-behavior: smooth;
+    flex: 1;
+    min-width: 0;
+}
+
+.mobile-menu-swiper .swiper-chip {
+    border: 1px solid #000;
+    background: #f5f5f5;
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-weight: 700;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+body.theme-dark .mobile-menu-swiper .swiper-chip {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+.mobile-menu-swiper .swiper-chip.menu-launch-active {
+    border-color: #18833d;
+    box-shadow: 0 0 0 2px #3cb371;
+}
+
+.mobile-menu-swiper .swiper-arrow {
+    border: 1px solid #000;
+    background: #fff;
+    border-radius: 10px;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+body.theme-dark .mobile-menu-swiper .swiper-arrow {
+    border-color: #fff;
+    background: #111;
+    color: #fff;
+}
+
+.mobile-menu-swiper .swiper-arrow:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.mobile-theme-toggle {
+    display: none;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    border-radius: 12px;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+body.theme-dark .mobile-theme-toggle {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+
 /* Settings gear in left rail */
 .settings-button {
     margin-top: 0;
@@ -282,9 +366,54 @@ main {
     margin-inline: auto;
 }
 
+/* Leave extra headroom when the fixed Go Back button is present */
+body.has-go-back main {
+    padding-top: calc(var(--nav-height) + var(--gap) * 3);
+}
+
+@media (max-width: 768px) {
+    body.has-go-back main {
+        padding-top: calc(var(--nav-height) + var(--gap) * 5);
+    }
+}
+
 /* Align pages when nav is hidden so headers sit naturally */
 body:not(.nav-enabled) main {
     padding-top: calc(var(--gap) * 2);
+}
+
+@media (max-width: 768px) {
+    .left-rail {
+        padding: calc(var(--gap) * 1.5) var(--gap) var(--gap);
+        gap: 8px;
+        overflow: hidden;
+    }
+
+    body.mobile-ui .left-rail {
+        display: flex !important;
+    }
+
+    .mobile-menu-swiper {
+        display: inline-flex;
+    }
+
+    .mobile-theme-toggle {
+        display: inline-flex;
+    }
+
+    .theme-controls {
+        display: none !important;
+    }
+
+    .nav-toggle {
+        display: none !important;
+    }
+
+    .left-rail .box {
+        font-size: 18px;
+        padding: 0 12px;
+        height: 44px;
+    }
 }
 
 /* Section: Theme (Dark) */
