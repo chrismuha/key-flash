@@ -393,6 +393,7 @@ body:not(.nav-enabled) main {
         padding: calc(var(--gap) * 1.5) var(--gap) var(--gap);
         gap: 8px;
         overflow: hidden;
+        flex-wrap: wrap;
     }
 
     .has-go-back .left-rail {
@@ -405,6 +406,10 @@ body:not(.nav-enabled) main {
 
     .mobile-menu-swiper {
         display: inline-flex;
+        width: 100%;
+        flex: 1 0 100%;
+        order: 4;
+        margin-top: 6px;
     }
 
     .mobile-theme-toggle {
@@ -420,9 +425,21 @@ body:not(.nav-enabled) main {
     }
 
     .left-rail .box {
-        font-size: 18px;
+        font-size: 16px;
         padding: 0 12px;
         height: 44px;
+    }
+
+    .settings-button {
+        width: 44px;
+        height: 44px;
+        font-size: 22px;
+    }
+
+    .mobile-theme-toggle {
+        width: 44px;
+        height: 44px;
+        font-size: 22px;
     }
 }
 
