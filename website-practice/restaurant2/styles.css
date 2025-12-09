@@ -881,7 +881,7 @@ body.page3 #order-summary a:focus {
 
 /* Section: Page 1 Order Type */
 body.order-type main {
-    text-align: left;
+    text-align: center;
 }
 
 body.order-type main h1 {
@@ -889,15 +889,17 @@ body.order-type main h1 {
     line-height: 48px;
     font-weight: 700;
     margin-bottom: 28px;
-    text-align: left;
+    text-align: center;
 }
 
 body.order-type .order-options {
     display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    gap: 36px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 24px;
     margin: 16px 0 8px;
+    overflow: visible;
 }
 
 /* Delivery details panel under cards */
@@ -1005,10 +1007,11 @@ body.order-type .delivery-details .delivery-clear {
 }
 
 body.order-type .order-card {
-    width: 180px;
-    height: 180px;
+    width: clamp(240px, 24vw, 300px);
+    height: clamp(240px, 24vw, 300px);
+    flex: 0 0 auto;
     border: 2px solid #000;
-    border-radius: 50%;
+    border-radius: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1059,12 +1062,15 @@ body.order-type .order-powered a {
 /* Section: Order Type Responsive */
 @media (max-width: 600px) {
     body.order-type .order-options {
-        gap: 16px;
+        gap: 12px;
+        flex-wrap: nowrap;
+        justify-content: center;
+        overflow: hidden;
     }
 
     body.order-type .order-card {
-        width: 140px;
-        height: 140px;
+        width: clamp(140px, 38vw, 170px);
+        height: clamp(140px, 38vw, 170px);
     }
 }
 
