@@ -56,7 +56,7 @@ body {
     justify-content: flex-start;
     flex-wrap: nowrap;
     gap: calc(var(--gap) - 2px);
-    padding: calc(var(--gap) * 2.25) var(--gap) var(--gap) calc(var(--gap) / 2);
+    padding: calc(var(--gap) * 3) var(--gap) var(--gap) calc(var(--gap) / 2);
     width: 100%;
     position: fixed;
     top: 0;
@@ -428,6 +428,7 @@ body:not(.nav-enabled) main {
         font-size: 16px;
         padding: 0 12px;
         height: 44px;
+        margin-top: 12px;
     }
 
     .settings-button {
@@ -1284,6 +1285,7 @@ body.theme-dark .close-overlay:focus-visible {
     font-size: 24px;
     padding: 0 14px;
     flex-shrink: 0;
+    margin-top: 12px;
 }
 
 /* Section: Focus Styles */
