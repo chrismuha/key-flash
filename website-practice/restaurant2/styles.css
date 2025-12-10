@@ -411,12 +411,12 @@ main {
 
 /* Leave extra headroom when the fixed Go Back button is present */
 body.has-go-back main {
-    padding-top: calc(var(--nav-offset) + var(--gap) * 3);
+    padding-top: calc(var(--nav-offset) + var(--gap) * 2);
 }
 
 @media (max-width: 768px) {
     body.has-go-back main {
-        padding-top: calc(var(--nav-offset) + var(--gap) * 3);
+        padding-top: calc(var(--nav-offset) + var(--gap) * 2);
     }
 }
 
