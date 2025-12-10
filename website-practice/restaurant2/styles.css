@@ -116,7 +116,20 @@ body.theme-dark .mobile-menu-swiper .swiper-chip {
 
 .mobile-menu-swiper .swiper-chip.menu-launch-active {
     border-color: #18833d;
-    box-shadow: 0 0 0 2px #3cb371;
+    box-shadow: none;
+    position: relative;
+}
+
+.mobile-menu-swiper .swiper-chip.menu-launch-active::after {
+    content: "";
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 6px;
+    height: 3px;
+    background: #18833d;
+    border-radius: 999px;
+    pointer-events: none;
 }
 
 .mobile-menu-swiper .swiper-arrow {
