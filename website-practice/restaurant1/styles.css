@@ -217,7 +217,7 @@ body.theme-dark main fieldset {
 .theme-dropdown {
     position: fixed;
     top: 8px;
-    right: 8px;
+    right: 22px;
     display: flex;
     flex-direction: column;
     align-items: stretch;
