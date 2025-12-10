@@ -637,6 +637,7 @@
       }
       updateThemeModeLabel();
       updateNavToggleLabel();
+      updatePageNavLocks();
     };
     syncMobileUiState();
     mobileQuery.addEventListener('change', syncMobileUiState);

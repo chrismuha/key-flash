@@ -152,6 +152,8 @@ body.nav-enabled .settings-button {
     max-height: calc(100vh - (var(--gap) * 3));
     overflow: auto;
     align-self: center;
+    position: relative;
+    z-index: 5;
 }
 
 body.theme-dark .settings-panel {
@@ -636,15 +638,16 @@ body.page2 .next-button:active {
         position: fixed;
         top: 0;
         bottom: 0;
-        left: 0;
+        left: var(--rail-width);
         right: 0;
         background: rgba(0, 0, 0, 0.45);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
         z-index: 1300;
+        pointer-events: none;
     }
-    body.nav-enabled.settings-open::before {
-        left: var(--rail-width);
+    body:not(.nav-enabled).settings-open::before {
+        left: 0;
     }
     .settings-panel {
         position: fixed;
