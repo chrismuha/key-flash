@@ -455,12 +455,12 @@
       resetDisables = v === 'true';
     } catch { resetDisables = false; }
     if (settingResetDisables) settingResetDisables.checked = resetDisables;
-    // Quantity dropdown placement: default RIGHT of label
-    let qtyRight = true;
+    // Quantity dropdown placement: default BEFORE label (disabled)
+    let qtyRight = false;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsQtyRight);
-      qtyRight = v === null ? true : v === 'true';
-    } catch { qtyRight = true; }
+      qtyRight = v === null ? false : v === 'true';
+    } catch { qtyRight = false; }
     if (settingQtyRight) settingQtyRight.checked = qtyRight;
 
     const closeSettings = () => {
@@ -525,21 +525,21 @@
         // Defaults: reset-related toggles OFF
         resetOnDeselect = false;
         resetDisables = false;
-        qtyRight = true;
+        qtyRight = false;
         try {
           localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
-          localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
         } catch { }
         if (settingExpandOnly) settingExpandOnly.checked = true;
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
         if (settingResetDisables) settingResetDisables.checked = false;
-        if (settingQtyRight) settingQtyRight.checked = true;
+        if (settingQtyRight) settingQtyRight.checked = false;
       });
     }
 
