@@ -589,6 +589,45 @@ body.page2 .next-button:active {
     transform: translateY(1px);
 }
 
+/* Mobile tightening for builder page */
+@media (max-width: 540px) {
+    body.page2 main {
+        padding: calc(var(--gap) * 2) var(--gap) 96px var(--gap);
+        max-width: 100%;
+    }
+    main summary.menu-summary {
+        font-size: 20px;
+        line-height: 28px;
+    }
+    main input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+    main fieldset {
+        padding: 10px;
+    }
+    main fieldset label {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    main fieldset label .ingredient-qty {
+        min-width: 160px;
+    }
+    main .burger-qty,
+    main .patty-qty,
+    main .sauce-qty {
+        margin-top: 4px;
+    }
+    body.page2 .page-actions {
+        left: 0;
+        right: 0;
+    }
+    body.nav-enabled.page2 .page-actions {
+        left: var(--rail-width);
+        right: 0;
+    }
+}
+
 /* Section: Main Spacing Helpers */
 main> :first-child {
     margin-top: 0;
