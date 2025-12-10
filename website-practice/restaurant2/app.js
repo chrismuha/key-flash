@@ -153,7 +153,7 @@
     const navLinks = Array.from(document.querySelectorAll('.left-rail a'));
     const preventNavClick = (event) => event.preventDefault();
     const setNavState = (enabled) => {
-      if (isMobileView()) enabled = true;
+      
       if (!navLinks.length) return;
       if (enabled) {
         body.classList.add('nav-enabled');
@@ -387,6 +387,8 @@
       updateThemeChoiceUI();
       updateThemeModeLabel();
       updateNavToggleLabel();
+      // ensure page access rules are reapplied when mobile/desktop state changes
+      updatePageNavLocks();
       if (!skipSave) persistThemeState();
     };
 
@@ -562,8 +564,8 @@
       const mobile = isMobileView();
       body.classList.toggle('mobile-ui', mobile);
       if (mobile) {
-        setNavState(true);
-        body.classList.add('nav-enabled');
+        // respect saved navInitialEnabled instead of forcing the nav to be visible on mobile
+        setNavState(navInitialEnabled);
       }
       if (navToggleBtn) {
         navToggleBtn.hidden = mobile;
@@ -572,6 +574,8 @@
       }
       updateThemeModeLabel();
       updateNavToggleLabel();
+      // ensure page access rules are reapplied when mobile/desktop state changes
+      updatePageNavLocks();
     };
     syncMobileUiState();
     mobileQuery.addEventListener('change', syncMobileUiState);
@@ -596,6 +600,8 @@
         const nextState = !navEnabled;
         setNavState(nextState);
         updateNavToggleLabel();
+      // ensure page access rules are reapplied when mobile/desktop state changes
+      updatePageNavLocks();
         try {
           localStorage.setItem(STORAGE_KEYS.navEnabled, String(nextState));
         } catch { }
