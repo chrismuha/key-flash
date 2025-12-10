@@ -13,7 +13,6 @@
     deliveryZip: 'restaurant.delivery.zip',
     activeSections: 'restaurant.activeSections',
     navEnabled: 'restaurant.nav.enabled',
-    settingsExpandOnly: 'restaurant.settings.expandOnly',
     settingsLabelSelects: 'restaurant.settings.labelSelects',
     settingsTitleSelects: 'restaurant.settings.titleSelects',
     settingsResetOnDeselect: 'restaurant.settings.resetOnDeselect',
@@ -105,18 +104,19 @@
   function openSectionFromHash() {
     const hash = (location.hash || '').replace('#', '').trim();
     if (!hash) return;
-    const details = document.getElementById(hash);
-    if (details && details.tagName.toLowerCase() === 'details') {
-      details.open = true;
-      // optional: focus the summary for visibility
-      const summary = details.querySelector('summary');
-      if (summary) summary.focus({ preventScroll: false });
-    }
+    const target = document.getElementById(hash);
+    if (!target) return;
+    // Bring the section into view and focus its heading when possible
+    const summary = target.querySelector('.menu-summary');
+    if (summary) summary.focus({ preventScroll: false });
+    else target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   // Section: Page Initialization
   document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
+    const mobileQuery = window.matchMedia('(max-width: 768px)');
+    const isMobileView = () => mobileQuery.matches;
 
 
 
@@ -153,6 +153,7 @@
     const navLinks = Array.from(document.querySelectorAll('.left-rail a'));
     const preventNavClick = (event) => event.preventDefault();
     const setNavState = (enabled) => {
+      if (isMobileView()) enabled = true;
       if (!navLinks.length) return;
       if (enabled) {
         body.classList.add('nav-enabled');
@@ -265,10 +266,12 @@
       });
     }
 
-    let navInitialEnabled = false;
-    try {
-      navInitialEnabled = localStorage.getItem(STORAGE_KEYS.navEnabled) === 'true';
-    } catch { }
+    let navInitialEnabled = isMobileView();
+    if (!navInitialEnabled) {
+      try {
+        navInitialEnabled = localStorage.getItem(STORAGE_KEYS.navEnabled) === 'true';
+      } catch { navInitialEnabled = false; }
+    }
     setNavState(navInitialEnabled);
     // Apply initial page navigation locks
     updatePageNavLocks();
@@ -286,6 +289,7 @@
     // Go Back button handler: cycle within pages 1-3
     const backBtn = document.querySelector('.go-back');
     if (backBtn) {
+      body.classList.add('has-go-back');
       backBtn.addEventListener('click', (e) => {
         e.preventDefault();
         if (body.classList.contains('page3')) {
@@ -303,12 +307,9 @@
       const savedTheme = localStorage.getItem(STORAGE_KEYS.theme);
       if (savedTheme === 'dark') body.classList.add('theme-dark');
     } catch { }
-    const themeDropdown = document.querySelector('.theme-dropdown');
-    const themeBtn = themeDropdown ? themeDropdown.querySelector('.theme-toggle') : null;
-    const themeMenu = themeDropdown ? themeDropdown.querySelector('.theme-menu') : null;
-    const themeModeBtn = themeDropdown ? themeDropdown.querySelector('.theme-mode-toggle') : null;
-    const navToggleBtn = themeDropdown ? themeDropdown.querySelector('.nav-toggle') : null;
-    const themeChoiceBtns = themeDropdown ? themeDropdown.querySelectorAll('.theme-choice') : [];
+    const themeModeBtns = Array.from(document.querySelectorAll('.theme-mode-toggle'));
+    const navToggleBtn = document.querySelector('.nav-toggle');
+    const themeChoiceBtns = document.querySelectorAll('.theme-choice');
     const themeViews = document.querySelectorAll('[data-theme-view]');
     const boxifyGrid = document.getElementById('boxify-inventory');
     const boxifyResetBtn = document.querySelector('.boxify-reset');
@@ -347,9 +348,14 @@
     };
 
     const updateThemeModeLabel = () => {
-      if (!themeModeBtn) return;
+      if (!themeModeBtns.length) return;
       const isDark = body.classList.contains('theme-dark');
-      themeModeBtn.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+      const mobile = body.classList.contains('mobile-ui');
+      const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+      themeModeBtns.forEach((btn) => {
+        btn.textContent = mobile ? (isDark ? '☀️' : '🌙') : (isDark ? 'Light Mode' : 'Dark Mode');
+        btn.setAttribute('aria-label', label);
+      });
     };
 
     const updateNavToggleLabel = () => {
@@ -415,20 +421,16 @@
     // Settings (gear) in left rail
     const settingsBtn = document.querySelector('.settings-button');
     const settingsPanel = document.getElementById('settings-panel');
-    const settingExpandOnly = document.querySelector('.setting-expand-only');
+    const settingsOverlay = document.getElementById('settings-overlay');
+    const settingsModal = document.querySelector('.settings-modal');
+    const settingsCloseBtn = document.querySelector('.settings-close');
     const settingLabelSelects = document.querySelector('.setting-label-selects');
     const settingTitleSelects = document.querySelector('.setting-title-selects');
     const settingResetOnDeselect = document.querySelector('.setting-reset-on-deselect');
     const settingResetDisables = document.querySelector('.setting-reset-disables');
-    const settingQtyRight = document.querySelector('.setting-qty-right');
     const settingsResetBtn = document.querySelector('.settings-reset');
+    const settingQtyRight = document.querySelector('.setting-qty-right');
     // Settings defaults: all ON by default
-    let expandOnly = true;
-    try {
-      const v = localStorage.getItem(STORAGE_KEYS.settingsExpandOnly);
-      expandOnly = v === null ? true : v === 'true';
-    } catch { expandOnly = true; }
-    if (settingExpandOnly) settingExpandOnly.checked = expandOnly;
     let labelSelects = true;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsLabelSelects);
@@ -455,7 +457,7 @@
       resetDisables = v === 'true';
     } catch { resetDisables = false; }
     if (settingResetDisables) settingResetDisables.checked = resetDisables;
-    // Quantity dropdown placement: default BEFORE label (disabled)
+    // Quantity dropdown placement: default BEFORE label (setting unchecked)
     let qtyRight = false;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsQtyRight);
@@ -464,33 +466,48 @@
     if (settingQtyRight) settingQtyRight.checked = qtyRight;
 
     const closeSettings = () => {
-      if (!settingsPanel || !settingsBtn) return;
-      settingsPanel.hidden = true;
+      if (!settingsOverlay || !settingsBtn) return;
+      settingsOverlay.hidden = true;
+      settingsOverlay.style.display = 'none';
+      settingsOverlay.setAttribute('aria-hidden', 'true');
       settingsBtn.setAttribute('aria-expanded', 'false');
+      body.classList.remove('settings-open');
     };
     const openSettings = () => {
-      if (!settingsPanel || !settingsBtn) return;
-      settingsPanel.hidden = false;
+      if (!settingsOverlay || !settingsBtn) return;
+      settingsOverlay.hidden = false;
+      settingsOverlay.style.display = 'flex';
+      settingsOverlay.setAttribute('aria-hidden', 'false');
       settingsBtn.setAttribute('aria-expanded', 'true');
+      body.classList.add('settings-open');
     };
-    if (settingsBtn && settingsPanel) {
+    // ensure closed on fresh load
+    closeSettings();
+    if (settingsBtn && settingsOverlay) {
       settingsBtn.addEventListener('click', () => {
-        if (settingsPanel.hidden) openSettings(); else closeSettings();
-      });
-      document.addEventListener('click', (evt) => {
-        if (settingsPanel.hidden) return;
-        if (!document.querySelector('.left-rail')?.contains(evt.target)) closeSettings();
+        if (settingsOverlay.hidden) openSettings(); else closeSettings();
       });
       document.addEventListener('keydown', (evt) => {
         if (evt.key === 'Escape') closeSettings();
       });
     }
-    if (settingExpandOnly) {
-      settingExpandOnly.addEventListener('change', () => {
-        expandOnly = !!settingExpandOnly.checked;
-        try { localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, String(expandOnly)); } catch { }
+    if (settingsOverlay) {
+      settingsOverlay.addEventListener('click', (evt) => {
+        const clickedInsideModal = settingsModal && settingsModal.contains(evt.target);
+        if (!clickedInsideModal) closeSettings();
       });
     }
+    if (settingsCloseBtn) settingsCloseBtn.addEventListener('click', closeSettings);
+    // Safety: delegate close actions for any dynamically rendered close buttons
+    document.addEventListener('click', (evt) => {
+      if (evt.target.closest('.settings-close')) {
+        closeSettings();
+      }
+    });
+    // Close overlay before page is hidden/back/forward cache restores
+    window.addEventListener('pagehide', closeSettings);
+    // Force-closed on initial load in case prior state left it open
+    closeSettings();
     if (settingLabelSelects) {
       settingLabelSelects.addEventListener('change', () => {
         labelSelects = !!settingLabelSelects.checked;
@@ -519,22 +536,20 @@
     if (settingsResetBtn) {
       settingsResetBtn.addEventListener('click', () => {
         // Defaults: all ON
-        expandOnly = true;
         labelSelects = true;
         titleSelects = true;
         // Defaults: reset-related toggles OFF
         resetOnDeselect = false;
         resetDisables = false;
+        // Default: quantity dropdowns before the label
         qtyRight = false;
         try {
-          localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
         } catch { }
-        if (settingExpandOnly) settingExpandOnly.checked = true;
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
@@ -543,55 +558,44 @@
       });
     }
 
-    const closeThemeMenu = () => {
-      if (!themeMenu || !themeBtn) return;
-      themeMenu.hidden = true;
-      themeBtn.setAttribute('aria-expanded', 'false');
-    };
-
-    const openThemeMenu = () => {
-      if (!themeMenu || !themeBtn) return;
-      themeMenu.hidden = false;
-      themeBtn.setAttribute('aria-expanded', 'true');
-      const firstOption = themeMenu.querySelector('.theme-option');
-      if (firstOption) {
-        try {
-          firstOption.focus({ preventScroll: true });
-        } catch {
-          firstOption.focus();
-        }
+    const syncMobileUiState = () => {
+      const mobile = isMobileView();
+      body.classList.toggle('mobile-ui', mobile);
+      if (mobile) {
+        setNavState(true);
+        body.classList.add('nav-enabled');
       }
+      if (navToggleBtn) {
+        navToggleBtn.hidden = mobile;
+        navToggleBtn.setAttribute('aria-hidden', mobile ? 'true' : 'false');
+        navToggleBtn.disabled = mobile;
+      }
+      updateThemeModeLabel();
+      updateNavToggleLabel();
     };
+    syncMobileUiState();
+    mobileQuery.addEventListener('change', syncMobileUiState);
 
-    if (themeBtn && themeMenu) {
-      themeBtn.addEventListener('click', () => {
-        if (themeMenu.hidden) {
-          openThemeMenu();
-        } else {
-          closeThemeMenu();
-        }
-      });
-    }
-
-    if (themeModeBtn) {
-      themeModeBtn.addEventListener('click', () => {
-        body.classList.toggle('theme-dark');
-        updateThemeModeLabel();
-        closeThemeMenu();
-        try {
-          const isDark = body.classList.contains('theme-dark');
-          localStorage.setItem(STORAGE_KEYS.theme, isDark ? 'dark' : 'light');
-        } catch { }
+    if (themeModeBtns.length) {
+      themeModeBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          body.classList.toggle('theme-dark');
+          updateThemeModeLabel();
+          try {
+            const isDark = body.classList.contains('theme-dark');
+            localStorage.setItem(STORAGE_KEYS.theme, isDark ? 'dark' : 'light');
+          } catch { }
+        });
       });
     }
 
     if (navToggleBtn) {
       navToggleBtn.addEventListener('click', () => {
+        if (isMobileView()) return;
         const navEnabled = body.classList.contains('nav-enabled');
         const nextState = !navEnabled;
         setNavState(nextState);
         updateNavToggleLabel();
-        closeThemeMenu();
         try {
           localStorage.setItem(STORAGE_KEYS.navEnabled, String(nextState));
         } catch { }
@@ -599,31 +603,6 @@
         updatePageNavLocks();
       });
     }
-
-    if (themeDropdown && themeMenu) {
-      document.addEventListener('click', (event) => {
-        if (!themeDropdown.contains(event.target)) {
-          closeThemeMenu();
-        }
-      });
-
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-          if (themeMenu.hidden) return;
-          closeThemeMenu();
-          if (themeBtn) {
-            try {
-              themeBtn.focus({ preventScroll: true });
-            } catch {
-              themeBtn.focus();
-            }
-          }
-        }
-      });
-    }
-
-    updateThemeModeLabel();
-    updateNavToggleLabel();
 
     const applyQtyPlacement = () => {
       body.classList.toggle('qty-right', qtyRight);
@@ -634,7 +613,7 @@
           lbl.appendChild(sel);
         } else {
           const cb = lbl.querySelector('input[type="checkbox"]');
-          if (cb) cb.insertAdjacentElement('afterend', sel);
+          if (cb) lbl.appendChild(sel);
         }
       });
     };
@@ -645,8 +624,11 @@
         applyQtyPlacement();
       });
     }
-    // Apply initial placement/class for current setting
+    // Apply initial placement/class once quantities are available
     applyQtyPlacement();
+
+    updateThemeModeLabel();
+    updateNavToggleLabel();
 
     // [H1] INDEX: ORDER TYPE
     if (body.classList.contains('order-type')) {
@@ -1022,9 +1004,6 @@
       // Enforce required Burger Patty and Bun to be checked
       const patty = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="patty"]');
       const bun = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="bun"]');
-      const subBreadCb = document.getElementById('sub-bread-checkbox');
-      const subBreadSelect = document.getElementById('sub-bread-select');
-      const subBreadChoice = document.querySelector('.sub-bread-choice');
       const pizzaSauce = document.querySelector('input[type="checkbox"][name="pizza_ingredients[]"][value="tomato_sauce"]');
       const enforceReq = (el) => {
         if (!el) return;
@@ -1032,57 +1011,20 @@
       };
       enforceReq(patty);
       enforceReq(bun);
-      enforceReq(subBreadCb);
       enforceReq(pizzaSauce);
-      const setSubBread = (val, { save = true } = {}) => {
-        const allowed = ['white', 'wheat', 'toasted'];
-        const choice = allowed.includes(val) ? val : 'white';
-        if (subBreadSelect) subBreadSelect.value = choice;
-        if (subBreadCb) {
-          subBreadCb.value = choice;
-          subBreadCb.checked = true;
-        }
-        if (subBreadChoice) {
-          const pretty = choice === 'wheat' ? 'Wheat' : (choice === 'toasted' ? 'Toasted' : 'White');
-          subBreadChoice.textContent = pretty;
-        }
-        if (save) saveIngredients();
-      };
-      const restoreSubBread = () => {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEYS.ingredients);
-          if (!raw) { setSubBread('white', { save: false }); return; }
-          const data = JSON.parse(raw) || {};
-          const arr = Array.isArray(data['sub_ingredients[]']) ? data['sub_ingredients[]'] : [];
-          let val = 'white';
-          if (arr.length > 0) {
-            const first = arr[0];
-            if (typeof first === 'string') val = first;
-            else if (first && typeof first === 'object' && first.value) val = first.value;
-          }
-          setSubBread(val, { save: false });
-        } catch {
-          setSubBread('white', { save: false });
-        }
-      };
-      restoreSubBread();
-      if (subBreadSelect) {
-        subBreadSelect.addEventListener('change', () => {
-          setSubBread(subBreadSelect.value);
-        });
-      }
-      // Ensure storage includes required defaults
+      // Ensure storage includes them
       saveIngredients();
       // Build ingredient quantity dropdowns (Regular/Extra/x3/x4)
       (function attachIngredientQuantities() {
+        let qtyMap = {};
+        try { qtyMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'); } catch { qtyMap = {}; }
         const options = [
           { label: 'Regular', value: '1' },
           { label: 'Extra', value: '2' },
           { label: 'x3', value: '3' },
           { label: 'x4', value: '4' }
         ];
-        document.querySelectorAll('input[type="checkbox"][name$="_ingredients[]"]').forEach((cb) => {
-          if (cb.dataset && cb.dataset.noQty === 'true') return;
+        document.querySelectorAll('input[type="checkbox"][name$=\"_ingredients[]\"]').forEach((cb) => {
           const lbl = cb.closest('label');
           if (!lbl) return;
           const key = `${cb.name}|${cb.value}`;
@@ -1098,16 +1040,12 @@
             });
             lbl.appendChild(sel);
           }
-          let stored = 1;
-          try { stored = Math.max(1, Math.min(4, parseInt((JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'))[key] || '1', 10) || 1)); } catch { stored = 1; }
+          const stored = Math.max(1, Math.min(4, parseInt(qtyMap[key] || '1', 10) || 1));
           sel.value = String(stored);
           sel.disabled = !cb.checked;
           const persistQty = (val) => {
-            try {
-              const qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
-              qm[key] = val;
-              localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
-            } catch { }
+            qtyMap[key] = val;
+            try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { }
           };
           sel.addEventListener('change', () => {
             const next = Math.max(1, Math.min(4, parseInt(sel.value, 10) || 1));
@@ -1117,8 +1055,7 @@
           cb.addEventListener('change', () => {
             sel.disabled = !cb.checked;
             if (cb.checked) {
-              const qm = (() => { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'); } catch { return {}; } })();
-              if (!qm[key] || qm[key] === 0) {
+              if (!qtyMap[key] || qtyMap[key] === 0) {
                 sel.value = '1';
                 persistQty(1);
               }
@@ -1127,8 +1064,122 @@
             }
           });
         });
-        applyQtyPlacement();
       })();
+
+      // Menu overlay helpers
+      const overlays = Array.from(document.querySelectorAll('.menu-overlay'));
+      const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
+      const mobileMenuSwiper = document.querySelector('.mobile-menu-swiper');
+      const mobileSwiperTrack = mobileMenuSwiper ? mobileMenuSwiper.querySelector('.swiper-track') : null;
+      const mobileSwiperPrev = mobileMenuSwiper ? mobileMenuSwiper.querySelector('.swiper-arrow-prev') : null;
+      const mobileSwiperNext = mobileMenuSwiper ? mobileMenuSwiper.querySelector('.swiper-arrow-next') : null;
+      const updateSwiperArrows = () => {
+        if (!mobileMenuSwiper || !mobileSwiperTrack || !isMobileView()) return;
+        const maxScroll = mobileSwiperTrack.scrollWidth - mobileSwiperTrack.clientWidth;
+        const atStart = mobileSwiperTrack.scrollLeft <= 0;
+        const atEnd = mobileSwiperTrack.scrollLeft >= (maxScroll - 1);
+        if (mobileSwiperPrev) mobileSwiperPrev.disabled = atStart;
+        if (mobileSwiperNext) mobileSwiperNext.disabled = atEnd;
+      };
+      const scrollSwiper = (dir = 1) => {
+        if (!mobileSwiperTrack) return;
+        const step = Math.max(160, Math.floor(mobileSwiperTrack.clientWidth * 0.6));
+        mobileSwiperTrack.scrollBy({ left: step * dir, behavior: 'smooth' });
+        setTimeout(updateSwiperArrows, 220);
+      };
+      const focusMenuChip = (section) => {
+        if (!section || !mobileSwiperTrack || !isMobileView()) return;
+        const chip = mobileSwiperTrack.querySelector(`.menu-launch[data-target="${section}"]`);
+        if (chip) chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      };
+      if (mobileSwiperPrev) mobileSwiperPrev.addEventListener('click', () => scrollSwiper(-1));
+      if (mobileSwiperNext) mobileSwiperNext.addEventListener('click', () => scrollSwiper(1));
+      if (mobileSwiperTrack) {
+        mobileSwiperTrack.addEventListener('scroll', () => {
+          if (!isMobileView()) return;
+          updateSwiperArrows();
+        });
+        mobileQuery.addEventListener('change', updateSwiperArrows);
+      }
+      updateSwiperArrows();
+      const closeOverlay = (overlay) => {
+        if (!overlay) return;
+        overlay.hidden = true;
+        overlay.classList.remove('visible');
+        if (!overlays.some(o => !o.hidden)) {
+          body.classList.remove('menu-overlay-open');
+        }
+      };
+      const closeAllOverlays = () => {
+        let closedAny = false;
+        overlays.forEach((overlay) => {
+          if (!overlay.hidden) {
+            closedAny = true;
+            closeOverlay(overlay);
+          }
+        });
+        return closedAny;
+      };
+      const openOverlay = (section) => {
+        const overlay = overlays.find(o => o.dataset.section === section);
+        if (!overlay) return;
+        overlays.forEach(o => { if (o !== overlay) closeOverlay(o); });
+        overlay.hidden = false;
+        overlay.classList.add('visible');
+        body.classList.add('menu-overlay-open');
+        const summary = overlay.querySelector('.menu-summary');
+        if (summary) summary.focus({ preventScroll: true });
+        focusMenuChip(section);
+        updateSwiperArrows();
+      };
+      const syncMenuLaunchState = () => {
+        const activeLookup = {};
+        document.querySelectorAll('.section-toggle').forEach((toggle) => {
+          const sec = toggle.dataset.section;
+          if (sec) activeLookup[sec] = toggle.checked;
+        });
+        menuLaunchButtons.forEach((btn) => {
+          const target = btn.getAttribute('data-target');
+          const isActive = target ? !!activeLookup[target] : false;
+          btn.classList.toggle('menu-launch-active', isActive);
+        });
+      };
+      menuLaunchButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-target');
+          if (target) openOverlay(target);
+        });
+      });
+      overlays.forEach((overlay) => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) closeOverlay(overlay);
+        });
+        const closeBtn = overlay.querySelector('.close-overlay');
+        if (closeBtn) closeBtn.addEventListener('click', () => closeOverlay(overlay));
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const active = overlays.find(o => !o.hidden);
+          if (active) closeOverlay(active);
+        }
+      });
+      const nextButton = document.querySelector('.next-button');
+      if (nextButton) {
+        nextButton.addEventListener('click', (e) => {
+          const closed = closeAllOverlays();
+          if (closed) {
+            e.preventDefault();
+            const menuActions = document.querySelector('.menu-actions');
+            if (menuActions) menuActions.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const firstButton = document.querySelector('.menu-launch');
+            if (firstButton) firstButton.focus({ preventScroll: true });
+          }
+        });
+      }
+      if (location.hash) {
+        const hashSection = location.hash.replace('#', '').trim();
+        if (hashSection) openOverlay(hashSection);
+      }
 
       // Hard-lock required items so they cannot be unchecked directly
       try {
@@ -1185,22 +1236,16 @@
         } catch { }
       };
 
-      // Decorate section summaries (Pizza/Burger/Sub) with quantity controls (1-12)
-      ['pizza', 'burger', 'sub'].forEach((sec) => {
+      // Decorate section summaries (Pizza/Burger) with quantity controls (1-12)
+      ['pizza', 'burger'].forEach((sec) => {
         const d = document.getElementById(sec);
         if (!d) return;
-        const summary = d.querySelector('summary.menu-summary');
+        const summary = d.querySelector('.menu-summary');
         if (!summary) return;
         // Avoid duplicate controls
         if (summary.querySelector('.qty-controls')) return;
         // Allow zero so an unselected section shows (x0)
         let current = Math.max(0, Math.min(12, parseInt(qtySections[sec] || '0', 10) || 0));
-        const toggleEl = summary.querySelector('.section-toggle');
-        if (toggleEl && toggleEl.checked && current <= 0) {
-          current = 1;
-          qtySections[sec] = 1;
-          saveQtySections();
-        }
         const wrap = document.createElement('span');
         wrap.className = 'qty-controls';
         wrap.style.marginLeft = '12px';
@@ -1395,32 +1440,13 @@
         });
       })();
 
-      // Section toggles: require checkbox to expand
+      // Section toggles: track active menu sections
       const toggles = document.querySelectorAll('.section-toggle');
       const detailsBySection = {
         pizza: document.getElementById('pizza'),
         burger: document.getElementById('burger'),
-        sub: document.getElementById('sub'),
         sauces: document.getElementById('sauces')
       };
-      const collapseSectionButtons = document.querySelectorAll('.collapse-section[data-target]');
-      const collapseSection = (section) => {
-        if (!section) return;
-        const d = detailsBySection[section];
-        if (d) d.open = false;
-      };
-      const collapseAllButton = document.querySelector('.collapse-all');
-      if (collapseAllButton) {
-        collapseAllButton.addEventListener('click', () => {
-          Object.keys(detailsBySection).forEach((key) => collapseSection(key));
-        });
-      }
-      collapseSectionButtons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const target = btn.getAttribute('data-target');
-          collapseSection(target);
-        });
-      });
       // Restore previously saved active sections (so Go Back preserves state)
       let activeSections = {};
       try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
@@ -1429,7 +1455,6 @@
         const d = detailsBySection[section];
         const isActive = !!activeSections[section];
         t.checked = isActive;
-        if (d) d.open = isActive;
         // If active on restore, enforce required items
         if (isActive && d) {
           d.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
@@ -1438,20 +1463,19 @@
         t.addEventListener('click', (ev) => { ev.stopPropagation(); });
         t.addEventListener('change', () => {
           const d2 = detailsBySection[section];
-          if (d2) d2.open = t.checked;
           if (t.checked && d2) {
             // Enforce required when activating
             d2.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
             saveIngredients();
-            // If activating Pizza/Burger/Sub, ensure quantity is at least 1 (was 0 when deselected)
-            if (section === 'pizza' || section === 'burger' || section === 'sub') {
+            // If activating Pizza/Burger, ensure quantity is at least 1 (was 0 when deselected)
+            if (section === 'pizza' || section === 'burger') {
               try {
                 let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                 const cur = parseInt(qtySections[section] || '0', 10) || 0;
                 if (cur <= 0) {
                   qtySections[section] = 1;
                   localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections));
-                  const sum = d2.querySelector('summary.menu-summary .qty-controls span');
+                  const sum = d2.querySelector('.menu-summary .qty-controls span');
                   if (sum) sum.textContent = `(x1)`;
                 }
               } catch { }
@@ -1462,26 +1486,27 @@
             d2.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => { cb.checked = false; });
             saveIngredients();
             // If the menu item (section) is not selected, its quantity becomes 0
-            if (section === 'pizza' || section === 'burger' || section === 'sub') {
+            if (section === 'pizza' || section === 'burger') {
               try {
                 let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                 qtySections[section] = 0;
                 localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections));
               } catch { }
-              const sum = d2.querySelector('summary.menu-summary .qty-controls span');
+              const sum = d2.querySelector('.menu-summary .qty-controls span');
               if (sum) sum.textContent = `(x0)`;
             }
           }
           activeSections[section] = t.checked;
           try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(activeSections)); } catch { }
           updatePageNavLocks();
+          syncMenuLaunchState();
         });
       });
+      syncMenuLaunchState();
       // Summary behavior:
       // - If titleSelects is ON, clicking the title text toggles the checkbox (not expand)
-      // - If expandOnly is ON, clicking elsewhere on summary expands/collapses
-      // - Otherwise (default), clicking summary toggles the checkbox
-      document.querySelectorAll('summary.menu-summary').forEach((s) => {
+      // - Otherwise, clicking summary toggles the checkbox
+      document.querySelectorAll('.menu-summary').forEach((s) => {
         s.addEventListener('click', (e) => {
           const titleEl = s.querySelector('span');
           const isTitleClick = titleEl && titleEl.contains(e.target);
@@ -1492,15 +1517,6 @@
             if (t) {
               t.checked = !t.checked;
               t.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-            return;
-          }
-          if (expandOnly) {
-            e.preventDefault();
-            e.stopPropagation();
-            const d = s.parentElement;
-            if (d && d.tagName && d.tagName.toLowerCase() === 'details') {
-              d.open = !d.open;
             }
             return;
           }
@@ -1524,8 +1540,6 @@
           if (cb.disabled) return;
           // Do NOT toggle required items (e.g., Patty, Bun, Tomato Sauce)
           if (cb.dataset && cb.dataset.required === 'true') return;
-          // Skip any click originating from elements that explicitly opt out of label toggling
-          if (e.target.closest('[data-ignore-label-toggle="true"]')) return;
           // Ensure only non-checkbox clicks trigger the manual toggle
           if (e.target !== cb) {
             cb.checked = !cb.checked;
@@ -1550,12 +1564,12 @@
           message = 'Please select at least one sauce or uncheck Sauces.';
         }
         // Clear previous invalid highlights
-        document.querySelectorAll('summary.menu-summary').forEach((s) => s.classList.remove('invalid'));
+        document.querySelectorAll('.menu-summary').forEach((s) => s.classList.remove('invalid'));
         if (!anySectionActive) {
           // highlight all summaries when nothing is selected
-          document.querySelectorAll('summary.menu-summary').forEach((s) => s.classList.add('invalid'));
+          document.querySelectorAll('.menu-summary').forEach((s) => s.classList.add('invalid'));
         } else if (saucesActive && !saucesSelected) {
-          const s = document.querySelector('#sauces > summary.menu-summary');
+          const s = document.querySelector('#sauces .menu-summary');
           if (s) s.classList.add('invalid');
         }
         if (message) {
@@ -1580,7 +1594,6 @@
             let section = '';
             if (name.startsWith('pizza_')) section = 'pizza';
             else if (name.startsWith('burger_')) section = 'burger';
-            else if (name.startsWith('sub_')) section = 'sub';
             else if (name.startsWith('sauces_')) section = 'sauces';
             if (section) {
               const d = detailsBySection[section];
@@ -1626,22 +1639,12 @@
               const pattyQtyTxt = pattyLabel ? pattyLabel.querySelector('.patty-qty > span') : null;
               if (pattyQtyTxt) pattyQtyTxt.textContent = `(x1)`;
             }
-            if (group.startsWith('sub_')) {
-              // Reset bread selection to White
-              const breadSel = document.getElementById('sub-bread-select');
-              const breadCb = document.getElementById('sub-bread-checkbox');
-              const breadTxt = document.querySelector('.sub-bread-choice');
-              if (breadSel) breadSel.value = 'white';
-              if (breadCb) { breadCb.value = 'white'; breadCb.checked = true; }
-              if (breadTxt) breadTxt.textContent = 'White';
-            }
           } catch { }
           if (resetDisables) {
             // Map group to section key
             let section = '';
             if (group.startsWith('pizza_')) section = 'pizza';
             else if (group.startsWith('burger_')) section = 'burger';
-            else if (group.startsWith('sub_')) section = 'sub';
             else if (group.startsWith('sauces_')) section = 'sauces';
             if (section) {
               const d2 = document.getElementById(section);
@@ -1657,13 +1660,13 @@
                 localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
               } catch { }
               // Reset quantities as appropriate
-              if (section === 'pizza' || section === 'burger' || section === 'sub') {
+              if (section === 'pizza' || section === 'burger') {
                 try {
                   let qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                   qs[section] = 0;
                   localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qs));
                 } catch { }
-                const sum = d2 && d2.querySelector('summary.menu-summary .qty-controls span');
+              const sum = d2 && d2.querySelector('.menu-summary .qty-controls span');
                 if (sum) sum.textContent = `(x0)`;
               } else if (section === 'sauces') {
                 // Zero out all sauce qtys
@@ -1789,7 +1792,7 @@
         // Load saved per-ingredient quantities (legacy, not used for display now)
         let qtyMap = {};
         try { qtyMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'); } catch { qtyMap = {}; }
-        // Load per-section quantities (pizza/burger/sub)
+        // Load per-section quantities (pizza/burger)
         let qtySections = {};
         try { qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}'); } catch { qtySections = {}; }
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
@@ -1803,8 +1806,8 @@
             const prettyGroup = key.replace(/_/g, ' ');
             // Skip categories that are not active (checkbox not selected on Page 2)
             if (!activeSections[key]) return;
-            // Also skip Pizza/Burger/Sub if their section quantity is 0
-            if ((key === 'pizza' || key === 'burger' || key === 'sub')) {
+            // Also skip Pizza/Burger if their section quantity is 0
+            if ((key === 'pizza' || key === 'burger')) {
               let qv = 0;
               try { qv = parseInt(qtySections[key] || '0', 10) || 0; } catch { qv = 0; }
               if (qv <= 0) return;
@@ -1821,11 +1824,11 @@
             edit.style.marginLeft = '8px';
             header.appendChild(edit);
 
-            // Section-level quantity controls for Pizza, Burger, and Sub
-            if (key === 'pizza' || key === 'burger' || key === 'sub') {
+            // Section-level quantity controls for Pizza and Burger
+            if (key === 'pizza' || key === 'burger') {
               const qWrap = document.createElement('span');
               qWrap.style.marginLeft = '12px';
-              const qKey = key; // 'pizza', 'burger', or 'sub'
+              const qKey = key; // 'pizza' or 'burger'
               // Allow 0 if previously set via deselection; otherwise controls clamp to 1..12
               let current = Math.max(0, Math.min(12, parseInt(qtySections[qKey] || '0', 10) || 0));
 
