@@ -1322,8 +1322,8 @@
         } catch { }
       };
 
-      // Decorate section summaries (Pizza/Burger) with quantity controls (1-12)
-      ['pizza', 'burger'].forEach((sec) => {
+      // Decorate section summaries (Pizza/Burger/Sub) with quantity controls (1-12)
+      ['pizza', 'burger', 'sub'].forEach((sec) => {
         const d = document.getElementById(sec);
         if (!d) return;
         const summary = d.querySelector('.menu-summary');
@@ -1332,6 +1332,12 @@
         if (summary.querySelector('.qty-controls')) return;
         // Allow zero so an unselected section shows (x0)
         let current = Math.max(0, Math.min(12, parseInt(qtySections[sec] || '0', 10) || 0));
+        const toggleEl = summary.querySelector('.section-toggle');
+        if (toggleEl && toggleEl.checked && current <= 0) {
+          current = 1;
+          qtySections[sec] = 1;
+          saveQtySections();
+        }
         const wrap = document.createElement('span');
         wrap.className = 'qty-controls';
         wrap.style.marginLeft = '12px';
@@ -1554,8 +1560,8 @@
             // Enforce required when activating
             d2.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
             saveIngredients();
-            // If activating Pizza/Burger, ensure quantity is at least 1 (was 0 when deselected)
-            if (section === 'pizza' || section === 'burger') {
+            // If activating Pizza/Burger/Sub, ensure quantity is at least 1 (was 0 when deselected)
+            if (section === 'pizza' || section === 'burger' || section === 'sub') {
               try {
                 let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                 const cur = parseInt(qtySections[section] || '0', 10) || 0;
@@ -1573,7 +1579,7 @@
             d2.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => { cb.checked = false; });
             saveIngredients();
             // If the menu item (section) is not selected, its quantity becomes 0
-            if (section === 'pizza' || section === 'burger') {
+            if (section === 'pizza' || section === 'burger' || section === 'sub') {
               try {
                 let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                 qtySections[section] = 0;
@@ -1758,7 +1764,7 @@
                 localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
               } catch { }
               // Reset quantities as appropriate
-              if (section === 'pizza' || section === 'burger') {
+              if (section === 'pizza' || section === 'burger' || section === 'sub') {
                 try {
                   let qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                   qs[section] = 0;
@@ -1912,8 +1918,8 @@
             const prettyGroup = key.replace(/_/g, ' ');
             // Skip categories that are not active (checkbox not selected on Page 2)
             if (!activeSections[key]) return;
-            // Also skip Pizza/Burger if their section quantity is 0
-            if ((key === 'pizza' || key === 'burger')) {
+            // Also skip Pizza/Burger/Sub if their section quantity is 0
+            if ((key === 'pizza' || key === 'burger' || key === 'sub')) {
               let qv = 0;
               try { qv = parseInt(qtySections[key] || '0', 10) || 0; } catch { qv = 0; }
               if (qv <= 0) return;
@@ -1930,11 +1936,11 @@
             edit.style.marginLeft = '8px';
             header.appendChild(edit);
 
-            // Section-level quantity controls for Pizza and Burger
-            if (key === 'pizza' || key === 'burger') {
+            // Section-level quantity controls for Pizza, Burger, and Sub
+            if (key === 'pizza' || key === 'burger' || key === 'sub') {
               const qWrap = document.createElement('span');
               qWrap.style.marginLeft = '12px';
-              const qKey = key; // 'pizza' or 'burger'
+              const qKey = key; // 'pizza', 'burger', or 'sub'
               // Allow 0 if previously set via deselection; otherwise controls clamp to 1..12
               let current = Math.max(0, Math.min(12, parseInt(qtySections[qKey] || '0', 10) || 0));
 
