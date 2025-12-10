@@ -153,7 +153,7 @@ body.nav-enabled .settings-button {
     overflow: auto;
     align-self: center;
     position: relative;
-    z-index: 5;
+    z-index: 1500;
 }
 
 body.theme-dark .settings-panel {
@@ -640,7 +640,7 @@ body.page2 .next-button:active {
         bottom: 0;
         left: var(--rail-width);
         right: 0;
-        background: rgba(0, 0, 0, 0.45);
+        background: rgba(0, 0, 0, 0.08);
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
         z-index: 1300;
@@ -657,16 +657,19 @@ body.page2 .next-button:active {
         width: min(520px, calc(100vw - 16px));
         max-width: min(520px, calc(100vw - 16px));
         min-width: 260px;
-        z-index: 1401;
+        z-index: 2001;
         max-height: calc(80vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
         overflow: auto;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        filter: none !important;
+        backdrop-filter: none !important;
     }
     body.nav-enabled .settings-panel {
         left: calc(var(--rail-width) + (100vw - var(--rail-width)) / 2);
         transform: translateX(-50%);
         width: min(520px, calc(100vw - var(--rail-width) - 16px));
         max-width: min(520px, calc(100vw - var(--rail-width) - 16px));
+        z-index: 2001;
     }
 }
 
@@ -1232,3 +1235,38 @@ body.nav-enabled .left-rail .box {
 *::after {
     box-sizing: border-box;
 }
+
+
+/* --- SETTINGS OVERLAY: KEEP SETTINGS SHARP --- */
+body.settings-open::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    /* start after the left rail so the nav isn't blurred */
+    left: var(--rail-width);
+    right: 0;
+    background: rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 1300;
+    pointer-events: none;
+}
+/* If the nav is disabled we need the overlay to start at 0 */
+body:not(.nav-enabled).settings-open::before {
+    left: 0;
+}
+
+/* Ensure the settings panel is always sharp and above the overlay */
+.settings-panel {
+    z-index: 2001 !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+/* Ensure left-rail (nav) remains visually above content (optional) */
+.left-rail {
+    z-index: 1400;
+}
+/* --- END SETTINGS OVERLAY --- */
+

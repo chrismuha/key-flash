@@ -518,6 +518,7 @@
         body.classList.remove('settings-open');
       } else if (settingsPanel) {
         settingsPanel.hidden = true;
+        settingsPanel.style.display = 'none';
         settingsPanel.setAttribute('aria-hidden', 'true');
         body.classList.remove('settings-open');
       }
@@ -531,6 +532,7 @@
         settingsOverlay.setAttribute('aria-hidden', 'false');
       } else if (settingsPanel) {
         settingsPanel.hidden = false;
+        settingsPanel.style.display = 'block';
         settingsPanel.setAttribute('aria-hidden', 'false');
       }
       settingsBtn.setAttribute('aria-expanded', 'true');
