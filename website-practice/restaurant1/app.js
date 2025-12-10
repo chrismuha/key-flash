@@ -18,6 +18,7 @@
     settingsResetOnDeselect: 'restaurant.settings.resetOnDeselect',
     settingsResetDisables: 'restaurant.settings.resetDisables',
     settingsQtyRight: 'restaurant.settings.qtyRight',
+    settingsExpandOnly: 'restaurant.settings.expandOnly',
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantities.sections'
   };
@@ -462,6 +463,7 @@
     const settingTitleSelects = document.querySelector('.setting-title-selects');
     const settingResetOnDeselect = document.querySelector('.setting-reset-on-deselect');
     const settingResetDisables = document.querySelector('.setting-reset-disables');
+    const settingExpandOnly = document.querySelector('.setting-expand-only');
     const settingsResetBtn = document.querySelector('.settings-reset');
     const settingQtyRight = document.querySelector('.setting-qty-right');
     // Settings defaults: all ON by default
@@ -498,48 +500,68 @@
       qtyRight = v === null ? false : v === 'true';
     } catch { qtyRight = false; }
     if (settingQtyRight) settingQtyRight.checked = qtyRight;
+    // Expand-only: default ON
+    let expandOnly = true;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsExpandOnly);
+      expandOnly = v === null ? true : v === 'true';
+    } catch { expandOnly = true; }
+    if (settingExpandOnly) settingExpandOnly.checked = expandOnly;
+    const hasOverlay = !!settingsOverlay;
 
     const closeSettings = () => {
-      if (!settingsOverlay || !settingsBtn) return;
-      settingsOverlay.hidden = true;
-      settingsOverlay.style.display = 'none';
-      settingsOverlay.setAttribute('aria-hidden', 'true');
+      if (!settingsBtn) return;
+      if (hasOverlay) {
+        settingsOverlay.hidden = true;
+        settingsOverlay.style.display = 'none';
+        settingsOverlay.setAttribute('aria-hidden', 'true');
+        body.classList.remove('settings-open');
+      } else if (settingsPanel) {
+        settingsPanel.hidden = true;
+        settingsPanel.setAttribute('aria-hidden', 'true');
+        body.classList.remove('settings-open');
+      }
       settingsBtn.setAttribute('aria-expanded', 'false');
-      body.classList.remove('settings-open');
     };
     const openSettings = () => {
-      if (!settingsOverlay || !settingsBtn) return;
-      settingsOverlay.hidden = false;
-      settingsOverlay.style.display = 'flex';
-      settingsOverlay.setAttribute('aria-hidden', 'false');
+      if (!settingsBtn) return;
+      if (hasOverlay) {
+        settingsOverlay.hidden = false;
+        settingsOverlay.style.display = 'flex';
+        settingsOverlay.setAttribute('aria-hidden', 'false');
+      } else if (settingsPanel) {
+        settingsPanel.hidden = false;
+        settingsPanel.setAttribute('aria-hidden', 'false');
+      }
       settingsBtn.setAttribute('aria-expanded', 'true');
       body.classList.add('settings-open');
     };
     // ensure closed on fresh load
     closeSettings();
-    if (settingsBtn && settingsOverlay) {
+    if (settingsBtn) {
       settingsBtn.addEventListener('click', () => {
-        if (settingsOverlay.hidden) openSettings(); else closeSettings();
+        const isOpen = settingsBtn.getAttribute('aria-expanded') === 'true';
+        if (isOpen) closeSettings(); else openSettings();
       });
       document.addEventListener('keydown', (evt) => {
         if (evt.key === 'Escape') closeSettings();
       });
     }
-    if (settingsOverlay) {
+    if (hasOverlay) {
       settingsOverlay.addEventListener('click', (evt) => {
         const clickedInsideModal = settingsModal && settingsModal.contains(evt.target);
         if (!clickedInsideModal) closeSettings();
       });
+      if (settingsCloseBtn) settingsCloseBtn.addEventListener('click', closeSettings);
+      // Safety: delegate close actions for any dynamically rendered close buttons
+      document.addEventListener('click', (evt) => {
+        if (evt.target.closest('.settings-close')) {
+          closeSettings();
+        }
+      });
+      // Close overlay before page is hidden/back/forward cache restores
+      window.addEventListener('pagehide', closeSettings);
     }
-    if (settingsCloseBtn) settingsCloseBtn.addEventListener('click', closeSettings);
-    // Safety: delegate close actions for any dynamically rendered close buttons
-    document.addEventListener('click', (evt) => {
-      if (evt.target.closest('.settings-close')) {
-        closeSettings();
-      }
-    });
-    // Close overlay before page is hidden/back/forward cache restores
-    window.addEventListener('pagehide', closeSettings);
     // Force-closed on initial load in case prior state left it open
     closeSettings();
     if (settingLabelSelects) {
@@ -552,6 +574,12 @@
       settingTitleSelects.addEventListener('change', () => {
         titleSelects = !!settingTitleSelects.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, String(titleSelects)); } catch { }
+      });
+    }
+    if (settingExpandOnly) {
+      settingExpandOnly.addEventListener('change', () => {
+        expandOnly = !!settingExpandOnly.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, String(expandOnly)); } catch { }
       });
     }
     if (settingResetOnDeselect) {
@@ -572,6 +600,7 @@
         // Defaults: all ON
         labelSelects = true;
         titleSelects = true;
+        expandOnly = true;
         // Defaults: reset-related toggles OFF
         resetOnDeselect = false;
         resetDisables = false;
@@ -580,12 +609,14 @@
         try {
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
         } catch { }
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
+        if (settingExpandOnly) settingExpandOnly.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
         if (settingResetDisables) settingResetDisables.checked = false;
         if (settingQtyRight) settingQtyRight.checked = false;
@@ -644,7 +675,7 @@
           lbl.appendChild(sel);
         } else {
           const cb = lbl.querySelector('input[type="checkbox"]');
-          if (cb) lbl.appendChild(sel);
+          if (cb) cb.insertAdjacentElement('afterend', sel);
         }
       });
     };
@@ -1074,6 +1105,7 @@
           const stored = Math.max(1, Math.min(4, parseInt(qtyMap[key] || '1', 10) || 1));
           sel.value = String(stored);
           sel.disabled = !cb.checked;
+          sel.hidden = !cb.checked;
           const persistQty = (val) => {
             qtyMap[key] = val;
             try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { }
@@ -1085,6 +1117,7 @@
           });
           cb.addEventListener('change', () => {
             sel.disabled = !cb.checked;
+            sel.hidden = !cb.checked;
             if (cb.checked) {
               if (!qtyMap[key] || qtyMap[key] === 0) {
                 sel.value = '1';
@@ -1195,6 +1228,7 @@
         }
       });
       const nextButton = document.querySelector('.next-button');
+      const resetAllBtn = document.querySelector('.reset-all');
       if (nextButton) {
         nextButton.addEventListener('click', (e) => {
           const closed = closeAllOverlays();
@@ -1205,6 +1239,33 @@
             const firstButton = document.querySelector('.menu-launch');
             if (firstButton) firstButton.focus({ preventScroll: true });
           }
+        });
+      }
+      if (resetAllBtn) {
+        resetAllBtn.addEventListener('click', () => {
+          // clear all non-required checkboxes
+          document.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => {
+            if (cb.dataset.required === 'true' || cb.disabled) return;
+            cb.checked = false;
+            const sel = cb.closest('label')?.querySelector('select.ingredient-qty');
+            if (sel) { sel.value = '1'; sel.disabled = true; sel.hidden = true; }
+          });
+          // deactivate all sections
+          document.querySelectorAll('.section-toggle').forEach((t) => {
+            t.checked = false;
+            t.dispatchEvent(new Event('change', { bubbles: true }));
+          });
+          // reset quantities maps and active sections
+          try {
+            localStorage.removeItem(STORAGE_KEYS.quantities);
+            localStorage.removeItem(STORAGE_KEYS.quantitiesSections);
+            localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify({}));
+            localStorage.removeItem(STORAGE_KEYS.ingredients);
+          } catch { }
+          // refresh validation/nav locks and overlays
+          updateBuilderError();
+          updatePageNavLocks();
+          closeAllOverlays();
         });
       }
       if (location.hash) {
@@ -1290,6 +1351,11 @@
         const inc = document.createElement('button');
         inc.type = 'button'; inc.textContent = '+'; inc.setAttribute('aria-label', `Increase ${sec} quantity`);
         inc.classList.add('pointer');
+        const sectionToggle = d.querySelector('.section-toggle');
+        const setQtyVisible = () => {
+          const active = sectionToggle ? sectionToggle.checked : true;
+          wrap.style.display = active ? 'inline-flex' : 'none';
+        };
         const update = (next) => {
           current = Math.max(0, Math.min(12, (next | 0)));
           qtySections[sec] = current; saveQtySections();
@@ -1315,6 +1381,8 @@
         inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current + 1); });
         wrap.appendChild(label); wrap.appendChild(dec); wrap.appendChild(inc);
         summary.appendChild(wrap);
+        setQtyVisible();
+        if (sectionToggle) sectionToggle.addEventListener('change', setQtyVisible);
       });
 
       // Initialize Burger tomato label once on load
@@ -1494,6 +1562,9 @@
         t.addEventListener('click', (ev) => { ev.stopPropagation(); });
         t.addEventListener('change', () => {
           const d2 = detailsBySection[section];
+          if (t.checked && d2 && d2.tagName && d2.tagName.toLowerCase() === 'details') {
+            d2.open = true;
+          }
           if (t.checked && d2) {
             // Enforce required when activating
             d2.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
@@ -1545,18 +1616,28 @@
           const toggle = s.querySelector('.section-toggle');
           if (!toggle) return;
           const clickedCheckbox = toggle === e.target || toggle.contains(e.target);
-          // Native <details> need their default click to expand; don't block it unless necessary
+          const detailsParent = s.closest('details');
+          const openDetailsIfChecked = () => {
+            if (detailsParent && toggle.checked) detailsParent.open = true;
+          };
+          // Title click toggles only when setting enabled
           if (titleSelects && isTitleClick && !clickedCheckbox) {
             e.preventDefault();
             e.stopPropagation();
             toggle.checked = !toggle.checked;
             toggle.dispatchEvent(new Event('change', { bubbles: true }));
+            openDetailsIfChecked();
+            return;
+          }
+          // When expand-only is on, summary clicks just expand/collapse
+          if (expandOnly && !clickedCheckbox) {
             return;
           }
           // Let native <summary> clicks expand the <details> while still toggling the checkbox
           if (usesNativeDetails && !clickedCheckbox) {
             toggle.checked = !toggle.checked;
             toggle.dispatchEvent(new Event('change', { bubbles: true }));
+            openDetailsIfChecked();
             return;
           }
           if (!clickedCheckbox) {
@@ -1564,6 +1645,7 @@
             e.stopPropagation();
             toggle.checked = !toggle.checked;
             toggle.dispatchEvent(new Event('change', { bubbles: true }));
+            openDetailsIfChecked();
           }
         });
       });
@@ -1680,6 +1762,11 @@
               cb.checked = true;
             } else {
               cb.checked = false;
+            }
+            const sel = cb.closest('label')?.querySelector('select.ingredient-qty');
+            if (sel) {
+              sel.disabled = !cb.checked;
+              sel.hidden = !cb.checked;
             }
           });
           saveIngredients();

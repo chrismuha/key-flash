@@ -529,25 +529,54 @@ body.page2 main {
     padding-bottom: 96px;
 }
 
-/* Section: Page 2 Next Button */
+/* Section: Page 2 Actions */
+body.page2 .page-actions {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(6px);
+    border-top: 1px solid #ddd;
+    margin-top: 24px;
+}
+
+body.theme-dark.page2 .page-actions {
+    background: rgba(20, 20, 20, 0.9);
+    border-top-color: #444;
+}
+
+body.page2 .reset-all,
 body.page2 .next-button {
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
-    padding: 8px 14px;
+    padding: 10px 16px;
     background: var(--box-bg);
     border: 2px solid var(--box-border);
     color: #000;
     font-weight: 700;
     text-decoration: none;
     border-radius: 6px;
-    z-index: 1000;
+    cursor: pointer;
 }
 
+body.page2 .reset-all {
+    background: #f7f7f7;
+    border-color: #000;
+}
+
+body.theme-dark.page2 .reset-all {
+    background: #222;
+    color: #fff;
+    border-color: #fff;
+}
+
+body.page2 .reset-all:hover,
 body.page2 .next-button:hover {
     filter: brightness(0.95);
 }
 
+body.page2 .reset-all:active,
 body.page2 .next-button:active {
     transform: translateY(1px);
 }
