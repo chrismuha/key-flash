@@ -35,6 +35,7 @@ body {
     /* Keep both for dynamic viewport units (mobile) while still supporting older browsers */
     min-height: 100vh;
     min-height: 100dvh;
+    /* Keep both for dynamic viewport units (mobile) while still supporting older browsers */
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -603,22 +604,6 @@ body.theme-dark .theme-option:focus-visible {
 
 body.theme-dark .theme-option+.theme-option {
     border-top-color: #fff;
-}
-
-/* Collapse All items in Menu Builder button */
-.collapse
-.go-back {
-    position: fixed;
-    top: 12px;
-    left: 12px;
-    padding: 6px 10px;
-    font-weight: 600;
-    border: 1px solid #000;
-    background: #f7f7f7;
-    color: #000;
-    border-radius: 999px;
-    cursor: pointer;
-    z-index: 1000;
 }
 
 /* Go Back button (fixed, next to theme toggle) */

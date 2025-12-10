@@ -327,6 +327,33 @@ body.theme-dark .theme-option+.theme-option {
     z-index: 1000;
 }
 
+.collapse {
+    display: inline-block;
+    padding: 6px 10px;
+    font-weight: 600;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    color: #000;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+.collapse-inline {
+    position: static;
+    top: auto;
+    right: auto;
+    left: auto;
+    z-index: auto;
+    margin: 8px 0;
+}
+
+.collapse-all {
+    margin-top: 8px;
+    width: 100%;
+}
+
+body.theme-dark .collapse,
 body.theme-dark .go-back {
     border-color: #fff;
     background: #222;

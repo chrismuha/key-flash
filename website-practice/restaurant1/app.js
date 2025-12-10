@@ -1354,6 +1354,24 @@
         burger: document.getElementById('burger'),
         sauces: document.getElementById('sauces')
       };
+      const collapseSectionButtons = document.querySelectorAll('.collapse-section[data-target]');
+      const collapseSection = (section) => {
+        if (!section) return;
+        const d = detailsBySection[section];
+        if (d) d.open = false;
+      };
+      const collapseAllButton = document.querySelector('.collapse-all');
+      if (collapseAllButton) {
+        collapseAllButton.addEventListener('click', () => {
+          Object.keys(detailsBySection).forEach((key) => collapseSection(key));
+        });
+      }
+      collapseSectionButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-target');
+          collapseSection(target);
+        });
+      });
       // Restore previously saved active sections (so Go Back preserves state)
       let activeSections = {};
       try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
