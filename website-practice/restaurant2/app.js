@@ -1046,6 +1046,9 @@
       // Enforce required Burger Patty and Bun to be checked
       const patty = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="patty"]');
       const bun = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="bun"]');
+      const subBreadCb = document.getElementById('sub-bread-checkbox');
+      const subBreadSelect = document.getElementById('sub-bread-select');
+      const subBreadChoice = document.querySelector('.sub-bread-choice');
       const pizzaSauce = document.querySelector('input[type="checkbox"][name="pizza_ingredients[]"][value="tomato_sauce"]');
       const enforceReq = (el) => {
         if (!el) return;
@@ -1053,8 +1056,44 @@
       };
       enforceReq(patty);
       enforceReq(bun);
+      enforceReq(subBreadCb);
       enforceReq(pizzaSauce);
-      // Ensure storage includes them
+      const setSubBread = (val, { save = true } = {}) => {
+        const choice = (val === 'wheat') ? 'wheat' : 'white';
+        if (subBreadSelect) subBreadSelect.value = choice;
+        if (subBreadCb) {
+          subBreadCb.value = choice;
+          subBreadCb.checked = true;
+        }
+        if (subBreadChoice) subBreadChoice.textContent = choice === 'wheat' ? 'Wheat' : 'White';
+        if (save) {
+          saveIngredients();
+        }
+      };
+      const restoreSubBread = () => {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.ingredients);
+          if (!raw) { setSubBread('white', { save: false }); return; }
+          const data = JSON.parse(raw) || {};
+          const arr = Array.isArray(data['sub_ingredients[]']) ? data['sub_ingredients[]'] : [];
+          let val = 'white';
+          if (arr.length > 0) {
+            const first = arr[0];
+            if (typeof first === 'string') val = first;
+            else if (first && typeof first === 'object' && first.value) val = first.value;
+          }
+          setSubBread(val, { save: false });
+        } catch {
+          setSubBread('white', { save: false });
+        }
+      };
+      restoreSubBread();
+      if (subBreadSelect) {
+        subBreadSelect.addEventListener('change', () => {
+          setSubBread(subBreadSelect.value);
+        });
+      }
+      // Ensure storage includes required items with current bread selection
       saveIngredients();
       // Build ingredient quantity dropdowns (Regular/Extra/x3/x4)
       (function attachIngredientQuantities() {
@@ -1067,6 +1106,7 @@
           { label: 'x4', value: '4' }
         ];
         document.querySelectorAll('input[type="checkbox"][name$=\"_ingredients[]\"]').forEach((cb) => {
+          if (cb.dataset && cb.dataset.noQty === 'true') return;
           const lbl = cb.closest('label');
           if (!lbl) return;
           const key = `${cb.name}|${cb.value}`;
@@ -1487,6 +1527,7 @@
       const detailsBySection = {
         pizza: document.getElementById('pizza'),
         burger: document.getElementById('burger'),
+        sub: document.getElementById('sub'),
         sauces: document.getElementById('sauces')
       };
       // Restore previously saved active sections (so Go Back preserves state)
@@ -1636,6 +1677,7 @@
             let section = '';
             if (name.startsWith('pizza_')) section = 'pizza';
             else if (name.startsWith('burger_')) section = 'burger';
+            else if (name.startsWith('sub_')) section = 'sub';
             else if (name.startsWith('sauces_')) section = 'sauces';
             if (section) {
               const d = detailsBySection[section];
@@ -1666,6 +1708,15 @@
               cb.checked = false;
             }
           });
+          // Reset Sub bread choice to default when clearing Sub group
+          if (group.startsWith('sub_')) {
+            const breadSel = document.getElementById('sub-bread-select');
+            const breadCb = document.getElementById('sub-bread-checkbox');
+            const breadTxt = document.querySelector('.sub-bread-choice');
+            if (breadSel) breadSel.value = 'white';
+            if (breadCb) { breadCb.value = 'white'; breadCb.checked = true; }
+            if (breadTxt) breadTxt.textContent = 'White';
+          }
           saveIngredients();
           // Additionally normalize key quantities for the group being reset
           try {
@@ -1687,6 +1738,7 @@
             let section = '';
             if (group.startsWith('pizza_')) section = 'pizza';
             else if (group.startsWith('burger_')) section = 'burger';
+            else if (group.startsWith('sub_')) section = 'sub';
             else if (group.startsWith('sauces_')) section = 'sauces';
             if (section) {
               const d2 = document.getElementById(section);
@@ -1710,6 +1762,14 @@
                 } catch { }
                 const sum = d2 && d2.querySelector('.menu-summary .qty-controls span');
                 if (sum) sum.textContent = `(x0)`;
+              } else if (section === 'sub') {
+                // Reset bread selection to White
+                const breadSel = document.getElementById('sub-bread-select');
+                const breadCb = document.getElementById('sub-bread-checkbox');
+                const breadTxt = document.querySelector('.sub-bread-choice');
+                if (breadSel) breadSel.value = 'white';
+                if (breadCb) { breadCb.value = 'white'; breadCb.checked = true; }
+                if (breadTxt) breadTxt.textContent = 'White';
               } else if (section === 'sauces') {
                 // Zero out all sauce qtys
                 try {

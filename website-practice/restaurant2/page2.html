@@ -30,6 +30,7 @@
                 <button type="button" class="swiper-chip menu-launch" data-target="pizza" role="listitem">Pizza</button>
                 <button type="button" class="swiper-chip menu-launch" data-target="burger"
                     role="listitem">Burger</button>
+                <button type="button" class="swiper-chip menu-launch" data-target="sub" role="listitem">Sub</button>
                 <button type="button" class="swiper-chip menu-launch" data-target="sauces"
                     role="listitem">Sauces</button>
             </div>
@@ -89,6 +90,7 @@
         <div class="menu-actions" role="list">
             <button type="button" class="menu-launch" data-target="pizza" role="listitem">Pizza</button>
             <button type="button" class="menu-launch" data-target="burger" role="listitem">Burger</button>
+            <button type="button" class="menu-launch" data-target="sub" role="listitem">Sub</button>
             <button type="button" class="menu-launch" data-target="sauces" role="listitem">Sauces</button>
         </div>
 
@@ -182,7 +184,7 @@
             </div>
         </div>
 
-                <!-- Menu Item: Burger -->
+        <!-- Menu Item: Sub -->
         <div class="menu-overlay" data-section="sub" hidden>
             <div class="menu-overlay-card">
                 <div class="overlay-header">
@@ -197,28 +199,37 @@
                         <fieldset>
                             <legend>Choose Ingredients</legend>
                             <!-- Alphabetical order -->
-                            <label><input type="checkbox" name="burger_ingredients[]" value="bacon"> Bacon</label><br>
-                            <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]"
-                                    value="bun" data-required="true" title="Required"> Bun (Required)</label><br>
-                            <label><input type="checkbox" name="burger_ingredients[]" value="cheese"> Cheese</label><br>
-                            <label><input type="checkbox" name="burger_ingredients[]" value="jalapenos">
+                            <label><input type="checkbox" name="sub_ingredients[]" value="bacon"> Bacon</label><br>
+                            <label class="required bread-select" title="Required">
+                                <input type="checkbox" id="sub-bread-checkbox" name="sub_ingredients[]" value="white"
+                                    data-required="true" data-no-qty="true" title="Required" checked>
+                                Bread: <span class="sub-bread-choice">White</span>
+                                <select id="sub-bread-select" aria-label="Choose bread type">
+                                    <option value="white" selected>White</option>
+                                    <option value="wheat">Wheat</option>
+                                </select>
+                            </label><br>
+                            <label><input type="checkbox" name="sub_ingredients[]" value="cheese"> Cheese</label><br>
+                            <label><input type="checkbox" name="sub_ingredients[]" value="jalapenos">
                                 Jalapeños</label><br>
-                            <label><input type="checkbox" name="burger_ingredients[]" value="lettuce">
+                            <label><input type="checkbox" name="sub_ingredients[]" value="lettuce">
                                 Lettuce</label><br>
-                            <label><input type="checkbox" name="burger_ingredients[]" value="mushrooms">
+                            <label><input type="checkbox" name="sub_ingredients[]" value="mushrooms">
                                 Mushrooms</label><br>
-                            <label><input type="checkbox" name="burger_ingredients[]" value="olives"> Olives</label><br>
-                            <label><input type="checkbox" name="burger_ingredients[]" value="onion"> Onion</label><br>
-                            <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]"
-                                    value="patty" data-required="true" title="Required"> Patty (Required)</label><br>
-                            <label><input type="checkbox" name="burger_ingredients[]" value="pickles">
+                            <label><input type="checkbox" name="sub_ingredients[]" value="olives"> Olives</label><br>
+                            <label><input type="checkbox" name="sub_ingredients[]" value="onion"> Onion</label><br>
+                            <label><input type="checkbox" name="sub_ingredients[]" value="ham"> Ham</label><br>
+                            <label><input type="checkbox" name="sub_ingredients[]" value="turkey"> Turkey</label><br>
+                            <label><input type="checkbox" name="sub_ingredients[]" value="pepperoni">
+                                Pepperoni</label><br>
+                            <label><input type="checkbox" name="sub_ingredients[]" value="pickles">
                                 Pickles</label><br>
-                            <label><input type="checkbox" name="burger_ingredients[]" value="tomatoes">
+                            <label><input type="checkbox" name="sub_ingredients[]" value="tomatoes">
                                 Tomatoes</label><br>
-                            <label><input type="checkbox" name="burger_ingredients[]" value="toasted">
+                            <label><input type="checkbox" name="sub_ingredients[]" value="toasted">
                                 Toasted</label><br>
                         </fieldset>
-                        <button type="button" class="reset-group" data-group="burger_ingredients[]">Reset
+                        <button type="button" class="reset-group" data-group="sub_ingredients[]">Reset
                             Sub</button>
                     </form>
                 </div>
