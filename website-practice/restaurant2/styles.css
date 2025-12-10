@@ -966,6 +966,7 @@ body.order-type .delivery-details {
     border: 1px solid #000;
     max-width: 520px;
     background: #fff;
+    text-align: left;
 }
 
 body.theme-dark.order-type .delivery-details {
@@ -978,9 +979,15 @@ body.order-type .delivery-details .field {
     margin-bottom: 10px;
 }
 
+body.order-type .delivery-details h2 {
+    margin: 0 0 10px;
+    text-align: left;
+}
+
 body.order-type .delivery-details label {
     display: block;
     margin-bottom: 4px;
+    text-align: left;
 }
 
 body.order-type .delivery-details .req {
