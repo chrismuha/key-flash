@@ -153,7 +153,7 @@
     const navLinks = Array.from(document.querySelectorAll('.left-rail a'));
     const preventNavClick = (event) => event.preventDefault();
     const setNavState = (enabled) => {
-      
+
       if (!navLinks.length) return;
       if (enabled) {
         body.classList.add('nav-enabled');
@@ -600,8 +600,8 @@
         const nextState = !navEnabled;
         setNavState(nextState);
         updateNavToggleLabel();
-      // ensure page access rules are reapplied when mobile/desktop state changes
-      updatePageNavLocks();
+        // ensure page access rules are reapplied when mobile/desktop state changes
+        updatePageNavLocks();
         try {
           localStorage.setItem(STORAGE_KEYS.navEnabled, String(nextState));
         } catch { }
@@ -1672,7 +1672,7 @@
                   qs[section] = 0;
                   localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qs));
                 } catch { }
-              const sum = d2 && d2.querySelector('.menu-summary .qty-controls span');
+                const sum = d2 && d2.querySelector('.menu-summary .qty-controls span');
                 if (sum) sum.textContent = `(x0)`;
               } else if (section === 'sauces') {
                 // Zero out all sauce qtys
