@@ -626,6 +626,23 @@ body.page2 .next-button:active {
         left: var(--rail-width);
         right: 0;
     }
+    /* Keep settings panel fully visible on small screens */
+    .settings-panel {
+        position: fixed;
+        top: calc(var(--gap) * 2);
+        left: var(--gap);
+        right: var(--gap);
+        max-width: none;
+        z-index: 1400;
+        max-height: calc(100vh - (var(--gap) * 3));
+        overflow: auto;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    }
+    body.nav-enabled .settings-panel {
+        left: calc(var(--rail-width) + var(--gap));
+        right: var(--gap);
+        max-width: calc(100vw - var(--rail-width) - (var(--gap) * 2));
+    }
 }
 
 /* Section: Main Spacing Helpers */
