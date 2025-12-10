@@ -1814,7 +1814,7 @@
                   qs[section] = 0;
                   localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qs));
                 } catch { }
-              const sum = d2 && d2.querySelector('.menu-summary .qty-controls span');
+                const sum = d2 && d2.querySelector('.menu-summary .qty-controls span');
                 if (sum) sum.textContent = `(x0)`;
               } else if (section === 'sauces') {
                 // Zero out all sauce qtys

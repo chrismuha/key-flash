@@ -598,33 +598,41 @@ body.page2 .next-button:active {
         padding: calc(var(--gap) * 2) var(--gap) 96px var(--gap);
         max-width: 100%;
     }
+
     main summary.menu-summary {
         font-size: 20px;
         line-height: 28px;
     }
+
     main input[type="checkbox"] {
         width: 18px;
         height: 18px;
     }
+
     main fieldset {
         padding: 10px;
     }
+
     main fieldset label {
         flex-wrap: wrap;
         gap: 8px;
     }
+
     main fieldset label .ingredient-qty {
         min-width: 160px;
     }
+
     main .burger-qty,
     main .patty-qty,
     main .sauce-qty {
         margin-top: 4px;
     }
+
     body.page2 .page-actions {
         left: 0;
         right: 0;
     }
+
     body.nav-enabled.page2 .page-actions {
         left: var(--rail-width);
         right: 0;
@@ -646,9 +654,11 @@ body.page2 .next-button:active {
         z-index: 1300;
         pointer-events: none;
     }
+
     body:not(.nav-enabled).settings-open::before {
         left: 0;
     }
+
     .settings-panel {
         position: fixed;
         top: calc(10vh + env(safe-area-inset-top, 0px));
@@ -664,6 +674,7 @@ body.page2 .next-button:active {
         filter: none !important;
         backdrop-filter: none !important;
     }
+
     body.nav-enabled .settings-panel {
         left: calc(var(--rail-width) + (100vw - var(--rail-width)) / 2);
         transform: translateX(-50%);
@@ -1252,6 +1263,7 @@ body.settings-open::before {
     z-index: 1300;
     pointer-events: none;
 }
+
 /* If the nav is disabled we need the overlay to start at 0 */
 body:not(.nav-enabled).settings-open::before {
     left: 0;
@@ -1264,9 +1276,10 @@ body:not(.nav-enabled).settings-open::before {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
 }
+
 /* Ensure left-rail (nav) remains visually above content (optional) */
 .left-rail {
     z-index: 1400;
 }
-/* --- END SETTINGS OVERLAY --- */
 
+/* --- END SETTINGS OVERLAY --- */
