@@ -73,18 +73,18 @@
         </div>
     </div>
 
-        <div class="theme-controls nav-theme-controls">
-            <button type="button" class="theme-option theme-mode-toggle">Dark Mode</button>
-            <button type="button" class="theme-option nav-toggle">Enable Navigation</button>
-        </div>
+    <div class="theme-controls nav-theme-controls">
+        <button type="button" class="theme-option theme-mode-toggle">Dark Mode</button>
+        <button type="button" class="theme-option nav-toggle">Enable Navigation</button>
+    </div>
 
-        <!-- Right-side content area (Page 2 / Menu Builder) -->
-        <main>
-            <!-- Theme toggle -->
-            <button class="go-back" type="button" aria-label="Go back">Go Back</button>
-            <!-- Page title -->
-            <h1>Menu Builder</h1>
-            <p>Select ingredients for each menu item below.</p>
+    <!-- Right-side content area (Page 2 / Menu Builder) -->
+    <main>
+        <!-- Theme toggle -->
+        <button class="go-back" type="button" aria-label="Go back">Go Back</button>
+        <!-- Page title -->
+        <h1>Menu Builder</h1>
+        <p>Select ingredients for each menu item below.</p>
 
         <div class="menu-actions" role="list">
             <button type="button" class="menu-launch" data-target="pizza" role="listitem">Pizza</button>
@@ -177,6 +177,49 @@
                         </fieldset>
                         <button type="button" class="reset-group" data-group="burger_ingredients[]">Reset
                             Burger</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+                <!-- Menu Item: Burger -->
+        <div class="menu-overlay" data-section="sub" hidden>
+            <div class="menu-overlay-card">
+                <div class="overlay-header">
+                    <h2>Sub</h2>
+                    <button type="button" class="close-overlay" aria-label="Close Sub options">✕</button>
+                </div>
+                <div class="menu-section" id="sub">
+                    <div class="menu-summary"><input type="checkbox" class="section-toggle" data-section="sub">
+                        <span>Sub</span>
+                    </div>
+                    <form>
+                        <fieldset>
+                            <legend>Choose Ingredients</legend>
+                            <!-- Alphabetical order -->
+                            <label><input type="checkbox" name="burger_ingredients[]" value="bacon"> Bacon</label><br>
+                            <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]"
+                                    value="bun" data-required="true" title="Required"> Bun (Required)</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="cheese"> Cheese</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="jalapenos">
+                                Jalapeños</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="lettuce">
+                                Lettuce</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="mushrooms">
+                                Mushrooms</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="olives"> Olives</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="onion"> Onion</label><br>
+                            <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]"
+                                    value="patty" data-required="true" title="Required"> Patty (Required)</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="pickles">
+                                Pickles</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="tomatoes">
+                                Tomatoes</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="toasted">
+                                Toasted</label><br>
+                        </fieldset>
+                        <button type="button" class="reset-group" data-group="burger_ingredients[]">Reset
+                            Sub</button>
                     </form>
                 </div>
             </div>
