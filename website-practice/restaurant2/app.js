@@ -1059,13 +1059,17 @@
       enforceReq(subBreadCb);
       enforceReq(pizzaSauce);
       const setSubBread = (val, { save = true } = {}) => {
-        const choice = (val === 'wheat') ? 'wheat' : 'white';
+        const allowed = ['white', 'wheat', 'toasted'];
+        const choice = allowed.includes(val) ? val : 'white';
         if (subBreadSelect) subBreadSelect.value = choice;
         if (subBreadCb) {
           subBreadCb.value = choice;
           subBreadCb.checked = true;
         }
-        if (subBreadChoice) subBreadChoice.textContent = choice === 'wheat' ? 'Wheat' : 'White';
+        if (subBreadChoice) {
+          const pretty = choice === 'wheat' ? 'Wheat' : (choice === 'toasted' ? 'Toasted' : 'White');
+          subBreadChoice.textContent = pretty;
+        }
         if (save) {
           saveIngredients();
         }
