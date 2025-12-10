@@ -4,6 +4,7 @@
     --logo-w: 120px;
     --logo-h: 80px;
     --nav-height: calc(var(--logo-h) + var(--gap) * 2);
+    --nav-offset: var(--nav-height);
     --rail-side-gap: calc(var(--gap) - 6px);
     --rail-width: calc(var(--logo-w) + (var(--rail-side-gap) * 2));
     --box-height: 56px;
@@ -193,6 +194,42 @@ body.theme-dark .settings-button {
     color: #fff;
 }
 
+.order-type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    background: #fff8f0;
+    border: 2px solid #000;
+    border-radius: 999px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-left: auto;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.order-type-chip[data-empty="true"] {
+    opacity: 0.8;
+    border-style: dashed;
+}
+
+.order-type-chip__label {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.order-type-chip__value {
+    font-size: 16px;
+}
+
+body.theme-dark .order-type-chip {
+    background: #111;
+    color: #fff;
+    border-color: #fff;
+}
+
 .settings-panel {
     margin-top: 6px;
     font-size: inherit;
@@ -364,7 +401,7 @@ main {
     width: min(75ch, calc(100% - var(--gap) * 2));
     max-width: 75ch;
     min-width: 320px;
-    padding: calc(var(--nav-height) + var(--gap) * 2) var(--gap) var(--gap) calc(var(--gap) * 2);
+    padding: calc(var(--nav-offset) + var(--gap) * 2) var(--gap) var(--gap) calc(var(--gap) * 2);
     border: none;
     line-height: 1.5;
     overflow-wrap: break-word;
@@ -374,12 +411,12 @@ main {
 
 /* Leave extra headroom when the fixed Go Back button is present */
 body.has-go-back main {
-    padding-top: calc(var(--nav-height) + var(--gap) * 3);
+    padding-top: calc(var(--nav-offset) + var(--gap) * 3);
 }
 
 @media (max-width: 768px) {
     body.has-go-back main {
-        padding-top: calc(var(--nav-height) + var(--gap) * 3);
+        padding-top: calc(var(--nav-offset) + var(--gap) * 3);
     }
 }
 
@@ -451,6 +488,15 @@ body:not(.nav-enabled) main {
         height: 40px;
         font-size: 20px;
         margin-top: -70px;
+    }
+
+    .order-type-chip {
+        order: 5;
+        margin-left: 0;
+        width: 100%;
+        justify-content: flex-start;
+        padding: 10px 12px;
+        white-space: normal;
     }
 }
 

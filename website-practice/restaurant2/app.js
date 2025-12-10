@@ -51,6 +51,12 @@
     } catch { return ''; }
   }
 
+  function describeOrderType(type) {
+    if (type === 'delivery') return 'Delivery';
+    if (type === 'dine') return 'Dine In/Carryout';
+    return '';
+  }
+
   // Section: Ingredients (Read from DOM)
   function readIngredientsFromDOM() {
     const data = {};
@@ -118,6 +124,21 @@
     const mobileQuery = window.matchMedia('(max-width: 768px)');
     const isMobileView = () => mobileQuery.matches;
 
+    const orderTypeChips = Array.from(document.querySelectorAll('.order-type-chip'));
+    const syncOrderTypeChip = () => {
+      if (!orderTypeChips.length) return;
+      const type = getOrderType();
+      const pretty = describeOrderType(type);
+      const empty = !pretty;
+      orderTypeChips.forEach((chip) => {
+        chip.dataset.empty = empty ? 'true' : 'false';
+        const valueEl = chip.querySelector('.order-type-chip__value');
+        if (valueEl) valueEl.textContent = empty ? 'Not selected' : pretty;
+        const label = empty ? 'Order type not selected' : `Order type: ${pretty}`;
+        chip.setAttribute('aria-label', label);
+      });
+    };
+
 
 
     // Migration: rename legacy ingredient value 'tomato' -> 'tomatoes' (pizza/burger)
@@ -171,7 +192,16 @@
           link.addEventListener('click', preventNavClick);
         });
       }
+      updateNavOffset();
     };
+
+    const updateNavOffset = () => {
+      const nav = document.querySelector('.left-rail');
+      if (!nav) return;
+      const h = nav.offsetHeight || 0;
+      document.documentElement.style.setProperty('--nav-offset', `${h}px`);
+    };
+    window.addEventListener('resize', updateNavOffset);
 
     // Lock Page 2/3 navigation until prerequisites are met
     function hasOrderTypeSelected() {
@@ -275,6 +305,8 @@
     setNavState(navInitialEnabled);
     // Apply initial page navigation locks
     updatePageNavLocks();
+    syncOrderTypeChip();
+    updateNavOffset();
 
     // If user refreshes a non-index page, redirect to index
     try {
@@ -576,6 +608,7 @@
       updateNavToggleLabel();
       // ensure page access rules are reapplied when mobile/desktop state changes
       updatePageNavLocks();
+      updateNavOffset();
     };
     syncMobileUiState();
     mobileQuery.addEventListener('change', syncMobileUiState);
@@ -607,6 +640,7 @@
         } catch { }
         // Re-apply page access rules anytime nav visibility changes
         updatePageNavLocks();
+        updateNavOffset();
       });
     }
 
@@ -671,6 +705,7 @@
           // Always persist the user's latest choice
           saveOrderType(type);
           updatePageNavLocks();
+          syncOrderTypeChip();
           if (type === 'delivery') {
             // Expand delivery details instead of navigating immediately
             e.preventDefault();
@@ -870,6 +905,7 @@
             localStorage.setItem(STORAGE_KEYS.deliveryZip, zip);
           } catch { }
           saveOrderType('delivery');
+          syncOrderTypeChip();
           // Navigate to page 2
           window.location.href = 'page2.html';
         });

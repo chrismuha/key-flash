@@ -171,9 +171,9 @@ body:not(.nav-enabled) main {
 main {
     background: #fff;
     flex: 0 1 auto;
-    width: calc(100vw - var(--rail-width));
-    max-width: 75ch;
-    min-width: 520px;
+    width: min(calc(100vw - var(--rail-width)), 75ch);
+    max-width: 100%;
+    min-width: 0;
     padding: calc(var(--gap) * 4) var(--gap) var(--gap) calc(var(--gap) * 2);
     border: none;
     line-height: 1.5;
@@ -181,6 +181,10 @@ main {
     word-break: break-word;
     margin-inline: 0 auto;
     margin-left: var(--rail-width);
+}
+
+body:not(.nav-enabled) main {
+    width: min(100vw, 75ch);
 }
 
 /* Section: Theme (Dark) */
