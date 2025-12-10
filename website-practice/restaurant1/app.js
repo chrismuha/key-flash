@@ -106,6 +106,10 @@
     if (!hash) return;
     const target = document.getElementById(hash);
     if (!target) return;
+    // If the target is a native <details>, expand it so its contents are visible
+    if (target.tagName && target.tagName.toLowerCase() === 'details') {
+      target.open = true;
+    }
     // Bring the section into view and focus its heading when possible
     const summary = target.querySelector('.menu-summary');
     if (summary) summary.focus({ preventScroll: false });
@@ -417,6 +421,36 @@
     const initialTheme = parseSavedTheme();
     body.classList.toggle('theme-dark', initialTheme.dark);
     applyThemeChoice(initialTheme.choice, { skipSave: true });
+    // Theme dropdown/menu
+    const themeToggleBtn = document.querySelector('.theme-toggle');
+    const themeMenu = document.getElementById('theme-menu');
+    const closeThemeMenu = () => {
+      if (!themeMenu || !themeToggleBtn) return;
+      themeMenu.hidden = true;
+      themeToggleBtn.setAttribute('aria-expanded', 'false');
+    };
+    const openThemeMenu = () => {
+      if (!themeMenu || !themeToggleBtn) return;
+      themeMenu.hidden = false;
+      themeToggleBtn.setAttribute('aria-expanded', 'true');
+    };
+    closeThemeMenu();
+    if (themeToggleBtn && themeMenu) {
+      themeToggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const expanded = themeToggleBtn.getAttribute('aria-expanded') === 'true';
+        if (expanded) closeThemeMenu(); else openThemeMenu();
+      });
+      document.addEventListener('click', (e) => {
+        if (!themeMenu || !themeToggleBtn) return;
+        if (themeMenu.contains(e.target) || themeToggleBtn.contains(e.target)) return;
+        closeThemeMenu();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeThemeMenu();
+      });
+      themeMenu.addEventListener('click', () => closeThemeMenu());
+    }
 
     // Settings (gear) in left rail
     const settingsBtn = document.querySelector('.settings-button');
@@ -581,10 +615,7 @@
         btn.addEventListener('click', () => {
           body.classList.toggle('theme-dark');
           updateThemeModeLabel();
-          try {
-            const isDark = body.classList.contains('theme-dark');
-            localStorage.setItem(STORAGE_KEYS.theme, isDark ? 'dark' : 'light');
-          } catch { }
+          persistThemeState();
         });
       });
     }
@@ -1506,28 +1537,55 @@
       // Summary behavior:
       // - If titleSelects is ON, clicking the title text toggles the checkbox (not expand)
       // - Otherwise, clicking summary toggles the checkbox
+      const usesNativeDetails = !!document.querySelector('details .menu-summary');
       document.querySelectorAll('.menu-summary').forEach((s) => {
         s.addEventListener('click', (e) => {
           const titleEl = s.querySelector('span');
           const isTitleClick = titleEl && titleEl.contains(e.target);
-          if (titleSelects && isTitleClick) {
+          const toggle = s.querySelector('.section-toggle');
+          if (!toggle) return;
+          const clickedCheckbox = toggle === e.target || toggle.contains(e.target);
+          // Native <details> need their default click to expand; don't block it unless necessary
+          if (titleSelects && isTitleClick && !clickedCheckbox) {
             e.preventDefault();
             e.stopPropagation();
-            const t = s.querySelector('.section-toggle');
-            if (t) {
-              t.checked = !t.checked;
-              t.dispatchEvent(new Event('change', { bubbles: true }));
-            }
+            toggle.checked = !toggle.checked;
+            toggle.dispatchEvent(new Event('change', { bubbles: true }));
             return;
           }
-          // Default: toggle checkbox when clicking summary (anywhere)
-          e.preventDefault();
-          e.stopPropagation();
-          const t = s.querySelector('.section-toggle');
-          if (t) {
-            t.checked = !t.checked;
-            t.dispatchEvent(new Event('change', { bubbles: true }));
+          // Let native <summary> clicks expand the <details> while still toggling the checkbox
+          if (usesNativeDetails && !clickedCheckbox) {
+            toggle.checked = !toggle.checked;
+            toggle.dispatchEvent(new Event('change', { bubbles: true }));
+            return;
           }
+          if (!clickedCheckbox) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggle.checked = !toggle.checked;
+            toggle.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+      });
+      // Collapse helpers
+      const collapseAllBtn = document.querySelector('.collapse-all');
+      const collapseSectionBtns = document.querySelectorAll('.collapse-section[data-target]');
+      const closeDetails = (targetId) => {
+        if (!targetId) return;
+        const d = document.getElementById(targetId);
+        if (d && d.tagName && d.tagName.toLowerCase() === 'details') {
+          d.open = false;
+        }
+      };
+      if (collapseAllBtn) {
+        collapseAllBtn.addEventListener('click', () => {
+          document.querySelectorAll('details').forEach((d) => { d.open = false; });
+        });
+      }
+      collapseSectionBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const tgt = btn.getAttribute('data-target');
+          closeDetails(tgt);
         });
       });
       // Delegate clicks on ingredient labels to toggle their checkbox when enabled
