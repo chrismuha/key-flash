@@ -144,6 +144,48 @@
             </details>
         </section>
 
+        <!-- Menu Item: Sub -->
+        <section>
+            <details id="sub">
+                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="sub">
+                    <span>Sub</span>
+                </summary>
+                <button type="button" class="collapse collapse-inline collapse-section" data-target="sub"
+                    aria-label="Collapse Sub section">Collapse</button>
+                <form>
+                    <fieldset>
+                        <legend>Choose Ingredients</legend>
+                        <!-- Alphabetical order -->
+                        <label><input type="checkbox" name="sub_ingredients[]" value="bacon"> Bacon</label><br>
+                        <label class="required bread-select" title="Required">
+                            <input type="checkbox" id="sub-bread-checkbox" name="sub_ingredients[]" value="white"
+                                data-required="true" data-no-qty="true" title="Required" checked>
+                            Bread: <span class="sub-bread-choice">White</span>
+                            <select id="sub-bread-select" class="ingredient-qty" aria-label="Choose bread type"
+                                data-ignore-label-toggle="true">
+                                <option value="white" selected>White</option>
+                                <option value="wheat">Wheat</option>
+                                <option value="toasted">Toasted</option>
+                            </select>
+                        </label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="cheese"> Cheese</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="jalapenos"> Jalapeños</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="lettuce"> Lettuce</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="mushrooms"> Mushrooms</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="olives"> Olives</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="onion"> Onion</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="ham"> Ham</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="turkey"> Turkey</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="pepperoni"> Pepperoni</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="pickles"> Pickles</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="tomatoes"> Tomatoes</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="toasted"> Toasted</label><br>
+                    </fieldset>
+                    <button type="button" class="reset-group" data-group="sub_ingredients[]">Reset Sub</button>
+                </form>
+            </details>
+        </section>
+
         <!-- Menu Item: Sauces -->
         <section>
             <details id="sauces">

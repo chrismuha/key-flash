@@ -1022,6 +1022,9 @@
       // Enforce required Burger Patty and Bun to be checked
       const patty = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="patty"]');
       const bun = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="bun"]');
+      const subBreadCb = document.getElementById('sub-bread-checkbox');
+      const subBreadSelect = document.getElementById('sub-bread-select');
+      const subBreadChoice = document.querySelector('.sub-bread-choice');
       const pizzaSauce = document.querySelector('input[type="checkbox"][name="pizza_ingredients[]"][value="tomato_sauce"]');
       const enforceReq = (el) => {
         if (!el) return;
@@ -1029,8 +1032,46 @@
       };
       enforceReq(patty);
       enforceReq(bun);
+      enforceReq(subBreadCb);
       enforceReq(pizzaSauce);
-      // Ensure storage includes them
+      const setSubBread = (val, { save = true } = {}) => {
+        const allowed = ['white', 'wheat', 'toasted'];
+        const choice = allowed.includes(val) ? val : 'white';
+        if (subBreadSelect) subBreadSelect.value = choice;
+        if (subBreadCb) {
+          subBreadCb.value = choice;
+          subBreadCb.checked = true;
+        }
+        if (subBreadChoice) {
+          const pretty = choice === 'wheat' ? 'Wheat' : (choice === 'toasted' ? 'Toasted' : 'White');
+          subBreadChoice.textContent = pretty;
+        }
+        if (save) saveIngredients();
+      };
+      const restoreSubBread = () => {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.ingredients);
+          if (!raw) { setSubBread('white', { save: false }); return; }
+          const data = JSON.parse(raw) || {};
+          const arr = Array.isArray(data['sub_ingredients[]']) ? data['sub_ingredients[]'] : [];
+          let val = 'white';
+          if (arr.length > 0) {
+            const first = arr[0];
+            if (typeof first === 'string') val = first;
+            else if (first && typeof first === 'object' && first.value) val = first.value;
+          }
+          setSubBread(val, { save: false });
+        } catch {
+          setSubBread('white', { save: false });
+        }
+      };
+      restoreSubBread();
+      if (subBreadSelect) {
+        subBreadSelect.addEventListener('change', () => {
+          setSubBread(subBreadSelect.value);
+        });
+      }
+      // Ensure storage includes required defaults
       saveIngredients();
       // Build ingredient quantity dropdowns (Regular/Extra/x3/x4)
       (function attachIngredientQuantities() {
@@ -1041,6 +1082,7 @@
           { label: 'x4', value: '4' }
         ];
         document.querySelectorAll('input[type="checkbox"][name$="_ingredients[]"]').forEach((cb) => {
+          if (cb.dataset && cb.dataset.noQty === 'true') return;
           const lbl = cb.closest('label');
           if (!lbl) return;
           const key = `${cb.name}|${cb.value}`;
@@ -1143,8 +1185,8 @@
         } catch { }
       };
 
-      // Decorate section summaries (Pizza/Burger) with quantity controls (1-12)
-      ['pizza', 'burger'].forEach((sec) => {
+      // Decorate section summaries (Pizza/Burger/Sub) with quantity controls (1-12)
+      ['pizza', 'burger', 'sub'].forEach((sec) => {
         const d = document.getElementById(sec);
         if (!d) return;
         const summary = d.querySelector('summary.menu-summary');
@@ -1153,6 +1195,12 @@
         if (summary.querySelector('.qty-controls')) return;
         // Allow zero so an unselected section shows (x0)
         let current = Math.max(0, Math.min(12, parseInt(qtySections[sec] || '0', 10) || 0));
+        const toggleEl = summary.querySelector('.section-toggle');
+        if (toggleEl && toggleEl.checked && current <= 0) {
+          current = 1;
+          qtySections[sec] = 1;
+          saveQtySections();
+        }
         const wrap = document.createElement('span');
         wrap.className = 'qty-controls';
         wrap.style.marginLeft = '12px';
@@ -1352,6 +1400,7 @@
       const detailsBySection = {
         pizza: document.getElementById('pizza'),
         burger: document.getElementById('burger'),
+        sub: document.getElementById('sub'),
         sauces: document.getElementById('sauces')
       };
       const collapseSectionButtons = document.querySelectorAll('.collapse-section[data-target]');
@@ -1394,8 +1443,8 @@
             // Enforce required when activating
             d2.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
             saveIngredients();
-            // If activating Pizza/Burger, ensure quantity is at least 1 (was 0 when deselected)
-            if (section === 'pizza' || section === 'burger') {
+            // If activating Pizza/Burger/Sub, ensure quantity is at least 1 (was 0 when deselected)
+            if (section === 'pizza' || section === 'burger' || section === 'sub') {
               try {
                 let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                 const cur = parseInt(qtySections[section] || '0', 10) || 0;
@@ -1413,7 +1462,7 @@
             d2.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => { cb.checked = false; });
             saveIngredients();
             // If the menu item (section) is not selected, its quantity becomes 0
-            if (section === 'pizza' || section === 'burger') {
+            if (section === 'pizza' || section === 'burger' || section === 'sub') {
               try {
                 let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                 qtySections[section] = 0;
@@ -1475,6 +1524,8 @@
           if (cb.disabled) return;
           // Do NOT toggle required items (e.g., Patty, Bun, Tomato Sauce)
           if (cb.dataset && cb.dataset.required === 'true') return;
+          // Skip any click originating from elements that explicitly opt out of label toggling
+          if (e.target.closest('[data-ignore-label-toggle="true"]')) return;
           // Ensure only non-checkbox clicks trigger the manual toggle
           if (e.target !== cb) {
             cb.checked = !cb.checked;
@@ -1529,6 +1580,7 @@
             let section = '';
             if (name.startsWith('pizza_')) section = 'pizza';
             else if (name.startsWith('burger_')) section = 'burger';
+            else if (name.startsWith('sub_')) section = 'sub';
             else if (name.startsWith('sauces_')) section = 'sauces';
             if (section) {
               const d = detailsBySection[section];
@@ -1574,12 +1626,22 @@
               const pattyQtyTxt = pattyLabel ? pattyLabel.querySelector('.patty-qty > span') : null;
               if (pattyQtyTxt) pattyQtyTxt.textContent = `(x1)`;
             }
+            if (group.startsWith('sub_')) {
+              // Reset bread selection to White
+              const breadSel = document.getElementById('sub-bread-select');
+              const breadCb = document.getElementById('sub-bread-checkbox');
+              const breadTxt = document.querySelector('.sub-bread-choice');
+              if (breadSel) breadSel.value = 'white';
+              if (breadCb) { breadCb.value = 'white'; breadCb.checked = true; }
+              if (breadTxt) breadTxt.textContent = 'White';
+            }
           } catch { }
           if (resetDisables) {
             // Map group to section key
             let section = '';
             if (group.startsWith('pizza_')) section = 'pizza';
             else if (group.startsWith('burger_')) section = 'burger';
+            else if (group.startsWith('sub_')) section = 'sub';
             else if (group.startsWith('sauces_')) section = 'sauces';
             if (section) {
               const d2 = document.getElementById(section);
@@ -1595,7 +1657,7 @@
                 localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
               } catch { }
               // Reset quantities as appropriate
-              if (section === 'pizza' || section === 'burger') {
+              if (section === 'pizza' || section === 'burger' || section === 'sub') {
                 try {
                   let qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                   qs[section] = 0;
@@ -1727,7 +1789,7 @@
         // Load saved per-ingredient quantities (legacy, not used for display now)
         let qtyMap = {};
         try { qtyMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'); } catch { qtyMap = {}; }
-        // Load per-section quantities (pizza/burger)
+        // Load per-section quantities (pizza/burger/sub)
         let qtySections = {};
         try { qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}'); } catch { qtySections = {}; }
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
@@ -1741,8 +1803,8 @@
             const prettyGroup = key.replace(/_/g, ' ');
             // Skip categories that are not active (checkbox not selected on Page 2)
             if (!activeSections[key]) return;
-            // Also skip Pizza/Burger if their section quantity is 0
-            if ((key === 'pizza' || key === 'burger')) {
+            // Also skip Pizza/Burger/Sub if their section quantity is 0
+            if ((key === 'pizza' || key === 'burger' || key === 'sub')) {
               let qv = 0;
               try { qv = parseInt(qtySections[key] || '0', 10) || 0; } catch { qv = 0; }
               if (qv <= 0) return;
@@ -1759,11 +1821,11 @@
             edit.style.marginLeft = '8px';
             header.appendChild(edit);
 
-            // Section-level quantity controls for Pizza and Burger
-            if (key === 'pizza' || key === 'burger') {
+            // Section-level quantity controls for Pizza, Burger, and Sub
+            if (key === 'pizza' || key === 'burger' || key === 'sub') {
               const qWrap = document.createElement('span');
               qWrap.style.marginLeft = '12px';
-              const qKey = key; // 'pizza' or 'burger'
+              const qKey = key; // 'pizza', 'burger', or 'sub'
               // Allow 0 if previously set via deselection; otherwise controls clamp to 1..12
               let current = Math.max(0, Math.min(12, parseInt(qtySections[qKey] || '0', 10) || 0));
 
