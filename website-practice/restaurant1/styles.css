@@ -42,6 +42,32 @@ body {
     overflow-y: auto;
 }
 
+/* Slightly tighten spacing/size when the fixed nav is visible to avoid overlap */
+body.nav-enabled {
+    --gap: 10px;
+    font-size: 15px;
+}
+
+@media (max-width: 768px) {
+    body.nav-enabled {
+        --logo-w: 140px;
+        --logo-h: 100px;
+        --rail-width: calc(var(--logo-w) + (var(--rail-side-gap) * 2));
+        font-size: 14px;
+    }
+
+    body.nav-enabled .left-rail {
+        width: var(--rail-width);
+    }
+
+    body.nav-enabled main {
+        width: calc(100vw - var(--rail-width) - var(--gap));
+        max-width: calc(100vw - var(--rail-width) - var(--gap));
+        margin-left: var(--rail-width);
+        padding: calc(var(--gap) * 2) var(--gap) var(--gap) var(--gap);
+    }
+}
+
 /* Section: Left Rail Navigation */
 .left-rail {
     display: flex;
@@ -101,6 +127,17 @@ body.theme-dark .settings-button {
     border-color: #fff;
     background: #222;
     color: #fff;
+}
+
+body.nav-enabled .settings-button {
+    width: calc(var(--rail-width) - 12px);
+}
+
+@media (max-width: 768px) {
+    body.nav-enabled .settings-button {
+        width: calc(var(--rail-width) - 12px);
+        font-size: 14px;
+    }
 }
 
 .settings-panel {
@@ -171,20 +208,27 @@ body:not(.nav-enabled) main {
 main {
     background: #fff;
     flex: 0 1 auto;
-    width: min(calc(100vw - var(--rail-width)), 75ch);
-    max-width: 100%;
+    width: 100%;
+    max-width: 75ch;
     min-width: 0;
     padding: calc(var(--gap) * 4) var(--gap) var(--gap) calc(var(--gap) * 2);
     border: none;
     line-height: 1.5;
     overflow-wrap: break-word;
     word-break: break-word;
-    margin-inline: 0 auto;
-    margin-left: var(--rail-width);
+    margin-inline: auto;
+    margin-left: 0;
 }
 
 body:not(.nav-enabled) main {
     width: min(100vw, 75ch);
+}
+
+body.nav-enabled main {
+    width: calc(100vw - var(--rail-width) - var(--gap));
+    max-width: 75ch;
+    margin-left: var(--rail-width);
+    padding-right: var(--gap);
 }
 
 /* Section: Theme (Dark) */
@@ -1040,6 +1084,17 @@ main details[open]>summary.menu-summary::before {
     height: 33px;
     line-height: 33px;
     font-size: 24px;
+}
+
+body.nav-enabled .left-rail .box {
+    width: calc(var(--rail-width) - 12px);
+}
+
+@media (max-width: 768px) {
+    body.nav-enabled .left-rail .box {
+        width: calc(var(--rail-width) - 12px);
+        font-size: 20px;
+    }
 }
 
 /* Section: Focus Styles */
