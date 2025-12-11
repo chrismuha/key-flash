@@ -1070,6 +1070,32 @@
       const patty = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="patty"]');
       const bun = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="bun"]');
       const pizzaSauce = document.querySelector('input[type="checkbox"][name="pizza_ingredients[]"][value="tomato_sauce"]');
+      const subBread = document.getElementById('sub-bread-checkbox');
+      const subBreadSelect = document.getElementById('sub-bread-select');
+      const breadChoices = ['white', 'wheat', 'toasted'];
+      const applyBreadChoice = (val) => {
+        const choice = breadChoices.includes(val) ? val : breadChoices[0];
+        if (subBreadSelect) subBreadSelect.value = choice;
+        if (subBread) subBread.value = choice;
+      };
+      // Restore previously chosen bread type from storage if present
+      (() => {
+        if (!subBread || !subBreadSelect) return;
+        let stored = breadChoices[0];
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.ingredients);
+          if (raw) {
+            const data = JSON.parse(raw) || {};
+            const arr = Array.isArray(data['sub_ingredients[]']) ? data['sub_ingredients[]'] : [];
+            const found = arr.find((it) => {
+              if (typeof it === 'string') return breadChoices.includes(it);
+              return it && typeof it === 'object' && breadChoices.includes(it.value);
+            });
+            if (found) stored = typeof found === 'string' ? found : found.value;
+          }
+        } catch { stored = breadChoices[0]; }
+        applyBreadChoice(stored);
+      })();
       const enforceReq = (el) => {
         if (!el) return;
         el.checked = true;
@@ -1077,6 +1103,13 @@
       enforceReq(patty);
       enforceReq(bun);
       enforceReq(pizzaSauce);
+      enforceReq(subBread);
+      if (subBread && subBreadSelect) {
+        subBreadSelect.addEventListener('change', () => {
+          applyBreadChoice(subBreadSelect.value);
+          saveIngredients();
+        });
+      }
       // Ensure storage includes them
       saveIngredients();
       // Build ingredient quantity dropdowns (Regular/Extra/x3/x4)
@@ -1090,6 +1123,15 @@
           { label: 'x4', value: '4' }
         ];
         document.querySelectorAll('input[type="checkbox"][name$=\"_ingredients[]\"]').forEach((cb) => {
+          // Some items (e.g., Sub bread) use the dropdown for a custom choice, not quantity
+          if (cb.dataset && cb.dataset.noQty === 'true') {
+            const ownSelect = cb.closest('label')?.querySelector('select.ingredient-qty');
+            if (ownSelect) {
+              ownSelect.disabled = !cb.checked;
+              ownSelect.hidden = !cb.checked;
+            }
+            return;
+          }
           const lbl = cb.closest('label');
           if (!lbl) return;
           const key = `${cb.name}|${cb.value}`;

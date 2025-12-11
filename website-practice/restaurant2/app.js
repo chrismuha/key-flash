@@ -1048,7 +1048,6 @@
       const bun = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="bun"]');
       const subBreadCb = document.getElementById('sub-bread-checkbox');
       const subBreadSelect = document.getElementById('sub-bread-select');
-      const subBreadChoice = document.querySelector('.sub-bread-choice');
       const pizzaSauce = document.querySelector('input[type="checkbox"][name="pizza_ingredients[]"][value="tomato_sauce"]');
       const enforceReq = (el) => {
         if (!el) return;
@@ -1722,7 +1721,6 @@
           if (group.startsWith('sub_')) {
             const breadSel = document.getElementById('sub-bread-select');
             const breadCb = document.getElementById('sub-bread-checkbox');
-            const breadTxt = document.querySelector('.sub-bread-choice');
             if (breadSel) breadSel.value = 'white';
             if (breadCb) { breadCb.value = 'white'; breadCb.checked = true; }
             if (breadTxt) breadTxt.textContent = 'White';
@@ -1776,7 +1774,6 @@
                 // Reset bread selection to White
                 const breadSel = document.getElementById('sub-bread-select');
                 const breadCb = document.getElementById('sub-bread-checkbox');
-                const breadTxt = document.querySelector('.sub-bread-choice');
                 if (breadSel) breadSel.value = 'white';
                 if (breadCb) { breadCb.value = 'white'; breadCb.checked = true; }
                 if (breadTxt) breadTxt.textContent = 'White';
