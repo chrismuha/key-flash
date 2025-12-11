@@ -540,6 +540,7 @@
       pillArrowOnly = v === null ? false : v === 'true';
     } catch { pillArrowOnly = false; }
     if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
+    window.pillArrowOnly = pillArrowOnly;
     const hasOverlay = !!settingsOverlay;
 
     const closeSettings = () => {
@@ -626,6 +627,8 @@
     if (settingPillArrowOnly) {
       settingPillArrowOnly.addEventListener('change', () => {
         pillArrowOnly = !!settingPillArrowOnly.checked;
+        window.pillArrowOnly = pillArrowOnly;
+        document.dispatchEvent(new Event('pillArrowOnlyChanged'));
         try { localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly)); } catch { }
       });
     }
