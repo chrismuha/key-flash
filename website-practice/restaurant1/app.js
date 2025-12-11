@@ -1187,7 +1187,10 @@
                 persistQty(1);
               }
             } else {
-              persistQty(0);
+              if (resetOnDeselect) {
+                sel.value = '1';
+                persistQty(1);
+              }
             }
           });
         });
@@ -1496,9 +1499,11 @@
         setVisible();
         cb.addEventListener('change', () => {
           if (!cb.checked) {
-            // If item is not selected, its quantity becomes 0
-            qtyMap[qKey] = 0; saveQtyMap();
-            txt.textContent = `(x0)`;
+            if (resetOnDeselect) {
+              // If item is not selected, its quantity resets to default
+              qtyMap[qKey] = 1; saveQtyMap();
+              txt.textContent = `(x1)`;
+            }
           } else {
             // When re-checked, if stored 0 bump back to 1 (do not show 0 when rechecked)
             const prev = (qtyMap[qKey] | 0);
@@ -1584,11 +1589,14 @@
           setVisible();
           cb.addEventListener('change', () => {
             if (!cb.checked) {
-              // When item is unchecked, set quantity to 0 for storage and hide
-              try {
-                const qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
-                qm[qKey] = 0; localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
-              } catch { }
+              // When item is unchecked, optionally reset quantity based on setting
+              if (resetOnDeselect) {
+                try {
+                  const qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
+                  qm[qKey] = 1; localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
+                  txt.textContent = `(x1)`;
+                } catch { }
+              }
             } else {
               // When re-checked, if stored 0 bump to 1 and reflect
               try {
@@ -1623,9 +1631,9 @@
         }
         // Prevent checkbox click from toggling summary directly
         t.addEventListener('click', (ev) => { ev.stopPropagation(); });
-        t.addEventListener('change', () => {
+        t.addEventListener('change', (evt) => {
           const d2 = detailsBySection[section];
-          if (t.checked && d2 && d2.tagName && d2.tagName.toLowerCase() === 'details') {
+          if (t.checked && d2 && d2.tagName && d2.tagName.toLowerCase() === 'details' && (autoExpandOnSelect || (evt && evt.isTrusted))) {
             d2.open = true;
           }
           if (t.checked && d2) {
@@ -1638,10 +1646,12 @@
                 let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                 const cur = parseInt(qtySections[section] || '0', 10) || 0;
                 if (cur <= 0) {
-                  qtySections[section] = 1;
+                  const last = (!resetOnDeselect && t.dataset && t.dataset.lastQty) ? parseInt(t.dataset.lastQty, 10) || 1 : 1;
+                  qtySections[section] = Math.max(1, last);
                   localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections));
                   const sum = d2.querySelector('.menu-summary .qty-controls span');
-                  if (sum) sum.textContent = `(x1)`;
+                  if (sum) sum.textContent = `(x${qtySections[section]})`;
+                  if (t.dataset) delete t.dataset.lastQty;
                 }
               } catch { }
             }
@@ -1654,11 +1664,15 @@
             if (section === 'pizza' || section === 'burger') {
               try {
                 let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
-                qtySections[section] = 0;
+                const currentQty = parseInt(qtySections[section] || '0', 10) || 0;
+                if (!resetOnDeselect && t.dataset) {
+                  t.dataset.lastQty = String(Math.max(1, currentQty || 1));
+                }
+                qtySections[section] = resetOnDeselect ? 1 : 0;
                 localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections));
               } catch { }
               const sum = d2.querySelector('.menu-summary .qty-controls span');
-              if (sum) sum.textContent = `(x0)`;
+              if (sum) sum.textContent = `(x${resetOnDeselect ? 1 : 0})`;
             }
           }
           activeSections[section] = t.checked;
@@ -1683,6 +1697,14 @@
           const openDetailsIfChecked = () => {
             if (detailsParent && toggle.checked) detailsParent.open = true;
           };
+          // If the setting is off, let native summary behavior run but never toggle the checkbox
+          if (!titleSelects && !clickedCheckbox) {
+            return;
+          }
+          // When expand-only is on, summary clicks just expand/collapse
+          if (expandOnly && !clickedCheckbox) {
+            return;
+          }
           // Title click toggles only when setting enabled
           if (titleSelects && isTitleClick && !clickedCheckbox) {
             e.preventDefault();
@@ -1692,18 +1714,14 @@
             openDetailsIfChecked();
             return;
           }
-          // When expand-only is on, summary clicks just expand/collapse
-          if (expandOnly && !clickedCheckbox) {
-            return;
-          }
           // Let native <summary> clicks expand the <details> while still toggling the checkbox
-          if (usesNativeDetails && !clickedCheckbox) {
+          if (titleSelects && usesNativeDetails && !clickedCheckbox) {
             toggle.checked = !toggle.checked;
             toggle.dispatchEvent(new Event('change', { bubbles: true }));
             openDetailsIfChecked();
             return;
           }
-          if (!clickedCheckbox) {
+          if (titleSelects && !clickedCheckbox) {
             e.preventDefault();
             e.stopPropagation();
             toggle.checked = !toggle.checked;
@@ -1734,23 +1752,22 @@
         });
       });
       // Delegate clicks on ingredient labels to toggle their checkbox when enabled
-      if (labelSelects) {
-        document.addEventListener('click', (e) => {
-          const lbl = e.target.closest('label');
-          if (!lbl) return;
-          const cb = lbl.querySelector('input[type="checkbox"][name]');
-          if (!cb) return;
-          if (cb.disabled) return;
-          // Do NOT toggle required items (e.g., Patty, Bun, Tomato Sauce)
-          if (cb.dataset && cb.dataset.required === 'true') return;
-          // Ensure only non-checkbox clicks trigger the manual toggle
-          if (e.target !== cb) {
-            cb.checked = !cb.checked;
-            cb.dispatchEvent(new Event('change', { bubbles: true }));
-            e.preventDefault();
-          }
-        });
-      }
+      document.addEventListener('click', (e) => {
+        if (!labelSelects) return;
+        const lbl = e.target.closest('label');
+        if (!lbl) return;
+        const cb = lbl.querySelector('input[type="checkbox"][name]');
+        if (!cb) return;
+        if (cb.disabled) return;
+        // Do NOT toggle required items (e.g., Patty, Bun, Tomato Sauce)
+        if (cb.dataset && cb.dataset.required === 'true') return;
+        // Ensure only non-checkbox clicks trigger the manual toggle
+        if (e.target !== cb) {
+          cb.checked = !cb.checked;
+          cb.dispatchEvent(new Event('change', { bubbles: true }));
+          e.preventDefault();
+        }
+      });
 
       // Live update builder error on any relevant change
       const updateBuilderError = () => {
