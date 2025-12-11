@@ -707,6 +707,34 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     margin-top: 0;
 }
 
+/* Medium screens: tighten footer buttons */
+@media (max-width: 768px) {
+    body.page2 .page-actions {
+        left: 0;
+        right: 0;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 10px 12px;
+    }
+
+    body.nav-enabled.page2 .page-actions {
+        left: var(--rail-width);
+        right: 0;
+    }
+
+    body.page2 .reset-all,
+    body.page2 .next-button,
+    body.page2 .collapse-all,
+    body.page2 .collapse-footer {
+        padding: 8px 12px;
+        font-size: 15px;
+        line-height: 20px;
+        min-width: 0;
+        flex: 1 1 0;
+        white-space: normal;
+    }
+}
+
 /* Mobile tightening for builder page */
 @media (max-width: 540px) {
     body.page2 main {
@@ -751,27 +779,22 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         padding: 8px 10px;
     }
 
-    body.nav-enabled.page2 .page-actions {
-        left: var(--rail-width);
-        right: 0;
-    }
-
     /* Mobile: make footer buttons smaller */
     body.page2 .reset-all,
     body.page2 .next-button,
     body.page2 .collapse-all,
     body.page2 .collapse-footer {
-        padding: 8px 10px;
-        font-size: 14px;
-        line-height: 18px;
+        padding: 6px 8px;
+        font-size: 13px;
+        line-height: 16px;
         min-width: 0;
         flex: 1 1 0;
+        white-space: normal;
     }
-}
 
-@media (max-width: 900px) {
-    .page-actions {
-        padding: 10px 12px;
+    body.mobile-ui.page2 .page-actions .collapse-mobile {
+        min-width: 0;
+        max-width: none;
     }
 }
 
