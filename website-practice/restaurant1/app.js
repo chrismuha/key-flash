@@ -498,19 +498,19 @@
       titleSelects = v === null ? true : v === 'true';
     } catch { titleSelects = true; }
     if (settingTitleSelects) settingTitleSelects.checked = titleSelects;
-    // Reset-on-deselect: default OFF
-    let resetOnDeselect = false;
+    // Reset-on-deselect: default ON
+    let resetOnDeselect = true;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsResetOnDeselect);
-      resetOnDeselect = v === 'true';
-    } catch { resetOnDeselect = false; }
+      resetOnDeselect = v === null ? true : v === 'true';
+    } catch { resetOnDeselect = true; }
     if (settingResetOnDeselect) settingResetOnDeselect.checked = resetOnDeselect;
-    // Reset button disables item: default OFF
-    let resetDisables = false;
+    // Reset button disables item: default ON
+    let resetDisables = true;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsResetDisables);
-      resetDisables = v === 'true';
-    } catch { resetDisables = false; }
+      resetDisables = v === null ? true : v === 'true';
+    } catch { resetDisables = true; }
     if (settingResetDisables) settingResetDisables.checked = resetDisables;
     // Quantity dropdown placement: default BEFORE label (setting unchecked)
     let qtyRight = false;
@@ -519,12 +519,12 @@
       qtyRight = v === null ? false : v === 'true';
     } catch { qtyRight = false; }
     if (settingQtyRight) settingQtyRight.checked = qtyRight;
-    // Expand-only: default ON
-    let expandOnly = true;
+    // Expand-only: default OFF
+    let expandOnly = false;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsExpandOnly);
-      expandOnly = v === null ? true : v === 'true';
-    } catch { expandOnly = true; }
+      expandOnly = v === null ? false : v === 'true';
+    } catch { expandOnly = false; }
     if (settingExpandOnly) settingExpandOnly.checked = expandOnly;
     // Auto-expand sections when selecting ingredients: default ON
     let autoExpandOnSelect = true;
@@ -533,12 +533,12 @@
       autoExpandOnSelect = v === null ? true : v === 'true';
     } catch { autoExpandOnSelect = true; }
     if (settingAutoExpand) settingAutoExpand.checked = autoExpandOnSelect;
-    // Menu pills: default arrow-only expand
-    let pillArrowOnly = true;
+    // Menu pills: default allow full pill click (arrow-only OFF)
+    let pillArrowOnly = false;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsPillArrowOnly);
-      pillArrowOnly = v === null ? true : v === 'true';
-    } catch { pillArrowOnly = true; }
+      pillArrowOnly = v === null ? false : v === 'true';
+    } catch { pillArrowOnly = false; }
     if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
     const hasOverlay = !!settingsOverlay;
 
@@ -644,34 +644,34 @@
 
     if (settingsResetBtn) {
       settingsResetBtn.addEventListener('click', () => {
-        // Defaults: all ON
+        // Defaults per current design
         labelSelects = true;
         titleSelects = true;
-        expandOnly = true;
+        expandOnly = false;
         autoExpandOnSelect = true;
-        pillArrowOnly = true;
-        // Defaults: reset-related toggles OFF
-        resetOnDeselect = false;
-        resetDisables = false;
+        pillArrowOnly = false;
+        // Defaults: reset-related toggles ON
+        resetOnDeselect = true;
+        resetDisables = true;
         // Default: quantity dropdowns before the label
         qtyRight = false;
         try {
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsAutoExpand, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
-          localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
         } catch { }
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
-        if (settingExpandOnly) settingExpandOnly.checked = true;
+        if (settingExpandOnly) settingExpandOnly.checked = false;
         if (settingAutoExpand) settingAutoExpand.checked = true;
-        if (settingPillArrowOnly) settingPillArrowOnly.checked = true;
-        if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
-        if (settingResetDisables) settingResetDisables.checked = false;
+        if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
+        if (settingResetOnDeselect) settingResetOnDeselect.checked = true;
+        if (settingResetDisables) settingResetDisables.checked = true;
         if (settingQtyRight) settingQtyRight.checked = false;
       });
     }
