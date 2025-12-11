@@ -20,6 +20,7 @@
     settingsQtyRight: 'restaurant.settings.qtyRight',
     settingsExpandOnly: 'restaurant.settings.expandOnly',
     settingsAutoExpand: 'restaurant.settings.autoExpandOnSelect',
+    settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantities.sections'
   };
@@ -468,6 +469,7 @@
     const settingsResetBtn = document.querySelector('.settings-reset');
     const settingQtyRight = document.querySelector('.setting-qty-right');
     const settingAutoExpand = document.querySelector('.setting-auto-expand');
+    const settingPillArrowOnly = document.querySelector('.setting-pill-arrow-only');
     // Settings defaults: all ON by default
     let labelSelects = true;
     try {
@@ -516,6 +518,13 @@
       autoExpandOnSelect = v === null ? true : v === 'true';
     } catch { autoExpandOnSelect = true; }
     if (settingAutoExpand) settingAutoExpand.checked = autoExpandOnSelect;
+    // Menu pills: default arrow-only expand
+    let pillArrowOnly = true;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsPillArrowOnly);
+      pillArrowOnly = v === null ? true : v === 'true';
+    } catch { pillArrowOnly = true; }
+    if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
     const hasOverlay = !!settingsOverlay;
 
     const closeSettings = () => {
@@ -599,6 +608,12 @@
         try { localStorage.setItem(STORAGE_KEYS.settingsAutoExpand, String(autoExpandOnSelect)); } catch { }
       });
     }
+    if (settingPillArrowOnly) {
+      settingPillArrowOnly.addEventListener('change', () => {
+        pillArrowOnly = !!settingPillArrowOnly.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly)); } catch { }
+      });
+    }
     if (settingResetOnDeselect) {
       settingResetOnDeselect.addEventListener('change', () => {
         resetOnDeselect = !!settingResetOnDeselect.checked;
@@ -619,6 +634,7 @@
         titleSelects = true;
         expandOnly = true;
         autoExpandOnSelect = true;
+        pillArrowOnly = true;
         // Defaults: reset-related toggles OFF
         resetOnDeselect = false;
         resetDisables = false;
@@ -629,6 +645,7 @@
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsAutoExpand, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
@@ -637,6 +654,7 @@
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingExpandOnly) settingExpandOnly.checked = true;
         if (settingAutoExpand) settingAutoExpand.checked = true;
+        if (settingPillArrowOnly) settingPillArrowOnly.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
         if (settingResetDisables) settingResetDisables.checked = false;
         if (settingQtyRight) settingQtyRight.checked = false;
@@ -1274,11 +1292,35 @@
           btn.classList.toggle('menu-launch-active', isActive);
         });
       };
+      const ensureMenuLaunchArrow = (btn) => {
+        let arrow = btn.querySelector('.menu-launch-arrow');
+        if (!arrow) {
+          arrow = document.createElement('span');
+          arrow.className = 'menu-launch-arrow';
+          arrow.setAttribute('aria-hidden', 'true');
+          arrow.textContent = '▾';
+          btn.appendChild(arrow);
+        }
+        return arrow;
+      };
       menuLaunchButtons.forEach((btn) => {
-        btn.addEventListener('click', () => {
+        const arrow = ensureMenuLaunchArrow(btn);
+        const openTarget = () => {
           const target = btn.getAttribute('data-target');
           if (target) openOverlay(target);
+        };
+        btn.addEventListener('click', (e) => {
+          if (pillArrowOnly) {
+            if (!arrow || !(arrow === e.target || arrow.contains(e.target))) return;
+          }
+          openTarget();
         });
+        if (arrow) {
+          arrow.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openTarget();
+          });
+        }
       });
       overlays.forEach((overlay) => {
         overlay.addEventListener('click', (e) => {

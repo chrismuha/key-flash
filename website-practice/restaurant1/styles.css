@@ -1296,3 +1296,27 @@ body:not(.nav-enabled).settings-open::before {
 }
 
 /* --- END SETTINGS OVERLAY --- */
+
+/* Menu pill arrow control */
+.menu-launch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.menu-launch-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 6px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    font-size: 0.9em;
+    line-height: 1;
+    background: rgba(255, 255, 255, 0.75);
+}
+
+body.theme-dark .menu-launch-arrow {
+    background: rgba(0, 0, 0, 0.4);
+}
