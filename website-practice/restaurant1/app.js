@@ -2321,3 +2321,255 @@
     }
   });
 })();
+
+
+/* ===================================================================
+   App merged fixes: "pill arrow only" behavior for both
+   - .menu-launch[data-target] "pills"
+   - <summary class="menu-summary"> inside <details>
+   This file augments existing app.js behavior to ensure menus only
+   open when the arrow is activated if the global setting
+   `window.pillArrowOnly` (or a checkbox with class `.setting-pill-arrow-only`)
+   is enabled.
+   =================================================================== */
+
+(function () {
+  'use strict';
+
+  // Utility: determine whether the "pill arrow only" setting is enabled.
+  function isPillArrowOnlyEnabled() {
+    try {
+      if (typeof window.pillArrowOnly !== 'undefined') return !!window.pillArrowOnly;
+      const el = document.querySelector('.setting-pill-arrow-only');
+      if (el) return !!el.checked;
+    } catch (err) { /* ignore */ }
+    return false;
+  }
+
+  // Record the last user activation (useful for debugging and for safe checks)
+  window._lastActivation = window._lastActivation || null;
+  ['pointerdown', 'mousedown', 'touchstart', 'keydown'].forEach(ev =>
+    document.addEventListener(ev, function (e) {
+      try {
+        const t = e.target;
+        window._lastActivation = {
+          time: Date.now(),
+          eventType: ev,
+          tag: t && t.tagName,
+          id: t && t.id,
+          cls: t && (t.className || ''),
+          closestMenuLaunch: !!(t && t.closest && t.closest('.menu-launch[data-target]')),
+          closestSummary: !!(t && t.closest && t.closest('summary.menu-summary')),
+          closestArrow: !!(t && t.closest && (t.closest('.menu-launch-arrow') || t.closest('.menu-summary-arrow'))),
+          selector: (t && (t.id ? '#' + t.id : (t.className ? '.' + t.className.split(/\s+/).join('.') : t.tagName))) || null
+        };
+      } catch (err) { /* ignore */ }
+    }, true)
+  );
+
+  /* ----------------------
+     Guard: capture-phase event blocking for .menu-launch pills
+     Blocks pointerdown/clicks inside .menu-launch[data-target] unless the arrow
+     or an interactive control was the activation target.
+     ---------------------- */
+  (function installPillLaunchGuard() {
+    const interactiveSelector = 'input, select, textarea, button, a[href], label, [contenteditable="true"]';
+
+    function shouldBlockForPill(e) {
+      if (!isPillArrowOnlyEnabled()) return false;
+      const el = e.target;
+      if (!el || !el.closest) return false;
+      const pill = el.closest('.menu-launch[data-target]');
+      if (!pill) return false;
+      // allow interactive controls inside the pill
+      if (el.closest(interactiveSelector)) return false;
+      // allow arrow
+      if (el.closest('.menu-launch-arrow')) return false;
+      return true;
+    }
+
+    ['pointerdown', 'mousedown', 'touchstart'].forEach((evtName) => {
+      document.addEventListener(evtName, (e) => {
+        try {
+          if (shouldBlockForPill(e)) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+          }
+        } catch (err) { console.error('pillLaunchGuard error', err); }
+      }, true);
+    });
+
+    document.addEventListener('click', (e) => {
+      try {
+        if (shouldBlockForPill(e)) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        }
+      } catch (err) { console.error('pillLaunchGuard click error', err); }
+    }, true);
+  })();
+
+
+  /* ----------------------
+     Summary-based UI support: for <summary class="menu-summary"> markup
+     Adds an explicit arrow button (re-using .menu-launch-arrow CSS) and
+     blocks native toggling on non-arrow clicks when pill-arrow-only is enabled.
+     ---------------------- */
+  (function installSummaryAugmentation() {
+    function ensureArrowForSummary(summary) {
+      // If an arrow already exists, return it
+      let arrow = summary.querySelector('.menu-summary-arrow, .menu-launch-arrow');
+      if (arrow) return arrow;
+
+      // Create a button arrow and append it to summary
+      arrow = document.createElement('button');
+      arrow.type = 'button';
+      arrow.className = 'menu-launch-arrow menu-summary-arrow';
+      arrow.setAttribute('aria-hidden', 'true');
+      arrow.setAttribute('tabindex', '-1');
+      // Use a small triangle glyph as a fallback; stylesheet may override content.
+      arrow.textContent = '▾';
+      // clicking the arrow toggles the details element
+      arrow.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        try {
+          const details = summary.closest('details');
+          if (details) {
+            details.open = !details.open;
+            // fire a synthetic toggle event in case the app listens
+            const toggleEv = new Event('toggle', { bubbles: true });
+            details.dispatchEvent(toggleEv);
+          }
+        } catch (err) { /* ignore */ }
+      });
+
+      // append arrow at the end of the summary
+      summary.appendChild(arrow);
+      return arrow;
+    }
+
+    function applyToAllSummaries() {
+      const summaries = Array.from(document.querySelectorAll('summary.menu-summary'));
+      summaries.forEach((summary) => {
+        const arrow = ensureArrowForSummary(summary);
+
+        // Remove existing handlers if re-applying
+        if (summary._pillHandler) {
+          summary.removeEventListener('click', summary._pillHandler, true);
+          ['pointerdown', 'mousedown', 'touchstart'].forEach(ev => {
+            summary.removeEventListener(ev, summary._pillPointerHandler, true);
+          });
+        }
+
+        // Handler: click phase (capture) - block unless arrow or interactive control
+        summary._pillHandler = function (e) {
+          if (!isPillArrowOnlyEnabled()) return;
+          const el = e.target;
+          if (!el) return;
+          // allow if click was on arrow or on interactive controls inside summary
+          const interactive = el.closest('input, select, textarea, button, a[href], label, [contenteditable="true"]');
+          const arrowHit = el.closest('.menu-summary-arrow') || el.closest('.menu-launch-arrow') || el === arrow;
+          if (!arrowHit && !interactive) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+          }
+        };
+
+        // Handler: pointer/touch start to preempt native toggling on some browsers
+        summary._pillPointerHandler = function (e) {
+          if (!isPillArrowOnlyEnabled()) return;
+          const el = e.target;
+          if (!el) return;
+          const interactive = el.closest('input, select, textarea, button, a[href], label, [contenteditable="true"]');
+          const arrowHit = el.closest('.menu-summary-arrow') || el.closest('.menu-launch-arrow') || el === arrow;
+          if (!arrowHit && !interactive) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+          }
+        };
+
+        summary.addEventListener('click', summary._pillHandler, true);
+        ['pointerdown', 'mousedown', 'touchstart'].forEach(ev => {
+          summary.addEventListener(ev, summary._pillPointerHandler, true);
+        });
+      });
+    }
+
+    // Apply initially and reapply on DOM mutations (in case summaries are added later)
+    document.addEventListener('DOMContentLoaded', applyToAllSummaries);
+    // Also apply immediately if DOMContentLoaded already fired
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+      applyToAllSummaries();
+    }
+
+    // Re-apply when the pill setting changes (if there's a checkbox for it)
+    const pillCheckbox = document.querySelector('.setting-pill-arrow-only');
+    if (pillCheckbox) {
+      pillCheckbox.addEventListener('change', applyToAllSummaries);
+    }
+
+    // observe additions of new summary elements and ensure they get arrows/handlers
+    const observer = new MutationObserver((mutations) => {
+      let found = false;
+      for (const m of mutations) {
+        for (const n of Array.from(m.addedNodes || [])) {
+          if (n && n.querySelectorAll) {
+            if (n.querySelectorAll('summary.menu-summary').length > 0) found = true;
+            if (n.matches && n.matches('summary.menu-summary')) found = true;
+          }
+        }
+      }
+      if (found) applyToAllSummaries();
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  })();
+
+
+  /* ----------------------
+     Extra defensive patch: if the app exposes an `openOverlay` function which
+     opens menus by target name, patch it so it respects pillArrowOnly setting.
+     This prevents other code paths from opening pills unless arrow activated.
+     ---------------------- */
+  (function patchOpenOverlayIfPresent() {
+    try {
+      if (typeof window.openOverlay === 'function') {
+        const original = window.openOverlay;
+        window.openOverlay = function (targetName, ...rest) {
+          try {
+            // If targetName is a selector or id for a menu-launch or details,
+            // verify last activation occurred on an arrow when pillArrowOnly is enabled.
+            if (isPillArrowOnlyEnabled()) {
+              const last = window._lastActivation || null;
+              // If last activation wasn't on an arrow, find element and block open.
+              if (last && !last.closestArrow) {
+                // Attempt additional DOM check: if last activation element is inside summary/pill but not on arrow, block.
+                if (last.closestMenuLaunch || last.closestSummary) {
+                  console.debug('openOverlay blocked due to pillArrowOnly and last activation not on arrow', last);
+                  return; // don't open
+                }
+              }
+            }
+          } catch (err) { /* ignore */ }
+          return original.apply(this, [targetName, ...rest]);
+        };
+      }
+    } catch (err) { console.error('patchOpenOverlayIfPresent error', err); }
+  })();
+
+
+  /* ----------------------
+     Public helper: flip pillArrowOnly global and re-run summary handlers.
+     Useful for programmatic toggling.
+     ---------------------- */
+  window.setPillArrowOnly = function (enabled) {
+    try {
+      window.pillArrowOnly = !!enabled;
+      const ev = new Event('pillArrowOnlyChanged');
+      document.dispatchEvent(ev);
+    } catch (err) { /* ignore */ }
+  };
+
+})(); // end merged fixes IIFE
+
+/* End of merged fixes */
+
