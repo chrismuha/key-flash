@@ -1513,9 +1513,27 @@
           const active = sectionToggle ? sectionToggle.checked : true;
           wrap.style.display = active ? 'inline-flex' : 'none';
         };
+        const getStoredQty = () => {
+          let stored = 0;
+          try {
+            const qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
+            stored = parseInt(qs[sec] || '0', 10) || 0;
+          } catch { stored = parseInt(qtySections[sec] || '0', 10) || 0; }
+          // fall back to visible label if storage is stale
+          if (!stored) {
+            const labelNum = parseInt((label.textContent || '').replace(/\D+/g, ''), 10);
+            if (!Number.isNaN(labelNum)) stored = labelNum;
+          }
+          return Math.max(0, Math.min(12, stored));
+        };
         const update = (next) => {
           current = Math.max(0, Math.min(12, (next | 0)));
           qtySections[sec] = current; saveQtySections();
+          try {
+            const qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
+            qs[sec] = current;
+            localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qs));
+          } catch { }
           label.textContent = `(x${current})`;
           // If quantity reaches 0, deselect the section checkbox to make the item inactive
           if (current === 0) {
@@ -1534,8 +1552,16 @@
           }
           if (sec === 'burger') updateBurgerTomatoLabel();
         };
-        dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current - 1); });
-        inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current + 1); });
+        dec.addEventListener('click', (e) => {
+          e.preventDefault(); e.stopPropagation();
+          current = getStoredQty();
+          update(current - 1);
+        });
+        inc.addEventListener('click', (e) => {
+          e.preventDefault(); e.stopPropagation();
+          current = getStoredQty();
+          update(current + 1);
+        });
         wrap.appendChild(label); wrap.appendChild(dec); wrap.appendChild(inc);
         summary.appendChild(wrap);
         setQtyVisible();
@@ -1564,6 +1590,12 @@
         txt.style.marginRight = '4px';
         const dec = document.createElement('button'); dec.type = 'button'; dec.textContent = '−'; dec.style.marginRight = '2px'; dec.classList.add('pointer');
         const inc = document.createElement('button'); inc.type = 'button'; inc.textContent = '+'; inc.classList.add('pointer');
+        const syncCurrent = () => {
+          try {
+            const qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
+            current = Math.max(1, Math.min(12, parseInt(qm[qKey] || txt.textContent.replace(/\D+/g, '') || '1', 10) || 1));
+          } catch { current = Math.max(1, current || 1); }
+        };
         const update = (next) => {
           current = Math.max(1, Math.min(12, (next | 0)));
           qtyMap[qKey] = current; saveQtyMap();
@@ -1582,8 +1614,8 @@
             }
           }
         };
-        dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current - 1); });
-        inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current + 1); });
+        dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); syncCurrent(); update(current - 1); });
+        inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); syncCurrent(); update(current + 1); });
         wrap.appendChild(txt); wrap.appendChild(dec); wrap.appendChild(inc);
         // Show controls only when checked
         const setVisible = () => { wrap.style.display = cb.checked ? 'inline-flex' : 'none'; };
@@ -1594,6 +1626,7 @@
               // If item is not selected, its quantity resets to default
               qtyMap[qKey] = 1; saveQtyMap();
               txt.textContent = `(x1)`;
+              current = 1;
             }
           } else {
             // When re-checked, if stored 0 bump back to 1 (do not show 0 when rechecked)
@@ -1601,6 +1634,7 @@
             if (prev === 0) {
               qtyMap[qKey] = 1; saveQtyMap();
               txt.textContent = `(x1)`;
+              current = 1;
             }
           }
           setVisible();
@@ -1636,10 +1670,16 @@
           dec.addEventListener(evt, () => { if (savedTitle !== null) { restoreTitle(savedTitle); savedTitle = null; } });
           inc.addEventListener(evt, () => { if (savedTitle !== null) { restoreTitle(savedTitle); savedTitle = null; } });
         });
+        const syncPatty = () => {
+          try {
+            const qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
+            current = Math.max(1, Math.min(3, parseInt(qm[qKey] || txt.textContent.replace(/\D+/g, '') || '1', 10) || 1));
+          } catch { current = Math.max(1, current || 1); }
+        };
         const savePatty = () => { qtyMap[qKey] = current; try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { } };
         const update = (next) => { current = Math.max(1, Math.min(3, (next | 0))); txt.textContent = `(x${current})`; savePatty(); };
-        dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current - 1); });
-        inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current + 1); });
+        dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); syncPatty(); update(current - 1); });
+        inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); syncPatty(); update(current + 1); });
         wrap.appendChild(txt); wrap.appendChild(dec); wrap.appendChild(inc);
         const setVisible = () => { wrap.style.display = cb.checked ? 'inline-flex' : 'none'; };
         setVisible();
@@ -1672,9 +1712,15 @@
               qm[qKey] = current; localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
             } catch { }
           };
+          const syncCurrent = () => {
+            try {
+              const qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
+              current = Math.max(1, Math.min(12, parseInt(qm[qKey] || txt.textContent.replace(/\D+/g, '') || '1', 10) || 1));
+            } catch { current = Math.max(1, current || 1); }
+          };
           const update = (next) => { current = Math.max(1, Math.min(12, (next | 0))); txt.textContent = `(x${current})`; save(); };
-          dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current - 1); });
-          inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); update(current + 1); });
+          dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); syncCurrent(); update(current - 1); });
+          inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); syncCurrent(); update(current + 1); });
           wrap.appendChild(txt); wrap.appendChild(dec); wrap.appendChild(inc);
           const setVisible = () => { wrap.style.display = cb.checked ? 'inline-flex' : 'none'; };
           setVisible();
@@ -1686,6 +1732,7 @@
                   const qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
                   qm[qKey] = 1; localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
                   txt.textContent = `(x1)`;
+                  current = 1;
                 } catch { }
               }
             } else {
