@@ -468,6 +468,11 @@ body.theme-dark.mobile-ui .theme-option+.theme-option {
     display: none;
 }
 
+/* Hide header Collapse All; use footer version instead */
+.theme-dropdown .collapse-all {
+    display: none !important;
+}
+
 body.theme-dark .collapse,
 body.theme-dark .go-back {
     border-color: #fff;
@@ -1359,10 +1364,6 @@ body.nav-enabled .left-rail .box {
 }
 
 @media (max-width: 900px) {
-    /* Hide header collapse on compact view and show footer copy */
-    .theme-dropdown .collapse-all {
-        display: none !important;
-    }
     .page-actions .collapse-footer {
         display: inline-flex;
         justify-content: center;
