@@ -528,18 +528,19 @@
     const hasOverlay = !!settingsOverlay;
 
     const closeSettings = () => {
-      if (hasOverlay && settingsOverlay) {
+      if (!settingsBtn) return;
+      if (hasOverlay) {
         settingsOverlay.hidden = true;
         settingsOverlay.style.display = 'none';
         settingsOverlay.setAttribute('aria-hidden', 'true');
-      }
-      if (!hasOverlay && settingsPanel) {
+        body.classList.remove('settings-open');
+      } else if (settingsPanel) {
         settingsPanel.hidden = true;
         settingsPanel.style.display = 'none';
         settingsPanel.setAttribute('aria-hidden', 'true');
+        body.classList.remove('settings-open');
       }
-      body.classList.remove('settings-open');
-      if (settingsBtn) settingsBtn.setAttribute('aria-expanded', 'false');
+      settingsBtn.setAttribute('aria-expanded', 'false');
     };
     const openSettings = () => {
       if (!settingsBtn) return;
