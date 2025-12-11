@@ -1234,6 +1234,7 @@ body.menu-overlay-open {
     align-items: center;
     justify-content: center;
     text-align: center;
+    gap: 8px;
 }
 
 .menu-actions .menu-launch.menu-launch-active {
@@ -1258,6 +1259,26 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
 .menu-actions .menu-launch.menu-launch-active:focus-visible {
     background: #e4fff0;
     outline-color: #18833d;
+}
+
+.menu-launch-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    font-size: 14px;
+    line-height: 1;
+    background: #fff;
+}
+
+body.theme-dark .menu-launch-arrow {
+    background: #111;
+    color: #fff;
 }
 
 .menu-overlay {

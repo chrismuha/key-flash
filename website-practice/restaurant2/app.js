@@ -17,7 +17,8 @@
     settingsTitleSelects: 'restaurant.settings.titleSelects',
     settingsResetOnDeselect: 'restaurant.settings.resetOnDeselect',
     settingsResetDisables: 'restaurant.settings.resetDisables',
-    settingsQtyRight: 'restaurant.settings.qtyRight'
+    settingsQtyRight: 'restaurant.settings.qtyRight',
+    settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly'
   };
 
   // Section: Utility helpers
@@ -87,17 +88,18 @@
     const orderTypeChips = Array.from(document.querySelectorAll('.order-type-chip'));
 
     const settingsOverlay = document.getElementById('settings-overlay');
-    const settingsBtn = document.getElementById('settings-btn');
-    const settingsCloseBtn = document.getElementById('settings-close');
-    const settingLabelSelects = document.getElementById('setting-label-selects');
-    const settingTitleSelects = document.getElementById('setting-title-selects');
-    const settingResetOnDeselect = document.getElementById('setting-reset-on-deselect');
-    const settingResetDisables = document.getElementById('setting-reset-disables');
-    const settingQtyRight = document.getElementById('setting-qty-right');
-    const settingsResetBtn = document.getElementById('settings-reset');
+    const settingsBtn = document.getElementById('settings-btn') || document.querySelector('.settings-button');
+    const settingsCloseBtn = document.getElementById('settings-close') || document.querySelector('.settings-close');
+    const settingLabelSelects = document.getElementById('setting-label-selects') || document.querySelector('.setting-label-selects');
+    const settingTitleSelects = document.getElementById('setting-title-selects') || document.querySelector('.setting-title-selects');
+    const settingResetOnDeselect = document.getElementById('setting-reset-on-deselect') || document.querySelector('.setting-reset-on-deselect');
+    const settingResetDisables = document.getElementById('setting-reset-disables') || document.querySelector('.setting-reset-disables');
+    const settingQtyRight = document.getElementById('setting-qty-right') || document.querySelector('.setting-qty-right');
+    const settingPillArrowOnly = document.getElementById('setting-pill-arrow-only') || document.querySelector('.setting-pill-arrow-only');
+    const settingsResetBtn = document.getElementById('settings-reset') || document.querySelector('.settings-reset');
 
-    const navToggleBtn = document.getElementById('nav-toggle-btn');
-    const themeModeBtns = Array.from(document.querySelectorAll('.theme-mode-btn'));
+    const navToggleBtn = document.getElementById('nav-toggle-btn') || document.querySelector('.nav-toggle');
+    const themeModeBtns = Array.from(document.querySelectorAll('.theme-mode-btn, .theme-mode-toggle'));
 
     const updateNavOffset = () => {
       const nav = document.querySelector('.left-rail');
@@ -245,6 +247,14 @@
     } catch { qtyRight = false; }
     if (settingQtyRight) settingQtyRight.checked = qtyRight;
 
+    // Menu pills: default arrow-only expand/collapse
+    let pillArrowOnly = true;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsPillArrowOnly);
+      pillArrowOnly = v === null ? true : v === 'true';
+    } catch { pillArrowOnly = true; }
+    if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
+
     // Ensure the settings overlay has a deterministic initial hidden state.
     // If you want the settings to persist open between reloads, implement a storage key.
     if (settingsOverlay) {
@@ -279,18 +289,22 @@
         resetDisables = false;
         // Default: quantity dropdowns before the label
         qtyRight = false;
+        // Default: menu pills open/close via arrow only
+        pillArrowOnly = true;
         try {
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'true');
         } catch { }
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
         if (settingResetDisables) settingResetDisables.checked = false;
         if (settingQtyRight) settingQtyRight.checked = false;
+        if (settingPillArrowOnly) settingPillArrowOnly.checked = true;
       });
     }
 
@@ -305,6 +319,21 @@
       updateThemeModeLabel();
       updateNavToggleLabel();
     };
+
+    // Delegate clicks on ingredient labels to toggle their checkbox when enabled.
+    document.addEventListener('click', (e) => {
+      if (!labelSelects) return;
+      const lbl = e.target.closest && e.target.closest('label');
+      if (!lbl) return;
+      const cb = lbl.querySelector('input[type="checkbox"][name]');
+      if (!cb || cb.disabled) return;
+      if (cb.dataset && cb.dataset.required === 'true') return;
+      if (e.target !== cb) {
+        cb.checked = !cb.checked;
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+        e.preventDefault();
+      }
+    });
 
     // Example: order flow specific initialization
     if (body.classList.contains('order-type')) {
@@ -365,31 +394,6 @@
         });
       });
 
-      // Delegate clicks on ingredient labels to toggle their checkbox when enabled.
-      // Always attach handler, but respect the current labelSelects setting at click time
-      // so toggling the setting takes effect immediately.
-      document.addEventListener('click', (e) => {
-        // If label-based toggling is currently disabled, noop.
-        if (!labelSelects) return;
-
-        const lbl = e.target.closest('label');
-        if (!lbl) return;
-
-        const cb = lbl.querySelector('input[type="checkbox"][name]');
-        if (!cb) return;
-        if (cb.disabled) return;
-
-        // Do NOT toggle required items (e.g., Patty, Bun, Tomato Sauce)
-        if (cb.dataset && cb.dataset.required === 'true') return;
-
-        // Ensure only non-checkbox clicks trigger the manual toggle
-        if (e.target !== cb) {
-          cb.checked = !cb.checked;
-          cb.dispatchEvent(new Event('change', { bubbles: true }));
-          e.preventDefault();
-        }
-      });
-
       // Live update builder error on any relevant change
       const updateBuilderError = () => {
         const err = document.getElementById('builder-error');
@@ -438,6 +442,203 @@
       updateBuilderError();
     }
 
+    // Page 2: menu overlays + pills
+    if (body.classList.contains('page2')) {
+      const overlays = Array.from(document.querySelectorAll('.menu-overlay[data-section]'));
+      const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
+      const sectionToggles = Array.from(document.querySelectorAll('.section-toggle[data-section]'));
+      const ingredientCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][name]'));
+      const builderError = document.getElementById('builder-error');
+
+      // Restore active sections from storage
+      const savedSections = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {});
+      sectionToggles.forEach((toggle) => {
+        const sec = toggle.dataset.section;
+        if (sec && savedSections[sec]) toggle.checked = true;
+      });
+
+      // Restore saved ingredient selections
+      updateIngredientInputsFromData(loadIngredientsFromStorage());
+
+      // Build lookup for pills by section
+      const menuLaunchLookup = {};
+      menuLaunchButtons.forEach((btn) => {
+        const target = btn.dataset.target;
+        if (!target) return;
+        menuLaunchLookup[target] = menuLaunchLookup[target] || [];
+        menuLaunchLookup[target].push(btn);
+        btn.setAttribute('aria-expanded', 'false');
+      });
+
+      const updateArrowState = (section, isOpen) => {
+        const btns = menuLaunchLookup[section] || [];
+        btns.forEach((btn) => {
+          const arrow = btn.querySelector('.menu-launch-arrow');
+          if (arrow) arrow.textContent = isOpen ? '▴' : '▸';
+          btn.setAttribute('aria-expanded', String(!!isOpen));
+        });
+      };
+
+      const ensureMenuLaunchArrow = (btn) => {
+        let arrow = btn.querySelector('.menu-launch-arrow');
+        if (!arrow) {
+          arrow = document.createElement('span');
+          arrow.className = 'menu-launch-arrow';
+          arrow.setAttribute('aria-hidden', 'true');
+          arrow.textContent = '▸';
+          btn.appendChild(arrow);
+        }
+        return arrow;
+      };
+
+      const anyOverlayOpen = () => overlays.some((o) => !o.hidden);
+      const getOverlay = (section) => overlays.find((o) => o.dataset.section === section) || null;
+
+      const closeAllOverlays = () => {
+        overlays.forEach((o) => {
+          o.hidden = true;
+          o.setAttribute('aria-hidden', 'true');
+          updateArrowState(o.dataset.section, false);
+        });
+        body.classList.remove('menu-overlay-open');
+      };
+
+      const closeOverlay = (overlayOrSection) => {
+        const overlay = typeof overlayOrSection === 'string' ? getOverlay(overlayOrSection) : overlayOrSection;
+        if (!overlay) return;
+        overlay.hidden = true;
+        overlay.setAttribute('aria-hidden', 'true');
+        updateArrowState(overlay.dataset.section, false);
+        if (!anyOverlayOpen()) body.classList.remove('menu-overlay-open');
+      };
+
+      const openOverlay = (section) => {
+        const overlay = getOverlay(section);
+        if (!overlay) return;
+        closeAllOverlays();
+        overlay.hidden = false;
+        overlay.setAttribute('aria-hidden', 'false');
+        updateArrowState(section, true);
+        body.classList.add('menu-overlay-open');
+        const focusable = overlay.querySelector('input, button, select, [tabindex]:not([tabindex="-1"])');
+        if (focusable && focusable.focus) focusable.focus({ preventScroll: true });
+      };
+
+      const toggleOverlay = (section) => {
+        const overlay = getOverlay(section);
+        if (!overlay) return;
+        if (overlay.hidden) openOverlay(section);
+        else closeOverlay(overlay);
+      };
+
+      const persistActiveSections = () => {
+        const active = {};
+        sectionToggles.forEach((t) => {
+          const sec = t.dataset.section;
+          const isActive = !!t.checked;
+          if (sec) active[sec] = isActive;
+          if (sec && menuLaunchLookup[sec]) {
+            menuLaunchLookup[sec].forEach((btn) => btn.classList.toggle('menu-launch-active', isActive));
+          }
+        });
+        try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(active)); } catch { }
+      };
+
+      const updateBuilderError = () => {
+        if (!builderError) return;
+        const anyActive = sectionToggles.some((t) => t.checked);
+        if (!anyActive) {
+          builderError.hidden = false;
+          builderError.textContent = 'Please choose at least one section from the menu';
+          return;
+        }
+        const saucesToggle = sectionToggles.find((t) => t.dataset.section === 'sauces');
+        if (saucesToggle && saucesToggle.checked) {
+          const ing = loadIngredientsFromStorage();
+          const sauces = Array.isArray(ing['sauces_ingredients[]']) ? ing['sauces_ingredients[]'] : [];
+          if (!sauces.length) {
+            builderError.hidden = false;
+            builderError.textContent = 'Please select at least one sauce';
+            return;
+          }
+        }
+        builderError.hidden = true;
+        builderError.textContent = '';
+      };
+
+      // Attach pill/arrow handlers
+      menuLaunchButtons.forEach((btn) => {
+        const target = btn.dataset.target;
+        if (!target) return;
+        const arrow = ensureMenuLaunchArrow(btn);
+        const isArrowTarget = (el) => arrow && (el === arrow || arrow.contains(el));
+        const guardNonArrow = (evt) => {
+          if (!pillArrowOnly) return false;
+          if (isArrowTarget(evt.target)) return false;
+          evt.preventDefault();
+          evt.stopImmediatePropagation();
+          return true;
+        };
+        ['pointerdown', 'mousedown', 'touchstart'].forEach((evtName) => {
+          btn.addEventListener(evtName, (evt) => { guardNonArrow(evt); }, true);
+        });
+        btn.addEventListener('click', (evt) => {
+          if (guardNonArrow(evt)) return;
+          toggleOverlay(target);
+        });
+        if (arrow) {
+          arrow.addEventListener('click', (evt) => {
+            evt.stopPropagation();
+            toggleOverlay(target);
+          });
+        }
+      });
+
+      overlays.forEach((overlay) => {
+        overlay.setAttribute('aria-hidden', overlay.hidden ? 'true' : 'false');
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) closeOverlay(overlay);
+        });
+        const closeBtn = overlay.querySelector('.close-overlay');
+        if (closeBtn) closeBtn.addEventListener('click', () => closeOverlay(overlay));
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeAllOverlays();
+        }
+      });
+
+      // Persist ingredient selections
+      ingredientCheckboxes.forEach((cb) => {
+        cb.addEventListener('change', () => {
+          const data = {};
+          document.querySelectorAll('input[type="checkbox"][name]').forEach((i) => {
+            const nm = i.getAttribute('name');
+            data[nm] = data[nm] || [];
+            if (i.checked) data[nm].push(i.value);
+          });
+          saveIngredientsToStorage(data);
+          updateBuilderError();
+          updatePage3NavState();
+        });
+      });
+
+      // Persist active section toggles
+      sectionToggles.forEach((t) => {
+        t.addEventListener('change', () => {
+          persistActiveSections();
+          updateBuilderError();
+          updatePage3NavState();
+        });
+      });
+
+      // Initial sync
+      persistActiveSections();
+      updateBuilderError();
+      updatePage3NavState();
+    }
+
     // Settings change listeners
     if (settingLabelSelects) {
       settingLabelSelects.addEventListener('change', () => {
@@ -467,6 +668,12 @@
       settingQtyRight.addEventListener('change', () => {
         qtyRight = !!settingQtyRight.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsQtyRight, String(qtyRight)); } catch { }
+      });
+    }
+    if (settingPillArrowOnly) {
+      settingPillArrowOnly.addEventListener('change', () => {
+        pillArrowOnly = !!settingPillArrowOnly.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly)); } catch { }
       });
     }
 
