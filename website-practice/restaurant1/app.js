@@ -1300,6 +1300,10 @@
           arrow.setAttribute('aria-hidden', 'true');
           btn.appendChild(arrow);
         }
+        // Provide a visible triangle if markup/CSS hasn't injected one
+        if (!arrow.textContent || !arrow.textContent.trim()) {
+          arrow.textContent = '\u25B8';
+        }
         return arrow;
       };
       menuLaunchButtons.forEach((btn) => {
@@ -2426,6 +2430,9 @@
       arrow.className = 'menu-launch-arrow menu-summary-arrow';
       arrow.setAttribute('aria-hidden', 'true');
       arrow.setAttribute('tabindex', '-1');
+      if (!arrow.textContent || !arrow.textContent.trim()) {
+        arrow.textContent = '\u25B8';
+      }
       // Use a small triangle glyph as a fallback; stylesheet may override content.
       // clicking the arrow toggles the details element
       arrow.addEventListener('click', function (ev) {
@@ -2593,11 +2600,11 @@
     return false;
   }
 
-  function initSummaryHandlers() {
-    const summaries = Array.from(document.querySelectorAll('summary.menu-summary'));
+    function initSummaryHandlers() {
+      const summaries = Array.from(document.querySelectorAll('summary.menu-summary'));
 
-    summaries.forEach((summary) => {
-      // Remove previously injected arrow nodes we created earlier, but do not remove arrows
+      summaries.forEach((summary) => {
+        // Remove previously injected arrow nodes we created earlier, but do not remove arrows
       // that were present before (we try to only remove arrows whose textContent was the fallback glyph).
       const injected = Array.from(summary.querySelectorAll('.menu-summary-arrow, .menu-launch-arrow')).filter(el => {
         // If the element has no CSS classes beyond these or has our fallback glyph, treat as injected.
@@ -2637,6 +2644,15 @@
         return e.clientX >= (rect.right - threshold);
       }
 
+      // Helper: allow clicking the left-side triangle marker to count as an arrow hit
+      function isInLeftHitArea(e, summaryEl) {
+        if (!e || !summaryEl || !summaryEl.getBoundingClientRect) return false;
+        if (typeof e.clientX !== 'number') return false;
+        const rect = summaryEl.getBoundingClientRect();
+        const threshold = 32;
+        return e.clientX <= (rect.left + threshold);
+      }
+
       // Click phase handler (capture)
       summary._pillHandlerV2 = function (e) {
         if (!isPillArrowOnlyEnabled()) return;
@@ -2646,7 +2662,7 @@
         const arrowHit = !!(el.closest && (el.closest('.menu-summary-arrow') || el.closest('.menu-launch-arrow')));
         if (!arrowHit) {
           // if using hit area, check coordinates
-          if (useHitArea && isInRightHitArea(e, summary)) {
+          if ((useHitArea && isInRightHitArea(e, summary)) || isInLeftHitArea(e, summary)) {
             return; // allow
           }
           // otherwise block toggling
@@ -2663,7 +2679,7 @@
         if (isInteractive(el)) return;
         const arrowHit = !!(el.closest && (el.closest('.menu-summary-arrow') || el.closest('.menu-launch-arrow')));
         if (!arrowHit) {
-          if (useHitArea && isInRightHitArea(e, summary)) {
+          if ((useHitArea && isInRightHitArea(e, summary)) || isInLeftHitArea(e, summary)) {
             return;
           }
           e.preventDefault();

@@ -1315,6 +1315,16 @@ body:not(.nav-enabled).settings-open::before {
     font-size: 0.9em;
     line-height: 1;
     background: rgba(255, 255, 255, 0.75);
+    min-width: 24px;
+    transition: transform 0.2s ease;
+}
+
+.menu-summary-arrow {
+    margin-left: auto;
+}
+
+details[open]>summary .menu-summary-arrow {
+    transform: rotate(90deg);
 }
 
 body.theme-dark .menu-launch-arrow {

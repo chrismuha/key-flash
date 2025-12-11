@@ -34,6 +34,8 @@
   // Section: Persisted settings variables (defaults set further down)
   let labelSelects = true;
   let titleSelects = true;
+  // Track which theme family is active; default to restaurant styling
+  let currentThemeChoice = 'restaurant';
 
   // Section: Data helpers
   function saveIngredientsToStorage(data) {
@@ -178,6 +180,12 @@
       } catch { navInitialEnabled = false; }
     }
 
+    const setNavEnabled = (enabled) => {
+      body.classList.toggle('nav-enabled', !!enabled);
+      try { localStorage.setItem(STORAGE_KEYS.navEnabled, String(!!enabled)); } catch { }
+      updateNavToggleLabel();
+    };
+
     const updateThemeModeLabel = () => {
       if (!themeModeBtns.length) return;
       const isDark = body.classList.contains('theme-dark');
@@ -208,6 +216,19 @@
       const isBoxify = currentThemeChoice === 'boxify';
       body.classList.toggle('theme-boxify', isBoxify);
       docEl.classList.toggle('theme-boxify-root', isBoxify);
+      if (!skipSave) persistThemeState();
+    };
+
+    const restoreThemeFromStorage = () => {
+      let saved = 'restaurant-light';
+      try {
+        saved = localStorage.getItem(STORAGE_KEYS.theme) || saved;
+      } catch { /* ignore */ }
+      const isBoxify = String(saved || '').startsWith('boxify');
+      const isDark = String(saved || '').includes('dark');
+      applyThemeChoice(isBoxify ? 'boxify' : 'restaurant', { skipSave: true });
+      body.classList.toggle('theme-dark', isDark);
+      updateThemeModeLabel();
     };
 
     // Load settings from storage
@@ -265,6 +286,10 @@
       body.classList.remove('settings-open');
       if (settingsBtn) settingsBtn.setAttribute('aria-expanded', 'false');
     }
+
+    // Apply initial nav and theme state from storage
+    setNavEnabled(navInitialEnabled);
+    restoreThemeFromStorage();
 
     const closeSettings = () => {
       if (!settingsOverlay) return;
@@ -690,6 +715,20 @@
         if (!settingsOverlay) return;
         if (settingsOverlay.hidden) openSettings();
         else closeSettings();
+      });
+    }
+    if (navToggleBtn) {
+      navToggleBtn.addEventListener('click', () => {
+        setNavEnabled(!body.classList.contains('nav-enabled'));
+      });
+    }
+    if (themeModeBtns.length) {
+      themeModeBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          body.classList.toggle('theme-dark');
+          persistThemeState();
+          updateThemeModeLabel();
+        });
       });
     }
     if (settingsCloseBtn) {
