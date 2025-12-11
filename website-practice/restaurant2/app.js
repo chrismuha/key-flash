@@ -1048,6 +1048,8 @@
       const bun = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="bun"]');
       const subBreadCb = document.getElementById('sub-bread-checkbox');
       const subBreadSelect = document.getElementById('sub-bread-select');
+      const subBreadChoice = document.querySelector('.sub-bread-choice');
+      const breadTxt = subBreadChoice; // alias for legacy references
       const pizzaSauce = document.querySelector('input[type="checkbox"][name="pizza_ingredients[]"][value="tomato_sauce"]');
       const enforceReq = (el) => {
         if (!el) return;
