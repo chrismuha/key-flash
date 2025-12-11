@@ -2332,7 +2332,7 @@
    is enabled.
    =================================================================== */
 
-(function () {
+(function(){
   'use strict';
 
   // Utility: determine whether the "pill arrow only" setting is enabled.
@@ -2347,8 +2347,8 @@
 
   // Record the last user activation (useful for debugging and for safe checks)
   window._lastActivation = window._lastActivation || null;
-  ['pointerdown', 'mousedown', 'touchstart', 'keydown'].forEach(ev =>
-    document.addEventListener(ev, function (e) {
+  ['pointerdown','mousedown','touchstart','keydown'].forEach(ev =>
+    document.addEventListener(ev, function(e){
       try {
         const t = e.target;
         window._lastActivation = {
@@ -2360,9 +2360,9 @@
           closestMenuLaunch: !!(t && t.closest && t.closest('.menu-launch[data-target]')),
           closestSummary: !!(t && t.closest && t.closest('summary.menu-summary')),
           closestArrow: !!(t && t.closest && (t.closest('.menu-launch-arrow') || t.closest('.menu-summary-arrow'))),
-          selector: (t && (t.id ? '#' + t.id : (t.className ? '.' + t.className.split(/\s+/).join('.') : t.tagName))) || null
+          selector: (t && (t.id ? '#'+t.id : (t.className ? '.'+t.className.split(/\s+/).join('.') : t.tagName))) || null
         };
-      } catch (err) { /* ignore */ }
+      } catch(err){ /* ignore */ }
     }, true)
   );
 
@@ -2371,7 +2371,7 @@
      Blocks pointerdown/clicks inside .menu-launch[data-target] unless the arrow
      or an interactive control was the activation target.
      ---------------------- */
-  (function installPillLaunchGuard() {
+  (function installPillLaunchGuard(){
     const interactiveSelector = 'input, select, textarea, button, a[href], label, [contenteditable="true"]';
 
     function shouldBlockForPill(e) {
@@ -2387,7 +2387,7 @@
       return true;
     }
 
-    ['pointerdown', 'mousedown', 'touchstart'].forEach((evtName) => {
+    ['pointerdown','mousedown','touchstart'].forEach((evtName) => {
       document.addEventListener(evtName, (e) => {
         try {
           if (shouldBlockForPill(e)) {
@@ -2414,7 +2414,7 @@
      Adds an explicit arrow button (re-using .menu-launch-arrow CSS) and
      blocks native toggling on non-arrow clicks when pill-arrow-only is enabled.
      ---------------------- */
-  (function installSummaryAugmentation() {
+  (function installSummaryAugmentation(){
     function ensureArrowForSummary(summary) {
       // If an arrow already exists, return it
       let arrow = summary.querySelector('.menu-summary-arrow, .menu-launch-arrow');
@@ -2428,7 +2428,7 @@
       arrow.setAttribute('tabindex', '-1');
       // Use a small triangle glyph as a fallback; stylesheet may override content.
       // clicking the arrow toggles the details element
-      arrow.addEventListener('click', function (ev) {
+      arrow.addEventListener('click', function(ev){
         ev.stopPropagation();
         try {
           const details = summary.closest('details');
@@ -2438,7 +2438,7 @@
             const toggleEv = new Event('toggle', { bubbles: true });
             details.dispatchEvent(toggleEv);
           }
-        } catch (err) { /* ignore */ }
+        } catch(err){ /* ignore */ }
       });
 
       // append arrow at the end of the summary
@@ -2454,13 +2454,13 @@
         // Remove existing handlers if re-applying
         if (summary._pillHandler) {
           summary.removeEventListener('click', summary._pillHandler, true);
-          ['pointerdown', 'mousedown', 'touchstart'].forEach(ev => {
+          ['pointerdown','mousedown','touchstart'].forEach(ev => {
             summary.removeEventListener(ev, summary._pillPointerHandler, true);
           });
         }
 
         // Handler: click phase (capture) - block unless arrow or interactive control
-        summary._pillHandler = function (e) {
+        summary._pillHandler = function(e){
           if (!isPillArrowOnlyEnabled()) return;
           const el = e.target;
           if (!el) return;
@@ -2474,7 +2474,7 @@
         };
 
         // Handler: pointer/touch start to preempt native toggling on some browsers
-        summary._pillPointerHandler = function (e) {
+        summary._pillPointerHandler = function(e){
           if (!isPillArrowOnlyEnabled()) return;
           const el = e.target;
           if (!el) return;
@@ -2487,7 +2487,7 @@
         };
 
         summary.addEventListener('click', summary._pillHandler, true);
-        ['pointerdown', 'mousedown', 'touchstart'].forEach(ev => {
+        ['pointerdown','mousedown','touchstart'].forEach(ev => {
           summary.addEventListener(ev, summary._pillPointerHandler, true);
         });
       });
@@ -2528,11 +2528,11 @@
      opens menus by target name, patch it so it respects pillArrowOnly setting.
      This prevents other code paths from opening pills unless arrow activated.
      ---------------------- */
-  (function patchOpenOverlayIfPresent() {
+  (function patchOpenOverlayIfPresent(){
     try {
       if (typeof window.openOverlay === 'function') {
         const original = window.openOverlay;
-        window.openOverlay = function (targetName, ...rest) {
+        window.openOverlay = function(targetName, ...rest) {
           try {
             // If targetName is a selector or id for a menu-launch or details,
             // verify last activation occurred on an arrow when pillArrowOnly is enabled.
@@ -2547,11 +2547,11 @@
                 }
               }
             }
-          } catch (err) { /* ignore */ }
+          } catch(err){ /* ignore */ }
           return original.apply(this, [targetName, ...rest]);
         };
       }
-    } catch (err) { console.error('patchOpenOverlayIfPresent error', err); }
+    } catch(err){ console.error('patchOpenOverlayIfPresent error', err); }
   })();
 
 
@@ -2559,12 +2559,12 @@
      Public helper: flip pillArrowOnly global and re-run summary handlers.
      Useful for programmatic toggling.
      ---------------------- */
-  window.setPillArrowOnly = function (enabled) {
+  window.setPillArrowOnly = function(enabled){
     try {
       window.pillArrowOnly = !!enabled;
       const ev = new Event('pillArrowOnlyChanged');
       document.dispatchEvent(ev);
-    } catch (err) { /* ignore */ }
+    } catch(err){ /* ignore */ }
   };
 
 })(); // end merged fixes IIFE
@@ -2581,7 +2581,7 @@
      the visual layout is NOT modified.
    - Keeps interactive controls (inputs, labels, buttons, anchors) usable.
    =================================================================== */
-(function () {
+(function(){
   'use strict';
 
   function isPillArrowOnlyEnabled() {
@@ -2589,7 +2589,7 @@
       if (typeof window.pillArrowOnly !== 'undefined') return !!window.pillArrowOnly;
       const el = document.querySelector('.setting-pill-arrow-only');
       if (el) return !!el.checked;
-    } catch (err) { }
+    } catch (err) {}
     return false;
   }
 
@@ -2612,7 +2612,7 @@
       // Remove old handlers if any
       if (summary._pillHandlerV2) {
         summary.removeEventListener('click', summary._pillHandlerV2, true);
-        ['pointerdown', 'mousedown', 'touchstart'].forEach(evt => {
+        ['pointerdown','mousedown','touchstart'].forEach(evt => {
           summary.removeEventListener(evt, summary._pillPointerHandlerV2, true);
         });
       }
@@ -2638,7 +2638,7 @@
       }
 
       // Click phase handler (capture)
-      summary._pillHandlerV2 = function (e) {
+      summary._pillHandlerV2 = function(e) {
         if (!isPillArrowOnlyEnabled()) return;
         const el = e.target;
         if (!el) return;
@@ -2656,7 +2656,7 @@
       };
 
       // Pointer/touchstart handler to preempt native toggling on some browsers
-      summary._pillPointerHandlerV2 = function (e) {
+      summary._pillPointerHandlerV2 = function(e) {
         if (!isPillArrowOnlyEnabled()) return;
         const el = e.target;
         if (!el) return;
@@ -2672,7 +2672,7 @@
       };
 
       summary.addEventListener('click', summary._pillHandlerV2, true);
-      ['pointerdown', 'mousedown', 'touchstart'].forEach(evt => {
+      ['pointerdown','mousedown','touchstart'].forEach(evt => {
         summary.addEventListener(evt, summary._pillPointerHandlerV2, true);
       });
     });
@@ -2702,4 +2702,56 @@
   // Expose for debugging
   window._summaryHandlersV2Active = true;
 })(); // end non-intrusive summary handlers (v2)
+
+
+/* Runtime cleanup: remove any injected arrow elements and prevent future insertions from showing.
+   This runs on DOMContentLoaded and also uses a MutationObserver to strip any newly-added arrow nodes.
+*/
+(function(){
+  'use strict';
+  function removeInjectedArrows(root=document){
+    try {
+      root.querySelectorAll('.menu-launch-arrow, .menu-summary-arrow').forEach(el => {
+        // Only remove elements that have no meaningful content (defensive)
+        const txt = (el.textContent || '').trim();
+        const hasMeaningfulText = txt.length > 0;
+        // If element has roles/handlers but empty text, still remove to match user's request
+        if (!hasMeaningfulText) {
+          el.remove();
+        } else {
+          // If it has text, remove only if it's empty whitespace or original glyph (already removed earlier)
+          if (txt === '') el.remove();
+        }
+      });
+    } catch(err){ /* ignore */ }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => removeInjectedArrows(document));
+  } else {
+    removeInjectedArrows(document);
+  }
+
+  // Observe future additions and remove arrows as they appear
+  const observer = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      for (const n of Array.from(m.addedNodes || [])) {
+        try {
+          if (n && n.querySelectorAll) {
+            const found = n.querySelectorAll('.menu-launch-arrow, .menu-summary-arrow');
+            if (found.length) removeInjectedArrows(n);
+          }
+          // If the added node itself matches selector, remove it too
+          if (n && n.matches && (n.matches('.menu-launch-arrow') || n.matches('.menu-summary-arrow'))) {
+            n.remove();
+          }
+        } catch(err){ /* ignore */ }
+      }
+    }
+  });
+  observer.observe(document.documentElement || document, { childList: true, subtree: true });
+
+  // Expose for debugging
+  window._removedInjectedArrows = true;
+})(); // end runtime cleanup
 
