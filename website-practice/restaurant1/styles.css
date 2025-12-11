@@ -280,9 +280,10 @@ body.theme-dark main fieldset {
     right: 22px;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-end;
     gap: 6px;
     z-index: 1000;
+    width: max-content;
 }
 
 .theme-toggle {
@@ -294,6 +295,19 @@ body.theme-dark main fieldset {
     border-radius: 4px;
     cursor: pointer;
     width: 100%;
+}
+
+/* Compact theme toggle on mobile */
+body.mobile-ui .theme-toggle {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 8px;
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Visual disclosure indicator */
@@ -313,6 +327,10 @@ body.theme-dark main fieldset {
     transform: rotate(-135deg);
 }
 
+body.mobile-ui .theme-toggle::after {
+    display: none;
+}
+
 .theme-menu {
     display: flex;
     flex-direction: column;
@@ -323,6 +341,29 @@ body.theme-dark main fieldset {
     padding: 4px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
     min-width: 160px;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+}
+
+body.mobile-ui .theme-menu {
+    min-width: auto;
+    width: auto;
+    display: inline-flex;
+    flex-direction: row;
+    gap: 6px;
+}
+
+body.mobile-ui .theme-option {
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
+    padding: 0 6px;
+    text-align: center;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Ensure hidden attribute actually hides the menu */
@@ -343,6 +384,12 @@ body.theme-dark main fieldset {
 
 .theme-option+.theme-option {
     border-top: 1px solid #000;
+}
+
+/* Divider between inline icon buttons on mobile */
+body.mobile-ui .theme-option+.theme-option {
+    border-top: none;
+    border-left: 1px solid #000;
 }
 
 .theme-option:hover,
@@ -370,6 +417,10 @@ body.theme-dark .theme-option:focus-visible {
 
 body.theme-dark .theme-option+.theme-option {
     border-top-color: #fff;
+}
+
+body.theme-dark.mobile-ui .theme-option+.theme-option {
+    border-left-color: #fff;
 }
 
 /* Go Back button (fixed, next to theme toggle) */
@@ -552,7 +603,8 @@ body.page2 .page-actions {
     right: calc(var(--gap) + 6px);
     bottom: 0;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    align-items: center;
     gap: 12px;
     padding: 12px 16px;
     background: rgba(255, 255, 255, 0.9);
@@ -605,6 +657,13 @@ body.page2 .next-button:active {
     transform: translateY(1px);
 }
 
+body.mobile-ui.page2 .page-actions .collapse-mobile {
+    flex: 1 1 0;
+    min-width: 120px;
+    max-width: 140px;
+    justify-content: center;
+}
+
 /* Mobile tightening for builder page */
 @media (max-width: 540px) {
     body.page2 main {
@@ -644,11 +703,20 @@ body.page2 .next-button:active {
     body.page2 .page-actions {
         left: 0;
         right: 0;
+        justify-content: space-between;
+        gap: 8px;
     }
 
     body.nav-enabled.page2 .page-actions {
         left: var(--rail-width);
         right: 0;
+    }
+}
+
+@media (max-width: 540px) {
+    body.page2 .page-actions {
+        justify-content: space-between;
+        gap: 8px;
     }
 }
 
@@ -737,6 +805,13 @@ main ol {
 main h1 {
     font-size: 32px;
     line-height: 48px;
+}
+
+@media (max-width: 768px) {
+    main h1 {
+        font-size: 28.5px;
+        line-height: 41px;
+    }
 }
 
 main h2 {
@@ -937,6 +1012,13 @@ body.order-type main h1 {
     font-weight: 700;
     margin-bottom: 28px;
     text-align: left;
+}
+
+@media (max-width: 768px) {
+    body.order-type main h1 {
+        font-size: 28.5px;
+        line-height: 41px;
+    }
 }
 
 body.order-type .order-options {

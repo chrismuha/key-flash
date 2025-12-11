@@ -160,7 +160,6 @@
     const navLinks = Array.from(document.querySelectorAll('.left-rail a'));
     const preventNavClick = (event) => event.preventDefault();
     const setNavState = (enabled) => {
-      if (isMobileView()) enabled = true;
       if (!navLinks.length) return;
       if (enabled) {
         body.classList.add('nav-enabled');
@@ -357,7 +356,7 @@
     const updateThemeModeLabel = () => {
       if (!themeModeBtns.length) return;
       const isDark = body.classList.contains('theme-dark');
-      const mobile = body.classList.contains('mobile-ui');
+      const mobile = isMobileView();
       const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
       themeModeBtns.forEach((btn) => {
         btn.textContent = mobile ? (isDark ? '☀️' : '🌙') : (isDark ? 'Light Mode' : 'Dark Mode');
@@ -368,7 +367,11 @@
     const updateNavToggleLabel = () => {
       if (!navToggleBtn) return;
       const navEnabled = body.classList.contains('nav-enabled');
-      navToggleBtn.textContent = navEnabled ? 'Disable Navigation' : 'Enable Navigation';
+      const mobile = isMobileView();
+      const leftArrow = '\u25C0'; // ◀
+      const rightArrow = '\u25B6'; // ▶
+      navToggleBtn.textContent = mobile ? (navEnabled ? leftArrow : rightArrow) : (navEnabled ? 'Disable Navigation' : 'Enable Navigation');
+      navToggleBtn.setAttribute('aria-label', navEnabled ? 'Disable navigation' : 'Enable navigation');
     };
 
     const persistThemeState = () => {
@@ -427,6 +430,17 @@
     // Theme dropdown/menu
     const themeToggleBtn = document.querySelector('.theme-toggle');
     const themeMenu = document.getElementById('theme-menu');
+    const updateThemeToggleLabel = () => {
+      if (!themeToggleBtn) return;
+      const mobile = isMobileView();
+      if (mobile) {
+        themeToggleBtn.textContent = '☰';
+        themeToggleBtn.setAttribute('aria-label', 'Open menu');
+      } else {
+        themeToggleBtn.textContent = 'Themes';
+        themeToggleBtn.setAttribute('aria-label', 'Open theme menu');
+      }
+    };
     const closeThemeMenu = () => {
       if (!themeMenu || !themeToggleBtn) return;
       themeMenu.hidden = true;
@@ -453,6 +467,7 @@
         if (e.key === 'Escape') closeThemeMenu();
       });
       themeMenu.addEventListener('click', () => closeThemeMenu());
+      updateThemeToggleLabel();
     }
 
     // Settings (gear) in left rail
@@ -664,15 +679,15 @@
     const syncMobileUiState = () => {
       const mobile = isMobileView();
       body.classList.toggle('mobile-ui', mobile);
-      if (mobile) {
-        setNavState(true);
-        body.classList.add('nav-enabled');
-      }
       if (navToggleBtn) {
-        navToggleBtn.hidden = mobile;
-        navToggleBtn.setAttribute('aria-hidden', mobile ? 'true' : 'false');
-        navToggleBtn.disabled = mobile;
+        navToggleBtn.hidden = false;
+        navToggleBtn.setAttribute('aria-hidden', 'false');
+        navToggleBtn.disabled = false;
       }
+      // Reapply current nav state so tabindex/aria stay in sync after viewport changes
+      setNavState(body.classList.contains('nav-enabled'));
+      placeCollapseButton();
+      updateThemeToggleLabel();
       updateThemeModeLabel();
       updateNavToggleLabel();
       updatePageNavLocks();
@@ -692,7 +707,6 @@
 
     if (navToggleBtn) {
       navToggleBtn.addEventListener('click', () => {
-        if (isMobileView()) return;
         const navEnabled = body.classList.contains('nav-enabled');
         const nextState = !navEnabled;
         setNavState(nextState);
@@ -1811,6 +1825,28 @@
       // Collapse helpers
       const collapseAllBtn = document.querySelector('.collapse-all');
       const collapseSectionBtns = document.querySelectorAll('.collapse-section[data-target]');
+      const pageActions = document.querySelector('.page-actions');
+      const collapseAllHome = collapseAllBtn ? collapseAllBtn.parentElement : null;
+      const placeCollapseButton = () => {
+        let mobile = false;
+        try { mobile = window.matchMedia('(max-width: 900px)').matches; } catch { mobile = isMobileView(); }
+        if (!collapseAllBtn) return;
+        const target = mobile ? pageActions : collapseAllHome;
+        if (!target) return;
+        let insertBefore = null;
+        if (mobile && target.querySelector) {
+          insertBefore = target.querySelector('.reset-all') || target.firstElementChild;
+        }
+        if (collapseAllBtn.parentElement !== target) {
+          collapseAllBtn.remove();
+          if (insertBefore) target.insertBefore(collapseAllBtn, insertBefore);
+          else target.appendChild(collapseAllBtn);
+        } else if (insertBefore && collapseAllBtn.nextElementSibling !== insertBefore) {
+          collapseAllBtn.remove();
+          target.insertBefore(collapseAllBtn, insertBefore);
+        }
+        collapseAllBtn.classList.toggle('collapse-mobile', mobile);
+      };
       const closeDetails = (targetId) => {
         if (!targetId) return;
         const d = document.getElementById(targetId);
@@ -1822,6 +1858,7 @@
         collapseAllBtn.addEventListener('click', () => {
           document.querySelectorAll('details').forEach((d) => { d.open = false; });
         });
+        placeCollapseButton();
       }
       collapseSectionBtns.forEach((btn) => {
         btn.addEventListener('click', () => {
