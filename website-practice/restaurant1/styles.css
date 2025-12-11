@@ -464,6 +464,10 @@ body.theme-dark.mobile-ui .theme-option+.theme-option {
     width: 100%;
 }
 
+.collapse-footer {
+    display: none;
+}
+
 body.theme-dark .collapse,
 body.theme-dark .go-back {
     border-color: #fff;
@@ -1320,6 +1324,21 @@ body.nav-enabled .left-rail .box {
     body.nav-enabled .left-rail .box {
         width: calc(var(--rail-width) - 12px);
         font-size: 20px;
+    }
+}
+
+@media (max-width: 900px) {
+    /* Hide header collapse on compact view and show footer copy */
+    .theme-dropdown .collapse-all {
+        display: none !important;
+    }
+    .page-actions .collapse-footer {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        flex: 1 1 0;
+        min-width: 120px;
+        max-width: 150px;
     }
 }
 
