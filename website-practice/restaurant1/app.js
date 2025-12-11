@@ -1875,30 +1875,30 @@
         const t = e.target;
         if (t && t.matches && t.matches('input[type="checkbox"][name]')) {
           // If a non-required ingredient inside a section is checked, ensure the section is activated
-        const name = t.getAttribute('name') || '';
-        const isRequired = t.dataset && t.dataset.required === 'true';
-        if (!isRequired && t.checked) {
-          let section = '';
-          if (name.startsWith('pizza_')) section = 'pizza';
-          else if (name.startsWith('burger_')) section = 'burger';
-          else if (name.startsWith('sauces_')) section = 'sauces';
-          else if (name.startsWith('sub_')) section = 'sub';
-          if (section) {
-            const d = detailsBySection[section];
-            const toggle = d ? d.querySelector('.section-toggle') : null;
-            if (toggle && !toggle.checked) {
-              toggle.checked = true;
-              toggle.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-            // Auto-open the section when selecting an item if enabled
-            if (autoExpandOnSelect && d && d.tagName && d.tagName.toLowerCase() === 'details') {
-              d.open = true;
+          const name = t.getAttribute('name') || '';
+          const isRequired = t.dataset && t.dataset.required === 'true';
+          if (!isRequired && t.checked) {
+            let section = '';
+            if (name.startsWith('pizza_')) section = 'pizza';
+            else if (name.startsWith('burger_')) section = 'burger';
+            else if (name.startsWith('sauces_')) section = 'sauces';
+            else if (name.startsWith('sub_')) section = 'sub';
+            if (section) {
+              const d = detailsBySection[section];
+              const toggle = d ? d.querySelector('.section-toggle') : null;
+              if (toggle && !toggle.checked) {
+                toggle.checked = true;
+                toggle.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+              // Auto-open the section when selecting an item if enabled
+              if (autoExpandOnSelect && d && d.tagName && d.tagName.toLowerCase() === 'details') {
+                d.open = true;
+              }
             }
           }
-        }
-        saveIngredients();
-        updateBuilderError();
-        updatePageNavLocks();
+          saveIngredients();
+          updateBuilderError();
+          updatePageNavLocks();
         }
       });
       // Ensure builder validation state is accurate after initial render/restore

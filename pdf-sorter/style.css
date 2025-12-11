@@ -3,7 +3,7 @@
     --bg-soft: #111827;
     --card: #020617;
     --accent: #3b82f6;
-    --accent-soft: rgba(59,130,246,0.2);
+    --accent-soft: rgba(59, 130, 246, 0.2);
     --text: #e5e7eb;
     --muted: #9ca3af;
     --border: #1f2933;
@@ -37,7 +37,7 @@ body {
     background: var(--bg-soft);
     border-radius: 24px;
     border: 1px solid #1f2937;
-    box-shadow: 0 18px 34px rgba(0,0,0,0.55);
+    box-shadow: 0 18px 34px rgba(0, 0, 0, 0.55);
     overflow: hidden;
 }
 
@@ -47,18 +47,19 @@ body {
     }
 }
 
-.left, .right {
+.left,
+.right {
     padding: 20px 22px 22px;
 }
 
 .left {
-    border-right: 1px solid rgba(31,41,55,0.8);
+    border-right: 1px solid rgba(31, 41, 55, 0.8);
 }
 
 @media (max-width: 900px) {
     .left {
         border-right: none;
-        border-bottom: 1px solid rgba(31,41,55,0.8);
+        border-bottom: 1px solid rgba(31, 41, 55, 0.8);
     }
 }
 
@@ -85,7 +86,7 @@ body {
     border-radius: 999px;
     background: var(--accent-soft);
     color: #bfdbfe;
-    border: 1px solid rgba(59,130,246,0.5);
+    border: 1px solid rgba(59, 130, 246, 0.5);
 }
 
 .title-block p {
@@ -98,7 +99,7 @@ body {
 .drop-zone {
     margin-top: 8px;
     border-radius: 18px;
-    border: 1.5px dashed rgba(55,65,81,0.9);
+    border: 1.5px dashed rgba(55, 65, 81, 0.9);
     background: #0b1222;
     padding: 26px 24px;
     text-align: center;
@@ -117,7 +118,7 @@ body {
     width: 52px;
     height: 52px;
     border-radius: 18px;
-    border: 1px solid rgba(75,85,99,0.8);
+    border: 1px solid rgba(75, 85, 99, 0.8);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -185,12 +186,12 @@ body {
     color: var(--muted);
     border-radius: 999px;
     padding: 9px 16px;
-    border: 1px solid rgba(55,65,81,0.9);
+    border: 1px solid rgba(55, 65, 81, 0.9);
     box-shadow: none;
 }
 
 .btn-secondary:hover {
-    border-color: rgba(75,85,99,1);
+    border-color: rgba(75, 85, 99, 1);
 }
 
 input[type="file"] {
@@ -224,7 +225,7 @@ input[type="file"] {
     align-items: center;
     padding: 9px 14px;
     font-size: 13px;
-    border-bottom: 1px solid rgba(31,41,55,0.7);
+    border-bottom: 1px solid rgba(31, 41, 55, 0.7);
 }
 
 .file-row:last-child {
@@ -247,7 +248,7 @@ input[type="file"] {
     font-size: 11px;
     padding: 3px 9px;
     border-radius: 999px;
-    border: 1px solid rgba(55,65,81,0.9);
+    border: 1px solid rgba(55, 65, 81, 0.9);
     color: var(--muted);
     display: inline-flex;
     align-items: center;
@@ -255,19 +256,19 @@ input[type="file"] {
 }
 
 .status-pill.running {
-    border-color: rgba(59,130,246,0.7);
+    border-color: rgba(59, 130, 246, 0.7);
     color: #bfdbfe;
     background: #0f2340;
 }
 
 .status-pill.done {
-    border-color: rgba(34,197,94,0.8);
+    border-color: rgba(34, 197, 94, 0.8);
     color: #bbf7d0;
     background: #0d2a1a;
 }
 
 .status-pill.error {
-    border-color: rgba(239,68,68,0.8);
+    border-color: rgba(239, 68, 68, 0.8);
     color: #fecaca;
     background: #311616;
 }
@@ -306,7 +307,7 @@ input[type="file"] {
 }
 
 .remove-btn:hover {
-    background: rgba(31,41,55,0.9);
+    background: rgba(31, 41, 55, 0.9);
     color: #fca5a5;
 }
 
@@ -349,7 +350,7 @@ input[type="file"] {
     justify-content: center;
     font-size: 12px;
     background: #0b1222;
-    border: 1px solid rgba(59,130,246,0.35);
+    border: 1px solid rgba(59, 130, 246, 0.35);
 }
 
 .setting-row {
@@ -384,7 +385,7 @@ input[type="file"] {
     inset: 0;
     background-color: #111827;
     border-radius: 34px;
-    border: 1px solid rgba(55,65,81,0.9);
+    border: 1px solid rgba(55, 65, 81, 0.9);
     transition: 0.2s;
 }
 
@@ -398,32 +399,34 @@ input[type="file"] {
     background-color: #9ca3af;
     border-radius: 50%;
     transition: 0.2s;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-.switch input:checked + .slider {
+.switch input:checked+.slider {
     background-color: #1d4ed8;
     border-color: #60a5fa;
 }
 
-.switch input:checked + .slider:before {
+.switch input:checked+.slider:before {
     transform: translateX(18px);
     background-color: #e5f2ff;
 }
 
-select, input[type="text"] {
+select,
+input[type="text"] {
     background: #0b1222;
     border-radius: 999px;
-    border: 1px solid rgba(55,65,81,0.9);
+    border: 1px solid rgba(55, 65, 81, 0.9);
     color: var(--text);
     font-size: 12px;
     padding: 6px 10px;
     min-width: 70px;
 }
 
-select:focus, input[type="text"]:focus {
+select:focus,
+input[type="text"]:focus {
     outline: none;
-    border-color: rgba(59,130,246,0.8);
+    border-color: rgba(59, 130, 246, 0.8);
 }
 
 .tiny {
@@ -449,14 +452,10 @@ select:focus, input[type="text"]:focus {
     font-size: 11px;
     color: #cbd5e1;
     white-space: pre-wrap;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
-.log {
-    /* placeholder for future hook */
-}
-
-#log > div {
+#log>div {
     padding: 7px 12px 7px 18px;
     border-bottom: 1px solid #111827;
     position: relative;
@@ -464,11 +463,11 @@ select:focus, input[type="text"]:focus {
     border-left: 2px solid #111827;
 }
 
-#log > div:last-child {
+#log>div:last-child {
     border-bottom: none;
 }
 
-#log > div::before {
+#log>div::before {
     content: "•";
     position: absolute;
     left: 8px;
@@ -531,7 +530,7 @@ select:focus, input[type="text"]:focus {
     border-radius: 10px;
     overflow: hidden;
     background: #0f172a;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -558,7 +557,7 @@ select:focus, input[type="text"]:focus {
     padding: 3px 9px;
     border-radius: 999px;
     font-size: 11px;
-    border: 1px solid rgba(55,65,81,0.9);
+    border: 1px solid rgba(55, 65, 81, 0.9);
     background: #0f172a;
     color: var(--muted);
 }

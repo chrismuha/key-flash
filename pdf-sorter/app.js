@@ -105,7 +105,7 @@ const dropZone = document.getElementById("dropZone");
 
 function humanSize(bytes) {
     if (!bytes && bytes !== 0) return "";
-    const units = ["B","KB","MB","GB"];
+    const units = ["B", "KB", "MB", "GB"];
     let i = 0;
     let v = bytes;
     while (v > 1024 && i < units.length - 1) {
@@ -147,9 +147,9 @@ function renderFileList() {
         const text = document.createElement("span");
         text.textContent =
             entry.status === "idle" ? "Queued" :
-            entry.status === "running" ? "Processing" :
-            entry.status === "done" ? "Done" :
-            "Error";
+                entry.status === "running" ? "Processing" :
+                    entry.status === "done" ? "Done" :
+                        "Error";
         pill.appendChild(dot);
         pill.appendChild(text);
         statusCol.appendChild(pill);
