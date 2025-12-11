@@ -2835,3 +2835,170 @@
   // Expose for debugging
   window._removedInjectedArrows = true;
 })(); // end runtime cleanup
+
+
+
+/* === APPENDED: Robust delegation + safe placement patch (auto-merged) === */
+(function () {
+  'use strict';
+
+  // Helpers
+  const qs = (s, root=document) => root.querySelector(s);
+  const qsa = (s, root=document) => Array.from((root||document).querySelectorAll(s));
+  const debounce = (fn, ms=120) => { let t; return (...a)=>{ clearTimeout(t); t = setTimeout(()=>fn(...a), ms); }; };
+
+  // Move the *same* .collapse-all node into .page-actions on mobile (idempotent)
+  function placeCollapseButtonSafe() {
+    const btn = qs('.collapse-all');
+    if (!btn) return false; // nothing to do yet
+    // remember original parent so we can put it back on desktop
+    const orig = btn.__origParent || btn.parentElement;
+    btn.__origParent = orig;
+
+    const update = () => {
+      const isMobile = window.matchMedia && window.matchMedia('(max-width:900px)').matches;
+      const pageActions = qs('.page-actions');
+      const resetBtn = pageActions ? pageActions.querySelector('.reset-all') : null;
+      const target = (isMobile && pageActions) ? pageActions : orig;
+      if (!target) return;
+
+      if (btn.parentElement === target) {
+        // ensure ordering: keep collapse before reset
+        if (isMobile && resetBtn && btn.nextElementSibling !== resetBtn) {
+          btn.remove();
+          target.insertBefore(btn, resetBtn);
+        }
+        btn.classList.toggle('collapse-mobile', !!isMobile);
+        return;
+      }
+
+      // move same node (preserves any listeners and references)
+      btn.remove();
+      if (isMobile && resetBtn) target.insertBefore(btn, resetBtn);
+      else target.appendChild(btn);
+      btn.classList.toggle('collapse-mobile', !!isMobile);
+      console.log('placeCollapseButtonSafe: moved .collapse-all into', target);
+    };
+
+    // initial and responsive updates
+    try {
+      const mql = window.matchMedia('(max-width:900px)');
+      if (mql.addEventListener) mql.addEventListener('change', update);
+      else if (mql.addListener) mql.addListener(update);
+    } catch(e){}
+    window.addEventListener('resize', debounce(update, 120));
+    window.addEventListener('orientationchange', debounce(update, 80));
+    update();
+    return true;
+  }
+
+  // Event delegation handler — single place to handle clicks
+  function installDelegatedHandlers() {
+    if (document.__delegation_installed) return;
+    document.__delegation_installed = true;
+
+    document.addEventListener('click', function (ev) {
+      // Use event.target.closest so clicks on children are handled too
+      const t = ev.target;
+
+      // Collapse All (toggle all collapsibles)
+      const collapseAllBtn = t.closest && t.closest('.collapse-all');
+      if (collapseAllBtn) {
+        ev.preventDefault();
+        const coll = qsa('[data-collapsible], .collapsible, .section-collapsible');
+        const anyExpanded = coll.some(el => !el.classList.contains('collapsed'));
+        const shouldCollapse = anyExpanded;
+        coll.forEach(el => {
+          el.setAttribute('aria-expanded', String(!shouldCollapse));
+          el.classList.toggle('collapsed', !!shouldCollapse);
+        });
+        collapseAllBtn.classList.toggle('is-collapsed', shouldCollapse);
+        return;
+      }
+
+      // Per-section collapse buttons (data-target)
+      const sectionBtn = t.closest && t.closest('.collapse-section[data-target]');
+      if (sectionBtn) {
+        ev.preventDefault();
+        const sel = sectionBtn.getAttribute('data-target');
+        const target = document.querySelector(sel) || sectionBtn.closest(sel);
+        if (!target) return console.warn('collapse-section target not found:', sel);
+        const willCollapse = !target.classList.contains('collapsed');
+        target.setAttribute('aria-expanded', String(!willCollapse));
+        target.classList.toggle('collapsed', willCollapse);
+        return;
+      }
+
+      // Reset All
+      const resetBtn = t.closest && t.closest('.reset-all');
+      if (resetBtn) {
+        ev.preventDefault();
+        // reset forms
+        document.querySelectorAll('form').forEach(f => { try { f.reset(); } catch (e){} });
+        // expand all collapsibles
+        qsa('[data-collapsible], .collapsible, .section-collapsible').forEach(el => {
+          el.setAttribute('aria-expanded', 'true');
+          el.classList.remove('collapsed');
+        });
+        // custom hook
+        document.dispatchEvent(new CustomEvent('app:resetAll', { bubbles: true }));
+        return;
+      }
+
+      // Next (no navigation performed here — let native behavior run if link)
+      const nextBtn = t.closest && t.closest('.next-button');
+      if (nextBtn) {
+        // if it has data-next-url or href and you want to intercept, handle here.
+        // otherwise let native behavior run by not calling preventDefault().
+        return;
+      }
+
+    }, { passive: false });
+  }
+
+  // MutationObserver fallback: if controls are rendered later, re-run placement
+  function installObserverForPlacement() {
+    if (window.__collapse_placement_observer_installed) return;
+    window.__collapse_placement_observer_installed = true;
+
+    const mo = new MutationObserver((mutations) => {
+      let added = false;
+      for (const m of mutations) {
+        for (const n of m.addedNodes) {
+          if (n.nodeType !== 1) continue;
+          // check newly added subtree for our selectors
+          if (n.matches && (n.matches('.collapse-all') || n.matches('.page-actions') || n.matches('.reset-all'))) added = true;
+          else if (n.querySelector && n.querySelector('.collapse-all, .page-actions, .reset-all')) added = true;
+        }
+      }
+      if (added) {
+        // small debounce to allow render to finish
+        clearTimeout(window.__placeCollapseDeb);
+        window.__placeCollapseDeb = setTimeout(() => {
+          try { placeCollapseButtonSafe(); } catch(e){/*ignore*/ }
+        }, 60);
+      }
+    });
+
+    mo.observe(document.documentElement || document.body, { childList: true, subtree: true });
+    // also run a few retries in case of slightly later render
+    [120, 400, 900].forEach(ms => setTimeout(placeCollapseButtonSafe, ms));
+  }
+
+  // Init
+  function initCollapseUX() {
+    installDelegatedHandlers();
+    placeCollapseButtonSafe();
+    installObserverForPlacement();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCollapseUX);
+  } else {
+    initCollapseUX();
+  }
+
+  // expose for debugging
+  window.CollapseUX = { placeCollapseButtonSafe, installDelegatedHandlers };
+
+})();
