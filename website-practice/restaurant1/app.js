@@ -1319,13 +1319,21 @@
           }
           return false;
         };
-        btn.addEventListener('click', (e) => {
-          const arrowClicked = isArrowTarget(e.target);
-          if (pillArrowOnly && !arrowClicked) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            return;
+        const blockIfNeeded = (evt) => {
+          if (!pillArrowOnly) return false;
+          const arrowClicked = isArrowTarget(evt.target);
+          if (!arrowClicked) {
+            evt.preventDefault();
+            evt.stopImmediatePropagation();
+            return true;
           }
+          return false;
+        };
+        ['mousedown', 'pointerdown', 'touchstart'].forEach((evtName) => {
+          btn.addEventListener(evtName, (evt) => { blockIfNeeded(evt); }, true);
+        });
+        btn.addEventListener('click', (e) => {
+          if (blockIfNeeded(e)) return;
           openTarget();
         });
         if (arrow) {
