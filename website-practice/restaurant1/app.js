@@ -1827,26 +1827,54 @@
       const collapseSectionBtns = document.querySelectorAll('.collapse-section[data-target]');
       const pageActions = document.querySelector('.page-actions');
       const collapseAllHome = collapseAllBtn ? collapseAllBtn.parentElement : null;
-      const placeCollapseButton = () => {
-        let mobile = false;
-        try { mobile = window.matchMedia('(max-width: 900px)').matches; } catch { mobile = isMobileView(); }
-        if (!collapseAllBtn) return;
-        const target = mobile ? pageActions : collapseAllHome;
-        if (!target) return;
-        let insertBefore = null;
-        if (mobile && target.querySelector) {
-          insertBefore = target.querySelector('.reset-all') || target.firstElementChild;
+      const placeCollapseButton = (() => {
+        // Enhaced placement helper that preserves the same DOM node (keeps event listeners)
+        // and responds to viewport changes, with debounce for resize/orientation.
+        const collapseAllBtnLocal = collapseAllBtn; // use outer scope variable
+        if (!collapseAllBtnLocal) return () => {};
+        function debounce(fn, wait = 120) {
+          let t;
+          return function (...args) {
+            clearTimeout(t);
+            t = setTimeout(() => fn.apply(this, args), wait);
+          };
         }
-        if (collapseAllBtn.parentElement !== target) {
-          collapseAllBtn.remove();
-          if (insertBefore) target.insertBefore(collapseAllBtn, insertBefore);
-          else target.appendChild(collapseAllBtn);
-        } else if (insertBefore && collapseAllBtn.nextElementSibling !== insertBefore) {
-          collapseAllBtn.remove();
-          target.insertBefore(collapseAllBtn, insertBefore);
-        }
-        collapseAllBtn.classList.toggle('collapse-mobile', mobile);
-      };
+        const mql = (function () {
+          try { return window.matchMedia('(max-width: 900px)'); }
+          catch { return { matches: false, addListener: () => {}, addEventListener: () => {} }; }
+        })();
+
+        const updatePlacement = () => {
+          const mobile = (mql && mql.matches) || false;
+          const target = mobile ? pageActions : collapseAllHome;
+          if (!target) return;
+
+          const insertBefore = (mobile && target.querySelector) ? (target.querySelector('.reset-all') || target.firstElementChild) : null;
+
+          if (collapseAllBtnLocal.parentElement !== target || (insertBefore && collapseAllBtnLocal.nextElementSibling !== insertBefore)) {
+            collapseAllBtnLocal.remove();
+            if (insertBefore) target.insertBefore(collapseAllBtnLocal, insertBefore);
+            else target.appendChild(collapseAllBtnLocal);
+          }
+          collapseAllBtnLocal.classList.toggle('collapse-mobile', mobile);
+        };
+
+        // initial placement
+        try { updatePlacement(); } catch (e) { /* silent */ }
+
+        try {
+          if (mql && typeof mql.addEventListener === 'function') {
+            mql.addEventListener('change', updatePlacement);
+          } else if (mql && typeof mql.addListener === 'function') {
+            mql.addListener(updatePlacement);
+          }
+        } catch (e) { /* silent */ }
+
+        window.addEventListener('orientationchange', debounce(updatePlacement, 80));
+        window.addEventListener('resize', debounce(updatePlacement, 120));
+
+        return updatePlacement;
+      })();
       const closeDetails = (targetId) => {
         if (!targetId) return;
         const d = document.getElementById(targetId);

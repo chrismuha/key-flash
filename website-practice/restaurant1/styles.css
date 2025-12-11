@@ -721,49 +721,48 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
 }
 
 /* Mobile settings modal (nav stays visible) */
+
+/* --- Replacement: mobile-friendly page-actions (max-width:900px) --- */
 @media (max-width: 900px) {
-    body.settings-open::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        bottom: 0;
-        left: var(--rail-width);
-        right: 0;
-        background: rgba(0, 0, 0, 0.08);
-        backdrop-filter: blur(6px);
-        -webkit-backdrop-filter: blur(6px);
-        z-index: 1300;
-        pointer-events: none;
-    }
+  .page-actions {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0.6rem;
+    background: rgba(255,255,255,0.98);
+    border-top: 1px solid rgba(0,0,0,0.06);
+    justify-content: space-between;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    z-index: 9999;
+  }
 
-    body:not(.nav-enabled).settings-open::before {
-        left: 0;
-    }
+  /* touch-friendly sizing for buttons inside the page-actions area */
+  .page-actions .btn,
+  .page-actions button,
+  .page-actions a {
+    min-width: 44px;
+    padding: 0.6rem 0.9rem;
+    border-radius: 10px;
+    font-size: 1rem;
+  }
 
-    .settings-panel {
-        position: fixed;
-        top: calc(10vh + env(safe-area-inset-top, 0px));
-        left: 50%;
-        transform: translateX(-50%);
-        width: min(520px, calc(100vw - 16px));
-        max-width: min(520px, calc(100vw - 16px));
-        min-width: 260px;
-        z-index: 2001;
-        max-height: calc(80vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
-        overflow: auto;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-        filter: none !important;
-        backdrop-filter: none !important;
-    }
+  /* optional grouping helpers (left/right groups inside page-actions) */
+  .page-actions .left-group,
+  .page-actions .right-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
 
-    body.nav-enabled .settings-panel {
-        left: calc(var(--rail-width) + (100vw - var(--rail-width)) / 2);
-        transform: translateX(-50%);
-        width: min(520px, calc(100vw - var(--rail-width) - 16px));
-        max-width: min(520px, calc(100vw - var(--rail-width) - 16px));
-        z-index: 2001;
-    }
+  /* when collapse-all is moved into .page-actions on mobile */
+  .collapse-all.collapse-mobile {
+    order: 0;
+  }
 }
+
 
 /* Section: Main Spacing Helpers */
 main> :first-child {
