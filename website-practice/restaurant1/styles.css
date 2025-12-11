@@ -747,7 +747,8 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         left: 0;
         right: 0;
         justify-content: space-between;
-        gap: 8px;
+        gap: 6px;
+        padding: 8px 10px;
     }
 
     body.nav-enabled.page2 .page-actions {
@@ -760,61 +761,18 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     body.page2 .next-button,
     body.page2 .collapse-all,
     body.page2 .collapse-footer {
-        padding: 8px 12px;
-        font-size: 15px;
-        line-height: 20px;
-        min-width: 120px;
+        padding: 8px 10px;
+        font-size: 14px;
+        line-height: 18px;
+        min-width: 0;
+        flex: 1 1 0;
     }
 }
 
-@media (max-width: 540px) {
-    body.page2 .page-actions {
-        justify-content: space-between;
-        gap: 8px;
-    }
-}
-
-/* Mobile settings modal (nav stays visible) */
-
-/* --- Replacement: mobile-friendly page-actions (max-width:900px) --- */
 @media (max-width: 900px) {
-  .page-actions {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 0.6rem;
-    background: rgba(255,255,255,0.98);
-    border-top: 1px solid rgba(0,0,0,0.06);
-    justify-content: space-between;
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    z-index: 9999;
-  }
-
-  /* touch-friendly sizing for buttons inside the page-actions area */
-  .page-actions .btn,
-  .page-actions button,
-  .page-actions a {
-    min-width: 44px;
-    padding: 0.6rem 0.9rem;
-    border-radius: 10px;
-    font-size: 1rem;
-  }
-
-  /* optional grouping helpers (left/right groups inside page-actions) */
-  .page-actions .left-group,
-  .page-actions .right-group {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  /* when collapse-all is moved into .page-actions on mobile */
-  .collapse-all.collapse-mobile {
-    order: 0;
-  }
+    .page-actions {
+        padding: 10px 12px;
+    }
 }
 
 
