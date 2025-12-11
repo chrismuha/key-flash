@@ -558,17 +558,17 @@
         if (evt.key === 'Escape') closeSettings();
       });
     }
-    if (hasOverlay) {
+    if (settingsCloseBtn) settingsCloseBtn.addEventListener('click', closeSettings);
+    // Safety: delegate close actions for any dynamically rendered close buttons
+    document.addEventListener('click', (evt) => {
+      if (evt.target.closest('.settings-close')) {
+        closeSettings();
+      }
+    });
+    if (hasOverlay && settingsOverlay) {
       settingsOverlay.addEventListener('click', (evt) => {
         const clickedInsideModal = settingsModal && settingsModal.contains(evt.target);
         if (!clickedInsideModal) closeSettings();
-      });
-      if (settingsCloseBtn) settingsCloseBtn.addEventListener('click', closeSettings);
-      // Safety: delegate close actions for any dynamically rendered close buttons
-      document.addEventListener('click', (evt) => {
-        if (evt.target.closest('.settings-close')) {
-          closeSettings();
-        }
       });
       // Close overlay before page is hidden/back/forward cache restores
       window.addEventListener('pagehide', closeSettings);
