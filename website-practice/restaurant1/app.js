@@ -1400,26 +1400,13 @@
       }
       if (resetAllBtn) {
         resetAllBtn.addEventListener('click', () => {
-          // clear all non-required checkboxes
-          document.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => {
-            if (cb.dataset.required === 'true' || cb.disabled) return;
-            cb.checked = false;
-            const sel = cb.closest('label')?.querySelector('select.ingredient-qty');
-            if (sel) { sel.value = '1'; sel.disabled = true; sel.hidden = true; }
+          const groups = new Set();
+          document.querySelectorAll('.reset-group[data-group]').forEach((btn) => {
+            const g = btn.getAttribute('data-group');
+            if (g) groups.add(g);
           });
-          // deactivate all sections
-          document.querySelectorAll('.section-toggle').forEach((t) => {
-            t.checked = false;
-            t.dispatchEvent(new Event('change', { bubbles: true }));
-          });
-          // reset quantities maps and active sections
-          try {
-            localStorage.removeItem(STORAGE_KEYS.quantities);
-            localStorage.removeItem(STORAGE_KEYS.quantitiesSections);
-            localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify({}));
-            localStorage.removeItem(STORAGE_KEYS.ingredients);
-          } catch { }
-          // refresh validation/nav locks and overlays
+          groups.forEach((g) => resetGroupByName(g));
+          saveIngredients();
           updateBuilderError();
           updatePageNavLocks();
           closeAllOverlays();
@@ -1989,79 +1976,86 @@
       // Ensure builder validation state is accurate after initial render/restore
       updateBuilderError();
       // Reset buttons per group
-      document.querySelectorAll('.reset-group[data-group]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const group = btn.getAttribute('data-group');
-          if (!group) return;
-          document.querySelectorAll(`input[type="checkbox"][name="${group}"]`).forEach((cb) => {
-            if (cb.dataset.required === 'true' || cb.disabled) {
-              // keep required selections checked
-              cb.checked = true;
-            } else {
-              cb.checked = false;
+      const resetGroupByName = (group) => {
+        if (!group) return;
+        document.querySelectorAll(`input[type="checkbox"][name="${group}"]`).forEach((cb) => {
+          if (cb.dataset.required === 'true' || cb.disabled) {
+            // keep required selections checked
+            cb.checked = true;
+          } else {
+            cb.checked = false;
+          }
+          const sel = cb.closest('label')?.querySelector('select.ingredient-qty');
+          if (sel) {
+            sel.disabled = !cb.checked;
+            sel.hidden = !cb.checked;
+            sel.value = '1';
+          }
+          // fire change so any per-item handlers (e.g., sauce qty) run
+          cb.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+        saveIngredients();
+        // Additionally normalize key quantities for the group being reset
+        try {
+          let qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
+          if (group.startsWith('burger_')) {
+            const pattyKey = 'burger_ingredients[]|patty';
+            qm[pattyKey] = 1;
+            localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
+            const pattyCb = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="patty"]');
+            const pattyLabel = pattyCb ? pattyCb.closest('label') : null;
+            const pattyQtyTxt = pattyLabel ? pattyLabel.querySelector('.patty-qty > span') : null;
+            if (pattyQtyTxt) pattyQtyTxt.textContent = `(x1)`;
+          } else if (group.startsWith('sauces_')) {
+            Object.keys(qm).forEach((k) => {
+              if (k.startsWith('sauces_ingredients[]|')) qm[k] = resetDisables ? 0 : 1;
+            });
+            localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
+          } else {
+            localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
+          }
+        } catch { }
+        if (resetDisables) {
+          let section = '';
+          if (group.startsWith('pizza_')) section = 'pizza';
+          else if (group.startsWith('burger_')) section = 'burger';
+          else if (group.startsWith('sauces_')) section = 'sauces';
+          else if (group.startsWith('sub_')) section = 'sub';
+          if (section) {
+            const d2 = document.getElementById(section);
+            const toggle = d2 ? d2.querySelector('.section-toggle') : null;
+            if (toggle && toggle.checked) {
+              toggle.checked = false;
+              toggle.dispatchEvent(new Event('change', { bubbles: true }));
             }
-            const sel = cb.closest('label')?.querySelector('select.ingredient-qty');
-            if (sel) {
-              sel.disabled = !cb.checked;
-              sel.hidden = !cb.checked;
-            }
-          });
-          saveIngredients();
-          // Additionally normalize key quantities for the group being reset
-          try {
-            let qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
-            if (group.startsWith('burger_')) {
-              const pattyKey = 'burger_ingredients[]|patty';
-              // Patty quantity has a minimum of 1, even if disabling the item
-              qm[pattyKey] = 1;
-              localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
-              // Update visible Patty qty widget on builder if present
-              const pattyCb = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="patty"]');
-              const pattyLabel = pattyCb ? pattyCb.closest('label') : null;
-              const pattyQtyTxt = pattyLabel ? pattyLabel.querySelector('.patty-qty > span') : null;
-              if (pattyQtyTxt) pattyQtyTxt.textContent = `(x1)`;
-            }
-          } catch { }
-          if (resetDisables) {
-            // Map group to section key
-            let section = '';
-            if (group.startsWith('pizza_')) section = 'pizza';
-            else if (group.startsWith('burger_')) section = 'burger';
-            else if (group.startsWith('sauces_')) section = 'sauces';
-            if (section) {
-              const d2 = document.getElementById(section);
-              const toggle = d2 ? d2.querySelector('.section-toggle') : null;
-              if (toggle && toggle.checked) {
-                toggle.checked = false;
-                toggle.dispatchEvent(new Event('change', { bubbles: true }));
-              }
-              // Ensure activeSections reflects disabled
+            try {
+              let act = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}');
+              act[section] = false;
+              localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
+            } catch { }
+            if (section === 'pizza' || section === 'burger') {
               try {
-                let act = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}');
-                act[section] = false;
-                localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
+                let qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
+                qs[section] = 0;
+                localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qs));
               } catch { }
-              // Reset quantities as appropriate
-              if (section === 'pizza' || section === 'burger') {
-                try {
-                  let qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
-                  qs[section] = 0;
-                  localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qs));
-                } catch { }
-                const sum = d2 && d2.querySelector('.menu-summary .qty-controls span');
-                if (sum) sum.textContent = `(x0)`;
-              } else if (section === 'sauces') {
-                // Zero out all sauce qtys
-                try {
-                  let qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
-                  Object.keys(qm).forEach((k) => { if (k.startsWith('sauces_ingredients[]|')) qm[k] = 0; });
-                  localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
-                } catch { }
-                // Hide sauce qty widgets if present
-                document.querySelectorAll('.sauce-qty').forEach(el => el.style.display = 'none');
-              }
+              const sum = d2 && d2.querySelector('.menu-summary .qty-controls span');
+              if (sum) sum.textContent = `(x0)`;
+            } else if (section === 'sauces') {
+              try {
+                let qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
+                Object.keys(qm).forEach((k) => { if (k.startsWith('sauces_ingredients[]|')) qm[k] = 0; });
+                localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
+              } catch { }
+              document.querySelectorAll('.sauce-qty').forEach(el => el.style.display = 'none');
             }
           }
+        }
+      };
+
+      document.querySelectorAll('.reset-group[data-group]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          resetGroupByName(btn.getAttribute('data-group'));
         });
       });
       // Next: must have at least one menu section checked; if Sauces is active, require at least one sauce
