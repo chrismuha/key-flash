@@ -262,18 +262,24 @@
       // This avoids the "starts open and won't close" issue.
       settingsOverlay.hidden = true;
       settingsOverlay.setAttribute('aria-hidden', 'true');
+      body.classList.remove('settings-open');
+      if (settingsBtn) settingsBtn.setAttribute('aria-expanded', 'false');
     }
 
     const closeSettings = () => {
       if (!settingsOverlay) return;
       settingsOverlay.hidden = true;
       settingsOverlay.setAttribute('aria-hidden', 'true');
+      body.classList.remove('settings-open');
+      if (settingsBtn) settingsBtn.setAttribute('aria-expanded', 'false');
     };
 
     const openSettings = () => {
       if (!settingsOverlay) return;
       settingsOverlay.hidden = false;
       settingsOverlay.setAttribute('aria-hidden', 'false');
+      body.classList.add('settings-open');
+      if (settingsBtn) settingsBtn.setAttribute('aria-expanded', 'true');
       // Focus first focusable control for keyboard users if present
       const first = settingsOverlay.querySelector('input, button, [tabindex]:not([tabindex="-1"])');
       if (first && typeof first.focus === 'function') first.focus();
