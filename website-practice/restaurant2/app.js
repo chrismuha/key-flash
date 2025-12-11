@@ -1048,8 +1048,6 @@
       const bun = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="bun"]');
       const subBreadCb = document.getElementById('sub-bread-checkbox');
       const subBreadSelect = document.getElementById('sub-bread-select');
-      const subBreadChoice = document.querySelector('.sub-bread-choice');
-      const breadTxt = subBreadChoice; // alias for legacy references
       const pizzaSauce = document.querySelector('input[type="checkbox"][name="pizza_ingredients[]"][value="tomato_sauce"]');
       const enforceReq = (el) => {
         if (!el) return;
@@ -1067,6 +1065,7 @@
           subBreadCb.value = choice;
           subBreadCb.checked = true;
         }
+        const subBreadChoice = document.querySelector('.sub-bread-choice');
         if (subBreadChoice) {
           const pretty = choice === 'wheat' ? 'Wheat' : (choice === 'toasted' ? 'Toasted' : 'White');
           subBreadChoice.textContent = pretty;
@@ -1725,6 +1724,7 @@
             const breadCb = document.getElementById('sub-bread-checkbox');
             if (breadSel) breadSel.value = 'white';
             if (breadCb) { breadCb.value = 'white'; breadCb.checked = true; }
+            const breadTxt = document.querySelector('.sub-bread-choice');
             if (breadTxt) breadTxt.textContent = 'White';
           }
           saveIngredients();
@@ -1772,13 +1772,6 @@
                 } catch { }
                 const sum = d2 && d2.querySelector('.menu-summary .qty-controls span');
                 if (sum) sum.textContent = `(x0)`;
-              } else if (section === 'sub') {
-                // Reset bread selection to White
-                const breadSel = document.getElementById('sub-bread-select');
-                const breadCb = document.getElementById('sub-bread-checkbox');
-                if (breadSel) breadSel.value = 'white';
-                if (breadCb) { breadCb.value = 'white'; breadCb.checked = true; }
-                if (breadTxt) breadTxt.textContent = 'White';
               } else if (section === 'sauces') {
                 // Zero out all sauce qtys
                 try {
