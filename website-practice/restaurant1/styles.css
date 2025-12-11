@@ -461,7 +461,7 @@ body.theme-dark.mobile-ui .theme-option+.theme-option {
 
 .collapse-all {
     margin-top: 8px;
-    width: 100%;
+    width: auto;
 }
 
 .collapse-footer {
@@ -629,20 +629,40 @@ body.theme-dark.page2 .page-actions {
 }
 
 body.page2 .reset-all,
-body.page2 .next-button {
-    padding: 10px 16px;
-    background: var(--box-bg);
-    border: 2px solid var(--box-border);
+body.page2 .next-button,
+body.page2 .collapse-all,
+body.page2 .collapse-footer {
+    padding: 12px 18px;
+    background: #f7f7f7;
+    border: 2px solid #000;
     color: #000;
     font-weight: 700;
+    font-size: 18px;
+    line-height: 24px;
     text-decoration: none;
     border-radius: 6px;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 130px;
 }
 
 body.page2 .reset-all {
     background: #f7f7f7;
     border-color: #000;
+}
+
+body.page2 .collapse-all,
+body.page2 .collapse-footer {
+    background: #f7f7f7;
+    border-color: #000;
+}
+
+body.page2 .next-button {
+    background: var(--box-bg);
+    border-color: var(--box-border);
+    color: #000;
 }
 
 body.theme-dark.page2 .reset-all {
@@ -651,21 +671,39 @@ body.theme-dark.page2 .reset-all {
     border-color: #fff;
 }
 
+body.theme-dark.page2 .collapse-all,
+body.theme-dark.page2 .collapse-footer {
+    background: #222;
+    color: #fff;
+    border-color: #fff;
+}
+
+body.theme-dark.page2 .next-button {
+    background: var(--box-bg);
+    color: #000;
+    border-color: var(--box-border);
+}
+
 body.page2 .reset-all:hover,
-body.page2 .next-button:hover {
+body.page2 .next-button:hover,
+body.page2 .collapse-all:hover,
+body.page2 .collapse-footer:hover {
     filter: brightness(0.95);
 }
 
 body.page2 .reset-all:active,
-body.page2 .next-button:active {
+body.page2 .next-button:active,
+body.page2 .collapse-all:active,
+body.page2 .collapse-footer:active {
     transform: translateY(1px);
 }
 
 body.mobile-ui.page2 .page-actions .collapse-mobile {
-    flex: 1 1 0;
-    min-width: 120px;
-    max-width: 140px;
+    flex: 0 0 auto;
+    min-width: 130px;
+    max-width: 130px;
     justify-content: center;
+    margin-top: 0;
 }
 
 /* Mobile tightening for builder page */
@@ -1339,6 +1377,7 @@ body.nav-enabled .left-rail .box {
         flex: 1 1 0;
         min-width: 120px;
         max-width: 150px;
+        margin-top: 0;
     }
 }
 
