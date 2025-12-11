@@ -19,6 +19,7 @@
     settingsResetDisables: 'restaurant.settings.resetDisables',
     settingsQtyRight: 'restaurant.settings.qtyRight',
     settingsExpandOnly: 'restaurant.settings.expandOnly',
+    settingsAutoExpand: 'restaurant.settings.autoExpandOnSelect',
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantities.sections'
   };
@@ -466,6 +467,7 @@
     const settingExpandOnly = document.querySelector('.setting-expand-only');
     const settingsResetBtn = document.querySelector('.settings-reset');
     const settingQtyRight = document.querySelector('.setting-qty-right');
+    const settingAutoExpand = document.querySelector('.setting-auto-expand');
     // Settings defaults: all ON by default
     let labelSelects = true;
     try {
@@ -507,6 +509,13 @@
       expandOnly = v === null ? true : v === 'true';
     } catch { expandOnly = true; }
     if (settingExpandOnly) settingExpandOnly.checked = expandOnly;
+    // Auto-expand sections when selecting ingredients: default ON
+    let autoExpandOnSelect = true;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsAutoExpand);
+      autoExpandOnSelect = v === null ? true : v === 'true';
+    } catch { autoExpandOnSelect = true; }
+    if (settingAutoExpand) settingAutoExpand.checked = autoExpandOnSelect;
     const hasOverlay = !!settingsOverlay;
 
     const closeSettings = () => {
@@ -584,6 +593,12 @@
         try { localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, String(expandOnly)); } catch { }
       });
     }
+    if (settingAutoExpand) {
+      settingAutoExpand.addEventListener('change', () => {
+        autoExpandOnSelect = !!settingAutoExpand.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsAutoExpand, String(autoExpandOnSelect)); } catch { }
+      });
+    }
     if (settingResetOnDeselect) {
       settingResetOnDeselect.addEventListener('change', () => {
         resetOnDeselect = !!settingResetOnDeselect.checked;
@@ -603,6 +618,7 @@
         labelSelects = true;
         titleSelects = true;
         expandOnly = true;
+        autoExpandOnSelect = true;
         // Defaults: reset-related toggles OFF
         resetOnDeselect = false;
         resetDisables = false;
@@ -612,6 +628,7 @@
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsAutoExpand, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
@@ -619,6 +636,7 @@
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingExpandOnly) settingExpandOnly.checked = true;
+        if (settingAutoExpand) settingAutoExpand.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
         if (settingResetDisables) settingResetDisables.checked = false;
         if (settingQtyRight) settingQtyRight.checked = false;
@@ -1773,25 +1791,30 @@
         const t = e.target;
         if (t && t.matches && t.matches('input[type="checkbox"][name]')) {
           // If a non-required ingredient inside a section is checked, ensure the section is activated
-          const name = t.getAttribute('name') || '';
-          const isRequired = t.dataset && t.dataset.required === 'true';
-          if (!isRequired && t.checked) {
-            let section = '';
-            if (name.startsWith('pizza_')) section = 'pizza';
-            else if (name.startsWith('burger_')) section = 'burger';
-            else if (name.startsWith('sauces_')) section = 'sauces';
-            if (section) {
-              const d = detailsBySection[section];
-              const toggle = d ? d.querySelector('.section-toggle') : null;
-              if (toggle && !toggle.checked) {
-                toggle.checked = true;
-                toggle.dispatchEvent(new Event('change', { bubbles: true }));
-              }
+        const name = t.getAttribute('name') || '';
+        const isRequired = t.dataset && t.dataset.required === 'true';
+        if (!isRequired && t.checked) {
+          let section = '';
+          if (name.startsWith('pizza_')) section = 'pizza';
+          else if (name.startsWith('burger_')) section = 'burger';
+          else if (name.startsWith('sauces_')) section = 'sauces';
+          else if (name.startsWith('sub_')) section = 'sub';
+          if (section) {
+            const d = detailsBySection[section];
+            const toggle = d ? d.querySelector('.section-toggle') : null;
+            if (toggle && !toggle.checked) {
+              toggle.checked = true;
+              toggle.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            // Auto-open the section when selecting an item if enabled
+            if (autoExpandOnSelect && d && d.tagName && d.tagName.toLowerCase() === 'details') {
+              d.open = true;
             }
           }
-          saveIngredients();
-          updateBuilderError();
-          updatePageNavLocks();
+        }
+        saveIngredients();
+        updateBuilderError();
+        updatePageNavLocks();
         }
       });
       // Ensure builder validation state is accurate after initial render/restore
