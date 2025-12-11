@@ -1309,9 +1309,22 @@
           const target = btn.getAttribute('data-target');
           if (target) openOverlay(target);
         };
+        const isArrowTarget = (t) => {
+          if (!arrow) return false;
+          if (arrow === t) return true;
+          if (arrow.contains(t)) return true;
+          if (t && t.closest) {
+            const viaClosest = t.closest('.menu-launch-arrow');
+            if (viaClosest && viaClosest === arrow) return true;
+          }
+          return false;
+        };
         btn.addEventListener('click', (e) => {
-          if (pillArrowOnly) {
-            if (!arrow || !(arrow === e.target || arrow.contains(e.target))) return;
+          const arrowClicked = isArrowTarget(e.target);
+          if (pillArrowOnly && !arrowClicked) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return;
           }
           openTarget();
         });
@@ -1322,6 +1335,18 @@
           });
         }
       });
+
+      // Guard: block non-arrow clicks when pillArrowOnly is enabled, even if other listeners exist
+      document.addEventListener('click', (e) => {
+        const pill = e.target.closest && e.target.closest('.menu-launch[data-target]');
+        if (!pill) return;
+        if (!pillArrowOnly) return;
+        const arrowHit = e.target.closest('.menu-launch-arrow');
+        if (!arrowHit) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        }
+      }, true);
       overlays.forEach((overlay) => {
         overlay.addEventListener('click', (e) => {
           if (e.target === overlay) closeOverlay(overlay);

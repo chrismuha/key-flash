@@ -44,6 +44,8 @@ function syncSettingsFromUI() {
 
 // ---------- Logging ----------
 const logEl = document.getElementById("log");
+const previewGrid = document.getElementById("previewGrid");
+const previewTitle = document.getElementById("previewTitle");
 
 function logLine(msg, type = "normal") {
     const div = document.createElement("div");
@@ -54,6 +56,42 @@ function logLine(msg, type = "normal") {
     div.textContent = msg;
     logEl.appendChild(div);
     logEl.scrollTop = logEl.scrollHeight;
+}
+
+function resetPreviews(message = "Drop a PDF to see page thumbnails.") {
+    previewGrid.className = "preview-grid empty";
+    previewGrid.innerHTML = `<div class="preview-empty">${message}</div>`;
+    previewTitle.textContent = "Idle";
+}
+
+function ensurePreviewGrid() {
+    if (previewGrid.classList.contains("empty")) {
+        previewGrid.classList.remove("empty");
+        previewGrid.innerHTML = "";
+    }
+}
+
+async function renderThumbnail(page, pageNumber) {
+    const viewport = page.getViewport({ scale: 0.35 });
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    const url = canvas.toDataURL("image/png");
+    canvas.width = canvas.height = 0;
+    ensurePreviewGrid();
+    const wrap = document.createElement("div");
+    wrap.className = "thumb";
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = `Page ${pageNumber}`;
+    const label = document.createElement("div");
+    label.className = "thumb-label";
+    label.textContent = `Page ${pageNumber}`;
+    wrap.appendChild(img);
+    wrap.appendChild(label);
+    previewGrid.appendChild(wrap);
 }
 
 // ---------- File list UI ----------
@@ -188,6 +226,7 @@ clearBtn.addEventListener("click", () => {
     files = [];
     renderFileList();
     logLine("Cleared file list.");
+    resetPreviews("Drop a PDF to see page thumbnails.");
 });
 
 // ---------- Page number detection ----------
@@ -241,6 +280,9 @@ async function processSingleFile(entry) {
     renderFileList();
 
     const arrayBuffer = await file.arrayBuffer();
+    previewTitle.textContent = file.name;
+    previewGrid.classList.remove("empty");
+    previewGrid.innerHTML = "";
 
     // PDF.js worker config (safe default)
     if (pdfjsLib.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
@@ -253,6 +295,8 @@ async function processSingleFile(entry) {
     logLine(`Loaded PDF. Pages: ${pdf.numPages}`);
 
     const pagesInfo = []; // { index, pageNum }
+    const maxThumbs = 24;
+    let thumbCount = 0;
 
     for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
@@ -283,6 +327,11 @@ async function processSingleFile(entry) {
         } else {
             logLine(`Page ${i}: no page number detected`, "warn");
         }
+
+        if (thumbCount < maxThumbs) {
+            await renderThumbnail(page, i);
+            thumbCount++;
+        }
     }
 
     const withNumbers = pagesInfo.filter(p => p.pageNum != null)
@@ -290,6 +339,13 @@ async function processSingleFile(entry) {
     const withoutNumbers = pagesInfo.filter(p => p.pageNum == null);
 
     const sorted = [...withNumbers, ...withoutNumbers];
+
+    if (pdf.numPages > maxThumbs) {
+        const more = document.createElement("div");
+        more.className = "preview-empty";
+        more.textContent = `+ ${pdf.numPages - maxThumbs} more page(s) not shown`;
+        previewGrid.appendChild(more);
+    }
 
     logLine("Rebuilding PDF in sorted order…");
 
@@ -360,4 +416,5 @@ document.getElementById("rememberSettings").addEventListener("change", syncSetti
     syncSettingsToUI();
     renderFileList();
     logLine("Ready. Add PDFs to start.");
+    resetPreviews();
 })();
