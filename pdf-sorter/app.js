@@ -139,12 +139,21 @@
     return ordered.map((d) => d.pageIndex);
   };
 
-  const rebuildPdf = async (bytes, order) => {
+  const rebuildPdf = async (bytes, order, { autoStraighten = true, manualRotate = 0 } = {}) => {
     if (!window.PDFLib) throw new Error('pdf-lib not available');
     const src = await PDFLib.PDFDocument.load(bytes);
     const next = await PDFLib.PDFDocument.create();
     const copied = await next.copyPages(src, order);
-    copied.forEach((p) => next.addPage(p));
+    copied.forEach((p, idx) => {
+      const srcPage = src.getPage(order[idx]);
+      const { width, height } = srcPage.getSize();
+      let rotateDeg = (manualRotate || 0) % 360;
+      // auto-straighten: rotate landscape pages to portrait
+      if (autoStraighten && width > height) rotateDeg += 90;
+      rotateDeg = ((rotateDeg % 360) + 360) % 360;
+      if (rotateDeg) p.setRotation(PDFLib.degrees(rotateDeg));
+      next.addPage(p);
+    });
     return next.save();
   };
 
@@ -214,6 +223,10 @@
 
   const processQueue = async () => {
     if (!queue.length) return;
+    const straighten = {
+      autoStraighten: !!(els.autoStraighten && els.autoStraighten.checked),
+      manualRotate: els.manualRotate ? parseInt(els.manualRotate.value, 10) || 0 : 0
+    };
     setProcessingState(true);
     for (let i = 0; i < queue.length; i++) {
       updateStatus(i, 'running');
@@ -222,10 +235,12 @@
         const bytes = await readFileAsArrayBuffer(item.file);
         const order = await detectOrder(bytes);
         log(`Detected page order for ${item.file.name}: [${order.map((o) => o + 1).join(', ')}]`, 'info');
-        const rebuilt = await rebuildPdf(bytes, order);
+        const rebuilt = await rebuildPdf(bytes, order, straighten);
         downloadFile(rebuilt, item.file.name);
         updateStatus(i, 'done');
-        log(`Downloaded ${item.file.name} with original filename`, 'ok');
+        const straightenNote = straighten.manualRotate ? `; manual rotate ${straighten.manualRotate}°` : '';
+        const autoNote = straighten.autoStraighten ? '; auto-straighten on' : '';
+        log(`Downloaded ${item.file.name} with original filename${autoNote}${straightenNote}`, 'ok');
       } catch (err) {
         console.error(err);
         updateStatus(i, 'error');
@@ -290,6 +305,8 @@
     els.log = document.getElementById('log');
     els.previewGrid = document.getElementById('previewGrid');
     els.previewTitle = document.getElementById('previewTitle');
+    els.autoStraighten = document.getElementById('autoStraighten');
+    els.manualRotate = document.getElementById('manualRotate');
 
     renderFileList();
     bindEvents();

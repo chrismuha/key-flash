@@ -32,8 +32,8 @@
 
                 <div class="file-input-wrapper">
                     <label class="btn">
-                        <span>📂 Choose PDFs</span>
-                        <input type="file" id="fileInput" multiple accept="application/pdf">
+                        <span>📂 Choose PDFs or folders</span>
+                        <input type="file" id="fileInput" multiple webkitdirectory directory accept="application/pdf">
                     </label>
                     <button class="btn-secondary" id="clearBtn" type="button">Clear list</button>
                 </div>
@@ -83,6 +83,24 @@
                         <input type="checkbox" id="rememberSettings">
                         <span class="slider"></span>
                     </label>
+                </div>
+
+                <div class="setting-row">
+                    <label for="autoStraighten">Auto-straighten pages (rotate landscape to portrait)</label>
+                    <label class="switch">
+                        <input type="checkbox" id="autoStraighten" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-row">
+                    <label for="manualRotate">Manual rotation</label>
+                    <select id="manualRotate">
+                        <option value="0">None</option>
+                        <option value="90">Rotate 90°</option>
+                        <option value="180">Rotate 180°</option>
+                        <option value="270">Rotate 270°</option>
+                    </select>
                 </div>
 
                 <div class="tiny">
