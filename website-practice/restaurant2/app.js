@@ -203,6 +203,20 @@
       navToggleBtn.textContent = navEnabled ? 'Disable Navigation' : 'Enable Navigation';
     };
 
+    // Go Back button (pages 2/3)
+    const backBtn = document.querySelector('.go-back');
+    if (backBtn) {
+      body.classList.add('has-go-back');
+      backBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (body.classList.contains('page3')) {
+          window.location.href = 'page2.html';
+        } else {
+          window.location.href = 'index.html';
+        }
+      });
+    }
+
     const persistThemeState = () => {
       const isDark = body.classList.contains('theme-dark');
       const key = currentThemeChoice === 'boxify'
@@ -480,7 +494,34 @@
       const sectionToggles = Array.from(document.querySelectorAll('.section-toggle[data-section]'));
       const ingredientCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][name]'));
       const builderError = document.getElementById('builder-error');
-      const disabledSections = new Set(['sub', 'sauces']);
+      const disabledSections = new Set(['sauces']);
+      const requiredCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-required="true"]'));
+      const requiredBySection = {};
+
+      const saveAllIngredientSelections = () => {
+        const data = {};
+        document.querySelectorAll('input[type="checkbox"][name]').forEach((i) => {
+          const nm = i.getAttribute('name');
+          data[nm] = data[nm] || [];
+          if (i.checked) data[nm].push(i.value);
+        });
+        saveIngredientsToStorage(data);
+      };
+
+      // Associate required checkboxes with their section and ensure they start checked
+      requiredCheckboxes.forEach((cb) => {
+        const sectionEl = cb.closest('.menu-overlay');
+        const sectionId = (sectionEl && sectionEl.dataset.section) || (cb.closest('.menu-section') && cb.closest('.menu-section').id);
+        if (sectionId) {
+          requiredBySection[sectionId] = requiredBySection[sectionId] || [];
+          requiredBySection[sectionId].push(cb);
+        }
+        cb.checked = true;
+        // Keep required items checked even if clicked directly
+        cb.addEventListener('change', () => {
+          if (!cb.checked) cb.checked = true;
+        });
+      });
 
       // Restore active sections from storage
       const savedSections = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {});
@@ -497,8 +538,49 @@
         if (savedSections[sec]) toggle.checked = true;
       });
 
+      const syncRequiredCheckboxes = () => {
+        sectionToggles.forEach((toggle) => {
+          const sec = toggle.dataset.section;
+          if (!sec) return;
+          const reqList = requiredBySection[sec] || [];
+          const isActive = !!toggle.checked && !toggle.disabled;
+          reqList.forEach((cb) => {
+            cb.checked = true;
+            cb.disabled = !isActive;
+            const lbl = cb.closest('label');
+            if (lbl) {
+              lbl.classList.toggle('required-disabled', !isActive);
+              const extras = Array.from(lbl.querySelectorAll('select, input:not([type=\"checkbox\"])'));
+              extras.forEach((el) => { el.disabled = !isActive; });
+            }
+          });
+        });
+      };
+
+      const resetGroupByName = (group) => {
+        if (!group) return;
+        const inputs = Array.from(document.querySelectorAll(`input[type="checkbox"][name="${group}"]`));
+        if (!inputs.length) return;
+        inputs.forEach((cb) => {
+          const isRequired = cb.dataset.required === 'true';
+          cb.checked = isRequired;
+          const lbl = cb.closest('label');
+          const qty = lbl && lbl.querySelector('select.ingredient-qty');
+          if (qty) {
+            qty.disabled = !cb.checked;
+            if (!cb.checked && qty.options.length) qty.value = qty.options[0].value;
+          }
+          cb.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+        saveAllIngredientSelections();
+        syncRequiredCheckboxes();
+        updateBuilderError();
+        updatePage3NavState();
+      };
+
       // Restore saved ingredient selections
       updateIngredientInputsFromData(loadIngredientsFromStorage());
+      syncRequiredCheckboxes();
 
       // Build lookup for pills by section
       const menuLaunchLookup = {};
@@ -588,6 +670,7 @@
           }
         });
         try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(active)); } catch { }
+        syncRequiredCheckboxes();
       };
 
       const updateBuilderError = () => {
@@ -658,16 +741,15 @@
       // Persist ingredient selections
       ingredientCheckboxes.forEach((cb) => {
         cb.addEventListener('change', () => {
-          const data = {};
-          document.querySelectorAll('input[type="checkbox"][name]').forEach((i) => {
-            const nm = i.getAttribute('name');
-            data[nm] = data[nm] || [];
-            if (i.checked) data[nm].push(i.value);
-          });
-          saveIngredientsToStorage(data);
+          saveAllIngredientSelections();
           updateBuilderError();
           updatePage3NavState();
         });
+      });
+
+      // Hook up individual reset buttons
+      document.querySelectorAll('.reset-group[data-group]').forEach((btn) => {
+        btn.addEventListener('click', () => resetGroupByName(btn.getAttribute('data-group')));
       });
 
       // Persist active section toggles
