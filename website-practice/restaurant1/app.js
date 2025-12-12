@@ -521,13 +521,6 @@
       autoDisableEmpty = v === 'true';
     } catch { autoDisableEmpty = false; }
     if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = autoDisableEmpty;
-    // Auto-disable section when only required items remain: default OFF
-    let autoDisableEmpty = false;
-    try {
-      const v = localStorage.getItem(STORAGE_KEYS.settingsAutoDisableEmpty);
-      autoDisableEmpty = v === 'true';
-    } catch { autoDisableEmpty = false; }
-    if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = autoDisableEmpty;
     // Quantity dropdown placement: default BEFORE label (setting unchecked)
     let qtyRight = false;
     try {
@@ -662,12 +655,6 @@
       settingResetDisables.addEventListener('change', () => {
         resetDisables = !!settingResetDisables.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsResetDisables, String(resetDisables)); } catch { }
-      });
-    }
-    if (settingAutoDisableEmpty) {
-      settingAutoDisableEmpty.addEventListener('change', () => {
-        autoDisableEmpty = !!settingAutoDisableEmpty.checked;
-        try { localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, String(autoDisableEmpty)); } catch { }
       });
     }
     if (settingAutoDisableEmpty) {
@@ -1784,6 +1771,38 @@
         sauces: document.getElementById('sauces'),
         sub: document.getElementById('sub')
       };
+      const requiredCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-required="true"]'));
+      const requiredBySection = {};
+      requiredCheckboxes.forEach((cb) => {
+        const sectionEl = cb.closest('details');
+        const sectionId = sectionEl ? sectionEl.id : '';
+        if (sectionId) {
+          requiredBySection[sectionId] = requiredBySection[sectionId] || [];
+          requiredBySection[sectionId].push(cb);
+        }
+        cb.checked = true;
+        cb.addEventListener('change', () => {
+          if (!cb.checked) cb.checked = true;
+        });
+      });
+      const syncRequiredCheckboxes = () => {
+        toggles.forEach((t) => {
+          const section = t.dataset.section;
+          if (!section) return;
+          const list = requiredBySection[section] || [];
+          const isActive = !!t.checked && !t.disabled;
+          list.forEach((cb) => {
+            cb.checked = true;
+            cb.disabled = !isActive;
+            const lbl = cb.closest('label');
+            if (lbl) {
+              lbl.classList.toggle('required-disabled', !isActive);
+              const extras = Array.from(lbl.querySelectorAll('select, input:not([type="checkbox"])'));
+              extras.forEach((el) => { el.disabled = !isActive; });
+            }
+          });
+        });
+      };
       // Restore previously saved active sections (so Go Back preserves state)
       let activeSections = {};
       try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
@@ -1849,9 +1868,11 @@
           try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(activeSections)); } catch { }
           updatePageNavLocks();
           syncMenuLaunchState();
+          syncRequiredCheckboxes();
         });
       });
       syncMenuLaunchState();
+      syncRequiredCheckboxes();
       // Summary behavior:
       // - If titleSelects is ON, clicking the title text toggles the checkbox (not expand)
       // - Otherwise, clicking summary toggles the checkbox
@@ -2064,6 +2085,7 @@
           if (section) {
             autoDisableIfEmpty(section);
           }
+          syncRequiredCheckboxes();
           saveIngredients();
           updateBuilderError();
           updatePageNavLocks();
@@ -2091,6 +2113,7 @@
           cb.dispatchEvent(new Event('change', { bubbles: true }));
         });
         saveIngredients();
+        syncRequiredCheckboxes();
         // Additionally normalize key quantities for the group being reset
         try {
           let qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');

@@ -1026,6 +1026,28 @@ body.page2 input[type="checkbox"][data-required="true"] {
     /* hover still hits the label, showing tooltip */
 }
 
+/* Visually gray required items when their section is inactive */
+body.page2 label.required.required-disabled {
+    opacity: 0.55;
+    color: #777;
+    cursor: not-allowed;
+    pointer-events: none !important;
+}
+
+body.theme-dark.page2 label.required.required-disabled {
+    color: #999;
+}
+
+body.page2 label.required.required-disabled select,
+body.page2 label.required.required-disabled input:not([type="checkbox"]) {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
+body.page2 label.required.required-disabled input[type="checkbox"] {
+    opacity: 0.5;
+}
+
 /* Section: Page 3 Order Summary */
 body.page3 #order-summary {
     border: 1px solid #000;
