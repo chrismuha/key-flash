@@ -533,16 +533,16 @@
       autoExpandOnSelect = v === null ? true : v === 'true';
     } catch { autoExpandOnSelect = true; }
     if (settingAutoExpand) settingAutoExpand.checked = autoExpandOnSelect;
-    // Menu pills: respect stored value; otherwise honor the HTML default
-    let pillArrowOnly = true;
+    // Menu pills: respect stored value; default OFF unless saved
+    let pillArrowOnly = false;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsPillArrowOnly);
       if (v === null) {
-        pillArrowOnly = settingPillArrowOnly ? !!settingPillArrowOnly.defaultChecked : true;
+        pillArrowOnly = settingPillArrowOnly ? !!settingPillArrowOnly.defaultChecked : false;
       } else {
         pillArrowOnly = v === 'true';
       }
-    } catch { pillArrowOnly = settingPillArrowOnly ? !!settingPillArrowOnly.defaultChecked : true; }
+    } catch { pillArrowOnly = settingPillArrowOnly ? !!settingPillArrowOnly.defaultChecked : false; }
     if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
     window.pillArrowOnly = pillArrowOnly;
     const hasOverlay = !!settingsOverlay;
@@ -656,7 +656,7 @@
         titleSelects = true;
         expandOnly = false;
         autoExpandOnSelect = true;
-        pillArrowOnly = true;
+        pillArrowOnly = false;
         // Defaults: reset-related toggles ON
         resetOnDeselect = true;
         resetDisables = true;
@@ -667,7 +667,7 @@
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsAutoExpand, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
@@ -676,7 +676,7 @@
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingExpandOnly) settingExpandOnly.checked = false;
         if (settingAutoExpand) settingAutoExpand.checked = true;
-        if (settingPillArrowOnly) settingPillArrowOnly.checked = true;
+        if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = true;
         if (settingResetDisables) settingResetDisables.checked = true;
         if (settingQtyRight) settingQtyRight.checked = false;
@@ -2695,6 +2695,15 @@
 
     function initSummaryHandlers() {
       const summaries = Array.from(document.querySelectorAll('summary.menu-summary'));
+      const allowToggleCheckbox = () => {
+        try {
+          const lbl = document.querySelector('.setting-label-selects');
+          const ttl = document.querySelector('.setting-title-selects');
+          const lblOn = lbl ? !!lbl.checked : true;
+          const ttlOn = ttl ? !!ttl.checked : true;
+          return lblOn || ttlOn;
+        } catch { return true; }
+      };
 
       summaries.forEach((summary) => {
         // Remove any older v1 handlers so they don't block clicks
@@ -2761,11 +2770,25 @@
         const el = e.target;
         if (!el) return;
         if (isInteractive(el)) return; // allow interactions
+        const toggle = summary.querySelector('.section-toggle');
+        const canToggle = allowToggleCheckbox() && toggle && !toggle.disabled;
         const arrowHit = !!(el.closest && (el.closest('.menu-summary-arrow') || el.closest('.menu-launch-arrow')));
         if (!arrowHit) {
           // if using hit area, check coordinates
           if ((useHitArea && isInRightHitArea(e, summary)) || isInLeftHitArea(e, summary)) {
             return; // allow
+          }
+          // If allowed, toggle the checkbox instead of expanding
+          if (canToggle) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            toggle.checked = !toggle.checked;
+            toggle.dispatchEvent(new Event('change', { bubbles: true }));
+            if (toggle.checked) {
+              const detailsParent = summary.closest('details');
+              if (detailsParent) detailsParent.open = true;
+            }
+            return;
           }
           // otherwise block toggling
           e.preventDefault();
@@ -2779,9 +2802,15 @@
         const el = e.target;
         if (!el) return;
         if (isInteractive(el)) return;
+        const toggle = summary.querySelector('.section-toggle');
+        const canToggle = allowToggleCheckbox() && toggle && !toggle.disabled;
         const arrowHit = !!(el.closest && (el.closest('.menu-summary-arrow') || el.closest('.menu-launch-arrow')));
         if (!arrowHit) {
           if ((useHitArea && isInRightHitArea(e, summary)) || isInLeftHitArea(e, summary)) {
+            return;
+          }
+          if (canToggle) {
+            // allow click handler to toggle; do not block here
             return;
           }
           e.preventDefault();
