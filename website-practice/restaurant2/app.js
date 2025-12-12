@@ -18,6 +18,7 @@
     settingsResetOnDeselect: 'restaurant.settings.resetOnDeselect',
     settingsResetDisables: 'restaurant.settings.resetDisables',
     settingsResetKeepOpen: 'restaurant.settings.resetKeepOpen',
+    settingsAutoDisableEmpty: 'restaurant.settings.autoDisableEmpty',
     settingsQtyRight: 'restaurant.settings.qtyRight',
     settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly'
   };
@@ -98,6 +99,7 @@
     const settingResetOnDeselect = document.getElementById('setting-reset-on-deselect') || document.querySelector('.setting-reset-on-deselect');
     const settingResetDisables = document.getElementById('setting-reset-disables') || document.querySelector('.setting-reset-disables');
     const settingResetKeepOpen = document.getElementById('setting-reset-keep-open') || document.querySelector('.setting-reset-keep-open');
+    const settingAutoDisableEmpty = document.getElementById('setting-auto-disable-empty') || document.querySelector('.setting-auto-disable-empty');
     const settingQtyRight = document.getElementById('setting-qty-right') || document.querySelector('.setting-qty-right');
     const settingPillArrowOnly = document.getElementById('setting-pill-arrow-only') || document.querySelector('.setting-pill-arrow-only');
     const settingsResetBtn = document.getElementById('settings-reset') || document.querySelector('.settings-reset');
@@ -276,6 +278,14 @@
     } catch { resetDisables = false; }
     if (settingResetDisables) settingResetDisables.checked = resetDisables;
 
+    // Auto-disable section when only required items remain: default OFF
+    let autoDisableEmpty = false;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsAutoDisableEmpty);
+      autoDisableEmpty = v === 'true';
+    } catch { autoDisableEmpty = false; }
+    if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = autoDisableEmpty;
+
     // Keep section open after reset: default ON
     let resetKeepOpen = true;
     try {
@@ -343,6 +353,7 @@
         resetOnDeselect = false;
         resetDisables = false;
         resetKeepOpen = true;
+        autoDisableEmpty = false;
         // Default: quantity dropdowns before the label
         qtyRight = false;
         // Default: menu pills open/close via the whole pill
@@ -353,6 +364,7 @@
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetKeepOpen, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
         } catch { }
@@ -361,6 +373,7 @@
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
         if (settingResetDisables) settingResetDisables.checked = false;
         if (settingResetKeepOpen) settingResetKeepOpen.checked = true;
+        if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
         if (settingQtyRight) settingQtyRight.checked = false;
         if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
       });
@@ -604,6 +617,22 @@
         }
       };
 
+      const autoDisableIfEmpty = (secId) => {
+        if (!autoDisableEmpty) return;
+        if (!secId || disabledSections.has(secId)) return;
+        const toggle = document.querySelector(`.section-toggle[data-section="${secId}"]`);
+        if (!toggle || toggle.disabled) return;
+        const sectionEl = document.getElementById(secId);
+        if (!sectionEl) return;
+        const inputs = Array.from(sectionEl.querySelectorAll('input[type="checkbox"][name]'));
+        const anyOptionalChecked = inputs.some((input) => input.checked && input.dataset.required !== 'true');
+        const hasOptionals = inputs.some((input) => input.dataset.required !== 'true');
+        if (!anyOptionalChecked && hasOptionals) {
+          toggle.checked = false;
+          toggle.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      };
+
       const resetGroupByName = (group) => {
         if (!group) return;
         const inputs = Array.from(document.querySelectorAll(`input[type="checkbox"][name="${group}"]`));
@@ -814,6 +843,10 @@
           if (cb.checked) {
             ensureSectionActiveForCheckbox(cb);
           }
+          const secEl = cb.closest('.menu-section');
+          if (secEl && secEl.id) {
+            autoDisableIfEmpty(secEl.id);
+          }
           saveAllIngredientSelections();
           updateBuilderError();
           updatePage3NavState();
@@ -904,6 +937,12 @@
       settingResetDisables.addEventListener('change', () => {
         resetDisables = !!settingResetDisables.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsResetDisables, String(resetDisables)); } catch { }
+      });
+    }
+    if (settingAutoDisableEmpty) {
+      settingAutoDisableEmpty.addEventListener('change', () => {
+        autoDisableEmpty = !!settingAutoDisableEmpty.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, String(autoDisableEmpty)); } catch { }
       });
     }
     if (settingResetKeepOpen) {
