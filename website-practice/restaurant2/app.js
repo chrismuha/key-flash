@@ -193,7 +193,7 @@
     const updateThemeModeLabel = () => {
       if (!themeModeBtns.length) return;
       const isDark = body.classList.contains('theme-dark');
-      const mobile = body.classList.contains('mobile-ui');
+      const mobile = isMobileView();
       const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
       themeModeBtns.forEach((btn) => {
         btn.textContent = mobile ? (isDark ? '☀️' : '🌙') : (isDark ? 'Light Mode' : 'Dark Mode');
@@ -1016,6 +1016,11 @@
 
     // Re-open section if hash present
     openSectionFromHash();
+
+    // Keep theme label in sync on viewport changes (for emoji on small screens)
+    if (mobileQuery && typeof mobileQuery.addEventListener === 'function') {
+      mobileQuery.addEventListener('change', updateThemeModeLabel);
+    }
   });
 
   // small helper to stop nav click when disabled
