@@ -17,6 +17,7 @@
     settingsTitleSelects: 'restaurant.settings.titleSelects',
     settingsResetOnDeselect: 'restaurant.settings.resetOnDeselect',
     settingsResetDisables: 'restaurant.settings.resetDisables',
+    settingsResetKeepOpen: 'restaurant.settings.resetKeepOpen',
     settingsQtyRight: 'restaurant.settings.qtyRight',
     settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly'
   };
@@ -96,6 +97,7 @@
     const settingTitleSelects = document.getElementById('setting-title-selects') || document.querySelector('.setting-title-selects');
     const settingResetOnDeselect = document.getElementById('setting-reset-on-deselect') || document.querySelector('.setting-reset-on-deselect');
     const settingResetDisables = document.getElementById('setting-reset-disables') || document.querySelector('.setting-reset-disables');
+    const settingResetKeepOpen = document.getElementById('setting-reset-keep-open') || document.querySelector('.setting-reset-keep-open');
     const settingQtyRight = document.getElementById('setting-qty-right') || document.querySelector('.setting-qty-right');
     const settingPillArrowOnly = document.getElementById('setting-pill-arrow-only') || document.querySelector('.setting-pill-arrow-only');
     const settingsResetBtn = document.getElementById('settings-reset') || document.querySelector('.settings-reset');
@@ -274,6 +276,14 @@
     } catch { resetDisables = false; }
     if (settingResetDisables) settingResetDisables.checked = resetDisables;
 
+    // Keep section open after reset: default ON
+    let resetKeepOpen = true;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsResetKeepOpen);
+      resetKeepOpen = v === null ? true : v === 'true';
+    } catch { resetKeepOpen = true; }
+    if (settingResetKeepOpen) settingResetKeepOpen.checked = resetKeepOpen;
+
     // Quantity dropdown placement: default BEFORE label (setting unchecked)
     let qtyRight = false;
     try {
@@ -329,9 +339,10 @@
         // Defaults: all ON
         labelSelects = true;
         titleSelects = true;
-        // Defaults: reset-related toggles OFF
+        // Defaults: reset-related toggles OFF (except keep-open ON)
         resetOnDeselect = false;
         resetDisables = false;
+        resetKeepOpen = true;
         // Default: quantity dropdowns before the label
         qtyRight = false;
         // Default: menu pills open/close via the whole pill
@@ -341,6 +352,7 @@
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsResetKeepOpen, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
         } catch { }
@@ -348,6 +360,7 @@
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
         if (settingResetDisables) settingResetDisables.checked = false;
+        if (settingResetKeepOpen) settingResetKeepOpen.checked = true;
         if (settingQtyRight) settingQtyRight.checked = false;
         if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
       });
@@ -576,6 +589,29 @@
         syncRequiredCheckboxes();
         updateBuilderError();
         updatePage3NavState();
+
+        if (resetDisables) {
+          let section = '';
+          if (group.startsWith('pizza_')) section = 'pizza';
+          else if (group.startsWith('burger_')) section = 'burger';
+          else if (group.startsWith('sauces_')) section = 'sauces';
+          else if (group.startsWith('sub_')) section = 'sub';
+          if (section) {
+            const toggle = document.querySelector(`.section-toggle[data-section="${section}"]`);
+            if (toggle && toggle.checked) {
+              toggle.checked = false;
+              toggle.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            try {
+              const act = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {});
+              act[section] = false;
+              localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
+            } catch { /* ignore */ }
+          }
+          if (!resetKeepOpen) {
+            closeOverlay(section);
+          }
+        }
       };
 
       // Restore saved ingredient selections
@@ -790,6 +826,12 @@
       settingResetDisables.addEventListener('change', () => {
         resetDisables = !!settingResetDisables.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsResetDisables, String(resetDisables)); } catch { }
+      });
+    }
+    if (settingResetKeepOpen) {
+      settingResetKeepOpen.addEventListener('change', () => {
+        resetKeepOpen = !!settingResetKeepOpen.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsResetKeepOpen, String(resetKeepOpen)); } catch { }
       });
     }
     if (settingQtyRight) {
