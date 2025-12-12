@@ -576,6 +576,34 @@
         });
       };
 
+      const ensureSectionEnabledForCheckbox = (cb) => {
+        if (!cb) return;
+        const sectionEl = cb.closest('.menu-section');
+        const secId = sectionEl && sectionEl.id;
+        if (!secId) return;
+        const toggle = document.querySelector(`.section-toggle[data-section="${secId}"]`);
+        if (!toggle || toggle.disabled) return;
+        if (!toggle.checked) {
+          toggle.checked = true;
+          toggle.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        // After enabling section, allow the checkbox to be toggled
+        cb.disabled = false;
+      };
+
+      const ensureSectionActiveForCheckbox = (cb) => {
+        if (!cb) return;
+        const sectionEl = cb.closest('.menu-section');
+        const secId = sectionEl && sectionEl.id;
+        if (!secId) return;
+        const toggle = document.querySelector(`.section-toggle[data-section="${secId}"]`);
+        if (!toggle || toggle.disabled) return;
+        if (!toggle.checked) {
+          toggle.checked = true;
+          toggle.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      };
+
       const resetGroupByName = (group) => {
         if (!group) return;
         const inputs = Array.from(document.querySelectorAll(`input[type="checkbox"][name="${group}"]`));
@@ -783,11 +811,37 @@
       // Persist ingredient selections
       ingredientCheckboxes.forEach((cb) => {
         cb.addEventListener('change', () => {
+          if (cb.checked) {
+            ensureSectionActiveForCheckbox(cb);
+          }
           saveAllIngredientSelections();
           updateBuilderError();
           updatePage3NavState();
         });
       });
+
+      // If a disabled ingredient is clicked, enable its section toggle first, then check it
+      const tryActivateDisabledCheckbox = (evt) => {
+        // Handle when the target is a disabled checkbox or within its label
+        let cb = null;
+        if (evt.target && evt.target.matches && evt.target.matches('input[type="checkbox"][name]')) {
+          cb = evt.target;
+        } else {
+          const lbl = evt.target.closest && evt.target.closest('label');
+          if (lbl) cb = lbl.querySelector('input[type="checkbox"][name]');
+        }
+        if (!cb || !cb.disabled) return;
+        ensureSectionEnabledForCheckbox(cb);
+        ensureSectionActiveForCheckbox(cb);
+        if (cb.disabled) return;
+        cb.checked = true;
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+        evt.preventDefault();
+        evt.stopPropagation();
+      };
+      // Capture early so the browser doesn't swallow the click on a disabled input
+      document.addEventListener('pointerdown', tryActivateDisabledCheckbox, true);
+      document.addEventListener('click', tryActivateDisabledCheckbox, true);
 
       // Hook up individual reset buttons
       document.querySelectorAll('.reset-group[data-group]').forEach((btn) => {
