@@ -541,8 +541,9 @@
         });
       });
 
-      // Restore active sections from storage
-      const savedSections = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {});
+      // Restore active sections from storage (guard against null/undefined)
+      const savedSectionsRaw = localStorage.getItem(STORAGE_KEYS.activeSections);
+      const savedSections = safeParseJSON(savedSectionsRaw, {});
       sectionToggles.forEach((toggle) => {
         const sec = toggle.dataset.section;
         if (!sec) return;
@@ -553,7 +554,7 @@
           toggle.setAttribute('aria-disabled', 'true');
           return;
         }
-        if (savedSections[sec]) toggle.checked = true;
+        if (savedSections && savedSections[sec]) toggle.checked = true;
       });
 
       const syncRequiredCheckboxes = () => {
