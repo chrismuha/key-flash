@@ -533,12 +533,16 @@
       autoExpandOnSelect = v === null ? true : v === 'true';
     } catch { autoExpandOnSelect = true; }
     if (settingAutoExpand) settingAutoExpand.checked = autoExpandOnSelect;
-    // Menu pills: default allow full pill click (arrow-only OFF)
-    let pillArrowOnly = false;
+    // Menu pills: respect stored value; otherwise honor the HTML default
+    let pillArrowOnly = true;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsPillArrowOnly);
-      pillArrowOnly = v === null ? false : v === 'true';
-    } catch { pillArrowOnly = false; }
+      if (v === null) {
+        pillArrowOnly = settingPillArrowOnly ? !!settingPillArrowOnly.defaultChecked : true;
+      } else {
+        pillArrowOnly = v === 'true';
+      }
+    } catch { pillArrowOnly = settingPillArrowOnly ? !!settingPillArrowOnly.defaultChecked : true; }
     if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
     window.pillArrowOnly = pillArrowOnly;
     const hasOverlay = !!settingsOverlay;
@@ -652,7 +656,7 @@
         titleSelects = true;
         expandOnly = false;
         autoExpandOnSelect = true;
-        pillArrowOnly = false;
+        pillArrowOnly = true;
         // Defaults: reset-related toggles ON
         resetOnDeselect = true;
         resetDisables = true;
@@ -663,7 +667,7 @@
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsAutoExpand, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
@@ -672,10 +676,12 @@
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingExpandOnly) settingExpandOnly.checked = false;
         if (settingAutoExpand) settingAutoExpand.checked = true;
-        if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
+        if (settingPillArrowOnly) settingPillArrowOnly.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = true;
         if (settingResetDisables) settingResetDisables.checked = true;
         if (settingQtyRight) settingQtyRight.checked = false;
+        window.pillArrowOnly = pillArrowOnly;
+        document.dispatchEvent(new Event('pillArrowOnlyChanged'));
       });
     }
 
@@ -1743,7 +1749,8 @@
       const detailsBySection = {
         pizza: document.getElementById('pizza'),
         burger: document.getElementById('burger'),
-        sauces: document.getElementById('sauces')
+        sauces: document.getElementById('sauces'),
+        sub: document.getElementById('sub')
       };
       // Restore previously saved active sections (so Go Back preserves state)
       let activeSections = {};
@@ -1821,6 +1828,21 @@
           const toggle = s.querySelector('.section-toggle');
           if (!toggle) return;
           const clickedCheckbox = toggle === e.target || toggle.contains(e.target);
+          if (pillArrowOnly && !clickedCheckbox) {
+            const arrow = s.querySelector('.menu-summary-arrow, .menu-launch-arrow');
+            const arrowHit = arrow && (arrow === e.target || (arrow.contains && arrow.contains(e.target)));
+            const rect = s.getBoundingClientRect ? s.getBoundingClientRect() : null;
+            const inHitArea = rect && typeof e.clientX === 'number'
+              ? (e.clientX >= (rect.right - 36) || e.clientX <= (rect.left + 32))
+              : false;
+            if (!arrowHit && !inHitArea) {
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
+            // Allow expand/collapse via arrow/hit area without toggling the checkbox
+            return;
+          }
           const detailsParent = s.closest('details');
           const openDetailsIfChecked = () => {
             if (detailsParent && toggle.checked) detailsParent.open = true;
