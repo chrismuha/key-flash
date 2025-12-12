@@ -162,6 +162,22 @@ body.theme-dark .settings-panel {
     color: #fff;
 }
 
+/* On small screens, render settings as a floating window to the right of the nav */
+@media (max-width: 768px) {
+    body.nav-enabled .settings-panel {
+        position: fixed;
+        top: var(--gap);
+        left: calc(var(--rail-width) + var(--gap));
+        right: var(--gap);
+        margin: 0;
+        align-self: auto;
+        width: auto;
+        max-width: calc(100vw - var(--rail-width) - (var(--gap) * 2));
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+        z-index: 1500;
+    }
+}
+
 .settings-close {
     border: none;
     background: transparent;
