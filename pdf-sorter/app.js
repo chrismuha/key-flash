@@ -139,7 +139,7 @@
     return ordered.map((d) => d.pageIndex);
   };
 
-  const rebuildPdf = async (bytes, order, { autoStraighten = true, manualRotate = 0 } = {}) => {
+  const rebuildPdf = async (bytes, order, { autoStraighten = true, rotation = 0 } = {}) => {
     if (!window.PDFLib) throw new Error('pdf-lib not available');
     const src = await PDFLib.PDFDocument.load(bytes);
     const next = await PDFLib.PDFDocument.create();
@@ -147,7 +147,7 @@
     copied.forEach((p, idx) => {
       const srcPage = src.getPage(order[idx]);
       const { width, height } = srcPage.getSize();
-      let rotateDeg = (manualRotate || 0) % 360;
+      let rotateDeg = (rotation || 0) % 360;
       // auto-straighten: rotate landscape pages to portrait
       if (autoStraighten && width > height) rotateDeg += 90;
       rotateDeg = ((rotateDeg % 360) + 360) % 360;
@@ -225,7 +225,7 @@
     if (!queue.length) return;
     const straighten = {
       autoStraighten: !!(els.autoStraighten && els.autoStraighten.checked),
-      manualRotate: els.manualRotate ? parseInt(els.manualRotate.value, 10) || 0 : 0
+      rotation: els.rotation ? parseInt(els.rotation.value, 10) || 0 : 0
     };
     setProcessingState(true);
     for (let i = 0; i < queue.length; i++) {
@@ -238,7 +238,7 @@
         const rebuilt = await rebuildPdf(bytes, order, straighten);
         downloadFile(rebuilt, item.file.name);
         updateStatus(i, 'done');
-        const straightenNote = straighten.manualRotate ? `; manual rotate ${straighten.manualRotate}°` : '';
+        const straightenNote = straighten.rotation ? `; rotation ${straighten.rotation}°` : '';
         const autoNote = straighten.autoStraighten ? '; auto-straighten on' : '';
         log(`Downloaded ${item.file.name} with original filename${autoNote}${straightenNote}`, 'ok');
       } catch (err) {
@@ -306,7 +306,7 @@
     els.previewGrid = document.getElementById('previewGrid');
     els.previewTitle = document.getElementById('previewTitle');
     els.autoStraighten = document.getElementById('autoStraighten');
-    els.manualRotate = document.getElementById('manualRotate');
+    els.rotation = document.getElementById('rotation');
 
     renderFileList();
     bindEvents();

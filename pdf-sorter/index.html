@@ -28,7 +28,7 @@
                     </svg>
                 </div>
                 <h2>Drop PDFs here</h2>
-                <p>…or choose files manually. I support batch processing.</p>
+                <p>or choose files manually. I support batch processing.</p>
 
                 <div class="file-input-wrapper">
                     <label class="btn">
@@ -56,7 +56,7 @@
 
         <div class="right">
             <div class="panel">
-                <h3><span class="icon">⚙️</span>Smart settings</h3>
+                <h3><span class="icon">⚙️</span>Smart Settings</h3>
 
                 <div class="setting-row">
                     <label for="ocrToggle">OCR fallback for scanned pages</label>
@@ -86,7 +86,7 @@
                 </div>
 
                 <div class="setting-row">
-                    <label for="autoStraighten">Auto-straighten pages (rotate landscape to portrait)</label>
+                    <label for="autoStraighten">Auto-Rotate Pages</label>
                     <label class="switch">
                         <input type="checkbox" id="autoStraighten" checked>
                         <span class="slider"></span>
@@ -94,12 +94,13 @@
                 </div>
 
                 <div class="setting-row">
-                    <label for="manualRotate">Manual rotation</label>
-                    <select id="manualRotate">
+                    <label for="rotation">Auto-Rotation Angle</label>
+                    <select id="rotation">
                         <option value="0">None</option>
                         <option value="90">Rotate 90°</option>
                         <option value="180">Rotate 180°</option>
                         <option value="270">Rotate 270°</option>
+                        <option value="360">Rotate 360°</option>
                     </select>
                 </div>
 
@@ -110,13 +111,13 @@
             </div>
 
             <div class="panel log-panel">
-                <h3><span class="icon">📜</span>Activity log <span class="pill"><span class="dot"></span> Live</span>
+                <h3><span class="icon">📜</span>Activity Log <span class="pill"><span class="dot"></span> Live</span>
                 </h3>
                 <div id="log"></div>
             </div>
 
             <div class="panel preview-panel">
-                <h3><span class="icon">🖼️</span>Page previews <span class="pill" id="previewTitle">Idle</span></h3>
+                <h3><span class="icon">🖼️</span>Page Previews <span class="pill" id="previewTitle">Idle</span></h3>
                 <div id="previewGrid" class="preview-grid empty">
                     <div class="preview-empty">Drop a PDF to see page thumbnails.</div>
                 </div>
