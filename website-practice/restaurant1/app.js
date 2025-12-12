@@ -664,14 +664,19 @@
       });
     }
 
+    const triggerSettingChange = (el) => {
+      if (!el) return;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
     if (settingsResetBtn) {
       settingsResetBtn.addEventListener('click', () => {
         // Defaults per current design
         labelSelects = true;
         titleSelects = true;
-        expandOnly = false;
-        autoExpandOnSelect = true;
-        pillArrowOnly = false;
+        expandOnly = settingExpandOnly ? !!settingExpandOnly.defaultChecked : false;
+        autoExpandOnSelect = settingAutoExpand ? !!settingAutoExpand.defaultChecked : true;
+        pillArrowOnly = settingPillArrowOnly ? !!settingPillArrowOnly.defaultChecked : false;
         // Defaults: reset-related toggles ON
         resetOnDeselect = true;
         resetDisables = true;
@@ -681,26 +686,37 @@
         try {
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, 'false');
-          localStorage.setItem(STORAGE_KEYS.settingsAutoExpand, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, String(expandOnly));
+          localStorage.setItem(STORAGE_KEYS.settingsAutoExpand, String(autoExpandOnSelect));
+          localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly));
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
         } catch { }
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
-        if (settingExpandOnly) settingExpandOnly.checked = false;
-        if (settingAutoExpand) settingAutoExpand.checked = true;
-        if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
+        if (settingExpandOnly) settingExpandOnly.checked = expandOnly;
+        if (settingAutoExpand) settingAutoExpand.checked = autoExpandOnSelect;
+        if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = true;
         if (settingResetDisables) settingResetDisables.checked = true;
         if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
         if (settingQtyRight) settingQtyRight.checked = false;
         window.pillArrowOnly = pillArrowOnly;
         document.dispatchEvent(new Event('pillArrowOnlyChanged'));
+        // Re-run change handlers to apply live behavior
+        triggerSettingChange(settingLabelSelects);
+        triggerSettingChange(settingTitleSelects);
+        triggerSettingChange(settingExpandOnly);
+        triggerSettingChange(settingAutoExpand);
+        triggerSettingChange(settingPillArrowOnly);
+        triggerSettingChange(settingResetOnDeselect);
+        triggerSettingChange(settingResetDisables);
+        triggerSettingChange(settingAutoDisableEmpty);
+        triggerSettingChange(settingQtyRight);
+        applyQtyPlacement();
+        updatePageNavLocks();
       });
     }
 
