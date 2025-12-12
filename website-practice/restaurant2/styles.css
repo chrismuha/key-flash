@@ -158,6 +158,11 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     cursor: not-allowed;
 }
 
+.mobile-menu-swiper .swiper-chip:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .mobile-theme-toggle {
     display: none;
     width: 48px;
@@ -1239,6 +1244,20 @@ body.menu-overlay-open {
     justify-content: center;
     text-align: center;
     gap: 8px;
+}
+
+.menu-actions .menu-launch:disabled {
+    border-color: #9b9b9b;
+    background: #e5e5e5;
+    color: #777;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+body.theme-dark .menu-actions .menu-launch:disabled {
+    border-color: #555;
+    background: #1d1d1d;
+    color: #777;
 }
 
 .menu-actions .menu-launch.menu-launch-active {

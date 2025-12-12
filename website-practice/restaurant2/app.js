@@ -268,12 +268,12 @@
     } catch { qtyRight = false; }
     if (settingQtyRight) settingQtyRight.checked = qtyRight;
 
-    // Menu pills: default arrow-only expand/collapse
-    let pillArrowOnly = true;
+    // Menu pills: default allow clicking anywhere on the pill
+    let pillArrowOnly = false;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsPillArrowOnly);
-      pillArrowOnly = v === null ? true : v === 'true';
-    } catch { pillArrowOnly = true; }
+      pillArrowOnly = v === null ? false : v === 'true';
+    } catch { pillArrowOnly = false; }
     if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
 
     // Ensure the settings overlay has a deterministic initial hidden state.
@@ -320,22 +320,22 @@
         resetDisables = false;
         // Default: quantity dropdowns before the label
         qtyRight = false;
-        // Default: menu pills open/close via arrow only
-        pillArrowOnly = true;
+        // Default: menu pills open/close via the whole pill
+        pillArrowOnly = false;
         try {
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
-          localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
         } catch { }
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
         if (settingResetDisables) settingResetDisables.checked = false;
         if (settingQtyRight) settingQtyRight.checked = false;
-        if (settingPillArrowOnly) settingPillArrowOnly.checked = true;
+        if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
       });
     }
 
@@ -480,12 +480,21 @@
       const sectionToggles = Array.from(document.querySelectorAll('.section-toggle[data-section]'));
       const ingredientCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][name]'));
       const builderError = document.getElementById('builder-error');
+      const disabledSections = new Set(['sub', 'sauces']);
 
       // Restore active sections from storage
       const savedSections = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {});
       sectionToggles.forEach((toggle) => {
         const sec = toggle.dataset.section;
-        if (sec && savedSections[sec]) toggle.checked = true;
+        if (!sec) return;
+        const isDisabled = disabledSections.has(sec);
+        if (isDisabled) {
+          toggle.checked = false;
+          toggle.disabled = true;
+          toggle.setAttribute('aria-disabled', 'true');
+          return;
+        }
+        if (savedSections[sec]) toggle.checked = true;
       });
 
       // Restore saved ingredient selections
@@ -496,6 +505,10 @@
       menuLaunchButtons.forEach((btn) => {
         const target = btn.dataset.target;
         if (!target) return;
+        if (disabledSections.has(target)) {
+          btn.disabled = true;
+          btn.setAttribute('aria-disabled', 'true');
+        }
         menuLaunchLookup[target] = menuLaunchLookup[target] || [];
         menuLaunchLookup[target].push(btn);
         btn.setAttribute('aria-expanded', 'false');
@@ -544,6 +557,7 @@
       };
 
       const openOverlay = (section) => {
+        if (disabledSections.has(section)) return;
         const overlay = getOverlay(section);
         if (!overlay) return;
         closeAllOverlays();
@@ -556,6 +570,7 @@
       };
 
       const toggleOverlay = (section) => {
+        if (disabledSections.has(section)) return;
         const overlay = getOverlay(section);
         if (!overlay) return;
         if (overlay.hidden) openOverlay(section);

@@ -30,9 +30,10 @@
                 <button type="button" class="swiper-chip menu-launch" data-target="pizza" role="listitem">Pizza</button>
                 <button type="button" class="swiper-chip menu-launch" data-target="burger"
                     role="listitem">Burger</button>
-                <button type="button" class="swiper-chip menu-launch" data-target="sub" role="listitem">Sub</button>
-                <button type="button" class="swiper-chip menu-launch" data-target="sauces"
-                    role="listitem">Sauces</button>
+                <button type="button" class="swiper-chip menu-launch" data-target="sub" role="listitem" disabled
+                    aria-disabled="true">Sub</button>
+                <button type="button" class="swiper-chip menu-launch" data-target="sauces" role="listitem" disabled
+                    aria-disabled="true">Sauces</button>
             </div>
             <button type="button" class="swiper-arrow swiper-arrow-next" aria-label="Next menu item">&gt;</button>
         </div>
@@ -69,7 +70,7 @@
                     Quantity dropdown after label
                 </label>
                 <label title="Menu pills only expand/collapse when their arrow is clicked">
-                    <input type="checkbox" class="setting-pill-arrow-only" checked>
+                    <input type="checkbox" class="setting-pill-arrow-only">
                     Menu pills expand on arrow only
                 </label>
                 <button type="button" class="settings-reset" aria-label="Reset settings to defaults">Reset to
@@ -94,8 +95,10 @@
         <div class="menu-actions" role="list">
             <button type="button" class="menu-launch" data-target="pizza" role="listitem">Pizza</button>
             <button type="button" class="menu-launch" data-target="burger" role="listitem">Burger</button>
-            <button type="button" class="menu-launch" data-target="sub" role="listitem">Sub</button>
-            <button type="button" class="menu-launch" data-target="sauces" role="listitem">Sauces</button>
+            <button type="button" class="menu-launch" data-target="sub" role="listitem" disabled
+                aria-disabled="true">Sub</button>
+            <button type="button" class="menu-launch" data-target="sauces" role="listitem" disabled
+                aria-disabled="true">Sauces</button>
         </div>
 
         <!-- Menu Item: Pizza -->
@@ -196,7 +199,8 @@
                     <button type="button" class="close-overlay" aria-label="Close Sub options">✕</button>
                 </div>
                 <div class="menu-section" id="sub">
-                    <div class="menu-summary"><input type="checkbox" class="section-toggle" data-section="sub">
+                    <div class="menu-summary"><input type="checkbox" class="section-toggle" data-section="sub" disabled
+                            aria-disabled="true">
                         <span>Sub</span>
                     </div>
                     <form>
@@ -249,7 +253,8 @@
                     <button type="button" class="close-overlay" aria-label="Close Sauces options">✕</button>
                 </div>
                 <div class="menu-section" id="sauces">
-                    <div class="menu-summary"><input type="checkbox" class="section-toggle" data-section="sauces">
+                    <div class="menu-summary"><input type="checkbox" class="section-toggle" data-section="sauces"
+                            disabled aria-disabled="true">
                         <span>Sauces</span>
                     </div>
                     <form>
