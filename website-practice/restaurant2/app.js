@@ -381,6 +381,10 @@
     // Delegate clicks on ingredient labels to toggle their checkbox when enabled.
     document.addEventListener('click', (e) => {
       if (!labelSelects) return;
+      const tag = (e.target.tagName || '').toLowerCase();
+      // Don't treat clicks on interactive controls as label toggles
+      if (['select', 'option', 'button', 'textarea'].includes(tag)) return;
+      if (tag === 'input' && e.target.type && e.target.type !== 'checkbox') return;
       const lbl = e.target.closest && e.target.closest('label');
       if (!lbl) return;
       const cb = lbl.querySelector('input[type="checkbox"][name]');
@@ -505,6 +509,7 @@
       const overlays = Array.from(document.querySelectorAll('.menu-overlay[data-section]'));
       const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
       const sectionToggles = Array.from(document.querySelectorAll('.section-toggle[data-section]'));
+      const sectionTitles = Array.from(document.querySelectorAll('.menu-summary span'));
       const ingredientCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][name]'));
       const builderError = document.getElementById('builder-error');
       const disabledSections = new Set(['sauces']);
@@ -786,6 +791,24 @@
       // Hook up individual reset buttons
       document.querySelectorAll('.reset-group[data-group]').forEach((btn) => {
         btn.addEventListener('click', () => resetGroupByName(btn.getAttribute('data-group')));
+      });
+
+      // Allow clicking section titles to toggle the section checkbox (when enabled)
+      sectionTitles.forEach((title) => {
+        title.tabIndex = 0;
+        title.addEventListener('click', () => {
+          if (!titleSelects) return;
+          const toggle = title.closest('.menu-summary')?.querySelector('.section-toggle');
+          if (!toggle || toggle.disabled) return;
+          toggle.checked = !toggle.checked;
+          toggle.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+        title.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            title.click();
+          }
+        });
       });
 
       // Persist active section toggles
