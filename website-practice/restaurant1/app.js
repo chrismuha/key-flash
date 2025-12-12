@@ -1795,6 +1795,9 @@
             // Clear all selections in that section when deactivating
             d2.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => { cb.checked = false; });
             saveIngredients();
+            if (autoExpandOnSelect) {
+              d2.open = false; // auto-collapse when auto-expand is enabled
+            }
             // If the menu item (section) is not selected, its quantity becomes 0
             if (section === 'pizza' || section === 'burger') {
               try {
@@ -1990,6 +1993,25 @@
               // Auto-open the section when selecting an item if enabled
               if (autoExpandOnSelect && d && d.tagName && d.tagName.toLowerCase() === 'details') {
                 d.open = true;
+              }
+            }
+          } else if (!t.checked) {
+            // If auto-expand is on, collapse the section when an ingredient is deselected and nothing remains
+            if (autoExpandOnSelect) {
+              let section = '';
+              if (name.startsWith('pizza_')) section = 'pizza';
+              else if (name.startsWith('burger_')) section = 'burger';
+              else if (name.startsWith('sauces_')) section = 'sauces';
+              else if (name.startsWith('sub_')) section = 'sub';
+              if (section) {
+                const d = detailsBySection[section];
+                if (d && d.tagName && d.tagName.toLowerCase() === 'details') {
+                  const anyChecked = d.querySelectorAll('input[type="checkbox"][name]:checked').length > 0;
+                  const toggle = d.querySelector('.section-toggle');
+                  if (!anyChecked && toggle && !toggle.checked) {
+                    d.open = false;
+                  }
+                }
               }
             }
           }
