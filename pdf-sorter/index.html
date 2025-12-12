@@ -14,7 +14,7 @@
             <div class="header">
                 <div class="title-block">
                     <h1>PDF Page Sorter <span class="badge">Auto & OCR</span></h1>
-                    <p>Drop one or many PDFs. I’ll detect page numbers, reorder pages, and download sorted copies.</p>
+                    <p>Drop one or many PDFs. Pages with page numbers will be automatically sorted in numerical order.</p>
                 </div>
             </div>
 
@@ -28,14 +28,14 @@
                     </svg>
                 </div>
                 <h2>Drop PDFs here</h2>
-                <p>or choose files manually. I support batch processing.</p>
+                <p>or choose files manually. Batch Processing is supported.</p>
 
                 <div class="file-input-wrapper">
                     <label class="btn">
-                        <span>📂 Choose PDFs or folders</span>
+                        <span>Choose PDFs</span>
                         <input type="file" id="fileInput" multiple webkitdirectory directory accept="application/pdf">
                     </label>
-                    <button class="btn-secondary" id="clearBtn" type="button">Clear list</button>
+                    <button class="btn-secondary" id="clearBtn" type="button">Clear List</button>
                 </div>
                 <p class="small">Tip: drag & drop entire folders from desktop (browser support varies).</p>
             </div>
@@ -49,7 +49,7 @@
                     Output files keep the original filename.
                 </div>
                 <button class="btn" id="processBtn" type="button">
-                    ▶️ Process all
+                    Process All
                 </button>
             </div>
         </div>
