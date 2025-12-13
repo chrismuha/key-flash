@@ -1453,8 +1453,8 @@ body.settings-open::before {
     pointer-events: none;
 }
 
-/* Desktop: keep background sharp while settings is open */
-@media (min-width: 901px) {
+/* Desktop: keep background sharp while settings is open (matches JS mobile breakpoint 768px) */
+@media (min-width: 769px) {
     body.settings-open::before {
         backdrop-filter: none;
         -webkit-backdrop-filter: none;

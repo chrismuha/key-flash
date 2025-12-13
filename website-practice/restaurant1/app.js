@@ -1794,7 +1794,24 @@
       };
       const requiredCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-required="true"]'));
       const requiredBySection = {};
+      const ensureRequiredLabelTag = (cb) => {
+        if (!cb) return;
+        const lbl = cb.closest('label');
+        if (!lbl) return;
+        // Avoid duplicating the tag if it already exists
+        const already = lbl.querySelector('.required-tag');
+        if (already) {
+          already.textContent = ' (Required)';
+          return;
+        }
+        if (/\(Required\)/i.test(lbl.textContent || '')) return;
+        const tag = document.createElement('span');
+        tag.className = 'required-tag';
+        tag.textContent = ' (Required)';
+        lbl.appendChild(tag);
+      };
       requiredCheckboxes.forEach((cb) => {
+        ensureRequiredLabelTag(cb);
         const sectionEl = cb.closest('details');
         const sectionId = sectionEl ? sectionEl.id : '';
         if (sectionId) {
