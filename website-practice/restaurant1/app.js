@@ -758,11 +758,16 @@
         if (sel.dataset && sel.dataset.noQty === 'true') return;
         const lbl = sel.closest('label');
         if (!lbl) return;
+        const cb = lbl.querySelector('input[type="checkbox"]');
         if (qtyRight) {
           lbl.appendChild(sel);
         } else {
-          const cb = lbl.querySelector('input[type="checkbox"]');
           if (cb) cb.insertAdjacentElement('afterend', sel);
+        }
+        if (cb) {
+          const isChecked = !!cb.checked;
+          sel.hidden = !isChecked;
+          sel.disabled = !isChecked;
         }
       });
     };
