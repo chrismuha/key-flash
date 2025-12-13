@@ -2021,6 +2021,9 @@
           const hitArrow = !!(e.target.closest('.menu-summary-arrow') || e.target.closest('.menu-launch-arrow'));
           const arrowArea = hitRight || hitLeft || hitArrow;
           const allowActivate = (typeof window.arrowActivates === 'boolean') ? window.arrowActivates : true;
+          const openDetailsIfChecked = () => {
+            if (detailsParent && toggle.checked) detailsParent.open = true;
+          };
           // Direct arrow handling (works whether arrow-only is on or off)
           if (arrowArea && !clickedCheckbox) {
             e.preventDefault();
@@ -2043,15 +2046,20 @@
           try {
             const arrowOnly = !!window.pillArrowOnly;
             if (arrowOnly && !clickedCheckbox) {
+              if (titleSelects && isTitleClick) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggle.checked = !toggle.checked;
+                toggle.dispatchEvent(new Event('change', { bubbles: true }));
+                openDetailsIfChecked();
+                return;
+              }
               // Non-arrow clicks do nothing when arrow-only is on
               e.preventDefault();
               e.stopPropagation();
               return;
             }
           } catch { /* ignore */ }
-          const openDetailsIfChecked = () => {
-            if (detailsParent && toggle.checked) detailsParent.open = true;
-          };
           // If the setting is off, let native summary behavior run but never toggle the checkbox
           if (!titleSelects && !clickedCheckbox) {
             return;
@@ -2946,6 +2954,9 @@
         return lblOn || ttlOn;
       } catch { return true; }
     };
+    const isTitleToggleEnabled = () => {
+      try { return !!titleSelects; } catch { return true; }
+    };
 
     summaries.forEach((summary) => {
       // Remove any older v1 handlers so they don't block clicks
@@ -3012,6 +3023,10 @@
         const el = e.target;
         if (!el) return;
         if (isInteractive(el)) return; // allow interactions
+        // Allow title clicks through when title-select is enabled
+        const titleEl = summary.querySelector('span');
+        const isTitleClick = titleEl && titleEl.contains(el);
+        if (isTitleClick && isTitleToggleEnabled()) return;
         const arrowHit = !!(el.closest && (el.closest('.menu-summary-arrow') || el.closest('.menu-launch-arrow')));
         if (!arrowHit) {
           // if using hit area, check coordinates
@@ -3031,6 +3046,9 @@
         const el = e.target;
         if (!el) return;
         if (isInteractive(el)) return;
+        const titleEl = summary.querySelector('span');
+        const isTitleClick = titleEl && titleEl.contains(el);
+        if (isTitleClick && isTitleToggleEnabled()) return;
         const arrowHit = !!(el.closest && (el.closest('.menu-summary-arrow') || el.closest('.menu-launch-arrow')));
         if (!arrowHit) {
           if ((useHitArea && isInRightHitArea(e, summary)) || isInLeftHitArea(e, summary)) {
