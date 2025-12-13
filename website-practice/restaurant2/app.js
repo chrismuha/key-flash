@@ -407,7 +407,6 @@
 
     // Delegate clicks on ingredient labels to toggle their checkbox when enabled.
     document.addEventListener('click', (e) => {
-      if (!labelSelects) return;
       const tag = (e.target.tagName || '').toLowerCase();
       // Don't treat clicks on interactive controls as label toggles
       if (['select', 'option', 'button', 'textarea'].includes(tag)) return;
@@ -417,6 +416,12 @@
       const cb = lbl.querySelector('input[type="checkbox"][name]');
       if (!cb || cb.disabled) return;
       if (cb.dataset && cb.dataset.required === 'true') return;
+      // When label toggling is disabled, swallow label clicks (but still allow direct checkbox clicks)
+      if (!labelSelects && e.target !== cb) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
       if (e.target !== cb) {
         cb.checked = !cb.checked;
         cb.dispatchEvent(new Event('change', { bubbles: true }));
