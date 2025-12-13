@@ -498,19 +498,19 @@
       titleSelects = v === null ? true : v === 'true';
     } catch { titleSelects = true; }
     if (settingTitleSelects) settingTitleSelects.checked = titleSelects;
-    // Reset-on-deselect: default ON
-    let resetOnDeselect = true;
+    // Reset-on-deselect: default OFF
+    let resetOnDeselect = false;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsResetOnDeselect);
-      resetOnDeselect = v === null ? true : v === 'true';
-    } catch { resetOnDeselect = true; }
+      resetOnDeselect = v === null ? false : v === 'true';
+    } catch { resetOnDeselect = false; }
     if (settingResetOnDeselect) settingResetOnDeselect.checked = resetOnDeselect;
-    // Reset button disables item: default ON
-    let resetDisables = true;
+    // Reset button disables item: default OFF
+    let resetDisables = false;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsResetDisables);
-      resetDisables = v === null ? true : v === 'true';
-    } catch { resetDisables = true; }
+      resetDisables = v === null ? false : v === 'true';
+    } catch { resetDisables = false; }
     if (settingResetDisables) settingResetDisables.checked = resetDisables;
     // Auto-disable section when optional ingredients are all unchecked: default OFF
     let autoDisableEmpty = false;
@@ -519,12 +519,12 @@
       autoDisableEmpty = v === 'true';
     } catch { autoDisableEmpty = false; }
     if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = autoDisableEmpty;
-    // Auto-collapse section when item is disabled: default OFF
-    let autoCollapseDisabled = false;
+    // Auto-collapse section when item is disabled: default ON
+    let autoCollapseDisabled = true;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsAutoCollapseDisabled);
-      autoCollapseDisabled = v === 'true';
-    } catch { autoCollapseDisabled = false; }
+      autoCollapseDisabled = v === null ? true : v === 'true';
+    } catch { autoCollapseDisabled = true; }
     if (settingAutoCollapseDisabled) settingAutoCollapseDisabled.checked = autoCollapseDisabled;
     // Quantity dropdown placement: default BEFORE label (setting unchecked)
     let qtyRight = false;
@@ -669,30 +669,30 @@
         labelSelects = true;
         titleSelects = true;
         pillArrowOnly = settingPillArrowOnly ? !!settingPillArrowOnly.defaultChecked : false;
-        // Defaults: reset-related toggles ON
-        resetOnDeselect = true;
-        resetDisables = true;
+        // Defaults: reset-related toggles
+        resetOnDeselect = false;
+        resetDisables = false;
         autoDisableEmpty = false;
-        autoCollapseDisabled = false;
+        autoCollapseDisabled = true;
         // Default: quantity dropdowns before the label
         qtyRight = false;
         try {
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly));
-          localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'true');
+          localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
-          localStorage.setItem(STORAGE_KEYS.settingsAutoCollapseDisabled, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsAutoCollapseDisabled, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
         } catch { }
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
-        if (settingResetOnDeselect) settingResetOnDeselect.checked = true;
-        if (settingResetDisables) settingResetDisables.checked = true;
+        if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
+        if (settingResetDisables) settingResetDisables.checked = false;
         if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
-        if (settingAutoCollapseDisabled) settingAutoCollapseDisabled.checked = false;
+        if (settingAutoCollapseDisabled) settingAutoCollapseDisabled.checked = true;
         if (settingQtyRight) settingQtyRight.checked = false;
         window.pillArrowOnly = pillArrowOnly;
         document.dispatchEvent(new Event('pillArrowOnlyChanged'));
@@ -1777,6 +1777,11 @@
         sauces: document.getElementById('sauces'),
         sub: document.getElementById('sub')
       };
+      const openSectionDetails = (section) => {
+        const d = detailsBySection[section];
+        if (!d || !d.tagName || d.tagName.toLowerCase() !== 'details') return;
+        d.open = true;
+      };
       const collapseSectionIfInactive = (section) => {
         if (!autoCollapseDisabled) return;
         const d = detailsBySection[section];
@@ -1854,10 +1859,8 @@
                 }
               } catch { }
             }
-            // If auto-collapse closed it, re-open on recheck
-            if (autoCollapseDisabled && d2.tagName && d2.tagName.toLowerCase() === 'details') {
-              d2.open = true;
-            }
+            // Auto-expand when checked
+            openSectionDetails(section);
           }
           if (!t.checked && d2) {
             // Clear all selections in that section when deactivating
@@ -2061,6 +2064,9 @@
               if (toggle && !toggle.checked) {
                 toggle.checked = true;
                 toggle.dispatchEvent(new Event('change', { bubbles: true }));
+              } else {
+                // If already active, ensure section expands when selecting an ingredient
+                openSectionDetails(section);
               }
             }
           }
