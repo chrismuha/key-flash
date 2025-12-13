@@ -630,6 +630,8 @@
         if (!anyOptionalChecked && hasOptionals) {
           toggle.checked = false;
           toggle.dispatchEvent(new Event('change', { bubbles: true }));
+          // Close the overlay when auto-disabling due to no optional ingredients.
+          closeOverlay(secId);
         }
       };
 
