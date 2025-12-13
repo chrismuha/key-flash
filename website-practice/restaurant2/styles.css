@@ -1248,11 +1248,6 @@ main .reset-group:hover {
     background: #eee;
 }
 
-/* Section: Full-screen menu overlays */
-body.menu-overlay-open {
-    overflow: hidden;
-}
-
 .menu-actions {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -1370,6 +1365,15 @@ body.theme-dark .menu-overlay-card {
 body.theme-dark .close-overlay {
     color: #fff;
     border-color: #fff;
+}
+
+/* Keep page scrollable when overlays are open */
+body.menu-overlay-open {
+    overflow: auto !important;
+}
+
+body.menu-overlay-open main {
+    overflow: visible !important;
 }
 
 .overlay-header {

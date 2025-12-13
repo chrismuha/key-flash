@@ -750,7 +750,9 @@
       const sectionTitles = Array.from(document.querySelectorAll('.menu-summary span'));
       const ingredientCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][name]'));
       const builderError = document.getElementById('builder-error');
-      const disabledSections = new Set(['sauces']);
+      const primarySections = ['pizza', 'burger', 'sub'];
+      let sauceDisabled = false;
+      const isSectionDisabled = (sec) => sec === 'sauces' && sauceDisabled;
       const requiredCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-required="true"]'));
       const requiredBySection = {};
 
@@ -785,7 +787,7 @@
       sectionToggles.forEach((toggle) => {
         const sec = toggle.dataset.section;
         if (!sec) return;
-        const isDisabled = disabledSections.has(sec);
+        const isDisabled = isSectionDisabled(sec);
         if (isDisabled) {
           toggle.checked = false;
           toggle.disabled = true;
@@ -880,7 +882,7 @@
 
       const autoDisableIfEmpty = (secId) => {
         if (!autoDisableEmpty) return;
-        if (!secId || disabledSections.has(secId)) return;
+        if (!secId || isSectionDisabled(secId)) return;
         const toggle = document.querySelector(`.section-toggle[data-section="${secId}"]`);
         if (!toggle || toggle.disabled) return;
         const sectionEl = document.getElementById(secId);
@@ -1031,7 +1033,7 @@
       menuLaunchButtons.forEach((btn) => {
         const target = btn.dataset.target;
         if (!target) return;
-        if (disabledSections.has(target)) {
+        if (isSectionDisabled(target)) {
           btn.disabled = true;
           btn.setAttribute('aria-disabled', 'true');
         }
@@ -1083,7 +1085,7 @@
       };
 
       const openOverlay = (section) => {
-        if (disabledSections.has(section)) return;
+        if (isSectionDisabled(section)) return;
         const overlay = getOverlay(section);
         if (!overlay) return;
         closeAllOverlays();
@@ -1096,11 +1098,37 @@
       };
 
       const toggleOverlay = (section) => {
-        if (disabledSections.has(section)) return;
+        if (isSectionDisabled(section)) return;
         const overlay = getOverlay(section);
         if (!overlay) return;
         if (overlay.hidden) openOverlay(section);
         else closeOverlay(overlay);
+      };
+
+      const setSaucesDisabled = (disabled) => {
+        sauceDisabled = !!disabled;
+        const saucesToggle = sectionToggles.find((t) => t.dataset.section === 'sauces');
+        if (saucesToggle) {
+          saucesToggle.disabled = sauceDisabled;
+          if (sauceDisabled) {
+            saucesToggle.checked = false;
+            saucesToggle.setAttribute('aria-disabled', 'true');
+          } else {
+            saucesToggle.removeAttribute('aria-disabled');
+          }
+        }
+        const pills = menuLaunchLookup['sauces'] || [];
+        pills.forEach((btn) => {
+          btn.disabled = sauceDisabled;
+          if (sauceDisabled) btn.setAttribute('aria-disabled', 'true');
+          else btn.removeAttribute('aria-disabled');
+        });
+        if (sauceDisabled) closeOverlay('sauces');
+      };
+
+      const syncSaucesEnabled = () => {
+        const anyPrimaryActive = sectionToggles.some((t) => primarySections.includes(t.dataset.section) && t.checked);
+        setSaucesDisabled(!anyPrimaryActive);
       };
 
       const persistActiveSections = () => {
@@ -1269,6 +1297,7 @@
             t.removeAttribute('aria-disabled');
             delete t.dataset.manualDisabled;
           }
+          syncSaucesEnabled();
           persistActiveSections();
           updateBuilderError();
           updatePage3NavState();
@@ -1276,6 +1305,7 @@
       });
 
       // Initial sync
+      syncSaucesEnabled();
       persistActiveSections();
       updateBuilderError();
       updatePage3NavState();
