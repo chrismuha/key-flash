@@ -21,7 +21,8 @@
       settingsAutoDisableEmpty: 'restaurant.settings.autoDisableEmpty',
       settingsAutoDisableSection: 'restaurant.settings.autoDisableSection',
       settingsQtyRight: 'restaurant.settings.qtyRight',
-      settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly'
+      settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
+      quantities: 'restaurant.quantities'
     };
 
   // Section: Utility helpers
@@ -709,9 +710,84 @@
         }
       };
 
+      // Attach ingredient quantity dropdowns (Regular/Extra/x3/x4)
+      const attachIngredientQuantities = () => {
+        let qtyMap = {};
+        try { qtyMap = safeParseJSON(localStorage.getItem(STORAGE_KEYS.quantities), {}); } catch { qtyMap = {}; }
+        if (!qtyMap || typeof qtyMap !== 'object') qtyMap = {};
+        const options = [
+          { label: 'Regular', value: '1' },
+          { label: 'Extra', value: '2' },
+          { label: 'x3', value: '3' },
+          { label: 'x4', value: '4' }
+        ];
+        const optionValues = new Set(options.map((o) => String(o.value)));
+        const persistQty = () => {
+          try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { /* ignore */ }
+        };
+
+        document.querySelectorAll('input[type="checkbox"][name$="_ingredients[]"]').forEach((cb) => {
+          const lbl = cb.closest('label');
+          if (!lbl) return;
+
+          // Items that provide their own dropdown (e.g., bread choice) should not get a qty select
+          if (cb.dataset && cb.dataset.noQty === 'true') {
+            const ownSelect = lbl.querySelector('select.ingredient-qty');
+            if (ownSelect) {
+              ownSelect.disabled = !cb.checked;
+              ownSelect.hidden = !cb.checked;
+            }
+            return;
+          }
+
+          const key = `${cb.name}|${cb.value}`;
+          let sel = lbl.querySelector('select.ingredient-qty');
+          if (!sel) {
+            sel = document.createElement('select');
+            sel.className = 'ingredient-qty';
+            options.forEach((opt) => {
+              const o = document.createElement('option');
+              o.value = opt.value;
+              o.textContent = opt.label;
+              sel.appendChild(o);
+            });
+            lbl.appendChild(sel);
+          }
+
+          const stored = optionValues.has(String(qtyMap[key])) ? String(qtyMap[key]) : '1';
+          sel.value = stored;
+          sel.disabled = !cb.checked;
+          sel.hidden = !cb.checked;
+
+          sel.addEventListener('change', () => {
+            const next = optionValues.has(sel.value) ? sel.value : '1';
+            sel.value = next;
+            qtyMap[key] = next;
+            persistQty();
+          });
+
+          cb.addEventListener('change', () => {
+            sel.disabled = !cb.checked;
+            sel.hidden = !cb.checked;
+            if (cb.checked) {
+              if (!qtyMap[key] || qtyMap[key] === '0' || qtyMap[key] === 0) {
+                sel.value = '1';
+                qtyMap[key] = '1';
+                persistQty();
+              }
+            } else if (resetOnDeselect) {
+              sel.value = '1';
+              qtyMap[key] = '1';
+              persistQty();
+            }
+          });
+        });
+      };
+
       // Restore saved ingredient selections
       updateIngredientInputsFromData(loadIngredientsFromStorage());
       syncRequiredCheckboxes();
+      attachIngredientQuantities();
 
       // Build lookup for pills by section
       const menuLaunchLookup = {};
