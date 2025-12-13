@@ -280,6 +280,7 @@ body.theme-dark .settings-panel {
     padding: 20px;
     z-index: 2000;
 }
+
 .settings-overlay[hidden],
 .settings-overlay[aria-hidden="true"] {
     display: none !important;
