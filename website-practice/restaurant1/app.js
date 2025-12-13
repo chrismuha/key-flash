@@ -755,6 +755,7 @@
     const applyQtyPlacement = () => {
       body.classList.toggle('qty-right', qtyRight);
       document.querySelectorAll('select.ingredient-qty').forEach((sel) => {
+        if (sel.dataset && sel.dataset.noQty === 'true') return;
         const lbl = sel.closest('label');
         if (!lbl) return;
         if (qtyRight) {
@@ -1155,7 +1156,7 @@
       const pizzaSauce = document.querySelector('input[type="checkbox"][name="pizza_ingredients[]"][value="tomato_sauce"]');
       const subBread = document.getElementById('sub-bread-checkbox');
       const subBreadSelect = document.getElementById('sub-bread-select');
-      const breadChoices = ['white', 'wheat', 'toasted'];
+      const breadChoices = ['white', 'wheat'];
       const applyBreadChoice = (val) => {
         const choice = breadChoices.includes(val) ? val : breadChoices[0];
         if (subBreadSelect) subBreadSelect.value = choice;
@@ -2012,6 +2013,8 @@
         if (!labelSelects) return;
         const lbl = e.target.closest('label');
         if (!lbl) return;
+        if (e.target.closest('[data-ignore-label-toggle="true"]')) return;
+        if (e.target.closest('select, button, input:not([type="checkbox"]), textarea')) return;
         const cb = lbl.querySelector('input[type="checkbox"][name]');
         if (!cb) return;
         if (cb.disabled) return;
@@ -2128,7 +2131,11 @@
           if (sel) {
             sel.disabled = !cb.checked;
             sel.hidden = !cb.checked;
-            sel.value = '1';
+            if (sel.id === 'sub-bread-select') {
+              sel.value = 'white';
+            } else {
+              sel.value = '1';
+            }
           }
           // fire change so any per-item handlers (e.g., sauce qty) run
           cb.dispatchEvent(new Event('change', { bubbles: true }));

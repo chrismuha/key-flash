@@ -533,13 +533,6 @@ body.theme-dark main .reset-group {
     max-width: 120px;
 }
 
-.bread-select select {
-    margin-left: 8px;
-    width: 120px;
-    min-width: 120px;
-    max-width: 120px;
-}
-
 body.theme-dark .ingredient-qty {
     border-color: #fff;
     background: #111;
