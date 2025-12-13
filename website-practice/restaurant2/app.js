@@ -614,6 +614,30 @@
 
       // Track when an auto-disable is driving the section toggle change
       let autoDisableTrigger = '';
+      let suppressAutoDisable = false;
+      const clearOptionalSelections = (secId) => {
+        if (!secId) return;
+        const sectionEl = document.getElementById(secId);
+        if (!sectionEl) return;
+        const inputs = Array.from(sectionEl.querySelectorAll('input[type="checkbox"][name]'));
+        suppressAutoDisable = true;
+        try {
+          inputs.forEach((cb) => {
+            if (cb.dataset && cb.dataset.required === 'true') return;
+            cb.checked = false;
+            const lbl = cb.closest('label');
+            const qty = lbl && lbl.querySelector('select.ingredient-qty');
+            if (qty) {
+              qty.disabled = true;
+              qty.value = '1';
+            }
+            cb.dispatchEvent(new Event('change', { bubbles: true }));
+          });
+          saveAllIngredientSelections();
+        } finally {
+          suppressAutoDisable = false;
+        }
+      };
       const unlockManualDisable = (sec) => {
         if (!sec) return;
         const toggle = document.querySelector(`.section-toggle[data-section="${sec}"]`);
@@ -635,6 +659,7 @@
         const anyOptionalChecked = inputs.some((input) => input.checked && input.dataset.required !== 'true');
         const hasOptionals = inputs.some((input) => input.dataset.required !== 'true');
         if (!anyOptionalChecked && hasOptionals) {
+          clearOptionalSelections(secId);
           autoDisableTrigger = secId;
           try {
             toggle.checked = false;
@@ -939,7 +964,9 @@
           }
           const secEl = cb.closest('.menu-section');
           if (secEl && secEl.id) {
-            autoDisableIfEmpty(secEl.id);
+            if (!suppressAutoDisable) {
+              autoDisableIfEmpty(secEl.id);
+            }
           }
           saveAllIngredientSelections();
           updateBuilderError();
@@ -1000,6 +1027,7 @@
           const isAuto = autoDisableTrigger && sec === autoDisableTrigger;
           // If the user manually disables the section and the setting is on, lock it and close its overlay.
           if (!t.checked && !isAuto && autoDisableSection) {
+            if (sec) clearOptionalSelections(sec);
             t.disabled = true;
             t.setAttribute('aria-disabled', 'true');
             t.dataset.manualDisabled = 'true';
