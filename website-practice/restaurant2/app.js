@@ -108,6 +108,37 @@
     } catch { return {}; }
   }
 
+  // Delivery helpers
+  function readDeliveryData() {
+    const data = {
+      name: '',
+      phone: '',
+      address: '',
+      type: '',
+      city: '',
+      zip: ''
+    };
+    try {
+      data.name = (localStorage.getItem(STORAGE_KEYS.deliveryName) || '').trim();
+      data.phone = (localStorage.getItem(STORAGE_KEYS.deliveryPhone) || '').replace(/\D+/g, '');
+      data.address = (localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '').trim();
+      data.type = (localStorage.getItem(STORAGE_KEYS.deliveryType) || '').trim();
+      data.city = (localStorage.getItem(STORAGE_KEYS.deliveryCity) || '').trim();
+      data.zip = (localStorage.getItem(STORAGE_KEYS.deliveryZip) || '').trim();
+    } catch { /* ignore */ }
+    return data;
+  }
+
+  function hasValidDeliveryDetails() {
+    try {
+      const d = readDeliveryData();
+      const zipDigits = (d.zip || '').replace(/\D+/g, '');
+      const zipOk = (zipDigits.length === 5 && zipDigits === '13309') || (zipDigits.length === 9 && zipDigits.slice(0, 5) === '13309');
+      const phoneOk = (d.phone || '').length === 10;
+      return !!(d.name && phoneOk && d.address && d.type && d.city && zipOk);
+    } catch { return false; }
+  }
+
   // Section: DOM utilities
   function findParentSection(el) {
     if (!el) return null;
@@ -188,17 +219,6 @@
         return sauces.length > 0;
       } catch { return false; }
     }
-    function hasValidDeliveryDetails() {
-      // Validate saved delivery details (used to unlock Page 2 for delivery)
-      try {
-        const n = localStorage.getItem(STORAGE_KEYS.deliveryName) || '';
-        const ph = localStorage.getItem(STORAGE_KEYS.deliveryPhone) || '';
-        const a = localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '';
-        const z = localStorage.getItem(STORAGE_KEYS.deliveryZip) || '';
-        return !!(n && ph && a && z);
-      } catch { return false; }
-    }
-
     const updateOrderTypeChip = () => {
       let type = '';
       try { type = localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { type = ''; }
@@ -212,35 +232,44 @@
     };
 
     const updatePage3NavState = () => {
-      const anchors = Array.from(document.querySelectorAll('.nav a[href="#page3"]'));
-      anchors.forEach((a) => {
-        const okType = hasOrderTypeSelected();
-        const okMenu = hasMenuSelection();
-        const typeNow = localStorage.getItem(STORAGE_KEYS.orderType) || '';
-        if (okType && okMenu && (typeNow !== 'delivery' || hasValidDeliveryDetails())) {
-          a.removeAttribute('aria-disabled');
-          a.removeAttribute('tabindex');
-          a.removeEventListener('click', preventNavClick);
-          a.removeAttribute('title');
+      const okType = hasOrderTypeSelected();
+      const okMenu = hasMenuSelection();
+      const typeNow = (() => { try { return localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { return ''; } })();
+      const okDelivery = (typeNow !== 'delivery') || hasValidDeliveryDetails();
+      const enablePage2 = okType && okDelivery;
+      const enablePage3 = okType && okMenu && okDelivery;
+
+      const lockAnchor = (anchor, enabled, tooltip) => {
+        if (enabled) {
+          anchor.removeAttribute('aria-disabled');
+          anchor.removeAttribute('tabindex');
+          anchor.removeEventListener('click', preventNavClick);
+          anchor.removeAttribute('title');
         } else {
-          a.setAttribute('aria-disabled', 'true');
-          a.setAttribute('tabindex', '-1');
-          a.addEventListener('click', preventNavClick);
-          const needsType = !okType;
-          const needsMenu = !okMenu;
-          const needsDelivery = (typeNow === 'delivery') && !hasValidDeliveryDetails();
-          let msg = '';
-          if (needsType && needsMenu) {
-            msg = 'Select an order type and choose at least one menu item to enable Page 3';
-          } else if (needsType) {
-            msg = 'Select an order type to enable Page 3';
-          } else if (needsDelivery) {
-            msg = 'Complete delivery details to enable Page 3';
-          } else {
-            msg = 'Choose at least one menu item to enable Page 3';
-          }
-          a.setAttribute('title', msg);
+          anchor.setAttribute('aria-disabled', 'true');
+          anchor.setAttribute('tabindex', '-1');
+          anchor.addEventListener('click', preventNavClick);
+          if (tooltip) anchor.setAttribute('title', tooltip);
         }
+      };
+
+      document.querySelectorAll('.left-rail a[href$="page2.html"]').forEach((a) => {
+        const tip = enablePage2 ? '' : (typeNow === 'delivery' ? 'Complete delivery details to enable Page 2' : 'Select an order type to enable Page 2');
+        lockAnchor(a, enablePage2, tip);
+      });
+
+      document.querySelectorAll('.left-rail a[href$="page3.html"]').forEach((a) => {
+        let msg = '';
+        const needsType = !okType;
+        const needsMenu = !okMenu;
+        const needsDelivery = (typeNow === 'delivery') && !okDelivery;
+        if (!enablePage3) {
+          if (needsType && needsMenu) msg = 'Select an order type and choose at least one menu item to enable Page 3';
+          else if (needsType) msg = 'Select an order type to enable Page 3';
+          else if (needsDelivery) msg = 'Complete delivery details to enable Page 3';
+          else msg = 'Choose at least one menu item to enable Page 3';
+        }
+        lockAnchor(a, enablePage3, msg);
       });
     }
 
@@ -479,12 +508,78 @@
       let deliveryFailCount = 0;
       // Do not clear persisted state on return; keep order type, delivery details, and builder selections
       const dFormInit = document.getElementById('delivery-details');
+      const deliveryError = document.getElementById('delivery-error');
+      const deliveryClearBtn = document.querySelector('.delivery-clear');
+      const deliveryFields = {
+        name: document.getElementById('delivery-name'),
+        phone: document.getElementById('delivery-phone'),
+        address: document.getElementById('delivery-address'),
+        type: document.getElementById('delivery-type'),
+        city: document.getElementById('delivery-city'),
+        zip: document.getElementById('delivery-zip')
+      };
+
+      const showDeliveryForm = (show) => {
+        if (!dFormInit) return;
+        dFormInit.hidden = !show;
+        if (!show && deliveryError) deliveryError.hidden = true;
+      };
+
+      const saveDeliveryDetails = () => {
+        try {
+          if (deliveryFields.name) localStorage.setItem(STORAGE_KEYS.deliveryName, deliveryFields.name.value.trim());
+          if (deliveryFields.phone) localStorage.setItem(STORAGE_KEYS.deliveryPhone, deliveryFields.phone.value.trim());
+          if (deliveryFields.address) localStorage.setItem(STORAGE_KEYS.deliveryAddress, deliveryFields.address.value.trim());
+          if (deliveryFields.type) localStorage.setItem(STORAGE_KEYS.deliveryType, deliveryFields.type.value.trim());
+          if (deliveryFields.city) localStorage.setItem(STORAGE_KEYS.deliveryCity, deliveryFields.city.value.trim());
+          if (deliveryFields.zip) localStorage.setItem(STORAGE_KEYS.deliveryZip, deliveryFields.zip.value.trim());
+        } catch { /* ignore */ }
+      };
+
+      const populateDeliveryFieldsFromStorage = () => {
+        const d = readDeliveryData();
+        if (deliveryFields.name) deliveryFields.name.value = d.name || '';
+        if (deliveryFields.phone) deliveryFields.phone.value = d.phone || '';
+        if (deliveryFields.address) deliveryFields.address.value = d.address || '';
+        if (deliveryFields.type && d.type) deliveryFields.type.value = d.type;
+        if (deliveryFields.city) deliveryFields.city.value = d.city || '';
+        if (deliveryFields.zip) deliveryFields.zip.value = d.zip || '';
+      };
+
+      const validateDeliveryDetails = () => {
+        const name = (deliveryFields.name?.value || '').trim();
+        const phoneDigits = (deliveryFields.phone?.value || '').replace(/\D+/g, '');
+        const address = (deliveryFields.address?.value || '').trim();
+        const type = (deliveryFields.type?.value || '').trim();
+        const city = (deliveryFields.city?.value || '').trim();
+        const zipRaw = (deliveryFields.zip?.value || '').trim();
+        const zipDigits = zipRaw.replace(/\D+/g, '');
+        const zipOk = (zipDigits.length === 5 && zipDigits === '13309') || (zipDigits.length === 9 && zipDigits.slice(0, 5) === '13309');
+        if (!name || !address || !type || !city || !zipRaw) {
+          return { ok: false, message: 'Please complete all required delivery fields.' };
+        }
+        if (phoneDigits.length !== 10) {
+          return { ok: false, message: 'Enter a valid 10-digit phone number.' };
+        }
+        if (!zipOk) {
+          return { ok: false, message: 'Sorry, we currently serve zip code 13309 only.' };
+        }
+        return { ok: true, message: '' };
+      };
+
+      const focusFirstDeliveryField = () => {
+        if (!dFormInit) return;
+        const first = dFormInit.querySelector('input, select');
+        if (first && typeof first.focus === 'function') first.focus();
+      };
+
       if (dFormInit) {
         const savedType = getOrderType();
         const show = savedType === 'delivery';
         dFormInit.hidden = !show;
         const errEl = document.getElementById('delivery-error');
         if (errEl) errEl.hidden = true;
+        populateDeliveryFieldsFromStorage();
       }
 
       const cards = document.querySelectorAll('.order-card');
@@ -503,11 +598,19 @@
       };
       cards.forEach((card) => {
         card.addEventListener('click', (e) => {
+          e.preventDefault();
           const type = card.dataset.type || '';
           if (!type) return;
           setOrderType(type);
           setActive(card);
           updateOrderTypeChip();
+          const isDelivery = type === 'delivery';
+          showDeliveryForm(isDelivery);
+          if (isDelivery) {
+            focusFirstDeliveryField();
+          } else {
+            window.location.href = 'page2.html';
+          }
         });
       });
 
@@ -519,6 +622,44 @@
 
       function getOrderType() {
         try { return localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { return ''; }
+      }
+
+      if (deliveryClearBtn) {
+        deliveryClearBtn.addEventListener('click', () => {
+          Object.values(deliveryFields).forEach((field) => {
+            if (field) field.value = '';
+          });
+          if (deliveryError) deliveryError.hidden = true;
+          try {
+            localStorage.removeItem(STORAGE_KEYS.deliveryName);
+            localStorage.removeItem(STORAGE_KEYS.deliveryPhone);
+            localStorage.removeItem(STORAGE_KEYS.deliveryAddress);
+            localStorage.removeItem(STORAGE_KEYS.deliveryType);
+            localStorage.removeItem(STORAGE_KEYS.deliveryCity);
+            localStorage.removeItem(STORAGE_KEYS.deliveryZip);
+          } catch { /* ignore */ }
+          updatePage3NavState();
+        });
+      }
+
+      if (dFormInit) {
+        dFormInit.addEventListener('submit', (evt) => {
+          evt.preventDefault();
+          const { ok, message } = validateDeliveryDetails();
+          if (!ok) {
+            deliveryFailCount += 1;
+            if (deliveryError) {
+              deliveryError.textContent = message;
+              deliveryError.hidden = false;
+            }
+            return;
+          }
+          if (deliveryError) deliveryError.hidden = true;
+          saveDeliveryDetails();
+          setOrderType('delivery');
+          updatePage3NavState();
+          window.location.href = 'page2.html';
+        });
       }
 
       // Attach handlers for toggles on section title spans
