@@ -18,6 +18,7 @@
     settingsResetOnDeselect: 'restaurant.settings.resetOnDeselect',
     settingsResetDisables: 'restaurant.settings.resetDisables',
     settingsAutoDisableEmpty: 'restaurant.settings.autoDisableEmpty',
+    settingsAutoCollapseDisabled: 'restaurant.settings.autoCollapseDisabled',
     settingsQtyRight: 'restaurant.settings.qtyRight',
     settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
     quantities: 'restaurant.quantities',
@@ -480,6 +481,7 @@
     const settingResetOnDeselect = document.querySelector('.setting-reset-on-deselect');
     const settingResetDisables = document.querySelector('.setting-reset-disables');
     const settingAutoDisableEmpty = document.querySelector('.setting-auto-disable-empty');
+    const settingAutoCollapseDisabled = document.querySelector('.setting-auto-collapse-disabled');
     const settingsResetBtn = document.querySelector('.settings-reset');
     const settingQtyRight = document.querySelector('.setting-qty-right');
     const settingPillArrowOnly = document.querySelector('.setting-pill-arrow-only');
@@ -517,6 +519,13 @@
       autoDisableEmpty = v === 'true';
     } catch { autoDisableEmpty = false; }
     if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = autoDisableEmpty;
+    // Auto-collapse section when item is disabled: default OFF
+    let autoCollapseDisabled = false;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsAutoCollapseDisabled);
+      autoCollapseDisabled = v === 'true';
+    } catch { autoCollapseDisabled = false; }
+    if (settingAutoCollapseDisabled) settingAutoCollapseDisabled.checked = autoCollapseDisabled;
     // Quantity dropdown placement: default BEFORE label (setting unchecked)
     let qtyRight = false;
     try {
@@ -633,6 +642,21 @@
         try { localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, String(autoDisableEmpty)); } catch { }
       });
     }
+    if (settingAutoCollapseDisabled) {
+      settingAutoCollapseDisabled.addEventListener('change', () => {
+        autoCollapseDisabled = !!settingAutoCollapseDisabled.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsAutoCollapseDisabled, String(autoCollapseDisabled)); } catch { }
+        if (autoCollapseDisabled) {
+          document.querySelectorAll('.section-toggle').forEach((toggle) => {
+            const details = toggle.closest('details');
+            if (!details) return;
+            if (!toggle.checked || toggle.disabled) {
+              details.open = false;
+            }
+          });
+        }
+      });
+    }
 
     const triggerSettingChange = (el) => {
       if (!el) return;
@@ -649,6 +673,7 @@
         resetOnDeselect = true;
         resetDisables = true;
         autoDisableEmpty = false;
+        autoCollapseDisabled = false;
         // Default: quantity dropdowns before the label
         qtyRight = false;
         try {
@@ -658,6 +683,7 @@
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsAutoCollapseDisabled, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
         } catch { }
         if (settingLabelSelects) settingLabelSelects.checked = true;
@@ -666,6 +692,7 @@
         if (settingResetOnDeselect) settingResetOnDeselect.checked = true;
         if (settingResetDisables) settingResetDisables.checked = true;
         if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
+        if (settingAutoCollapseDisabled) settingAutoCollapseDisabled.checked = false;
         if (settingQtyRight) settingQtyRight.checked = false;
         window.pillArrowOnly = pillArrowOnly;
         document.dispatchEvent(new Event('pillArrowOnlyChanged'));
@@ -676,6 +703,7 @@
         triggerSettingChange(settingResetOnDeselect);
         triggerSettingChange(settingResetDisables);
         triggerSettingChange(settingAutoDisableEmpty);
+        triggerSettingChange(settingAutoCollapseDisabled);
         triggerSettingChange(settingQtyRight);
         applyQtyPlacement();
         updatePageNavLocks();
@@ -1749,6 +1777,16 @@
         sauces: document.getElementById('sauces'),
         sub: document.getElementById('sub')
       };
+      const collapseSectionIfInactive = (section) => {
+        if (!autoCollapseDisabled) return;
+        const d = detailsBySection[section];
+        if (!d || !d.tagName || d.tagName.toLowerCase() !== 'details') return;
+        const toggle = d.querySelector('.section-toggle');
+        if (!toggle) return;
+        if (!toggle.checked || toggle.disabled) {
+          d.open = false;
+        }
+      };
       const requiredCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-required="true"]'));
       const requiredBySection = {};
       requiredCheckboxes.forEach((cb) => {
@@ -1797,7 +1835,6 @@
         t.addEventListener('click', (ev) => { ev.stopPropagation(); });
         t.addEventListener('change', (evt) => {
           const d2 = detailsBySection[section];
-          // Auto-expand disabled for this project
           if (t.checked && d2) {
             // Enforce required when activating
             d2.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
@@ -1817,12 +1854,16 @@
                 }
               } catch { }
             }
+            // If auto-collapse closed it, re-open on recheck
+            if (autoCollapseDisabled && d2.tagName && d2.tagName.toLowerCase() === 'details') {
+              d2.open = true;
+            }
           }
           if (!t.checked && d2) {
             // Clear all selections in that section when deactivating
             d2.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => { cb.checked = false; });
             saveIngredients();
-            // Auto-collapse disabled for this project
+            // Auto-collapse is optional (controlled by setting)
             // If the menu item (section) is not selected, its quantity becomes 0
             if (section === 'pizza' || section === 'burger') {
               try {
@@ -1837,6 +1878,7 @@
               const sum = d2.querySelector('.menu-summary .qty-controls span');
               if (sum) sum.textContent = `(x${resetOnDeselect ? 1 : 0})`;
             }
+            collapseSectionIfInactive(section);
           }
           activeSections[section] = t.checked;
           try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(activeSections)); } catch { }
@@ -1847,6 +1889,9 @@
       });
       syncMenuLaunchState();
       syncRequiredCheckboxes();
+      if (autoCollapseDisabled) {
+        Object.keys(detailsBySection).forEach(collapseSectionIfInactive);
+      }
       // Summary behavior:
       // - If titleSelects is ON, clicking the title text toggles the checkbox (not expand)
       // - Otherwise, clicking summary toggles the checkbox
