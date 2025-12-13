@@ -11,6 +11,35 @@
     --nav-logo-h: var(--logo-h);
 }
 
+#sauces,
+.sauces {
+    touch-action: auto !important;
+    /* allow native vertical pan */
+    -webkit-overflow-scrolling: touch !important;
+    /* smooth native scrolling on iOS */
+    pointer-events: auto !important;
+    z-index: auto !important;
+}
+
+html,
+body,
+.main-content,
+main {
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+body.with-control-box {
+    padding-bottom: var(--control-height, 0px);
+}
+
+.main-content,
+.content,
+main {
+    scroll-padding-bottom: calc(var(--control-height, 0px) + 12px);
+}
+
 /* Section: Global Resets */
 * {
     box-sizing: border-box;
@@ -105,7 +134,6 @@ body.nav-enabled {
     border: none;
     border-radius: 0;
 }
-
 
 /* Settings gear in left rail */
 .settings-button {
@@ -817,7 +845,6 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     }
 }
 
-
 /* Section: Main Spacing Helpers */
 main> :first-child {
     margin-top: 0;
@@ -1428,7 +1455,6 @@ body.nav-enabled .left-rail .box {
 *::after {
     box-sizing: border-box;
 }
-
 
 /* --- SETTINGS OVERLAY: KEEP SETTINGS SHARP --- */
 body.settings-open::before {
