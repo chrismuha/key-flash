@@ -810,6 +810,7 @@
         ['pointerdown', 'mousedown', 'touchstart'].forEach((evtName) => {
           btn.addEventListener(evtName, (evt) => { guardNonArrow(evt); }, true);
         });
+
         btn.addEventListener('click', (evt) => {
           if (guardNonArrow(evt)) return;
           toggleOverlay(target);

@@ -19,8 +19,6 @@
     settingsResetDisables: 'restaurant.settings.resetDisables',
     settingsAutoDisableEmpty: 'restaurant.settings.autoDisableEmpty',
     settingsQtyRight: 'restaurant.settings.qtyRight',
-    settingsExpandOnly: 'restaurant.settings.expandOnly',
-    settingsAutoExpand: 'restaurant.settings.autoExpandOnSelect',
     settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantities.sections'
@@ -482,10 +480,8 @@
     const settingResetOnDeselect = document.querySelector('.setting-reset-on-deselect');
     const settingResetDisables = document.querySelector('.setting-reset-disables');
     const settingAutoDisableEmpty = document.querySelector('.setting-auto-disable-empty');
-    const settingExpandOnly = document.querySelector('.setting-expand-only');
     const settingsResetBtn = document.querySelector('.settings-reset');
     const settingQtyRight = document.querySelector('.setting-qty-right');
-    const settingAutoExpand = document.querySelector('.setting-auto-expand');
     const settingPillArrowOnly = document.querySelector('.setting-pill-arrow-only');
     // Settings defaults: all ON by default
     let labelSelects = true;
@@ -528,20 +524,6 @@
       qtyRight = v === null ? false : v === 'true';
     } catch { qtyRight = false; }
     if (settingQtyRight) settingQtyRight.checked = qtyRight;
-    // Expand-only: default OFF
-    let expandOnly = false;
-    try {
-      const v = localStorage.getItem(STORAGE_KEYS.settingsExpandOnly);
-      expandOnly = v === null ? false : v === 'true';
-    } catch { expandOnly = false; }
-    if (settingExpandOnly) settingExpandOnly.checked = expandOnly;
-    // Auto-expand sections when selecting ingredients: default ON
-    let autoExpandOnSelect = true;
-    try {
-      const v = localStorage.getItem(STORAGE_KEYS.settingsAutoExpand);
-      autoExpandOnSelect = v === null ? true : v === 'true';
-    } catch { autoExpandOnSelect = true; }
-    if (settingAutoExpand) settingAutoExpand.checked = autoExpandOnSelect;
     // Menu pills: respect stored value; default OFF unless saved
     let pillArrowOnly = false;
     try {
@@ -625,18 +607,6 @@
         try { localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, String(titleSelects)); } catch { }
       });
     }
-    if (settingExpandOnly) {
-      settingExpandOnly.addEventListener('change', () => {
-        expandOnly = !!settingExpandOnly.checked;
-        try { localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, String(expandOnly)); } catch { }
-      });
-    }
-    if (settingAutoExpand) {
-      settingAutoExpand.addEventListener('change', () => {
-        autoExpandOnSelect = !!settingAutoExpand.checked;
-        try { localStorage.setItem(STORAGE_KEYS.settingsAutoExpand, String(autoExpandOnSelect)); } catch { }
-      });
-    }
     if (settingPillArrowOnly) {
       settingPillArrowOnly.addEventListener('change', () => {
         pillArrowOnly = !!settingPillArrowOnly.checked;
@@ -674,8 +644,6 @@
         // Defaults per current design
         labelSelects = true;
         titleSelects = true;
-        expandOnly = settingExpandOnly ? !!settingExpandOnly.defaultChecked : false;
-        autoExpandOnSelect = settingAutoExpand ? !!settingAutoExpand.defaultChecked : true;
         pillArrowOnly = settingPillArrowOnly ? !!settingPillArrowOnly.defaultChecked : false;
         // Defaults: reset-related toggles ON
         resetOnDeselect = true;
@@ -686,8 +654,6 @@
         try {
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsExpandOnly, String(expandOnly));
-          localStorage.setItem(STORAGE_KEYS.settingsAutoExpand, String(autoExpandOnSelect));
           localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly));
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'true');
@@ -696,8 +662,6 @@
         } catch { }
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
-        if (settingExpandOnly) settingExpandOnly.checked = expandOnly;
-        if (settingAutoExpand) settingAutoExpand.checked = autoExpandOnSelect;
         if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = true;
         if (settingResetDisables) settingResetDisables.checked = true;
@@ -708,8 +672,6 @@
         // Re-run change handlers to apply live behavior
         triggerSettingChange(settingLabelSelects);
         triggerSettingChange(settingTitleSelects);
-        triggerSettingChange(settingExpandOnly);
-        triggerSettingChange(settingAutoExpand);
         triggerSettingChange(settingPillArrowOnly);
         triggerSettingChange(settingResetOnDeselect);
         triggerSettingChange(settingResetDisables);
@@ -1835,9 +1797,7 @@
         t.addEventListener('click', (ev) => { ev.stopPropagation(); });
         t.addEventListener('change', (evt) => {
           const d2 = detailsBySection[section];
-          if (t.checked && d2 && d2.tagName && d2.tagName.toLowerCase() === 'details' && (autoExpandOnSelect || (evt && evt.isTrusted))) {
-            d2.open = true;
-          }
+          // Auto-expand disabled for this project
           if (t.checked && d2) {
             // Enforce required when activating
             d2.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
@@ -1862,9 +1822,7 @@
             // Clear all selections in that section when deactivating
             d2.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => { cb.checked = false; });
             saveIngredients();
-            if (autoExpandOnSelect) {
-              d2.open = false; // auto-collapse when auto-expand is enabled
-            }
+            // Auto-collapse disabled for this project
             // If the menu item (section) is not selected, its quantity becomes 0
             if (section === 'pizza' || section === 'burger') {
               try {
@@ -1900,31 +1858,12 @@
           const toggle = s.querySelector('.section-toggle');
           if (!toggle) return;
           const clickedCheckbox = toggle === e.target || toggle.contains(e.target);
-          if (pillArrowOnly && !clickedCheckbox) {
-            const arrow = s.querySelector('.menu-summary-arrow, .menu-launch-arrow');
-            const arrowHit = arrow && (arrow === e.target || (arrow.contains && arrow.contains(e.target)));
-            const rect = s.getBoundingClientRect ? s.getBoundingClientRect() : null;
-            const inHitArea = rect && typeof e.clientX === 'number'
-              ? (e.clientX >= (rect.right - 36) || e.clientX <= (rect.left + 32))
-              : false;
-            if (!arrowHit && !inHitArea) {
-              e.preventDefault();
-              e.stopPropagation();
-              return;
-            }
-            // Allow expand/collapse via arrow/hit area without toggling the checkbox
-            return;
-          }
           const detailsParent = s.closest('details');
           const openDetailsIfChecked = () => {
             if (detailsParent && toggle.checked) detailsParent.open = true;
           };
           // If the setting is off, let native summary behavior run but never toggle the checkbox
           if (!titleSelects && !clickedCheckbox) {
-            return;
-          }
-          // When expand-only is on, summary clicks just expand/collapse
-          if (expandOnly && !clickedCheckbox) {
             return;
           }
           // Title click toggles only when setting enabled
@@ -2077,24 +2016,6 @@
               if (toggle && !toggle.checked) {
                 toggle.checked = true;
                 toggle.dispatchEvent(new Event('change', { bubbles: true }));
-              }
-              // Auto-open the section when selecting an item if enabled
-              if (autoExpandOnSelect && d && d.tagName && d.tagName.toLowerCase() === 'details') {
-                d.open = true;
-              }
-            }
-          } else if (!t.checked) {
-            // If auto-expand is on, collapse the section when an ingredient is deselected and nothing remains
-            if (autoExpandOnSelect) {
-              if (section) {
-                const d = detailsBySection[section];
-                if (d && d.tagName && d.tagName.toLowerCase() === 'details') {
-                  const anyChecked = d.querySelectorAll('input[type="checkbox"][name]:checked').length > 0;
-                  const toggle = d.querySelector('.section-toggle');
-                  if (!anyChecked && toggle && !toggle.checked) {
-                    d.open = false;
-                  }
-                }
               }
             }
           }
