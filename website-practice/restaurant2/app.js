@@ -1,11 +1,11 @@
 // Section: IIFE Wrapper
 (function () {
   // Section: Storage Keys
-  const STORAGE_KEYS = {
-    orderType: 'restaurant.orderType',
-    ingredients: 'restaurant.ingredients',
-    theme: 'restaurant.theme',
-    deliveryName: 'restaurant.delivery.name',
+    const STORAGE_KEYS = {
+      orderType: 'restaurant.orderType',
+      ingredients: 'restaurant.ingredients',
+      theme: 'restaurant.theme',
+      deliveryName: 'restaurant.delivery.name',
     deliveryPhone: 'restaurant.delivery.phone',
     deliveryAddress: 'restaurant.delivery.address',
     deliveryType: 'restaurant.delivery.type',
@@ -17,11 +17,12 @@
     settingsTitleSelects: 'restaurant.settings.titleSelects',
     settingsResetOnDeselect: 'restaurant.settings.resetOnDeselect',
     settingsResetDisables: 'restaurant.settings.resetDisables',
-    settingsResetKeepOpen: 'restaurant.settings.resetKeepOpen',
-    settingsAutoDisableEmpty: 'restaurant.settings.autoDisableEmpty',
-    settingsQtyRight: 'restaurant.settings.qtyRight',
-    settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly'
-  };
+      settingsResetKeepOpen: 'restaurant.settings.resetKeepOpen',
+      settingsAutoDisableEmpty: 'restaurant.settings.autoDisableEmpty',
+      settingsAutoDisableSection: 'restaurant.settings.autoDisableSection',
+      settingsQtyRight: 'restaurant.settings.qtyRight',
+      settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly'
+    };
 
   // Section: Utility helpers
   const docEl = document.documentElement;
@@ -100,6 +101,7 @@
     const settingResetDisables = document.getElementById('setting-reset-disables') || document.querySelector('.setting-reset-disables');
     const settingResetKeepOpen = document.getElementById('setting-reset-keep-open') || document.querySelector('.setting-reset-keep-open');
     const settingAutoDisableEmpty = document.getElementById('setting-auto-disable-empty') || document.querySelector('.setting-auto-disable-empty');
+    const settingAutoDisableSection = document.getElementById('setting-auto-disable-section') || document.querySelector('.setting-auto-disable-section');
     const settingQtyRight = document.getElementById('setting-qty-right') || document.querySelector('.setting-qty-right');
     const settingPillArrowOnly = document.getElementById('setting-pill-arrow-only') || document.querySelector('.setting-pill-arrow-only');
     const settingsResetBtn = document.getElementById('settings-reset') || document.querySelector('.settings-reset');
@@ -286,6 +288,14 @@
     } catch { autoDisableEmpty = false; }
     if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = autoDisableEmpty;
 
+    // Auto-disable section toggle: default OFF
+    let autoDisableSection = false;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsAutoDisableSection);
+      autoDisableSection = v === 'true';
+    } catch { autoDisableSection = false; }
+    if (settingAutoDisableSection) settingAutoDisableSection.checked = autoDisableSection;
+
     // Keep section open after reset: default ON
     let resetKeepOpen = true;
     try {
@@ -354,6 +364,7 @@
         resetDisables = false;
         resetKeepOpen = true;
         autoDisableEmpty = false;
+        autoDisableSection = false;
         // Default: quantity dropdowns before the label
         qtyRight = false;
         // Default: menu pills open/close via the whole pill
@@ -365,6 +376,7 @@
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetKeepOpen, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsAutoDisableSection, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
         } catch { }
@@ -374,6 +386,7 @@
         if (settingResetDisables) settingResetDisables.checked = false;
         if (settingResetKeepOpen) settingResetKeepOpen.checked = true;
         if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
+        if (settingAutoDisableSection) settingAutoDisableSection.checked = false;
         if (settingQtyRight) settingQtyRight.checked = false;
         if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
       });
@@ -617,6 +630,18 @@
         }
       };
 
+      // Track when an auto-disable is driving the section toggle change
+      let autoDisableTrigger = '';
+      const unlockManualDisable = (sec) => {
+        if (!sec) return;
+        const toggle = document.querySelector(`.section-toggle[data-section="${sec}"]`);
+        if (toggle && toggle.disabled && toggle.dataset && toggle.dataset.manualDisabled === 'true') {
+          toggle.disabled = false;
+          toggle.removeAttribute('aria-disabled');
+          delete toggle.dataset.manualDisabled;
+        }
+      };
+
       const autoDisableIfEmpty = (secId) => {
         if (!autoDisableEmpty) return;
         if (!secId || disabledSections.has(secId)) return;
@@ -628,8 +653,13 @@
         const anyOptionalChecked = inputs.some((input) => input.checked && input.dataset.required !== 'true');
         const hasOptionals = inputs.some((input) => input.dataset.required !== 'true');
         if (!anyOptionalChecked && hasOptionals) {
-          toggle.checked = false;
-          toggle.dispatchEvent(new Event('change', { bubbles: true }));
+          autoDisableTrigger = secId;
+          try {
+            toggle.checked = false;
+            toggle.dispatchEvent(new Event('change', { bubbles: true }));
+          } finally {
+            autoDisableTrigger = '';
+          }
           // Close the overlay when auto-disabling due to no optional ingredients.
           closeOverlay(secId);
         }
@@ -814,12 +844,15 @@
         });
 
         btn.addEventListener('click', (evt) => {
+          // If this section was manually disabled, unlock it so it can be re-enabled.
+          unlockManualDisable(target);
           if (guardNonArrow(evt)) return;
           toggleOverlay(target);
         });
         if (arrow) {
           arrow.addEventListener('click', (evt) => {
             evt.stopPropagation();
+            unlockManualDisable(target);
             toggleOverlay(target);
           });
         }
@@ -905,6 +938,21 @@
       // Persist active section toggles
       sectionToggles.forEach((t) => {
         t.addEventListener('change', () => {
+          const sec = t.dataset.section;
+          const isAuto = autoDisableTrigger && sec === autoDisableTrigger;
+          // If the user manually disables the section and the setting is on, lock it and close its overlay.
+          if (!t.checked && !isAuto && autoDisableSection) {
+            t.disabled = true;
+            t.setAttribute('aria-disabled', 'true');
+            t.dataset.manualDisabled = 'true';
+            if (sec) closeOverlay(sec);
+          }
+          // Clear manual disable if re-enabled later.
+          if (t.checked && t.disabled) {
+            t.disabled = false;
+            t.removeAttribute('aria-disabled');
+            delete t.dataset.manualDisabled;
+          }
           persistActiveSections();
           updateBuilderError();
           updatePage3NavState();
@@ -946,6 +994,12 @@
       settingAutoDisableEmpty.addEventListener('change', () => {
         autoDisableEmpty = !!settingAutoDisableEmpty.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, String(autoDisableEmpty)); } catch { }
+      });
+    }
+    if (settingAutoDisableSection) {
+      settingAutoDisableSection.addEventListener('change', () => {
+        autoDisableSection = !!settingAutoDisableSection.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsAutoDisableSection, String(autoDisableSection)); } catch { }
       });
     }
     if (settingResetKeepOpen) {
