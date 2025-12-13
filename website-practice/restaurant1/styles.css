@@ -1,4 +1,4 @@
-/* Section: CSS Variables */
+/* SECTION: CSS Variables */
 :root {
     --gap: 12px;
     --logo-w: 184px;
@@ -11,6 +11,9 @@
     --nav-logo-h: var(--logo-h);
 }
 
+/* SECTION: Scroll patch */
+
+/* Allow pan/scroll on the sauces element */
 #sauces,
 .sauces {
     touch-action: auto !important;
@@ -21,6 +24,7 @@
     z-index: auto !important;
 }
 
+/* Ensure the main content scrolls vertically */
 html,
 body,
 .main-content,
@@ -30,6 +34,7 @@ main {
     -webkit-overflow-scrolling: touch;
 }
 
+/* If there is a bottom overlay/control box, reserve space */
 body.with-control-box {
     padding-bottom: var(--control-height, 0px);
 }
@@ -40,7 +45,7 @@ main {
     scroll-padding-bottom: calc(var(--control-height, 0px) + 12px);
 }
 
-/* Section: Global Resets */
+/* SECTION: Global Resets */
 * {
     box-sizing: border-box;
     -webkit-user-select: none;
@@ -49,7 +54,7 @@ main {
     user-select: none;
 }
 
-/* Section: Base HTML/Body */
+/* SECTION: Base HTML/Body */
 html,
 body {
     margin: 0;
@@ -64,7 +69,7 @@ body {
     overflow-x: hidden;
 }
 
-/* Section: App Layout (Body Flex) */
+/* SECTION: App Layout (Body Flex) */
 body {
     display: flex;
     align-items: stretch;
@@ -97,7 +102,7 @@ body.nav-enabled {
     }
 }
 
-/* Section: Left Rail Navigation */
+/* SECTION: Left Rail Navigation */
 .left-rail {
     display: flex;
     flex-direction: column;
@@ -269,7 +274,7 @@ body:not(.nav-enabled) main {
     pointer-events: none;
 }
 
-/* Section: Main Content Area */
+/* SECTION: Main Content Area */
 main {
     background: #fff;
     flex: 0 1 auto;
@@ -296,7 +301,7 @@ body.nav-enabled main {
     padding-right: var(--gap);
 }
 
-/* Section: Theme (Dark) */
+/* SECTION: Theme (Dark) */
 /* Only flips the main content background to black and text to white */
 body.theme-dark {
     background: #000;
@@ -640,14 +645,14 @@ body.page2 label.required {
     pointer-events: auto !important;
 }
 
-/* Section: Page 2 Scoped (Builder Container) */
+/* SECTION: Page 2 Scoped (Builder Container) */
 body.page2 main {
     border: none;
     position: relative;
     padding-bottom: 96px;
 }
 
-/* Section: Page 2 Actions */
+/* SECTION: Page 2 Actions */
 body.page2 .page-actions {
     position: fixed;
     left: var(--gap);
@@ -845,7 +850,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     }
 }
 
-/* Section: Main Spacing Helpers */
+/* SECTION: Main Spacing Helpers */
 main> :first-child {
     margin-top: 0;
 }
@@ -860,7 +865,7 @@ main img {
     display: block;
 }
 
-/* Section: Headings & Typography */
+/* SECTION: Headings & Typography */
 main h1,
 main h2,
 main h3,
@@ -919,7 +924,7 @@ main h6 {
     line-height: 24px;
 }
 
-/* Section: Form Label Alignment */
+/* SECTION: Form Label Alignment */
 main fieldset label {
     display: inline-flex;
     align-items: center;
@@ -928,7 +933,7 @@ main fieldset label {
     cursor: pointer;
 }
 
-/* Section: Checkboxes (Unified Custom Style) */
+/* SECTION: Checkboxes (Unified Custom Style) */
 main input[type="checkbox"] {
     -webkit-appearance: none;
     appearance: none;
@@ -974,7 +979,7 @@ body.page2 input[type="checkbox"][data-required="true"][disabled]:checked::after
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='4,10 8,14 16,6'/></svg>");
 }
 
-/* Section: Restricted/Required Overrides */
+/* SECTION: Restricted/Required Overrides */
 body.page2 input[type="checkbox"][disabled] {
     opacity: 1;
 }
@@ -1073,7 +1078,7 @@ body.page2 label.required.required-disabled input[type="checkbox"] {
     opacity: 0.5;
 }
 
-/* Section: Page 3 Order Summary */
+/* SECTION: Page 3 Order Summary */
 body.page3 #order-summary {
     border: 1px solid #000;
     padding: 12px;
@@ -1103,7 +1108,7 @@ body.page3 #order-summary a:focus {
     text-decoration: underline;
 }
 
-/* Section: Page 1 Order Type */
+/* SECTION: Page 1 Order Type */
 body.order-type main {
     text-align: left;
 }
@@ -1287,7 +1292,7 @@ body.order-type .order-powered a {
     color: #000;
 }
 
-/* Section: Order Type Responsive */
+/* SECTION: Order Type Responsive */
 @media (max-width: 600px) {
     body.order-type .order-options {
         gap: 16px;
@@ -1299,7 +1304,7 @@ body.order-type .order-powered a {
     }
 }
 
-/* Section: Expandable Menu Sections */
+/* SECTION: Expandable Menu Sections */
 main details {
     margin-bottom: var(--gap);
 }
@@ -1323,7 +1328,7 @@ main summary.menu-summary.invalid {
     margin-bottom: 8px;
 }
 
-/* Section: Reset Buttons */
+/* SECTION: Reset Buttons */
 main .reset-group {
     margin-top: 8px;
     padding: 6px 10px;
@@ -1369,7 +1374,7 @@ main details[open]>summary.menu-summary::before {
     transform: rotate(90deg);
 }
 
-/* Section: Left Rail Boxes (Links) */
+/* SECTION: Left Rail Boxes (Links) */
 .box {
     margin: 0;
     width: 190px;
@@ -1438,7 +1443,7 @@ body.nav-enabled .left-rail .box {
     }
 }
 
-/* Section: Focus Styles */
+/* SECTION: Focus Styles */
 :focus-visible {
     outline: 2px solid #000;
     outline-offset: 2px;
@@ -1456,7 +1461,7 @@ body.nav-enabled .left-rail .box {
     box-sizing: border-box;
 }
 
-/* --- SETTINGS OVERLAY: KEEP SETTINGS SHARP --- */
+/* SECTION: SETTINGS OVERLAY */
 body.settings-open::before {
     content: "";
     position: fixed;
@@ -1499,8 +1504,7 @@ body:not(.nav-enabled).settings-open::before {
     z-index: 1400;
 }
 
-/* --- END SETTINGS OVERLAY --- */
-
+/* SECTION: Menu Pill Arrow Control */
 /* Menu pill arrow control */
 .menu-launch {
     display: inline-flex;
