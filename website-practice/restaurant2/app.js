@@ -8,6 +8,7 @@
     deliveryName: 'restaurant.delivery.name',
     deliveryPhone: 'restaurant.delivery.phone',
     deliveryAddress: 'restaurant.delivery.address',
+    deliverySuite: 'restaurant.delivery.suite',
     deliveryType: 'restaurant.delivery.type',
     deliveryCity: 'restaurant.delivery.city',
     deliveryZip: 'restaurant.delivery.zip',
@@ -15,9 +16,9 @@
     navEnabled: 'restaurant.nav.enabled',
     settingsLabelSelects: 'restaurant.settings.labelSelects',
     settingsTitleSelects: 'restaurant.settings.titleSelects',
-      settingsResetDisables: 'restaurant.settings.resetDisables',
-      settingsResetKeepOpen: 'restaurant.settings.resetKeepOpen',
-      settingsAutoDisableEmpty: 'restaurant.settings.autoDisableEmpty',
+    settingsResetDisables: 'restaurant.settings.resetDisables',
+    settingsResetKeepOpen: 'restaurant.settings.resetKeepOpen',
+    settingsAutoDisableEmpty: 'restaurant.settings.autoDisableEmpty',
     settingsAutoDisableSection: 'restaurant.settings.autoDisableSection',
     settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
     quantities: 'restaurant.quantities'
@@ -114,6 +115,7 @@
       name: '',
       phone: '',
       address: '',
+      suite: '',
       type: '',
       city: '',
       zip: ''
@@ -122,6 +124,7 @@
       data.name = (localStorage.getItem(STORAGE_KEYS.deliveryName) || '').trim();
       data.phone = (localStorage.getItem(STORAGE_KEYS.deliveryPhone) || '').replace(/\D+/g, '');
       data.address = (localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '').trim();
+      data.suite = (localStorage.getItem(STORAGE_KEYS.deliverySuite) || '').trim();
       data.type = (localStorage.getItem(STORAGE_KEYS.deliveryType) || '').trim();
       data.city = (localStorage.getItem(STORAGE_KEYS.deliveryCity) || '').trim();
       data.zip = (localStorage.getItem(STORAGE_KEYS.deliveryZip) || '').trim();
@@ -222,7 +225,19 @@
     const updateOrderTypeChip = () => {
       let type = '';
       try { type = localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { type = ''; }
-      const label = type === 'delivery' ? 'Delivery' : (type === 'dine' ? 'Dine In/Carryout' : 'Not selected');
+      let label = 'Not selected';
+      if (type === 'delivery') {
+        label = 'Delivery';
+        // On desktop, append delivery address for quick glance
+        const d = readDeliveryData();
+        const parts = [d.name, d.address, d.suite, [d.city, d.zip].filter(Boolean).join(' ')].filter(Boolean);
+        const desktop = !isMobileView();
+        if (desktop && parts.length) {
+          label = `${label} --- ${parts.join(', ')}`;
+        }
+      } else if (type === 'dine') {
+        label = 'Dine In/Carryout';
+      }
       const empty = !type;
       orderTypeChips.forEach((chip) => {
         const valueEl = chip.querySelector('.order-type-chip__value');
@@ -514,6 +529,7 @@
         name: document.getElementById('delivery-name'),
         phone: document.getElementById('delivery-phone'),
         address: document.getElementById('delivery-address'),
+        suite: document.getElementById('delivery-suite'),
         type: document.getElementById('delivery-type'),
         city: document.getElementById('delivery-city'),
         zip: document.getElementById('delivery-zip')
@@ -530,6 +546,7 @@
           if (deliveryFields.name) localStorage.setItem(STORAGE_KEYS.deliveryName, deliveryFields.name.value.trim());
           if (deliveryFields.phone) localStorage.setItem(STORAGE_KEYS.deliveryPhone, deliveryFields.phone.value.trim());
           if (deliveryFields.address) localStorage.setItem(STORAGE_KEYS.deliveryAddress, deliveryFields.address.value.trim());
+          if (deliveryFields.suite) localStorage.setItem(STORAGE_KEYS.deliverySuite, deliveryFields.suite.value.trim());
           if (deliveryFields.type) localStorage.setItem(STORAGE_KEYS.deliveryType, deliveryFields.type.value.trim());
           if (deliveryFields.city) localStorage.setItem(STORAGE_KEYS.deliveryCity, deliveryFields.city.value.trim());
           if (deliveryFields.zip) localStorage.setItem(STORAGE_KEYS.deliveryZip, deliveryFields.zip.value.trim());
@@ -541,6 +558,7 @@
         if (deliveryFields.name) deliveryFields.name.value = d.name || '';
         if (deliveryFields.phone) deliveryFields.phone.value = d.phone || '';
         if (deliveryFields.address) deliveryFields.address.value = d.address || '';
+        if (deliveryFields.suite) deliveryFields.suite.value = d.suite || '';
         if (deliveryFields.type && d.type) deliveryFields.type.value = d.type;
         if (deliveryFields.city) deliveryFields.city.value = d.city || '';
         if (deliveryFields.zip) deliveryFields.zip.value = d.zip || '';
@@ -634,6 +652,7 @@
             localStorage.removeItem(STORAGE_KEYS.deliveryName);
             localStorage.removeItem(STORAGE_KEYS.deliveryPhone);
             localStorage.removeItem(STORAGE_KEYS.deliveryAddress);
+            localStorage.removeItem(STORAGE_KEYS.deliverySuite);
             localStorage.removeItem(STORAGE_KEYS.deliveryType);
             localStorage.removeItem(STORAGE_KEYS.deliveryCity);
             localStorage.removeItem(STORAGE_KEYS.deliveryZip);
@@ -1372,6 +1391,7 @@
         const readJSON = (key, fallback) => {
           try { return safeParseJSON(localStorage.getItem(key), fallback); } catch { return fallback; }
         };
+        const d = readDeliveryData();
         const orderType = (() => { try { return localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { return ''; } })();
         const ingredients = readJSON(STORAGE_KEYS.ingredients, {});
         const activeSections = readJSON(STORAGE_KEYS.activeSections, {});
@@ -1396,15 +1416,16 @@
           h.textContent = 'Delivery Details';
           d.appendChild(h);
 
-          const dn = localStorage.getItem(STORAGE_KEYS.deliveryName) || '';
-          const dph = localStorage.getItem(STORAGE_KEYS.deliveryPhone) || '';
-          const da = localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '';
-          const dt = localStorage.getItem(STORAGE_KEYS.deliveryType) || '';
-          const city = localStorage.getItem(STORAGE_KEYS.deliveryCity) || '';
-          const zip = localStorage.getItem(STORAGE_KEYS.deliveryZip) || '';
-
           const block = document.createElement('div');
           block.className = 'address-block';
+
+          const dn = d.name;
+          const dph = d.phone;
+          const da = d.address;
+          const ds = d.suite;
+          const dt = d.type;
+          const city = d.city;
+          const zip = d.zip;
 
           if (dn || dt) {
             const line = document.createElement('div');
@@ -1429,6 +1450,11 @@
           if (da) {
             const line = document.createElement('div');
             line.textContent = da;
+            block.appendChild(line);
+          }
+          if (ds) {
+            const line = document.createElement('div');
+            line.textContent = ds;
             block.appendChild(line);
           }
           if (city || zip) {

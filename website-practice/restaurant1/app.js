@@ -2724,29 +2724,29 @@
     return false;
   }
 
-    function initSummaryHandlers() {
-      const summaries = Array.from(document.querySelectorAll('summary.menu-summary'));
-      const allowToggleCheckbox = () => {
-        try {
-          const lbl = document.querySelector('.setting-label-selects');
-          const ttl = document.querySelector('.setting-title-selects');
-          const lblOn = lbl ? !!lbl.checked : true;
-          const ttlOn = ttl ? !!ttl.checked : true;
-          return lblOn || ttlOn;
-        } catch { return true; }
-      };
+  function initSummaryHandlers() {
+    const summaries = Array.from(document.querySelectorAll('summary.menu-summary'));
+    const allowToggleCheckbox = () => {
+      try {
+        const lbl = document.querySelector('.setting-label-selects');
+        const ttl = document.querySelector('.setting-title-selects');
+        const lblOn = lbl ? !!lbl.checked : true;
+        const ttlOn = ttl ? !!ttl.checked : true;
+        return lblOn || ttlOn;
+      } catch { return true; }
+    };
 
-      summaries.forEach((summary) => {
-        // Remove any older v1 handlers so they don't block clicks
-        if (summary._pillHandler) {
-          summary.removeEventListener('click', summary._pillHandler, true);
-          ['pointerdown', 'mousedown', 'touchstart'].forEach(ev => {
-            summary.removeEventListener(ev, summary._pillPointerHandler, true);
-          });
-          summary._pillHandler = null;
-          summary._pillPointerHandler = null;
-        }
-        // Remove previously injected arrow nodes we created earlier, but do not remove arrows
+    summaries.forEach((summary) => {
+      // Remove any older v1 handlers so they don't block clicks
+      if (summary._pillHandler) {
+        summary.removeEventListener('click', summary._pillHandler, true);
+        ['pointerdown', 'mousedown', 'touchstart'].forEach(ev => {
+          summary.removeEventListener(ev, summary._pillPointerHandler, true);
+        });
+        summary._pillHandler = null;
+        summary._pillPointerHandler = null;
+      }
+      // Remove previously injected arrow nodes we created earlier, but do not remove arrows
       // that were present before (we try to only remove arrows whose textContent was the fallback glyph).
       const injected = Array.from(summary.querySelectorAll('.menu-summary-arrow, .menu-launch-arrow')).filter(el => {
         // If the element has no CSS classes beyond these or has our fallback glyph, treat as injected.
