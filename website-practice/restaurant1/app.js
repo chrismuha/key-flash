@@ -1942,6 +1942,7 @@
           }
           // Title click toggles only when setting enabled
           if (titleSelects && isTitleClick && !clickedCheckbox) {
+            e.preventDefault();
             e.stopPropagation();
             toggle.checked = !toggle.checked;
             toggle.dispatchEvent(new Event('change', { bubbles: true }));
@@ -1950,12 +1951,15 @@
           }
           // Let native <summary> clicks expand the <details> while still toggling the checkbox
           if (titleSelects && usesNativeDetails && !clickedCheckbox) {
+            e.preventDefault();
+            e.stopPropagation();
             toggle.checked = !toggle.checked;
             toggle.dispatchEvent(new Event('change', { bubbles: true }));
             openDetailsIfChecked();
             return;
           }
           if (titleSelects && !clickedCheckbox) {
+            e.preventDefault();
             e.stopPropagation();
             toggle.checked = !toggle.checked;
             toggle.dispatchEvent(new Event('change', { bubbles: true }));
