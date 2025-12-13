@@ -297,7 +297,6 @@
     if (backBtn) {
       body.classList.add('has-go-back');
       backBtn.addEventListener('click', (e) => {
-        e.preventDefault();
         if (body.classList.contains('page3')) {
           window.location.href = 'page2.html';
         } else if (body.classList.contains('page2')) {
@@ -454,7 +453,6 @@
     closeThemeMenu();
     if (themeToggleBtn && themeMenu) {
       themeToggleBtn.addEventListener('click', (e) => {
-        e.preventDefault();
         const expanded = themeToggleBtn.getAttribute('aria-expanded') === 'true';
         if (expanded) closeThemeMenu(); else openThemeMenu();
       });
@@ -821,7 +819,6 @@
           updatePageNavLocks();
           if (type === 'delivery') {
             // Expand delivery details instead of navigating immediately
-            e.preventDefault();
             const form = document.getElementById('delivery-details');
             if (form) {
               form.hidden = false;
@@ -848,7 +845,6 @@
             }
           } else {
             // Dine/Carryout: clear previous selection and navigate immediately
-            e.preventDefault();
             const form = document.getElementById('delivery-details');
             if (form) form.hidden = true;
             setActive(card);
@@ -940,7 +936,6 @@
             const digits = raw.replace(/\D+/g, '');
             const digitsBefore = raw.slice(0, caret).replace(/\D+/g, '');
             if (digitsBefore.length === 0) return; // nothing to delete
-            e.preventDefault();
             const deleteIndex = digitsBefore.length - 1; // remove the digit just before caret
             const newDigits = digits.slice(0, deleteIndex) + digits.slice(deleteIndex + 1);
             const formatted = formatPhone(newDigits);
@@ -980,7 +975,6 @@
         attachDeliveryLiveValidation(dForm);
 
         dForm.addEventListener('submit', (e) => {
-          e.preventDefault();
           const name = dForm.querySelector('#delivery-name').value.trim();
           const phoneEl = dForm.querySelector('#delivery-phone');
           const phone = phoneEl ? phoneEl.value.replace(/\D+/g, '') : '';
@@ -1382,14 +1376,23 @@
           if (!isPillArrowSettingOn()) return false;
           const arrowClicked = isArrowTarget(evt.target);
           if (!arrowClicked) {
-            evt.preventDefault();
             evt.stopImmediatePropagation();
             return true;
           }
           return false;
         };
         ['mousedown', 'pointerdown', 'touchstart'].forEach((evtName) => {
-          btn.addEventListener(evtName, (evt) => { blockIfNeeded(evt); }, true);
+          btn.addEventListener(evtName, (evt) => {
+            // Don't call preventDefault here — only stop propagation so native scrolling (touch/pan)
+            // still works. We only want to prevent other JS handlers from running, not cancel native gestures.
+            if (isPillArrowSettingOn()) {
+              const arrowClicked = isArrowTarget(evt.target);
+              if (!arrowClicked) {
+                // allow default (so scrolling isn't blocked) but prevent other handlers from running
+                evt.stopImmediatePropagation();
+              }
+            }
+          }, true);
         });
         btn.addEventListener('click', (e) => {
           if (blockIfNeeded(e)) return;
@@ -1410,7 +1413,6 @@
         if (!isPillArrowSettingOn()) return;
         const arrowHit = e.target.closest('.menu-launch-arrow');
         if (!arrowHit) {
-          e.preventDefault();
           e.stopImmediatePropagation();
         }
       }, true);
@@ -1433,7 +1435,6 @@
         nextButton.addEventListener('click', (e) => {
           const closed = closeAllOverlays();
           if (closed) {
-            e.preventDefault();
             const menuActions = document.querySelector('.menu-actions');
             if (menuActions) menuActions.scrollIntoView({ behavior: 'smooth', block: 'start' });
             const firstButton = document.querySelector('.menu-launch');
@@ -1467,7 +1468,6 @@
           cb.addEventListener('click', (e) => {
             // Keep it checked and suppress default toggle
             if (!cb.checked) cb.checked = true;
-            e.preventDefault();
             e.stopPropagation();
           });
           // Block programmatic/user change events
@@ -1583,12 +1583,12 @@
           if (sec === 'burger') updateBurgerTomatoLabel();
         };
         dec.addEventListener('click', (e) => {
-          e.preventDefault(); e.stopPropagation();
+          e.stopPropagation();
           current = getStoredQty();
           update(current - 1);
         });
         inc.addEventListener('click', (e) => {
-          e.preventDefault(); e.stopPropagation();
+          e.stopPropagation();
           current = getStoredQty();
           update(current + 1);
         });
@@ -1644,8 +1644,8 @@
             }
           }
         };
-        dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); syncCurrent(); update(current - 1); });
-        inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); syncCurrent(); update(current + 1); });
+        dec.addEventListener('click', (e) => { e.stopPropagation(); syncCurrent(); update(current - 1); });
+        inc.addEventListener('click', (e) => { e.stopPropagation(); syncCurrent(); update(current + 1); });
         wrap.appendChild(txt); wrap.appendChild(dec); wrap.appendChild(inc);
         // Show controls only when checked
         const setVisible = () => { wrap.style.display = cb.checked ? 'inline-flex' : 'none'; };
@@ -1708,8 +1708,8 @@
         };
         const savePatty = () => { qtyMap[qKey] = current; try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { } };
         const update = (next) => { current = Math.max(1, Math.min(3, (next | 0))); txt.textContent = `(x${current})`; savePatty(); };
-        dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); syncPatty(); update(current - 1); });
-        inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); syncPatty(); update(current + 1); });
+        dec.addEventListener('click', (e) => { e.stopPropagation(); syncPatty(); update(current - 1); });
+        inc.addEventListener('click', (e) => { e.stopPropagation(); syncPatty(); update(current + 1); });
         wrap.appendChild(txt); wrap.appendChild(dec); wrap.appendChild(inc);
         const setVisible = () => { wrap.style.display = cb.checked ? 'inline-flex' : 'none'; };
         setVisible();
@@ -1749,8 +1749,8 @@
             } catch { current = Math.max(1, current || 1); }
           };
           const update = (next) => { current = Math.max(1, Math.min(12, (next | 0))); txt.textContent = `(x${current})`; save(); };
-          dec.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); syncCurrent(); update(current - 1); });
-          inc.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); syncCurrent(); update(current + 1); });
+          dec.addEventListener('click', (e) => { e.stopPropagation(); syncCurrent(); update(current - 1); });
+          inc.addEventListener('click', (e) => { e.stopPropagation(); syncCurrent(); update(current + 1); });
           wrap.appendChild(txt); wrap.appendChild(dec); wrap.appendChild(inc);
           const setVisible = () => { wrap.style.display = cb.checked ? 'inline-flex' : 'none'; };
           setVisible();
@@ -1942,7 +1942,6 @@
           }
           // Title click toggles only when setting enabled
           if (titleSelects && isTitleClick && !clickedCheckbox) {
-            e.preventDefault();
             e.stopPropagation();
             toggle.checked = !toggle.checked;
             toggle.dispatchEvent(new Event('change', { bubbles: true }));
@@ -1957,7 +1956,6 @@
             return;
           }
           if (titleSelects && !clickedCheckbox) {
-            e.preventDefault();
             e.stopPropagation();
             toggle.checked = !toggle.checked;
             toggle.dispatchEvent(new Event('change', { bubbles: true }));
@@ -2010,7 +2008,6 @@
         if (e.target === cb) return;
         if (e.target.closest('[data-ignore-label-toggle="true"]')) return;
         if (e.target.closest('select, button, input:not([type="checkbox"]), textarea')) return;
-        e.preventDefault();
         e.stopImmediatePropagation();
       }, true);
       // Delegate clicks on ingredient labels to toggle their checkbox when enabled
@@ -2029,7 +2026,6 @@
         if (e.target !== cb) {
           cb.checked = !cb.checked;
           cb.dispatchEvent(new Event('change', { bubbles: true }));
-          e.preventDefault();
         }
       });
 
@@ -2227,7 +2223,6 @@
             message = 'Please select at least one sauce or uncheck Sauces.';
           }
           if (message) {
-            e.preventDefault();
             if (err) {
               err.textContent = message;
               err.hidden = false;
@@ -2615,7 +2610,6 @@
       document.addEventListener(evtName, (e) => {
         try {
           if (shouldBlockForPill(e)) {
-            e.preventDefault();
             e.stopImmediatePropagation();
           }
         } catch (err) { console.error('pillLaunchGuard error', err); }
@@ -2625,7 +2619,6 @@
     document.addEventListener('click', (e) => {
       try {
         if (shouldBlockForPill(e)) {
-          e.preventDefault();
           e.stopImmediatePropagation();
         }
       } catch (err) { console.error('pillLaunchGuard click error', err); }
@@ -2695,7 +2688,6 @@
           const interactive = el.closest('input, select, textarea, button, a[href], label, [contenteditable="true"]');
           const arrowHit = el.closest('.menu-summary-arrow') || el.closest('.menu-launch-arrow') || el === arrow;
           if (!arrowHit && !interactive) {
-            e.preventDefault();
             e.stopImmediatePropagation();
           }
         };
@@ -2708,7 +2700,6 @@
           const interactive = el.closest('input, select, textarea, button, a[href], label, [contenteditable="true"]');
           const arrowHit = el.closest('.menu-summary-arrow') || el.closest('.menu-launch-arrow') || el === arrow;
           if (!arrowHit && !interactive) {
-            e.preventDefault();
             e.stopImmediatePropagation();
           }
         };
@@ -2907,7 +2898,6 @@
           }
           // If allowed, toggle the checkbox instead of expanding
           if (canToggle) {
-            e.preventDefault();
             e.stopImmediatePropagation();
             toggle.checked = !toggle.checked;
             toggle.dispatchEvent(new Event('change', { bubbles: true }));
@@ -2918,7 +2908,6 @@
             return;
           }
           // otherwise block toggling
-          e.preventDefault();
           e.stopImmediatePropagation();
         }
       };
@@ -2940,7 +2929,6 @@
             // allow click handler to toggle; do not block here
             return;
           }
-          e.preventDefault();
           e.stopImmediatePropagation();
         }
       };
@@ -3031,3 +3019,73 @@
   // Expose for debugging
   window._removedInjectedArrows = true;
 })(); // end runtime cleanup
+
+
+
+
+// --- control-box safe-area helper ---
+// Adjusts page padding/scroll offsets when a bottom "control box" overlay is present.
+// Customize selector '.control-box' if your control uses a different class.
+(function () {
+  'use strict';
+  const CONTROL_SELECTOR = '.control-box'; // CHANGE THIS if your control uses a different class
+  const EXTRA_GAP_PX = 12; // space between content and control
+
+  const ctrl = document.querySelector(CONTROL_SELECTOR);
+  if (!ctrl) {
+    // nothing to do
+    return;
+  }
+
+  function updateControlHeight() {
+    // Measure height and set CSS variable
+    const h = ctrl.offsetHeight || 0;
+    document.documentElement.style.setProperty('--control-height', h + 'px');
+
+    // Add a class so CSS can add padding if desired
+    if (ctrl.offsetParent !== null && getComputedStyle(ctrl).display !== 'none') {
+      document.body.classList.add('with-control-box');
+    } else {
+      document.body.classList.remove('with-control-box');
+    }
+  }
+
+  // Observe size changes of control (e.g., responsive/hide/show)
+  try {
+    const ro = new ResizeObserver(updateControlHeight);
+    ro.observe(ctrl);
+  } catch (e) {
+    // fallback: window resize
+    window.addEventListener('resize', updateControlHeight);
+  }
+
+  // Also run on load
+  window.addEventListener('load', updateControlHeight);
+  // and when the control is shown/hidden through DOM changes
+  const mo = new MutationObserver(updateControlHeight);
+  mo.observe(document.body, { attributes: true, childList: true, subtree: true });
+
+  // Ensure focused elements are scrolled into view with offset
+  document.addEventListener('focusin', (ev) => {
+    const el = ev.target;
+    if (!(el instanceof HTMLElement)) return;
+    // Only adjust for inputs/textareas/selects and elements inside the main content area
+    const tag = el.tagName.toLowerCase();
+    if (!['input', 'textarea', 'select', 'button', 'a'].includes(tag)) return;
+
+    // Compute target position accounting for control height
+    const controlHeight = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--control-height')) || 0;
+    const extra = controlHeight + EXTRA_GAP_PX;
+    const rect = el.getBoundingClientRect();
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    // If element bottom is covered by control, scroll it up
+    const elBottom = rect.bottom;
+    const coveredThreshold = viewportHeight - extra;
+    if (elBottom > coveredThreshold) {
+      const targetY = window.scrollY + rect.top - Math.max(12, (viewportHeight / 6)); // try to place element in upper part
+      // fine-tune so bottom sits above control
+      const adjust = Math.min(rect.top, extra + 8);
+      window.scrollTo({ top: targetY - adjust, behavior: 'smooth' });
+    }
+  }, true);
+})();
