@@ -15,12 +15,10 @@
     navEnabled: 'restaurant.nav.enabled',
     settingsLabelSelects: 'restaurant.settings.labelSelects',
     settingsTitleSelects: 'restaurant.settings.titleSelects',
-    settingsResetOnDeselect: 'restaurant.settings.resetOnDeselect',
-    settingsResetDisables: 'restaurant.settings.resetDisables',
+      settingsResetDisables: 'restaurant.settings.resetDisables',
       settingsResetKeepOpen: 'restaurant.settings.resetKeepOpen',
       settingsAutoDisableEmpty: 'restaurant.settings.autoDisableEmpty',
       settingsAutoDisableSection: 'restaurant.settings.autoDisableSection',
-      settingsQtyRight: 'restaurant.settings.qtyRight',
       settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
       quantities: 'restaurant.quantities'
     };
@@ -98,12 +96,10 @@
     const settingsCloseBtn = document.getElementById('settings-close') || document.querySelector('.settings-close');
     const settingLabelSelects = document.getElementById('setting-label-selects') || document.querySelector('.setting-label-selects');
     const settingTitleSelects = document.getElementById('setting-title-selects') || document.querySelector('.setting-title-selects');
-    const settingResetOnDeselect = document.getElementById('setting-reset-on-deselect') || document.querySelector('.setting-reset-on-deselect');
     const settingResetDisables = document.getElementById('setting-reset-disables') || document.querySelector('.setting-reset-disables');
     const settingResetKeepOpen = document.getElementById('setting-reset-keep-open') || document.querySelector('.setting-reset-keep-open');
     const settingAutoDisableEmpty = document.getElementById('setting-auto-disable-empty') || document.querySelector('.setting-auto-disable-empty');
     const settingAutoDisableSection = document.getElementById('setting-auto-disable-section') || document.querySelector('.setting-auto-disable-section');
-    const settingQtyRight = document.getElementById('setting-qty-right') || document.querySelector('.setting-qty-right');
     const settingPillArrowOnly = document.getElementById('setting-pill-arrow-only') || document.querySelector('.setting-pill-arrow-only');
     const settingsResetBtn = document.getElementById('settings-reset') || document.querySelector('.settings-reset');
 
@@ -265,13 +261,8 @@
     } catch { titleSelects = true; }
     if (settingTitleSelects) settingTitleSelects.checked = titleSelects;
 
-    // Reset-on-deselect: default OFF
-    let resetOnDeselect = false;
-    try {
-      const v = localStorage.getItem(STORAGE_KEYS.settingsResetOnDeselect);
-      resetOnDeselect = v === 'true';
-    } catch { resetOnDeselect = false; }
-    if (settingResetOnDeselect) settingResetOnDeselect.checked = resetOnDeselect;
+    // Reset-on-deselect: always ON (setting removed for Restaurant 2)
+    const resetOnDeselect = true;
 
     // Reset button disables item: default OFF
     let resetDisables = false;
@@ -304,14 +295,6 @@
       resetKeepOpen = v === null ? true : v === 'true';
     } catch { resetKeepOpen = true; }
     if (settingResetKeepOpen) settingResetKeepOpen.checked = resetKeepOpen;
-
-    // Quantity dropdown placement: default BEFORE label (setting unchecked)
-    let qtyRight = false;
-    try {
-      const v = localStorage.getItem(STORAGE_KEYS.settingsQtyRight);
-      qtyRight = v === null ? false : v === 'true';
-    } catch { qtyRight = false; }
-    if (settingQtyRight) settingQtyRight.checked = qtyRight;
 
     // Menu pills: default allow clicking anywhere on the pill
     let pillArrowOnly = false;
@@ -361,34 +344,27 @@
         labelSelects = true;
         titleSelects = true;
         // Defaults: reset-related toggles OFF (except keep-open ON)
-        resetOnDeselect = false;
         resetDisables = false;
         resetKeepOpen = true;
         autoDisableEmpty = false;
         autoDisableSection = false;
-        // Default: quantity dropdowns before the label
-        qtyRight = false;
         // Default: menu pills open/close via the whole pill
         pillArrowOnly = false;
         try {
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetKeepOpen, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsAutoDisableSection, 'false');
-          localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
         } catch { }
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
-        if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
         if (settingResetDisables) settingResetDisables.checked = false;
         if (settingResetKeepOpen) settingResetKeepOpen.checked = true;
         if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
         if (settingAutoDisableSection) settingAutoDisableSection.checked = false;
-        if (settingQtyRight) settingQtyRight.checked = false;
         if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
       });
     }
@@ -1060,12 +1036,6 @@
         try { localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, String(titleSelects)); } catch { }
       });
     }
-    if (settingResetOnDeselect) {
-      settingResetOnDeselect.addEventListener('change', () => {
-        resetOnDeselect = !!settingResetOnDeselect.checked;
-        try { localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, String(resetOnDeselect)); } catch { }
-      });
-    }
     if (settingResetDisables) {
       settingResetDisables.addEventListener('change', () => {
         resetDisables = !!settingResetDisables.checked;
@@ -1088,12 +1058,6 @@
       settingResetKeepOpen.addEventListener('change', () => {
         resetKeepOpen = !!settingResetKeepOpen.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsResetKeepOpen, String(resetKeepOpen)); } catch { }
-      });
-    }
-    if (settingQtyRight) {
-      settingQtyRight.addEventListener('change', () => {
-        qtyRight = !!settingQtyRight.checked;
-        try { localStorage.setItem(STORAGE_KEYS.settingsQtyRight, String(qtyRight)); } catch { }
       });
     }
     if (settingPillArrowOnly) {
