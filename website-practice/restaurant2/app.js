@@ -717,6 +717,7 @@
         if (!qtyMap || typeof qtyMap !== 'object') qtyMap = {};
         const options = [
           { label: 'Regular', value: '1' },
+          { label: 'Light', value: '0.5' },
           { label: 'Extra', value: '2' },
           { label: 'x3', value: '3' },
           { label: 'x4', value: '4' }
