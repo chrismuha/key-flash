@@ -1353,6 +1353,9 @@
         }
         return arrow;
       };
+      const isPillArrowSettingOn = () => {
+        try { return !!window.pillArrowOnly; } catch { return false; }
+      };
       menuLaunchButtons.forEach((btn) => {
         const arrow = ensureMenuLaunchArrow(btn);
         const openTarget = () => {
@@ -1370,7 +1373,7 @@
           return false;
         };
         const blockIfNeeded = (evt) => {
-          if (!pillArrowOnly) return false;
+          if (!isPillArrowSettingOn()) return false;
           const arrowClicked = isArrowTarget(evt.target);
           if (!arrowClicked) {
             evt.preventDefault();
@@ -1398,7 +1401,7 @@
       document.addEventListener('click', (e) => {
         const pill = e.target.closest && e.target.closest('.menu-launch[data-target]');
         if (!pill) return;
-        if (!pillArrowOnly) return;
+        if (!isPillArrowSettingOn()) return;
         const arrowHit = e.target.closest('.menu-launch-arrow');
         if (!arrowHit) {
           e.preventDefault();
@@ -1991,6 +1994,19 @@
           closeDetails(tgt);
         });
       });
+      // If label-select setting is OFF, block native label toggling (so only the checkbox itself toggles)
+      document.addEventListener('click', (e) => {
+        if (labelSelects) return;
+        const lbl = e.target.closest && e.target.closest('label');
+        if (!lbl) return;
+        const cb = lbl.querySelector('input[type="checkbox"][name]');
+        if (!cb) return;
+        if (e.target === cb) return;
+        if (e.target.closest('[data-ignore-label-toggle="true"]')) return;
+        if (e.target.closest('select, button, input:not([type="checkbox"]), textarea')) return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }, true);
       // Delegate clicks on ingredient labels to toggle their checkbox when enabled
       document.addEventListener('click', (e) => {
         if (!labelSelects) return;
