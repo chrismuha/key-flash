@@ -21,6 +21,7 @@
     settingsAutoCollapseDisabled: 'restaurant.settings.autoCollapseDisabled',
     settingsQtyRight: 'restaurant.settings.qtyRight',
     settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
+    settingsArrowActivates: 'restaurant.settings.arrowActivates',
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantities.sections'
   };
@@ -483,6 +484,7 @@
     const settingsResetBtn = document.querySelector('.settings-reset');
     const settingQtyRight = document.querySelector('.setting-qty-right');
     const settingPillArrowOnly = document.querySelector('.setting-pill-arrow-only');
+    const settingArrowActivates = document.querySelector('.setting-arrow-activates');
     // Settings defaults: all ON by default
     let labelSelects = true;
     try {
@@ -543,6 +545,14 @@
     } catch { pillArrowOnly = settingPillArrowOnly ? !!settingPillArrowOnly.defaultChecked : false; }
     if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
     window.pillArrowOnly = pillArrowOnly;
+    // Arrow click also activates section checkbox: default ON
+    let arrowActivates = true;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsArrowActivates);
+      arrowActivates = v === null ? true : v === 'true';
+    } catch { arrowActivates = true; }
+    if (settingArrowActivates) settingArrowActivates.checked = arrowActivates;
+    window.arrowActivates = arrowActivates;
     const hasOverlay = !!settingsOverlay;
 
     const closeSettings = () => {
@@ -622,6 +632,13 @@
         try { localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly)); } catch { }
       });
     }
+    if (settingArrowActivates) {
+      settingArrowActivates.addEventListener('change', () => {
+        arrowActivates = !!settingArrowActivates.checked;
+        window.arrowActivates = arrowActivates;
+        try { localStorage.setItem(STORAGE_KEYS.settingsArrowActivates, String(arrowActivates)); } catch { }
+      });
+    }
     if (settingResetOnDeselect) {
       settingResetOnDeselect.addEventListener('change', () => {
         resetOnDeselect = !!settingResetOnDeselect.checked;
@@ -674,10 +691,12 @@
         autoCollapseDisabled = true;
         // Default: quantity dropdowns before the label
         qtyRight = false;
+        arrowActivates = true;
         try {
           localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly));
+          localStorage.setItem(STORAGE_KEYS.settingsArrowActivates, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsResetOnDeselect, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
@@ -687,6 +706,7 @@
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
         if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
+        if (settingArrowActivates) settingArrowActivates.checked = true;
         if (settingResetOnDeselect) settingResetOnDeselect.checked = false;
         if (settingResetDisables) settingResetDisables.checked = false;
         if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
@@ -1933,6 +1953,40 @@
           if (!toggle) return;
           const clickedCheckbox = toggle === e.target || toggle.contains(e.target);
           const detailsParent = s.closest('details');
+          const rect = s.getBoundingClientRect();
+          const hitRight = typeof e.clientX === 'number' && e.clientX >= (rect.right - 36);
+          const hitLeft = typeof e.clientX === 'number' && e.clientX <= (rect.left + 32);
+          const hitArrow = !!(e.target.closest('.menu-summary-arrow') || e.target.closest('.menu-launch-arrow'));
+          const arrowArea = hitRight || hitLeft || hitArrow;
+          const allowActivate = (typeof window.arrowActivates === 'boolean') ? window.arrowActivates : true;
+          // Direct arrow handling (works whether arrow-only is on or off)
+          if (arrowArea && !clickedCheckbox) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (allowActivate && !toggle.disabled) {
+              toggle.checked = !toggle.checked;
+              toggle.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (detailsParent) {
+              if (allowActivate) {
+                detailsParent.open = !!toggle.checked;
+              } else {
+                detailsParent.open = !detailsParent.open;
+              }
+              detailsParent.dispatchEvent(new Event('toggle', { bubbles: true }));
+            }
+            return;
+          }
+          // Respect arrow-only setting: block non-arrow clicks on the summary itself
+          try {
+            const arrowOnly = !!window.pillArrowOnly;
+            if (arrowOnly && !clickedCheckbox) {
+              // Non-arrow clicks do nothing when arrow-only is on
+              e.preventDefault();
+              e.stopPropagation();
+              return;
+            }
+          } catch { /* ignore */ }
           const openDetailsIfChecked = () => {
             if (detailsParent && toggle.checked) detailsParent.open = true;
           };
@@ -2012,6 +2066,8 @@
         if (e.target === cb) return;
         if (e.target.closest('[data-ignore-label-toggle="true"]')) return;
         if (e.target.closest('select, button, input:not([type="checkbox"]), textarea')) return;
+        // Block the default label-to-checkbox toggle when the setting is off
+        e.preventDefault();
         e.stopImmediatePropagation();
       }, true);
       // Delegate clicks on ingredient labels to toggle their checkbox when enabled
@@ -2028,6 +2084,8 @@
         if (cb.dataset && cb.dataset.required === 'true') return;
         // Ensure only non-checkbox clicks trigger the manual toggle
         if (e.target !== cb) {
+          // Prevent the native label toggle so we only flip the checkbox once
+          e.preventDefault();
           cb.checked = !cb.checked;
           cb.dispatchEvent(new Event('change', { bubbles: true }));
         }
@@ -2892,26 +2950,15 @@
         const el = e.target;
         if (!el) return;
         if (isInteractive(el)) return; // allow interactions
-        const toggle = summary.querySelector('.section-toggle');
-        const canToggle = allowToggleCheckbox() && toggle && !toggle.disabled;
         const arrowHit = !!(el.closest && (el.closest('.menu-summary-arrow') || el.closest('.menu-launch-arrow')));
         if (!arrowHit) {
           // if using hit area, check coordinates
           if ((useHitArea && isInRightHitArea(e, summary)) || isInLeftHitArea(e, summary)) {
             return; // allow
           }
-          // If allowed, toggle the checkbox instead of expanding
-          if (canToggle) {
-            e.stopImmediatePropagation();
-            toggle.checked = !toggle.checked;
-            toggle.dispatchEvent(new Event('change', { bubbles: true }));
-            if (toggle.checked) {
-              const detailsParent = summary.closest('details');
-              if (detailsParent) detailsParent.open = true;
-            }
-            return;
-          }
-          // otherwise block toggling
+          // Arrow-only: block non-arrow clicks entirely
+          e.preventDefault();
+          e.stopPropagation();
           e.stopImmediatePropagation();
         }
       };
@@ -2922,17 +2969,14 @@
         const el = e.target;
         if (!el) return;
         if (isInteractive(el)) return;
-        const toggle = summary.querySelector('.section-toggle');
-        const canToggle = allowToggleCheckbox() && toggle && !toggle.disabled;
         const arrowHit = !!(el.closest && (el.closest('.menu-summary-arrow') || el.closest('.menu-launch-arrow')));
         if (!arrowHit) {
           if ((useHitArea && isInRightHitArea(e, summary)) || isInLeftHitArea(e, summary)) {
             return;
           }
-          if (canToggle) {
-            // allow click handler to toggle; do not block here
-            return;
-          }
+          // Arrow-only: block non-arrow clicks entirely
+          e.preventDefault();
+          e.stopPropagation();
           e.stopImmediatePropagation();
         }
       };
