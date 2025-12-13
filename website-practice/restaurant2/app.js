@@ -1,11 +1,11 @@
 // Section: IIFE Wrapper
 (function () {
   // Section: Storage Keys
-    const STORAGE_KEYS = {
-      orderType: 'restaurant.orderType',
-      ingredients: 'restaurant.ingredients',
-      theme: 'restaurant.theme',
-      deliveryName: 'restaurant.delivery.name',
+  const STORAGE_KEYS = {
+    orderType: 'restaurant.orderType',
+    ingredients: 'restaurant.ingredients',
+    theme: 'restaurant.theme',
+    deliveryName: 'restaurant.delivery.name',
     deliveryPhone: 'restaurant.delivery.phone',
     deliveryAddress: 'restaurant.delivery.address',
     deliveryType: 'restaurant.delivery.type',
@@ -18,10 +18,66 @@
       settingsResetDisables: 'restaurant.settings.resetDisables',
       settingsResetKeepOpen: 'restaurant.settings.resetKeepOpen',
       settingsAutoDisableEmpty: 'restaurant.settings.autoDisableEmpty',
-      settingsAutoDisableSection: 'restaurant.settings.autoDisableSection',
-      settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
-      quantities: 'restaurant.quantities'
-    };
+    settingsAutoDisableSection: 'restaurant.settings.autoDisableSection',
+    settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
+    quantities: 'restaurant.quantities'
+  };
+
+  // Pretty labels for summary display (keyed by `${name}|${value}`)
+  const INGREDIENT_LABELS = {
+    'pizza_ingredients[]|bacon': 'Bacon',
+    'pizza_ingredients[]|cheese': 'Cheese',
+    'pizza_ingredients[]|jalapenos': 'Jalapeños',
+    'pizza_ingredients[]|lettuce': 'Lettuce',
+    'pizza_ingredients[]|mushrooms': 'Mushrooms',
+    'pizza_ingredients[]|olives': 'Olives',
+    'pizza_ingredients[]|onion': 'Onion',
+    'pizza_ingredients[]|pickles': 'Pickles',
+    'pizza_ingredients[]|pineapple': 'Pineapples',
+    'pizza_ingredients[]|tomatoes': 'Tomatoes',
+    'pizza_ingredients[]|tomato_sauce': 'Tomato Sauce (Required)',
+    'pizza_ingredients[]|well_done': 'Well-done',
+
+    'burger_ingredients[]|bacon': 'Bacon',
+    'burger_ingredients[]|bun': 'Bun (Required)',
+    'burger_ingredients[]|cheese': 'Cheese',
+    'burger_ingredients[]|jalapenos': 'Jalapeños',
+    'burger_ingredients[]|lettuce': 'Lettuce',
+    'burger_ingredients[]|mushrooms': 'Mushrooms',
+    'burger_ingredients[]|olives': 'Olives',
+    'burger_ingredients[]|onion': 'Onion',
+    'burger_ingredients[]|patty': 'Patty (Required)',
+    'burger_ingredients[]|pickles': 'Pickles',
+    'burger_ingredients[]|tomatoes': 'Tomatoes',
+    'burger_ingredients[]|well_done': 'Well-done',
+    'burger_ingredients[]|medium_well': 'Medium-well',
+    'burger_ingredients[]|rare': 'Rare',
+    'burger_ingredients[]|tomato_sauce': 'Sauce',
+
+    'sub_ingredients[]|bacon': 'Bacon',
+    'sub_ingredients[]|cheese': 'Cheese',
+    'sub_ingredients[]|jalapenos': 'Jalapeños',
+    'sub_ingredients[]|lettuce': 'Lettuce',
+    'sub_ingredients[]|mushrooms': 'Mushrooms',
+    'sub_ingredients[]|olives': 'Olives',
+    'sub_ingredients[]|onion': 'Onion',
+    'sub_ingredients[]|ham': 'Ham',
+    'sub_ingredients[]|turkey': 'Turkey',
+    'sub_ingredients[]|pepperoni': 'Pepperoni',
+    'sub_ingredients[]|pickles': 'Pickles',
+    'sub_ingredients[]|tomatoes': 'Tomatoes',
+    'sub_ingredients[]|toasted': 'Toasted',
+    'sub_ingredients[]|white': 'Bread: White',
+    'sub_ingredients[]|wheat': 'Bread: Wheat',
+
+    'sauces_ingredients[]|bbq': 'BBQ',
+    'sauces_ingredients[]|butter_milk_ranch': 'Butter Milk Ranch',
+    'sauces_ingredients[]|honey_bbq': 'Honey BBQ',
+    'sauces_ingredients[]|honey_mustard': 'Honey Mustard',
+    'sauces_ingredients[]|mayonnaise': 'Mayonnaise',
+    'sauces_ingredients[]|mustard': 'Mustard',
+    'sauces_ingredients[]|ranch': 'Ranch'
+  };
 
   // Section: Utility helpers
   const docEl = document.documentElement;
@@ -142,6 +198,18 @@
         return !!(n && ph && a && z);
       } catch { return false; }
     }
+
+    const updateOrderTypeChip = () => {
+      let type = '';
+      try { type = localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { type = ''; }
+      const label = type === 'delivery' ? 'Delivery' : (type === 'dine' ? 'Dine In/Carryout' : 'Not selected');
+      const empty = !type;
+      orderTypeChips.forEach((chip) => {
+        const valueEl = chip.querySelector('.order-type-chip__value');
+        if (valueEl) valueEl.textContent = label;
+        chip.dataset.empty = empty ? 'true' : 'false';
+      });
+    };
 
     const updatePage3NavState = () => {
       const anchors = Array.from(document.querySelectorAll('.nav a[href="#page3"]'));
@@ -439,12 +507,14 @@
           if (!type) return;
           setOrderType(type);
           setActive(card);
+          updateOrderTypeChip();
         });
       });
 
       function setOrderType(type) {
         try { localStorage.setItem(STORAGE_KEYS.orderType, type); } catch { }
         updatePage3NavState();
+        updateOrderTypeChip();
       }
 
       function getOrderType() {
@@ -1144,6 +1214,7 @@
     updateThemeModeLabel();
     updateNavToggleLabel();
     updatePage3NavState();
+    updateOrderTypeChip();
 
     // Re-open section if hash present
     openSectionFromHash();
@@ -1151,6 +1222,133 @@
     // Keep theme label in sync on viewport changes (for emoji on small screens)
     if (mobileQuery && typeof mobileQuery.addEventListener === 'function') {
       mobileQuery.addEventListener('change', updateThemeModeLabel);
+    }
+
+    // Page 3: Order summary rendering
+    if (body.classList.contains('page3')) {
+      const container = document.getElementById('order-summary');
+      if (container) {
+        const readJSON = (key, fallback) => {
+          try { return safeParseJSON(localStorage.getItem(key), fallback); } catch { return fallback; }
+        };
+        const orderType = (() => { try { return localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { return ''; } })();
+        const ingredients = readJSON(STORAGE_KEYS.ingredients, {});
+        const activeSections = readJSON(STORAGE_KEYS.activeSections, {});
+        const qtyMap = readJSON(STORAGE_KEYS.quantities, {});
+        container.innerHTML = '';
+        const frag = document.createDocumentFragment();
+
+        // Order type
+        if (orderType) {
+          const h3 = document.createElement('h3');
+          h3.textContent = 'Order Type';
+          frag.appendChild(h3);
+          const p = document.createElement('p');
+          p.textContent = orderType === 'delivery' ? 'Delivery' : 'Dine In/Carryout';
+          frag.appendChild(p);
+        }
+
+        // Delivery details block
+        if (orderType === 'delivery') {
+          const d = document.createElement('div');
+          const h = document.createElement('h3');
+          h.textContent = 'Delivery Details';
+          d.appendChild(h);
+
+          const dn = localStorage.getItem(STORAGE_KEYS.deliveryName) || '';
+          const dph = localStorage.getItem(STORAGE_KEYS.deliveryPhone) || '';
+          const da = localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '';
+          const dt = localStorage.getItem(STORAGE_KEYS.deliveryType) || '';
+          const city = localStorage.getItem(STORAGE_KEYS.deliveryCity) || '';
+          const zip = localStorage.getItem(STORAGE_KEYS.deliveryZip) || '';
+
+          const block = document.createElement('div');
+          block.className = 'address-block';
+
+          if (dn || dt) {
+            const line = document.createElement('div');
+            line.textContent = dt ? `${dn} (${dt})` : dn;
+            block.appendChild(line);
+          }
+          if (dph) {
+            const line = document.createElement('div');
+            const pretty = (function (v) {
+              const d = String(v || '').replace(/\D+/g, '').slice(0, 10);
+              const a = d.slice(0, 3), b = d.slice(3, 6), c = d.slice(6, 10);
+              let out = '';
+              if (a) out = `(${a}`;
+              if (a.length === 3) out += `)`;
+              if (b) out += `-${b}`;
+              if (c) out += `-${c}`;
+              return out || v;
+            })(dph);
+            line.textContent = `Phone: ${pretty}`;
+            block.appendChild(line);
+          }
+          if (da) {
+            const line = document.createElement('div');
+            line.textContent = da;
+            block.appendChild(line);
+          }
+          if (city || zip) {
+            const line = document.createElement('div');
+            line.textContent = [city, zip].filter(Boolean).join(' ');
+            block.appendChild(line);
+          }
+
+          d.appendChild(block);
+          frag.appendChild(d);
+        }
+
+        const h3 = document.createElement('h3');
+        h3.textContent = 'Selections';
+        frag.appendChild(h3);
+
+        const entries = Object.entries(ingredients || {});
+        const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
+        const qtyLabel = (group, val) => {
+          const key = `${group}|${val}`;
+          const q = qtyMap && qtyMap[key];
+          if (!q || q === '1') return '';
+          if (q === '0.5') return ' (Light)';
+          if (q === '2') return ' (Extra)';
+          return ` (x${q})`;
+        };
+
+        if (!nonEmpty.length) {
+          const p = document.createElement('p');
+          p.textContent = 'No ingredients selected yet.';
+          frag.appendChild(p);
+        } else {
+          nonEmpty.forEach(([group, values]) => {
+            const sec = group.replace(/_ingredients\[\]$/, '');
+            if (!activeSections[sec]) return;
+            const sectionWrap = document.createElement('div');
+            const title = document.createElement('strong');
+            title.textContent = sec.charAt(0).toUpperCase() + sec.slice(1);
+            sectionWrap.appendChild(title);
+
+            const edit = document.createElement('a');
+            edit.href = `page2.html#${sec}`;
+            edit.textContent = 'Edit';
+            edit.className = 'summary-edit-btn';
+            sectionWrap.appendChild(edit);
+
+            const ul = document.createElement('ul');
+            values.forEach((val) => {
+              const li = document.createElement('li');
+              const mapKey = `${group}|${val}`;
+              const pretty = INGREDIENT_LABELS[mapKey] || String(val || '').replace(/_/g, ' ');
+              li.textContent = pretty + qtyLabel(group, val);
+              ul.appendChild(li);
+            });
+            sectionWrap.appendChild(ul);
+            frag.appendChild(sectionWrap);
+          });
+        }
+
+        container.appendChild(frag);
+      }
     }
   });
 

@@ -986,13 +986,24 @@ body.page3 #order-summary .address-block {
 }
 
 /* Keep Edit links black even after visited */
-body.page3 #order-summary a,
-body.page3 #order-summary a:visited,
-body.page3 #order-summary a:hover,
-body.page3 #order-summary a:active,
-body.page3 #order-summary a:focus {
-    color: red;
-    text-decoration: underline;
+body.page3 #order-summary .summary-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+    padding: 6px 12px;
+    background: #c00;
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid #900;
+}
+
+body.page3 #order-summary .summary-edit-btn:hover,
+body.page3 #order-summary .summary-edit-btn:focus-visible {
+    background: #a00000;
+    outline: 2px solid #600;
 }
 
 /* Section: Page 1 Order Type */
