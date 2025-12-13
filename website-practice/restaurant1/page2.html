@@ -166,16 +166,15 @@
                     <fieldset>
                         <legend>Choose Ingredients</legend>
                         <!-- Alphabetical order -->
-                        <label><input type="checkbox" name="sub_ingredients[]" value="bacon"> Bacon</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="bacon">Bacon</label><br>
                         <label class="required bread-select" title="Required">
                             <input type="checkbox" id="sub-bread-checkbox" name="sub_ingredients[]" value="white"
                                 data-required="true" data-no-qty="true" title="Required" checked>
                             Bread
                             <select id="sub-bread-select" class="ingredient-qty" aria-label="Choose bread type"
-                                data-ignore-label-toggle="true">
+                                data-ignore-label-toggle="true" data-no-qty="true">
                                 <option value="white" selected>White</option>
                                 <option value="wheat">Wheat</option>
-                                <option value="toasted">Toasted</option>
                             </select>
                         </label><br>
                         <label><input type="checkbox" name="sub_ingredients[]" value="cheese"> Cheese</label><br>
@@ -188,8 +187,8 @@
                         <label><input type="checkbox" name="sub_ingredients[]" value="turkey"> Turkey</label><br>
                         <label><input type="checkbox" name="sub_ingredients[]" value="pepperoni"> Pepperoni</label><br>
                         <label><input type="checkbox" name="sub_ingredients[]" value="pickles"> Pickles</label><br>
-                        <label><input type="checkbox" name="sub_ingredients[]" value="tomatoes"> Tomatoes</label><br>
                         <label><input type="checkbox" name="sub_ingredients[]" value="toasted"> Toasted</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="tomatoes"> Tomatoes</label><br>
                     </fieldset>
                     <button type="button" class="reset-group" data-group="sub_ingredients[]">Reset Sub</button>
                 </form>
