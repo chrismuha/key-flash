@@ -11,6 +11,7 @@
     deliveryType: 'restaurant.delivery.type',
     deliveryCity: 'restaurant.delivery.city',
     deliveryZip: 'restaurant.delivery.zip',
+    deliverySuite: 'restaurant.delivery.suite',
     activeSections: 'restaurant.activeSections',
     navEnabled: 'restaurant.nav.enabled',
     settingsLabelSelects: 'restaurant.settings.labelSelects',
@@ -912,9 +913,14 @@
                 const t = localStorage.getItem(STORAGE_KEYS.deliveryType) || 'House';
                 const c = localStorage.getItem(STORAGE_KEYS.deliveryCity) || '';
                 const z = localStorage.getItem(STORAGE_KEYS.deliveryZip) || '';
+                const s = localStorage.getItem(STORAGE_KEYS.deliverySuite) || '';
                 if (n) form.querySelector('#delivery-name').value = n;
                 if (ph) form.querySelector('#delivery-phone').value = ph;
                 if (a) form.querySelector('#delivery-address').value = a;
+                if (s) {
+                  const suiteEl = form.querySelector('#delivery-suite');
+                  if (suiteEl) suiteEl.value = s;
+                }
                 const sel = form.querySelector('#delivery-type'); if (sel) sel.value = t;
                 if (c) form.querySelector('#delivery-city').value = c;
                 if (z) form.querySelector('#delivery-zip').value = z;
@@ -955,9 +961,14 @@
               const t = localStorage.getItem(STORAGE_KEYS.deliveryType) || 'House';
               const c = localStorage.getItem(STORAGE_KEYS.deliveryCity) || '';
               const z = localStorage.getItem(STORAGE_KEYS.deliveryZip) || '';
+              const s = localStorage.getItem(STORAGE_KEYS.deliverySuite) || '';
               if (n) form.querySelector('#delivery-name').value = n;
               if (ph) form.querySelector('#delivery-phone').value = ph;
               if (a) form.querySelector('#delivery-address').value = a;
+              if (s) {
+                const suiteEl = form.querySelector('#delivery-suite');
+                if (suiteEl) suiteEl.value = s;
+              }
               const sel = form.querySelector('#delivery-type'); if (sel) sel.value = t;
               if (c) form.querySelector('#delivery-city').value = c;
               if (z) form.querySelector('#delivery-zip').value = z;
@@ -1065,6 +1076,8 @@
           const city = dForm.querySelector('#delivery-city').value.trim();
           const zipEl = dForm.querySelector('#delivery-zip');
           const zip = zipEl ? zipEl.value.trim() : '';
+          const suiteEl = dForm.querySelector('#delivery-suite');
+          const suite = suiteEl ? suiteEl.value.trim() : '';
           // Do not clear tooltips preemptively; validate first
           const errEl = document.getElementById('delivery-error');
           // run live validation function for message + highlights
@@ -1089,6 +1102,7 @@
             localStorage.setItem(STORAGE_KEYS.deliveryName, name);
             localStorage.setItem(STORAGE_KEYS.deliveryPhone, phone);
             localStorage.setItem(STORAGE_KEYS.deliveryAddress, addr);
+            localStorage.setItem(STORAGE_KEYS.deliverySuite, suite);
             localStorage.setItem(STORAGE_KEYS.deliveryType, type || 'House');
             localStorage.setItem(STORAGE_KEYS.deliveryCity, city);
             localStorage.setItem(STORAGE_KEYS.deliveryZip, zip);
@@ -1121,6 +1135,7 @@
               localStorage.removeItem(STORAGE_KEYS.deliveryName);
               localStorage.removeItem(STORAGE_KEYS.deliveryPhone);
               localStorage.removeItem(STORAGE_KEYS.deliveryAddress);
+              localStorage.removeItem(STORAGE_KEYS.deliverySuite);
               localStorage.removeItem(STORAGE_KEYS.deliveryType);
               localStorage.removeItem(STORAGE_KEYS.deliveryCity);
               localStorage.removeItem(STORAGE_KEYS.deliveryZip);
@@ -2401,6 +2416,7 @@
           const dn = localStorage.getItem(STORAGE_KEYS.deliveryName) || '';
           const dph = localStorage.getItem(STORAGE_KEYS.deliveryPhone) || '';
           const da = localStorage.getItem(STORAGE_KEYS.deliveryAddress) || '';
+          const ds = localStorage.getItem(STORAGE_KEYS.deliverySuite) || '';
           const dt = localStorage.getItem(STORAGE_KEYS.deliveryType) || '';
           const city = localStorage.getItem(STORAGE_KEYS.deliveryCity) || '';
           const zip = localStorage.getItem(STORAGE_KEYS.deliveryZip) || '';
@@ -2426,6 +2442,11 @@
           if (da) {
             const line = document.createElement('div');
             line.textContent = da;
+            block.appendChild(line);
+          }
+          if (ds) {
+            const line = document.createElement('div');
+            line.textContent = ds;
             block.appendChild(line);
           }
           // Street line removed; Street Address is shown via 'da'

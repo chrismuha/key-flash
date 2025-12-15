@@ -557,6 +557,66 @@
         city: document.getElementById('delivery-city'),
         zip: document.getElementById('delivery-zip')
       };
+      const formatPhoneInput = (v) => {
+        const digits = String(v || '').replace(/\D+/g, '').slice(0, 10);
+        const area = digits.slice(0, 3);
+        const prefix = digits.slice(3, 6);
+        const line = digits.slice(6, 10);
+        let out = '';
+        if (!area) {
+          out = '';
+        } else if (area.length < 3) {
+          out = area;
+        } else {
+          out = `(${area})`;
+        }
+        if (prefix) out += `-${prefix}`;
+        if (line) out += `-${line}`;
+        return out;
+      };
+      const installPhoneFormatter = () => {
+        const phoneInput = deliveryFields.phone;
+        if (!phoneInput) return;
+        if (phoneInput.value) phoneInput.value = formatPhoneInput(phoneInput.value);
+        phoneInput.addEventListener('input', () => {
+          phoneInput.value = formatPhoneInput(phoneInput.value);
+          const digits = phoneInput.value.replace(/\D+/g, '');
+          if (digits.length === 10 || digits.length === 0) {
+            try {
+              phoneInput.setCustomValidity('');
+              if (typeof phoneInput.reportValidity === 'function') phoneInput.reportValidity();
+            } catch { }
+          }
+        });
+        phoneInput.addEventListener('keydown', (e) => {
+          if (e.key !== 'Backspace') return;
+          const caret = phoneInput.selectionStart || 0;
+          const raw = String(phoneInput.value || '');
+          const digits = raw.replace(/\D+/g, '');
+          const digitsBefore = raw.slice(0, caret).replace(/\D+/g, '');
+          if (digitsBefore.length === 0) return;
+          const deleteIndex = digitsBefore.length - 1;
+          const newDigits = digits.slice(0, deleteIndex) + digits.slice(deleteIndex + 1);
+          const formatted = formatPhoneInput(newDigits);
+          let targetDigitPos = deleteIndex;
+          let newCaret = 0;
+          let seen = 0;
+          for (let i = 0; i < formatted.length; i++) {
+            if (/\d/.test(formatted[i])) {
+              if (seen === targetDigitPos) {
+                newCaret = i;
+                break;
+              }
+              seen++;
+              newCaret = i + 1;
+            }
+          }
+          phoneInput.value = formatted;
+          const pos = Math.min(newCaret, formatted.length);
+          phoneInput.setSelectionRange(pos, pos);
+          try { phoneInput.dispatchEvent(new Event('input', { bubbles: true })); } catch { }
+        });
+      };
 
       const showDeliveryForm = (show) => {
         if (!dFormInit) return;
@@ -613,6 +673,8 @@
         const first = dFormInit.querySelector('input, select');
         if (first && typeof first.focus === 'function') first.focus();
       };
+
+      installPhoneFormatter();
 
       if (dFormInit) {
         const savedType = getOrderType();
