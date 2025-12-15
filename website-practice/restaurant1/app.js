@@ -2450,6 +2450,7 @@
         // Load per-section quantities (pizza/burger)
         let qtySections = {};
         try { qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}'); } catch { qtySections = {}; }
+        const qtyLabelMap = { 1: 'Regular', 2: 'Light', 3: 'Extra', 4: 'x3' };
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
         if (entries.length === 0 || nonEmpty.length === 0) {
           const none = document.createElement('p');
@@ -2657,7 +2658,12 @@
                 const qKey = `${group}|${normValue}`;
                 let qv = 1;
                 try { qv = Math.max(1, Math.min(4, parseInt(qtyMap[qKey] || '1', 10) || 1)); } catch { qv = 1; }
-                li.textContent = qv > 1 ? `${label} (x${qv})` : label;
+                if (qv > 1) {
+                  const suffix = qtyLabelMap[qv] || `x${qv}`;
+                  li.textContent = `${label} (${suffix})`;
+                } else {
+                  li.textContent = label;
+                }
               }
               ul.appendChild(li);
             });

@@ -1502,13 +1502,14 @@
 
         const entries = Object.entries(ingredients || {});
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
+        const qtyLabelMap = { '2': 'Light', '3': 'Extra', '4': 'x3' };
         const qtyLabel = (group, val) => {
           const key = `${group}|${val}`;
           const q = qtyMap && qtyMap[key];
-          if (!q || q === '1') return '';
-          if (q === '0.5') return ' (Light)';
-          if (q === '2') return ' (Extra)';
-          return ` (x${q})`;
+          const qStr = q == null ? '' : String(q);
+          if (!qStr || qStr === '1') return '';
+          const label = qtyLabelMap[qStr];
+          return label ? ` (${label})` : ` (x${qStr})`;
         };
 
         if (!nonEmpty.length) {
