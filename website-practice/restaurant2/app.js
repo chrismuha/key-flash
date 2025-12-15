@@ -431,6 +431,29 @@
     setNavEnabled(navInitialEnabled);
     restoreThemeFromStorage();
 
+    const collectSettingState = () => ({
+      labelSelects,
+      titleSelects,
+      pillArrowOnly
+    });
+    const detectSettingConflicts = (state) => {
+      const issues = [];
+      if (!state.labelSelects && !state.titleSelects && state.pillArrowOnly) {
+        issues.push('With both "Ingredient label toggles checkbox" and "Section title toggles checkbox" turned off while "Menu item arrow expands/collapses only" is on, clicking menu titles or labels will not toggle selections; only the tiny arrow area will work.');
+      }
+      return issues;
+    };
+    const maybeWarnSettingConflicts = (prevState, revertFn) => {
+      const issues = detectSettingConflicts(collectSettingState());
+      if (!issues.length) return true;
+      const msg = `Warning: These settings may make menus feel unresponsive:\n- ${issues.join('\n- ')}\n\nContinue with this combination?`;
+      const proceed = window.confirm(msg);
+      if (!proceed && typeof revertFn === 'function') {
+        revertFn(prevState);
+      }
+      return proceed;
+    };
+
     const closeSettings = () => {
       if (!settingsOverlay) return;
       settingsOverlay.hidden = true;
@@ -1313,13 +1336,27 @@
     // Settings change listeners
     if (settingLabelSelects) {
       settingLabelSelects.addEventListener('change', () => {
+        const prev = collectSettingState();
         labelSelects = !!settingLabelSelects.checked;
+        const revert = (state) => {
+          labelSelects = state.labelSelects;
+          if (settingLabelSelects) settingLabelSelects.checked = state.labelSelects;
+          try { localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, String(labelSelects)); } catch { }
+        };
+        if (!maybeWarnSettingConflicts(prev, revert)) return;
         try { localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, String(labelSelects)); } catch { }
       });
     }
     if (settingTitleSelects) {
       settingTitleSelects.addEventListener('change', () => {
+        const prev = collectSettingState();
         titleSelects = !!settingTitleSelects.checked;
+        const revert = (state) => {
+          titleSelects = state.titleSelects;
+          if (settingTitleSelects) settingTitleSelects.checked = state.titleSelects;
+          try { localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, String(titleSelects)); } catch { }
+        };
+        if (!maybeWarnSettingConflicts(prev, revert)) return;
         try { localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, String(titleSelects)); } catch { }
       });
     }
@@ -1349,7 +1386,14 @@
     }
     if (settingPillArrowOnly) {
       settingPillArrowOnly.addEventListener('change', () => {
+        const prev = collectSettingState();
         pillArrowOnly = !!settingPillArrowOnly.checked;
+        const revert = (state) => {
+          pillArrowOnly = state.pillArrowOnly;
+          if (settingPillArrowOnly) settingPillArrowOnly.checked = state.pillArrowOnly;
+          try { localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly)); } catch { }
+        };
+        if (!maybeWarnSettingConflicts(prev, revert)) return;
         try { localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly)); } catch { }
       });
     }
