@@ -1001,6 +1001,18 @@
           if (c) out += `-${c}`;
           return out;
         };
+        const getCaretFromDigitCount = (value, digitCount) => {
+          let seen = 0;
+          for (let i = 0; i < value.length; i++) {
+            if (/\d/.test(value[i])) {
+              seen++;
+              if (seen === digitCount) {
+                return i + 1;
+              }
+            }
+          }
+          return value.length;
+        };
         const formatZipPlus4 = (v) => {
           const d = String(v || '').replace(/\D+/g, '').slice(0, 9);
           const first = d.slice(0, 5);
@@ -1010,8 +1022,15 @@
         if (phoneEl) {
           if (phoneEl.value) phoneEl.value = formatPhone(phoneEl.value);
           phoneEl.addEventListener('input', () => {
-            phoneEl.value = formatPhone(phoneEl.value);
-            const d = phoneEl.value.replace(/\D+/g, '');
+            const rawValue = phoneEl.value;
+            const selectionStart = phoneEl.selectionStart || 0;
+            const digitsBefore = rawValue.slice(0, selectionStart).replace(/\D+/g, '').length;
+            const formatted = formatPhone(rawValue);
+            phoneEl.value = formatted;
+            const d = formatted.replace(/\D+/g, '');
+            const targetCaret = getCaretFromDigitCount(formatted, digitsBefore);
+            const pos = Math.min(targetCaret, formatted.length);
+            phoneEl.setSelectionRange(pos, pos);
             if (d.length === 10 || d.length === 0) {
               // proactively clear any lingering tooltip in Chrome
               try {
@@ -1019,35 +1038,6 @@
                 if (typeof phoneEl.reportValidity === 'function') phoneEl.reportValidity();
               } catch { }
             }
-          });
-          // Special handling for Backspace so formatting characters don't block deletion
-          phoneEl.addEventListener('keydown', (e) => {
-            if (e.key !== 'Backspace') return; // do not handle Delete or others
-            // Compute digit index before the caret
-            const caret = phoneEl.selectionStart || 0;
-            const raw = String(phoneEl.value || '');
-            const digits = raw.replace(/\D+/g, '');
-            const digitsBefore = raw.slice(0, caret).replace(/\D+/g, '');
-            if (digitsBefore.length === 0) return; // nothing to delete
-            const deleteIndex = digitsBefore.length - 1; // remove the digit just before caret
-            const newDigits = digits.slice(0, deleteIndex) + digits.slice(deleteIndex + 1);
-            const formatted = formatPhone(newDigits);
-            // place caret after the deleted digit's position in the new formatted string
-            let targetDigitPos = deleteIndex; // number of digits before caret
-            let newCaret = 0, seen = 0;
-            for (let i = 0; i < formatted.length; i++) {
-              if (/\d/.test(formatted[i])) {
-                if (seen === targetDigitPos) { newCaret = i; break; }
-                seen++;
-                newCaret = i + 1; // default to after last processed digit
-              }
-            }
-            phoneEl.value = formatted;
-            // Set caret, clamped within bounds
-            const pos = Math.min(newCaret, formatted.length);
-            phoneEl.setSelectionRange(pos, pos);
-            // Trigger form-level input handler so live validator re-evaluates
-            try { phoneEl.dispatchEvent(new Event('input', { bubbles: true })); } catch { }
           });
         }
         if (zipEl) {
