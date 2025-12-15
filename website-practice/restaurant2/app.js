@@ -955,10 +955,9 @@
         if (!qtyMap || typeof qtyMap !== 'object') qtyMap = {};
         const options = [
           { label: 'Regular', value: '1' },
-          { label: 'Light', value: '0.5' },
-          { label: 'Extra', value: '2' },
-          { label: 'x3', value: '3' },
-          { label: 'x4', value: '4' }
+          { label: 'Light', value: '2' },
+          { label: 'Extra', value: '3' },
+          { label: 'x3', value: '4' },
         ];
         const optionValues = new Set(options.map((o) => String(o.value)));
         const persistQty = () => {

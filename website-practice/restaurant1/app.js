@@ -1283,9 +1283,9 @@
         try { qtyMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'); } catch { qtyMap = {}; }
         const options = [
           { label: 'Regular', value: '1' },
-          { label: 'Extra', value: '2' },
-          { label: 'x3', value: '3' },
-          { label: 'x4', value: '4' }
+          { label: 'Light', value: '2' },
+          { label: 'Extra', value: '3' },
+          { label: 'x3', value: '4' },
         ];
         document.querySelectorAll('input[type="checkbox"][name$=\"_ingredients[]\"]').forEach((cb) => {
           // Some items (e.g., Sub bread) use the dropdown for a custom choice, not quantity
