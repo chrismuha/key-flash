@@ -163,56 +163,6 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     cursor: not-allowed;
 }
 
-.mobile-theme-toggle {
-    display: none;
-    width: 48px;
-    height: 48px;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #000;
-    background: #f7f7f7;
-    border-radius: 12px;
-    font-size: 24px;
-    font-weight: 600;
-    flex-shrink: 0;
-    cursor: pointer;
-}
-
-body.theme-dark .mobile-theme-toggle {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
-}
-
-
-/* Settings gear in left rail */
-.settings-button {
-    margin-top: 0;
-    margin-left: auto;
-    padding: 8px;
-    font-weight: 600;
-    font-size: 24px;
-    border: 1px solid #000;
-    background: #f7f7f7;
-    color: #000;
-    border-radius: 12px;
-    cursor: pointer;
-    width: 48px;
-    height: 48px;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    align-self: center;
-    flex-shrink: 0;
-}
-
-body.theme-dark .settings-button {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
-}
-
 .order-type-chip {
     display: inline-flex;
     align-items: center;
@@ -491,45 +441,11 @@ body:not(.nav-enabled) main {
         margin-top: 2px;
     }
 
-    .mobile-theme-toggle {
-        display: inline-flex;
-        order: 2;
-        margin-left: auto;
-    }
-
-    .theme-controls:not(.nav-theme-controls) {
-        display: none !important;
-    }
-
-    .nav-theme-controls {
-        display: flex !important;
-    }
-
     .left-rail .box {
         font-size: 16px;
         padding: 0 12px;
         height: 44px;
         margin-top: 4px;
-    }
-
-    .settings-button {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
-        order: 3;
-        margin-left: 6px;
-        margin-top: -70px;
-    }
-
-    .mobile-theme-toggle {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
-        margin-top: -70px;
-    }
-
-    body.order-type .mobile-theme-toggle {
-        display: none !important;
     }
 
     .order-type-chip {
@@ -543,13 +459,13 @@ body:not(.nav-enabled) main {
 
 }
 
-body.order-type .nav-theme-controls {
+.nav-theme-controls {
     position: fixed;
-    top: calc(var(--gap) / 2);
-    right: 12px;
+    top: 4px;
+    right: 8px;
     display: flex;
     flex-direction: row;
-    gap: 4px;
+    gap: 3px;
     align-items: center;
     padding: 2px 6px;
     border-radius: 999px;
@@ -557,10 +473,10 @@ body.order-type .nav-theme-controls {
     background: #f7f7f7;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
     z-index: 1000;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
 }
 
-body.order-type .nav-theme-controls .theme-option {
+.nav-theme-controls .theme-option {
     background: #fff;
     border: 1px solid #000;
     border-radius: 999px;
@@ -570,20 +486,17 @@ body.order-type .nav-theme-controls .theme-option {
     align-items: center;
     gap: 4px;
     justify-content: center;
+    min-width: 48px;
 }
 
-body.order-type .nav-theme-controls .theme-icon {
+.nav-theme-controls .theme-option .theme-icon {
     font-size: 1.2rem;
 }
 
-body.theme-dark.order-type .nav-theme-controls .theme-option {
+body.theme-dark .nav-theme-controls .theme-option {
     background: #222;
     color: #fff;
     border-color: #fff;
-}
-
-body.order-type .nav-settings-mobile {
-    display: none;
 }
 
 .nav-toggle {
@@ -593,33 +506,27 @@ body.order-type .nav-settings-mobile {
 }
 
 @media (max-width: 768px) {
-    body.order-type .nav-theme-controls .theme-label {
-        display: none;
-    }
-
-    body.order-type .nav-theme-controls .theme-option {
-        padding: 6px;
-        min-width: 48px;
-    }
-
-    body.order-type .nav-theme-controls .theme-icon {
-        font-size: 1.6rem;
-    }
-
-    body.order-type .nav-settings-mobile {
-        display: inline-flex;
-    }
-
-    body.order-type .nav-theme-controls {
+    .nav-theme-controls {
         top: 6px;
+        right: 6px;
         padding: 2px 4px;
         gap: 2px;
     }
 
-}
+    .nav-theme-controls .theme-label {
+        display: none;
+    }
 
-body.order-type .settings-button {
-    display: none !important;
+    .nav-theme-controls .theme-option {
+        padding: 6px;
+        min-width: 44px;
+        font-size: 0.9rem;
+    }
+
+    .nav-theme-controls .theme-icon {
+        font-size: 1.6rem;
+    }
+
 }
 
 /* Section: Theme (Dark) */
@@ -641,77 +548,6 @@ body.theme-dark main a {
 /* Make fieldset borders white in dark theme */
 body.theme-dark main fieldset {
     border-color: #fff;
-}
-
-/* Theme controls */
-.theme-controls {
-    position: fixed;
-    top: calc(var(--gap) + 4px);
-    right: calc(var(--gap) + 64px);
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-    z-index: 1000;
-    border: 1px solid #000;
-    background: #f7f7f7;
-    color: #000;
-    border-radius: 16px;
-    padding: 4px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-    min-width: 160px;
-    overflow: hidden;
-}
-
-.theme-option {
-    border: none;
-    background: transparent;
-    text-align: left;
-    padding: 6px 8px;
-    border-radius: 0;
-    font: inherit;
-    color: inherit;
-    cursor: pointer;
-}
-
-.theme-option:first-child {
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-}
-
-.theme-option:last-child {
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-}
-
-.theme-option+.theme-option {
-    border-top: 1px solid #000;
-}
-
-.theme-option:hover,
-.theme-option:focus-visible {
-    background: rgba(0, 0, 0, 0.08);
-    outline: none;
-}
-
-body:not(.nav-enabled) .nav-theme-controls,
-body.nav-enabled .nav-theme-controls {
-    display: flex;
-}
-
-body.theme-dark .theme-controls {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
-}
-
-body.theme-dark .theme-option:hover,
-body.theme-dark .theme-option:focus-visible {
-    background: rgba(255, 255, 255, 0.15);
-}
-
-body.theme-dark .theme-option+.theme-option {
-    border-top-color: #fff;
 }
 
 /* Go Back button (fixed, next to theme toggle) */
