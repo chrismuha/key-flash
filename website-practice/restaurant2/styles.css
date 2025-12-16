@@ -474,6 +474,7 @@ body:not(.nav-enabled) main {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
     z-index: 1000;
     font-size: 0.88rem;
+    flex-wrap: nowrap;
 }
 
 .nav-theme-controls .theme-option {
@@ -504,6 +505,7 @@ body.theme-dark .nav-theme-controls .theme-option {
     align-items: center;
     gap: 6px;
 }
+
 
 @media (max-width: 768px) {
     .nav-theme-controls {

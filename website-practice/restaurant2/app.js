@@ -304,6 +304,7 @@
     const setNavEnabled = (enabled) => {
       body.classList.toggle('nav-enabled', !!enabled);
       try { localStorage.setItem(STORAGE_KEYS.navEnabled, String(!!enabled)); } catch { }
+      updateNavOffset();
       updateNavToggleLabel();
     };
 
