@@ -183,6 +183,8 @@
 
     const settingsOverlay = document.getElementById('settings-overlay');
     const settingsBtn = document.getElementById('settings-btn') || document.querySelector('.settings-button');
+    const navSettingsMobileBtn = document.querySelector('.nav-settings-mobile');
+    const settingsToggleBtns = Array.from(new Set([settingsBtn, navSettingsMobileBtn].filter(Boolean)));
     const settingsCloseBtn = document.getElementById('settings-close') || document.querySelector('.settings-close');
     const settingLabelSelects = document.getElementById('setting-label-selects') || document.querySelector('.setting-label-selects');
     const settingTitleSelects = document.getElementById('setting-title-selects') || document.querySelector('.setting-title-selects');
@@ -288,11 +290,15 @@
       });
     }
 
-    let navInitialEnabled = isMobileView();
-    if (!navInitialEnabled) {
-      try {
-        navInitialEnabled = localStorage.getItem(STORAGE_KEYS.navEnabled) === 'true';
-      } catch { navInitialEnabled = false; }
+    let navInitialEnabled = null;
+    try {
+      const storedNav = localStorage.getItem(STORAGE_KEYS.navEnabled);
+      if (storedNav !== null) {
+        navInitialEnabled = storedNav === 'true';
+      }
+    } catch { /* ignore */ }
+    if (navInitialEnabled === null) {
+      navInitialEnabled = isMobileView();
     }
 
     const setNavEnabled = (enabled) => {
@@ -304,10 +310,13 @@
     const updateThemeModeLabel = () => {
       if (!themeModeBtns.length) return;
       const isDark = body.classList.contains('theme-dark');
-      const mobile = isMobileView();
       const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
       themeModeBtns.forEach((btn) => {
-        btn.textContent = mobile ? (isDark ? '☀️' : '🌙') : (isDark ? 'Light Mode' : 'Dark Mode');
+        if (btn.classList.contains('mobile-theme-toggle')) {
+          btn.textContent = isDark ? '☀️' : '🌙';
+        } else {
+          btn.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        }
         btn.setAttribute('aria-label', label);
       });
     };
@@ -424,7 +433,7 @@
       settingsOverlay.hidden = true;
       settingsOverlay.setAttribute('aria-hidden', 'true');
       body.classList.remove('settings-open');
-      if (settingsBtn) settingsBtn.setAttribute('aria-expanded', 'false');
+      settingsToggleBtns.forEach((btn) => btn.setAttribute('aria-expanded', 'false'));
     }
 
     // Apply initial nav and theme state from storage
@@ -459,7 +468,7 @@
       settingsOverlay.hidden = true;
       settingsOverlay.setAttribute('aria-hidden', 'true');
       body.classList.remove('settings-open');
-      if (settingsBtn) settingsBtn.setAttribute('aria-expanded', 'false');
+      settingsToggleBtns.forEach((btn) => btn.setAttribute('aria-expanded', 'false'));
     };
 
     const openSettings = () => {
@@ -467,7 +476,7 @@
       settingsOverlay.hidden = false;
       settingsOverlay.setAttribute('aria-hidden', 'false');
       body.classList.add('settings-open');
-      if (settingsBtn) settingsBtn.setAttribute('aria-expanded', 'true');
+      settingsToggleBtns.forEach((btn) => btn.setAttribute('aria-expanded', 'true'));
       // Focus first focusable control for keyboard users if present
       const first = settingsOverlay.querySelector('input, button, [tabindex]:not([tabindex="-1"])');
       if (first && typeof first.focus === 'function') first.focus();
@@ -1452,12 +1461,13 @@
     }
 
     // Settings open/close
-    if (settingsBtn) {
-      settingsBtn.addEventListener('click', (e) => {
-        // Toggle visibility instead of always forcing open
-        if (!settingsOverlay) return;
-        if (settingsOverlay.hidden) openSettings();
-        else closeSettings();
+    if (settingsToggleBtns.length) {
+      settingsToggleBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          if (!settingsOverlay) return;
+          if (settingsOverlay.hidden) openSettings();
+          else closeSettings();
+        });
       });
     }
     if (navToggleBtn) {

@@ -479,7 +479,7 @@ body:not(.nav-enabled) main {
         padding-top: calc(var(--gap) * 3);
     }
 
-    body.mobile-ui .left-rail {
+    body.mobile-ui.nav-enabled .left-rail {
         display: flex !important;
     }
 
@@ -497,12 +497,12 @@ body:not(.nav-enabled) main {
         margin-left: auto;
     }
 
-    .theme-controls {
+    .theme-controls:not(.nav-theme-controls) {
         display: none !important;
     }
 
-    .nav-toggle {
-        display: none !important;
+    .nav-theme-controls {
+        display: flex !important;
     }
 
     .left-rail .box {
@@ -528,6 +528,10 @@ body:not(.nav-enabled) main {
         margin-top: -70px;
     }
 
+    body.order-type .mobile-theme-toggle {
+        display: none !important;
+    }
+
     .order-type-chip {
         order: 5;
         margin-left: 0;
@@ -536,6 +540,65 @@ body:not(.nav-enabled) main {
         padding: 10px 12px;
         white-space: normal;
     }
+
+}
+
+body.order-type .nav-theme-controls {
+    position: fixed;
+    top: calc(var(--gap) + 4px);
+    right: 12px;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    z-index: 1000;
+}
+
+body.order-type .nav-theme-controls .theme-option {
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+}
+
+body.theme-dark.order-type .nav-theme-controls .theme-option {
+    background: #222;
+    color: #fff;
+    border-color: #fff;
+}
+
+.nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nav-toggle::after {
+    content: "";
+}
+
+@media (max-width: 768px) {
+    .nav-toggle::after {
+        content: '→';
+    }
+
+    body.nav-enabled .nav-toggle::after {
+        content: '←';
+    }
+}
+
+body.order-type .settings-button {
+    display: none !important;
 }
 
 /* Section: Theme (Dark) */
@@ -1010,6 +1073,12 @@ body.page3 #order-summary .summary-edit-btn:focus-visible {
 /* Section: Page 1 Order Type */
 body.order-type main {
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--gap);
+    min-height: calc(100vh - (var(--nav-offset) + var(--gap) * 3));
 }
 
 body.order-type main h1 {
