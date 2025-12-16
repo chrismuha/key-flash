@@ -311,11 +311,20 @@
       if (!themeModeBtns.length) return;
       const isDark = body.classList.contains('theme-dark');
       const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+      const modeText = isDark ? 'Light Mode' : 'Dark Mode';
+      const iconText = isDark ? '☀️' : '🌙';
       themeModeBtns.forEach((btn) => {
-        if (btn.classList.contains('mobile-theme-toggle')) {
-          btn.textContent = isDark ? '☀️' : '🌙';
-        } else {
-          btn.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+        const iconEl = btn.querySelector('.theme-icon');
+        const labelEl = btn.querySelector('.theme-label');
+        if (iconEl) {
+          iconEl.textContent = iconText;
+        } else if (btn.classList.contains('mobile-theme-toggle')) {
+          btn.textContent = iconText;
+        }
+        if (labelEl) {
+          labelEl.textContent = modeText;
+        } else if (!btn.classList.contains('mobile-theme-toggle')) {
+          btn.textContent = modeText;
         }
         btn.setAttribute('aria-label', label);
       });
@@ -324,7 +333,18 @@
     const updateNavToggleLabel = () => {
       if (!navToggleBtn) return;
       const navEnabled = body.classList.contains('nav-enabled');
-      navToggleBtn.textContent = navEnabled ? 'Disable Navigation' : 'Enable Navigation';
+      const labelText = navEnabled ? 'Disable Navigation' : 'Enable Navigation';
+      const labelEl = navToggleBtn.querySelector('.theme-label');
+      const iconEl = navToggleBtn.querySelector('.theme-icon');
+      if (labelEl) {
+        labelEl.textContent = labelText;
+      } else {
+        navToggleBtn.textContent = labelText;
+      }
+      if (iconEl) {
+        iconEl.textContent = navEnabled ? '←' : '→';
+      }
+      navToggleBtn.setAttribute('aria-label', labelText);
     };
 
     // Go Back button (pages 2/3)
