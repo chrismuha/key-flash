@@ -1,0 +1,78 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial';
+    background: #111;
+    color: white;
+}
+
+.search-box {
+  margin: 20px 0;
+  width: 70%;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: none;
+  color: white;
+}
+
+.header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem auto;
+    padding: 2rem;
+    max-width: 600px;
+}
+.header h1 {
+    font-size: 3.5rem;
+}
+
+.projects {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 90%;
+    margin: auto;
+}
+.projects .project {
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.project h2 {
+    font-size: 1.1rem;
+}
+.project .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.project .links .link {
+    color: white;
+    text-decoration: none;
+    background: #ff5f5f8a;
+    padding: 0.2rem 1rem;
+    border-radius: 1rem;
+    font-size: 0.9rem;
+    display: flex;
+    gap: 0.5rem;
+    transition: 0.2s;
+}
+.project .links .link:hover {
+    background: red;
+}
