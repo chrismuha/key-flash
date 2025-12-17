@@ -198,6 +198,27 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     font-size: 16px;
 }
 
+.order-type-chip__edit {
+    margin-left: auto;
+    border: 1px solid #000;
+    border-radius: 6px;
+    background: #ffe1b3;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 6px 10px;
+}
+
+.order-type-chip__edit:hover,
+.order-type-chip__edit:focus-visible {
+    background: #ffd28f;
+}
+
+body.theme-dark .order-type-chip__edit {
+    background: #222;
+    color: #fff;
+    border-color: #fff;
+}
+
 body.theme-dark .order-type-chip {
     background: #111;
     color: #fff;

@@ -236,6 +236,7 @@
     const isMobileView = () => mobileQuery.matches;
 
     const orderTypeChips = Array.from(document.querySelectorAll('.order-type-chip'));
+    const orderTypeEditButtons = Array.from(document.querySelectorAll('.order-type-chip__edit'));
     const orderTypeHeading = document.querySelector('body.order-type main h1');
     const orderNoteEl = document.querySelector('body.order-type .order-note');
     const orderHeadingDefaultText = orderTypeHeading ? orderTypeHeading.textContent.trim() : 'Please select your order type';
@@ -427,6 +428,15 @@
       }
       navToggleBtn.setAttribute('aria-label', labelText);
     };
+
+    if (orderTypeEditButtons.length) {
+      orderTypeEditButtons.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          window.location.href = 'page2.html';
+        });
+      });
+    }
 
     // Go Back button (pages 2/3)
     const backBtn = document.querySelector('.go-back');
@@ -1324,6 +1334,22 @@
         else closeOverlay(overlay);
       };
 
+      const focusSectionFromHash = (section) => {
+        if (!section || isSectionDisabled(section)) return false;
+        const overlay = getOverlay(section);
+        if (!overlay) return false;
+        openOverlay(section);
+        const sectionBody = overlay.querySelector(`#${section}`) || overlay.querySelector('.menu-section');
+        if (sectionBody) {
+          sectionBody.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          const focusable = sectionBody.querySelector('input[type="checkbox"], button, select, [tabindex]:not([tabindex="-1"])');
+          if (focusable && focusable.focus) {
+            focusable.focus({ preventScroll: true });
+          }
+        }
+        return true;
+      };
+
       const setSaucesDisabled = (disabled) => {
         sauceDisabled = !!disabled;
         const saucesToggle = sectionToggles.find((t) => t.dataset.section === 'sauces');
@@ -1433,6 +1459,17 @@
         }
       });
 
+      const openHashTarget = () => {
+        const sectionFromHash = (location.hash || '').replace('#', '').trim();
+        if (!sectionFromHash) return;
+        if (focusSectionFromHash(sectionFromHash)) return;
+        const fallback = document.getElementById(sectionFromHash);
+        if (fallback) {
+          fallback.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (fallback.focus) fallback.focus({ preventScroll: true });
+        }
+      };
+
       // Persist ingredient selections
       ingredientCheckboxes.forEach((cb) => {
         cb.addEventListener('change', () => {
@@ -1528,6 +1565,8 @@
       persistActiveSections();
       updateBuilderError();
       updatePage3NavState();
+      openHashTarget();
+      window.addEventListener('hashchange', openHashTarget);
     }
 
     // Settings change listeners
