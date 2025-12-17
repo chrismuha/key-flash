@@ -1432,8 +1432,8 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
     align-items: center;
     justify-content: center;
     margin-left: 8px;
-    min-width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     padding: 0;
     border: 1px solid #000;
     border-radius: 999px;
@@ -1455,7 +1455,7 @@ body.theme-dark .menu-launch-arrow {
     .menu-launch-arrow {
         width: 32px;
         height: 32px;
-        font-size: 18px;
+        font-size: 22px;
         line-height: 1;
         border-color: #000;
         background: #fff;
