@@ -1180,7 +1180,7 @@ main .reset-group:hover {
 
 .menu-actions {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns: repeat(3, minmax(160px, 1fr));
     gap: 12px;
     justify-items: stretch;
     align-items: stretch;
@@ -1240,6 +1240,12 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
 .menu-actions .menu-launch.menu-launch-active:focus-visible {
     background: #e4fff0;
     outline-color: #18833d;
+}
+
+@media (min-width: 1024px) {
+    .menu-actions {
+        grid-template-columns: repeat(5, minmax(160px, 1fr));
+    }
 }
 
 .menu-launch-arrow {

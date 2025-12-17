@@ -31,6 +31,8 @@
                 <button type="button" class="swiper-chip menu-launch" data-target="burger"
                     role="listitem">Burger</button>
                 <button type="button" class="swiper-chip menu-launch" data-target="sub" role="listitem">Sub</button>
+                <button type="button" class="swiper-chip menu-launch" data-target="wrap"
+                    role="listitem">Wrap</button>
                 <button type="button" class="swiper-chip menu-launch" data-target="sauces"
                     role="listitem">Sauces</button>
             </div>
@@ -106,6 +108,7 @@
             <button type="button" class="menu-launch" data-target="pizza" role="listitem">Pizza</button>
             <button type="button" class="menu-launch" data-target="burger" role="listitem">Burger</button>
             <button type="button" class="menu-launch" data-target="sub" role="listitem">Sub</button>
+            <button type="button" class="menu-launch" data-target="wrap" role="listitem">Wrap</button>
             <button type="button" class="menu-launch" data-target="sauces" role="listitem">Sauces</button>
         </div>
 
@@ -247,6 +250,56 @@
                         </fieldset>
                         <button type="button" class="reset-group" data-group="sub_ingredients[]">Reset
                             Sub</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Item: Wrap -->
+        <div class="menu-overlay" data-section="wrap" hidden>
+            <div class="menu-overlay-card">
+                <div class="overlay-header">
+                    <h2>Wrap</h2>
+                    <button type="button" class="close-overlay" aria-label="Close Wrap options">✕</button>
+                </div>
+                <div class="menu-section" id="wrap">
+                    <div class="menu-summary"><input type="checkbox" class="section-toggle" data-section="wrap">
+                        <span>Wrap</span>
+                    </div>
+                    <form>
+                        <fieldset>
+                            <legend>Choose Ingredients</legend>
+                            <!-- Alphabetical order -->
+                            <label><input type="checkbox" name="wrap_ingredients[]" value="bacon"> Bacon</label><br>
+                            <label class="required bread-select" title="Required">
+                                <input type="checkbox" id="wrap-bread-checkbox" name="wrap_ingredients[]" value="white"
+                                    data-required="true" data-no-qty="true" title="Required" checked>
+                                Bread Type (Required)
+                                <select id="wrap-bread-select" class="ingredient-qty" aria-label="Choose bread type">
+                                    <option value="white" selected>White</option>
+                                    <option value="wheat">Wheat</option>
+                                </select>
+                            </label><br>
+                            <label><input type="checkbox" name="wrap_ingredients[]" value="cheese"> Cheese</label><br>
+                            <label><input type="checkbox" name="wrap_ingredients[]" value="ham"> Ham</label><br>
+                            <label><input type="checkbox" name="wrap_ingredients[]" value="jalapenos">
+                                Jalapeños</label><br>
+                            <label><input type="checkbox" name="wrap_ingredients[]" value="lettuce">
+                                Lettuce</label><br>
+                            <label><input type="checkbox" name="wrap_ingredients[]" value="mushrooms">
+                                Mushrooms</label><br>
+                            <label><input type="checkbox" name="wrap_ingredients[]" value="olives"> Olives</label><br>
+                            <label><input type="checkbox" name="wrap_ingredients[]" value="onion"> Onion</label><br>
+                            <label><input type="checkbox" name="wrap_ingredients[]" value="pepperoni">
+                                Pepperoni</label><br>
+                            <label><input type="checkbox" name="wrap_ingredients[]" value="pickles">
+                                Pickles</label><br>
+                            <label><input type="checkbox" name="wrap_ingredients[]" value="tomatoes">
+                                Tomatoes</label><br>
+                            <label><input type="checkbox" name="wrap_ingredients[]" value="turkey"> Turkey</label><br>
+                        </fieldset>
+                        <button type="button" class="reset-group" data-group="wrap_ingredients[]">Reset
+                            Wrap</button>
                     </form>
                 </div>
             </div>

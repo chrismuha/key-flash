@@ -71,6 +71,21 @@
     'sub_ingredients[]|white': 'Bread: White',
     'sub_ingredients[]|wheat': 'Bread: Wheat',
 
+    'wrap_ingredients[]|bacon': 'Bacon',
+    'wrap_ingredients[]|cheese': 'Cheese',
+    'wrap_ingredients[]|ham': 'Ham',
+    'wrap_ingredients[]|jalapenos': 'Jalapeños',
+    'wrap_ingredients[]|lettuce': 'Lettuce',
+    'wrap_ingredients[]|mushrooms': 'Mushrooms',
+    'wrap_ingredients[]|olives': 'Olives',
+    'wrap_ingredients[]|onion': 'Onion',
+    'wrap_ingredients[]|pepperoni': 'Pepperoni',
+    'wrap_ingredients[]|pickles': 'Pickles',
+    'wrap_ingredients[]|tomatoes': 'Tomatoes',
+    'wrap_ingredients[]|turkey': 'Turkey',
+    'wrap_ingredients[]|white': 'Bread: White',
+    'wrap_ingredients[]|wheat': 'Bread: Wheat',
+
     'sauces_ingredients[]|bbq': 'BBQ',
     'sauces_ingredients[]|butter_milk_ranch': 'Butter Milk Ranch',
     'sauces_ingredients[]|honey_bbq': 'Honey BBQ',
@@ -856,7 +871,7 @@
       const sectionTitles = Array.from(document.querySelectorAll('.menu-summary span'));
       const ingredientCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][name]'));
       const builderError = document.getElementById('builder-error');
-      const primarySections = ['pizza', 'burger', 'sub'];
+      const primarySections = ['pizza', 'burger', 'sub', 'wrap'];
       let sauceDisabled = false;
       const isSectionDisabled = (sec) => sec === 'sauces' && sauceDisabled;
       const requiredCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-required="true"]'));
@@ -1036,6 +1051,7 @@
           else if (group.startsWith('burger_')) section = 'burger';
           else if (group.startsWith('sauces_')) section = 'sauces';
           else if (group.startsWith('sub_')) section = 'sub';
+          else if (group.startsWith('wrap_')) section = 'wrap';
           if (section) {
             const toggle = document.querySelector(`.section-toggle[data-section="${section}"]`);
             if (toggle && toggle.checked) {
