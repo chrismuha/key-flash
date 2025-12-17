@@ -195,6 +195,14 @@
 
   // Section: Page Initialization
   document.addEventListener('DOMContentLoaded', () => {
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (event) => {
+      const now = performance.now();
+      if (now - lastTouchEnd < 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, { passive: false });
     const body = document.body;
     const mobileQuery = window.matchMedia('(max-width: 768px)');
     const isMobileView = () => mobileQuery.matches;

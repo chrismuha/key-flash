@@ -38,6 +38,8 @@ body {
     /* Keep both for dynamic viewport units (mobile) while still supporting older browsers */
     overflow-x: hidden;
     overflow-y: auto;
+    touch-action: manipulation;
+    -ms-touch-action: manipulation;
 }
 
 /* Section: App Layout (Body Flex) */
@@ -1303,6 +1305,12 @@ main .reset-group:hover {
     touch-action: manipulation;
 }
 
+body.theme-dark .menu-actions .menu-launch {
+    border-color: #fff;
+    background: #111;
+    color: #fff;
+}
+
 .menu-actions .menu-launch:disabled {
     border-color: #9b9b9b;
     background: #e5e5e5;
@@ -1323,6 +1331,12 @@ body.theme-dark .menu-actions .menu-launch:disabled {
     background: #f0fff4;
 }
 
+body.theme-dark .menu-actions .menu-launch.menu-launch-active {
+    border-color: #4bb051;
+    box-shadow: 0 0 0 3px #2f8f49;
+    background: #152414;
+}
+
 .menu-actions .menu-launch:hover,
 .menu-actions .menu-launch:focus-visible {
     background: #e4e4e4;
@@ -1332,6 +1346,7 @@ body.theme-dark .menu-actions .menu-launch:disabled {
 
 body.theme-dark .menu-actions .menu-launch:hover,
 body.theme-dark .menu-actions .menu-launch:focus-visible {
+    background: #1a1a1a;
     outline-color: var(--focus-outline-dark);
 }
 
@@ -1364,8 +1379,9 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
 }
 
 body.theme-dark .menu-launch-arrow {
-    background: #111;
-    color: #fff;
+    background: #fff;
+    color: #000;
+    border-color: #000;
 }
 
 .menu-overlay {
