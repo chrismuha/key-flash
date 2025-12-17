@@ -457,6 +457,10 @@ body:not(.nav-enabled) main {
         white-space: normal;
     }
 
+    body.page2.mobile-ui main {
+        padding-top: calc(var(--nav-offset) + var(--gap) * 3.5);
+    }
+
 }
 
 .nav-theme-controls {
@@ -1269,7 +1273,7 @@ main .reset-group:hover {
 
 .menu-actions {
     display: grid;
-    grid-template-columns: repeat(3, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px;
     justify-items: stretch;
     align-items: stretch;
@@ -1291,6 +1295,12 @@ main .reset-group:hover {
     justify-content: center;
     text-align: center;
     gap: 8px;
+    color: #000;
+    font-family: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-text-fill-color: #000;
+    touch-action: manipulation;
 }
 
 .menu-actions .menu-launch:disabled {
@@ -1350,6 +1360,7 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
     font-size: 14px;
     line-height: 1;
     background: #fff;
+    color: inherit;
 }
 
 body.theme-dark .menu-launch-arrow {
