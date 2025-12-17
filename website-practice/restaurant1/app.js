@@ -2410,22 +2410,30 @@
         try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
 
         // Build summary HTML
+        const createSummaryBlock = () => {
+          const block = document.createElement('div');
+          block.className = 'summary-block';
+          return block;
+        };
+
         const frag = document.createDocumentFragment();
         if (type) {
+          const typeBlock = createSummaryBlock();
           const h3 = document.createElement('h3');
           h3.textContent = 'Order Type';
-          frag.appendChild(h3);
+          typeBlock.appendChild(h3);
           const p = document.createElement('p');
           p.textContent = (type === 'dine' ? 'Dine In/Carryout' : 'Delivery');
-          frag.appendChild(p);
+          typeBlock.appendChild(p);
+          frag.appendChild(typeBlock);
         }
 
         // Delivery details block (multi-line formatting)
         if (type === 'delivery') {
-          const d = document.createElement('div');
+          const deliveryBlock = createSummaryBlock();
           const h = document.createElement('h3');
           h.textContent = 'Delivery Details';
-          d.appendChild(h);
+          deliveryBlock.appendChild(h);
 
           const dn = localStorage.getItem(STORAGE_KEYS.deliveryName) || '';
           const dph = localStorage.getItem(STORAGE_KEYS.deliveryPhone) || '';
@@ -2463,20 +2471,20 @@
             line.textContent = ds;
             block.appendChild(line);
           }
-          // Street line removed; Street Address is shown via 'da'
           if (city || zip) {
             const line = document.createElement('div');
             line.textContent = [city, zip].filter(Boolean).join(' ');
             block.appendChild(line);
           }
 
-          d.appendChild(block);
-          frag.appendChild(d);
+          deliveryBlock.appendChild(block);
+          frag.appendChild(deliveryBlock);
         }
 
+        const selectionsBlock = createSummaryBlock();
         const h3i = document.createElement('h3');
         h3i.textContent = 'Selections';
-        frag.appendChild(h3i);
+        selectionsBlock.appendChild(h3i);
 
         const entries = Object.entries(ingredients || {});
         // Load saved per-ingredient quantities (legacy, not used for display now)
@@ -2490,8 +2498,10 @@
         if (entries.length === 0 || nonEmpty.length === 0) {
           const none = document.createElement('p');
           none.textContent = 'No ingredients selected yet.';
-          frag.appendChild(none);
+          selectionsBlock.appendChild(none);
         } else {
+          const sectionsContainer = document.createElement('div');
+          sectionsContainer.className = 'summary-sections';
           nonEmpty.forEach(([group, values]) => {
             const key = group.replace(/_ingredients\[\]$/, '');
             const prettyGroup = key.replace(/_/g, ' ');
@@ -2504,7 +2514,10 @@
               if (qv <= 0) return;
             }
 
+            const sectionWrap = document.createElement('div');
+            sectionWrap.className = 'summary-section';
             const header = document.createElement('div');
+            header.className = 'summary-section-header';
             const listTitle = document.createElement('strong');
             listTitle.textContent = prettyGroup.charAt(0).toUpperCase() + prettyGroup.slice(1);
             header.appendChild(listTitle);
@@ -2512,7 +2525,7 @@
             const edit = document.createElement('a');
             edit.href = `page2.html#${key}`;
             edit.textContent = 'Edit';
-            edit.style.marginLeft = '8px';
+            edit.className = 'summary-edit-btn';
             header.appendChild(edit);
 
             // Section-level quantity controls for Pizza and Burger
@@ -2557,12 +2570,7 @@
                     ing[gname] = [];
                     localStorage.setItem(STORAGE_KEYS.ingredients, JSON.stringify(ing));
                   } catch { }
-                  // Remove this section from summary immediately
-                  const listEl = header.nextElementSibling;
-                  if (listEl && listEl.tagName && listEl.tagName.toLowerCase() === 'ul') {
-                    listEl.remove();
-                  }
-                  header.remove();
+                  sectionWrap.remove();
                 }
               };
 
@@ -2575,18 +2583,14 @@
               header.appendChild(qWrap);
             }
 
-            frag.appendChild(header);
+            sectionWrap.appendChild(header);
             const ul = document.createElement('ul');
             values.forEach((item) => {
               const li = document.createElement('li');
               const value = (typeof item === 'string') ? item : (item && item.value ? item.value : '');
-              // Tomato/tomatoes display rules
               let normValue = value;
-              // Pizza: always "Tomatoes"
               if (key === 'pizza' && value === 'tomato') normValue = 'tomatoes';
-              // Build initial label from value or provided label
               let label = (typeof item === 'string') ? titleCase(normValue) : (item && item.label ? item.label : titleCase(normValue));
-              // Burger: pluralize based on burger item quantity (>1 -> "Tomatoes", else "Tomato")
               if (key === 'burger' && (value === 'tomato' || value === 'tomatoes' || /\bTomato\b/i.test(label))) {
                 let bq = 0;
                 try { bq = parseInt(qtySections['burger'] || '0', 10) || 0; } catch { bq = 0; }
@@ -2596,7 +2600,6 @@
               label = stripInlineQty(label);
 
               if (key === 'sauces') {
-                // Per-ingredient quantity controls for sauces
                 const qKey = `${group}|${normValue}`;
                 let current = Math.max(1, Math.min(12, parseInt(qtyMap[qKey] || '1', 10) || 1));
 
@@ -2622,7 +2625,6 @@
                   qtyMap[qKey] = current;
                   try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { }
                   if (val === 0) {
-                    // Remove from stored ingredients and UI, and possibly deactivate Sauces section if empty
                     try {
                       let ing = JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}');
                       const arr = Array.isArray(ing[group]) ? ing[group] : [];
@@ -2632,28 +2634,15 @@
                       });
                       ing[group] = filtered;
                       localStorage.setItem(STORAGE_KEYS.ingredients, JSON.stringify(ing));
-                      // If no sauces left, deactivate section
                       if (filtered.length === 0) {
                         let act = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}');
                         act['sauces'] = false;
                         localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
-                        // Remove header and list from summary
-                        const ulEl = li.parentElement;
-                        const hdr = ulEl ? ulEl.previousElementSibling : null;
-                        // Remove just this li; if ul becomes empty, remove header and ul
-                        li.remove();
-                        if (ulEl && ulEl.children.length === 0) {
-                          ulEl.remove();
-                          if (hdr) hdr.remove();
-                        }
-                        return;
+                        sectionWrap.remove();
                       }
                     } catch { }
-                    // Remove just this li from UI
                     li.remove();
-                    return;
                   }
-                  nameSpan.textContent = `${label} (x${val})`;
                 };
 
                 dec.addEventListener('click', () => { updateQty(current - 1); });
@@ -2662,7 +2651,6 @@
                 li.appendChild(dec);
                 li.appendChild(inc);
               } else if (key === 'burger' && normValue === 'patty') {
-                // Patty has per-ingredient quantity controls (max 3)
                 const qKey = `${group}|${normValue}`;
                 let current = 1;
                 try { current = Math.max(1, Math.min(3, parseInt(qtyMap[qKey] || '1', 10) || 1)); } catch { current = 1; }
@@ -2689,7 +2677,6 @@
                 li.appendChild(dec);
                 li.appendChild(inc);
               } else {
-                // Generic ingredient; display quantity if >1
                 const qKey = `${group}|${normValue}`;
                 let qv = 1;
                 try { qv = Math.max(1, Math.min(4, parseInt(qtyMap[qKey] || '1', 10) || 1)); } catch { qv = 1; }
@@ -2702,9 +2689,20 @@
               }
               ul.appendChild(li);
             });
-            frag.appendChild(ul);
+            sectionWrap.appendChild(ul);
+            sectionsContainer.appendChild(sectionWrap);
           });
+
+          if (sectionsContainer.childNodes.length) {
+            selectionsBlock.appendChild(sectionsContainer);
+          } else {
+            const none = document.createElement('p');
+            none.textContent = 'No ingredients selected yet.';
+            selectionsBlock.appendChild(none);
+          }
         }
+
+        frag.appendChild(selectionsBlock);
 
         container.innerHTML = '';
         container.appendChild(frag);

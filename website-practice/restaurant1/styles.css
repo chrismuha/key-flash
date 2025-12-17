@@ -1081,12 +1081,62 @@ body.page2 label.required.required-disabled input[type="checkbox"] {
 /* SECTION: Page 3 Order Summary */
 body.page3 #order-summary {
     border: 1px solid #000;
-    padding: 12px;
+    padding: 16px;
     margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+body.page3 #order-summary .summary-block {
+    border-top: 1px solid rgba(0, 0, 0, 0.35);
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+body.page3 #order-summary .summary-block:first-child {
+    border-top: none;
+    padding-top: 0;
 }
 
 body.page3 #order-summary h3 {
     margin: 0 0 8px 0;
+}
+
+body.page3 #order-summary .summary-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+body.page3 #order-summary .summary-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+body.page3 #order-summary .summary-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.page3 #order-summary .summary-section-header strong {
+    margin: 0;
+}
+
+body.page3 #order-summary .summary-section+.summary-section {
+    border-top: 1px dashed rgba(0, 0, 0, 0.25);
+    padding-top: 12px;
+}
+
+body.page3 .summary-divider {
+    margin: 20px 0;
+    border-top: 1px solid #000;
+    width: 100%;
+    opacity: 0.45;
 }
 
 body.page3 #order-summary ul {
@@ -1098,14 +1148,65 @@ body.page3 #order-summary .address-block {
     margin-bottom: 12px;
 }
 
-/* Keep Edit links black even after visited */
-body.page3 #order-summary a,
-body.page3 #order-summary a:visited,
-body.page3 #order-summary a:hover,
-body.page3 #order-summary a:active,
-body.page3 #order-summary a:focus {
-    color: red;
-    text-decoration: underline;
+body.page3 #order-summary .summary-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+    padding: 6px 12px;
+    background: #c00;
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 700;
+    text-decoration: none;
+    border: 1px solid #900;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+body.page3 #order-summary .summary-edit-btn:focus-visible,
+body.page3 #order-summary .summary-edit-btn:hover {
+    background: #a00000;
+    outline: 2px solid #600;
+    outline-offset: 2px;
+}
+
+body.page3 .pos-section {
+    margin-top: 12px;
+    padding-bottom: 24px;
+}
+
+body.page3 .pos-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+body.page3 .pos-checkout {
+    padding: 6px 12px;
+    font-weight: 700;
+    border-radius: 6px;
+    border: 1px solid #1f7a2f;
+    background: #28a745;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    min-height: 46px;
+    height: 46px;
+    line-height: 1;
+    gap: 6px;
+    cursor: not-allowed;
+}
+
+body.page3 .pos-checkout:disabled {
+    opacity: 0.8;
+}
+
+body.page3 .pos-checkout:disabled:hover {
+    background: #28a745;
 }
 
 /* SECTION: Page 1 Order Type */
