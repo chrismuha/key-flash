@@ -1057,11 +1057,56 @@ body.order-type .order-options {
 /* Delivery details panel under cards */
 body.order-type .delivery-details {
     margin-top: 12px;
-    padding: 12px;
+    padding: 14px;
     border: 1px solid #000;
-    max-width: 520px;
+    max-width: 640px;
+    width: min(100%, 720px);
     background: #fff;
     text-align: left;
+    margin-left: auto;
+    margin-right: auto;
+    transition: transform 0.2s ease;
+}
+
+body.order-type .delivery-details-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+body.order-type .delivery-details-heading h2 {
+    margin: 0;
+}
+
+body.order-type .delivery-close-button {
+    display: none;
+    border: 1px solid #000;
+    border-radius: 999px;
+    background: #fff;
+    padding: 4px 14px;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+body.order-type.delivery-open .delivery-close-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.order-type.delivery-open .order-options {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    body.order-type .delivery-details {
+        padding: 20px;
+        max-width: 900px;
+    }
 }
 
 body.theme-dark.order-type .delivery-details {

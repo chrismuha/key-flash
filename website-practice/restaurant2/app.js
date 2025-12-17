@@ -208,6 +208,28 @@
     const isMobileView = () => mobileQuery.matches;
 
     const orderTypeChips = Array.from(document.querySelectorAll('.order-type-chip'));
+    const orderTypeHeading = document.querySelector('body.order-type main h1');
+    const orderNoteEl = document.querySelector('body.order-type .order-note');
+    const orderHeadingDefaultText = orderTypeHeading ? orderTypeHeading.textContent.trim() : 'Please select your order type';
+    const orderNoteDefaultText = orderNoteEl ? (orderNoteEl.textContent.trim() || 'Please select your order type') : 'Please select your order type';
+    const refreshOrderPrompts = (type) => {
+      if (orderTypeHeading) {
+        const hideHeading = type === 'delivery';
+        orderTypeHeading.hidden = hideHeading;
+        if (!hideHeading && orderHeadingDefaultText) {
+          orderTypeHeading.textContent = orderHeadingDefaultText;
+        }
+      }
+      if (orderNoteEl) {
+        if (type) {
+          orderNoteEl.hidden = true;
+          orderNoteEl.textContent = '';
+        } else {
+          orderNoteEl.hidden = false;
+          orderNoteEl.textContent = orderNoteDefaultText;
+        }
+      }
+    };
 
     const settingsOverlay = document.getElementById('settings-overlay');
     const settingsBtn = document.getElementById('settings-btn') || document.querySelector('.settings-button');
@@ -274,6 +296,7 @@
         if (valueEl) valueEl.textContent = label;
         chip.dataset.empty = empty ? 'true' : 'false';
       });
+      refreshOrderPrompts(type);
     };
 
     const updatePage3NavState = () => {
@@ -672,6 +695,7 @@
         if (!dFormInit) return;
         dFormInit.hidden = !show;
         if (!show && deliveryError) deliveryError.hidden = true;
+        body.classList.toggle('delivery-open', !!show);
       };
 
       const saveDeliveryDetails = () => {
@@ -727,7 +751,7 @@
       if (dFormInit) {
         const savedType = getOrderType();
         const show = savedType === 'delivery';
-        dFormInit.hidden = !show;
+        showDeliveryForm(show);
         const errEl = document.getElementById('delivery-error');
         if (errEl) errEl.hidden = true;
         populateDeliveryFieldsFromStorage();
@@ -735,6 +759,16 @@
       }
 
       const cards = document.querySelectorAll('.order-card');
+      const deliveryCloseBtn = document.querySelector('.delivery-close-button');
+      const clearCardSelection = () => cards.forEach((c) => c.classList.remove('selected'));
+
+      if (deliveryCloseBtn) {
+        deliveryCloseBtn.addEventListener('click', () => {
+          setOrderType('');
+          clearCardSelection();
+          showDeliveryForm(false);
+        });
+      }
 
       const setActive = (clicked) => {
         cards.forEach(c => {
@@ -767,7 +801,13 @@
       });
 
       function setOrderType(type) {
-        try { localStorage.setItem(STORAGE_KEYS.orderType, type); } catch { }
+        try {
+          if (typeof type === 'string' && type) {
+            localStorage.setItem(STORAGE_KEYS.orderType, type);
+          } else {
+            localStorage.removeItem(STORAGE_KEYS.orderType);
+          }
+        } catch { }
         updatePage3NavState();
         updateOrderTypeChip();
       }

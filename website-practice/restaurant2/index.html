@@ -116,7 +116,10 @@
 
         <!-- Delivery details (shown when Delivery is selected) -->
         <form id="delivery-details" class="delivery-details" hidden novalidate>
-            <h2>Delivery Details</h2>
+            <div class="delivery-details-heading">
+                <h2>Delivery Details</h2>
+                <button type="button" class="delivery-close-button" aria-label="Close delivery details">✕</button>
+            </div>
             <div class="field">
                 <label for="delivery-name">Name <span class="req">*</span></label>
                 <input type="text" id="delivery-name" name="delivery_name" autocomplete="name" required maxlength="60">
