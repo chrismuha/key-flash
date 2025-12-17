@@ -613,7 +613,7 @@ body.theme-dark.page3 .summary-divider {
     opacity: 1;
 }
 
-body.theme-dark.page3 #order-summary .summary-block:first-child + .summary-block::before {
+body.theme-dark.page3 #order-summary .summary-block:first-child+.summary-block::before {
     border-top-color: rgba(255, 255, 255, 0.6);
 }
 
@@ -1114,7 +1114,7 @@ body.page3 #order-summary .summary-block:first-child {
     padding-top: 0;
 }
 
-body.page3 #order-summary .summary-block:first-child + .summary-block::before {
+body.page3 #order-summary .summary-block:first-child+.summary-block::before {
     content: '';
     position: absolute;
     top: 0;
