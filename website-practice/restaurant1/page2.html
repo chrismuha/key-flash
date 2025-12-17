@@ -172,6 +172,7 @@
                         <legend>Choose Ingredients</legend>
                         <!-- Alphabetical order -->
                         <label><input type="checkbox" name="sub_ingredients[]" value="bacon">Bacon</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="bologna"> Bologna</label><br>
                         <label class="required" title="Required">
                             <input type="checkbox" id="sub-bread-checkbox" name="sub_ingredients[]" value="white"
                                 data-required="true" data-no-qty="true" title="Required" checked>
@@ -191,11 +192,56 @@
                         <label><input type="checkbox" name="sub_ingredients[]" value="ham"> Ham</label><br>
                         <label><input type="checkbox" name="sub_ingredients[]" value="pepperoni"> Pepperoni</label><br>
                         <label><input type="checkbox" name="sub_ingredients[]" value="pickles"> Pickles</label><br>
+                        <label><input type="checkbox" name="sub_ingredients[]" value="salami"> Salami</label><br>
                         <label><input type="checkbox" name="sub_ingredients[]" value="toasted"> Toasted</label><br>
                         <label><input type="checkbox" name="sub_ingredients[]" value="tomatoes"> Tomatoes</label><br>
                         <label><input type="checkbox" name="sub_ingredients[]" value="turkey"> Turkey</label><br>
                     </fieldset>
                     <button type="button" class="reset-group" data-group="sub_ingredients[]">Reset Sub</button>
+                </form>
+            </details>
+        </section>
+
+        <!-- Menu Item: Wrap -->
+        <section>
+            <details id="wrap">
+                <summary class="menu-summary"><input type="checkbox" class="section-toggle" data-section="wrap">
+                    <span>Wrap</span>
+                </summary>
+                <button type="button" class="collapse collapse-inline collapse-section" data-target="wrap"
+                    aria-label="Collapse Wrap section">Collapse</button>
+                <form>
+                    <fieldset>
+                        <legend>Choose Ingredients</legend>
+                        <!-- Alphabetical order -->
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="bacon"> Bacon</label><br>
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="bologna"> Bologna</label><br>
+                        <label class="required" title="Required">
+                            <input type="checkbox" id="wrap-bread-checkbox" name="wrap_ingredients[]" value="white"
+                                data-required="true" data-no-qty="true" title="Required" checked>
+                            Torilla Type (Required)
+                            <select id="wrap-bread-select" class="ingredient-qty"
+                                aria-label="Choose torilla type" data-ignore-label-toggle="true" data-no-qty="true">
+                                <option value="white" selected>White</option>
+                                <option value="wheat">Wheat</option>
+                                <option value="tomato_basil">Tomato Basil</option>
+                                <option value="spinach">Spinach</option>
+                            </select>
+                        </label><br>
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="cheese"> Cheese</label><br>
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="ham"> Ham</label><br>
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="jalapenos"> Jalapeños</label><br>
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="lettuce"> Lettuce</label><br>
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="mushrooms"> Mushrooms</label><br>
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="olives"> Olives</label><br>
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="onion"> Onion</label><br>
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="pepperoni"> Pepperoni</label><br>
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="pickles"> Pickles</label><br>
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="salami"> Salami</label><br>
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="tomatoes"> Tomatoes</label><br>
+                        <label><input type="checkbox" name="wrap_ingredients[]" value="turkey"> Turkey</label><br>
+                    </fieldset>
+                    <button type="button" class="reset-group" data-group="wrap_ingredients[]">Reset Wrap</button>
                 </form>
             </details>
         </section>

@@ -1242,44 +1242,65 @@
       const pizzaSauce = document.querySelector('input[type="checkbox"][name="pizza_ingredients[]"][value="tomato_sauce"]');
       const subBread = document.getElementById('sub-bread-checkbox');
       const subBreadSelect = document.getElementById('sub-bread-select');
-      const breadChoices = ['white', 'wheat'];
-      const applyBreadChoice = (val) => {
-        const choice = breadChoices.includes(val) ? val : breadChoices[0];
-        if (subBreadSelect) subBreadSelect.value = choice;
-        if (subBread) subBread.value = choice;
-      };
-      // Restore previously chosen bread type from storage if present
-      (() => {
-        if (!subBread || !subBreadSelect) return;
-        let stored = breadChoices[0];
-        try {
-          const raw = localStorage.getItem(STORAGE_KEYS.ingredients);
-          if (raw) {
-            const data = JSON.parse(raw) || {};
-            const arr = Array.isArray(data['sub_ingredients[]']) ? data['sub_ingredients[]'] : [];
-            const found = arr.find((it) => {
-              if (typeof it === 'string') return breadChoices.includes(it);
-              return it && typeof it === 'object' && breadChoices.includes(it.value);
-            });
-            if (found) stored = typeof found === 'string' ? found : found.value;
-          }
-        } catch { stored = breadChoices[0]; }
-        applyBreadChoice(stored);
-      })();
+      const wrapBread = document.getElementById('wrap-bread-checkbox');
+      const wrapBreadSelect = document.getElementById('wrap-bread-select');
       const enforceReq = (el) => {
         if (!el) return;
         el.checked = true;
       };
+      const applyBreadChoice = (field, val, choices) => {
+        if (!field) return;
+        const choice = choices.includes(val) ? val : choices[0];
+        if (field.select) field.select.value = choice;
+        if (field.checkbox) field.checkbox.value = choice;
+      };
+      const restoreBreadChoice = (config) => {
+        const { field, choices, storageKey } = config;
+        if (!field || !field.checkbox || !field.select) return;
+        let stored = choices[0];
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.ingredients);
+          if (raw) {
+            const data = JSON.parse(raw) || {};
+            const arr = Array.isArray(data[storageKey]) ? data[storageKey] : [];
+            const found = arr.find((item) => {
+              if (typeof item === 'string') return choices.includes(item);
+              if (item && typeof item === 'object') return choices.includes(item.value);
+              return false;
+            });
+            if (found) stored = typeof found === 'string' ? found : found.value;
+          }
+        } catch { stored = choices[0]; }
+        applyBreadChoice(field, stored, choices);
+      };
+      const breadFieldConfigs = [
+        {
+          storageKey: 'sub_ingredients[]',
+          choices: ['white', 'wheat'],
+          field: { checkbox: subBread, select: subBreadSelect }
+        },
+        {
+          storageKey: 'wrap_ingredients[]',
+          choices: ['white', 'wheat', 'tomato_basil', 'spinach'],
+          field: { checkbox: wrapBread, select: wrapBreadSelect }
+        }
+      ];
       enforceReq(patty);
       enforceReq(bun);
       enforceReq(pizzaSauce);
-      enforceReq(subBread);
-      if (subBread && subBreadSelect) {
-        subBreadSelect.addEventListener('change', () => {
-          applyBreadChoice(subBreadSelect.value);
-          saveIngredients();
-        });
-      }
+      breadFieldConfigs.forEach((config) => {
+        const { field, choices } = config;
+        restoreBreadChoice(config);
+        if (field.checkbox) {
+          enforceReq(field.checkbox);
+        }
+        if (field.select) {
+          field.select.addEventListener('change', () => {
+            applyBreadChoice(field, field.select.value, choices);
+            saveIngredients();
+          });
+        }
+      });
       // Ensure storage includes them
       saveIngredients();
       // Build ingredient quantity dropdowns (Regular/Extra/x3/x4)
@@ -1871,7 +1892,8 @@
         pizza: document.getElementById('pizza'),
         burger: document.getElementById('burger'),
         sauces: document.getElementById('sauces'),
-        sub: document.getElementById('sub')
+        sub: document.getElementById('sub'),
+        wrap: document.getElementById('wrap')
       };
       const openSectionDetails = (section) => {
         const d = detailsBySection[section];
@@ -2230,6 +2252,7 @@
           else if (name.startsWith('burger_')) section = 'burger';
           else if (name.startsWith('sauces_')) section = 'sauces';
           else if (name.startsWith('sub_')) section = 'sub';
+          else if (name.startsWith('wrap_')) section = 'wrap';
           const isRequired = t.dataset && t.dataset.required === 'true';
           if (!isRequired && t.checked) {
             if (section) {
@@ -2269,7 +2292,7 @@
           if (sel) {
             sel.disabled = !cb.checked;
             sel.hidden = !cb.checked;
-            if (sel.id === 'sub-bread-select') {
+            if (sel.id === 'sub-bread-select' || sel.id === 'wrap-bread-select') {
               sel.value = 'white';
             } else {
               sel.value = '1';
@@ -2306,6 +2329,7 @@
           else if (group.startsWith('burger_')) section = 'burger';
           else if (group.startsWith('sauces_')) section = 'sauces';
           else if (group.startsWith('sub_')) section = 'sub';
+          else if (group.startsWith('wrap_')) section = 'wrap';
           if (section) {
             const d2 = document.getElementById(section);
             const toggle = d2 ? d2.querySelector('.section-toggle') : null;
