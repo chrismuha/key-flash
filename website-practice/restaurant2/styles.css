@@ -279,6 +279,7 @@ body.settings-open {
     padding: 6px 10px;
     font-size: 16px;
     cursor: pointer;
+    color: #000;
 }
 
 .settings-close:hover,
@@ -290,6 +291,11 @@ body.settings-open {
 body.theme-dark .settings-close:hover,
 body.theme-dark .settings-close:focus-visible {
     background: rgba(255, 255, 255, 0.12);
+}
+
+body.theme-dark .settings-close {
+    color: #fff;
+    border-color: currentColor;
 }
 
 
