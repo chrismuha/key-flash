@@ -44,8 +44,8 @@
   }
 
   const JALAPENO_VALUE = 'jalapenos';
-  const JALAPENO_LABEL_RE = /jalapenas|jalapenos|jalapeños/i;
-  const JALAPENO_LABEL_GLOBAL = /jalapenas|jalapenos|jalapeños/gi;
+  const JALAPENO_LABEL_RE = /jalapenos|jalapeños/i;
+  const JALAPENO_LABEL_GLOBAL = /jalapenos|jalapeños/gi;
 
   function normalizeJalapenoValue(val) {
     if (typeof val !== 'string') return val;
