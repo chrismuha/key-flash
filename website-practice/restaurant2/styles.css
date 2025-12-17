@@ -1090,6 +1090,15 @@ body.order-type .delivery-close-button {
     line-height: 1;
     cursor: pointer;
     font-family: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+    color: #000;
+}
+
+body.theme-dark.order-type .delivery-close-button {
+    border-color: #fff;
+    background: #111;
+    color: #fff;
 }
 
 body.order-type.delivery-open .delivery-close-button {
@@ -1354,6 +1363,7 @@ body.theme-dark .menu-actions .menu-launch {
     border-color: #fff;
     background: #111;
     color: #fff;
+    -webkit-text-fill-color: #fff;
 }
 
 .menu-actions .menu-launch:disabled {
