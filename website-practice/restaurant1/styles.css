@@ -1102,7 +1102,7 @@ body.page3 #order-summary {
 }
 
 body.page3 #order-summary .summary-block {
-    border-top: 1px solid rgba(0, 0, 0, 0.35);
+    border-top: none;
     padding-top: 12px;
     display: flex;
     flex-direction: column;
@@ -1111,7 +1111,6 @@ body.page3 #order-summary .summary-block {
 }
 
 body.page3 #order-summary .summary-block:first-child {
-    border-top: none;
     padding-top: 0;
 }
 
