@@ -1576,26 +1576,33 @@
         const qtyMap = readJSON(STORAGE_KEYS.quantities, {});
         container.innerHTML = '';
         const frag = document.createDocumentFragment();
+        const createSummaryBlock = () => {
+          const block = document.createElement('div');
+          block.className = 'summary-block';
+          return block;
+        };
 
         // Order type
         if (orderType) {
+          const typeBlock = createSummaryBlock();
           const h3 = document.createElement('h3');
           h3.textContent = 'Order Type';
-          frag.appendChild(h3);
+          typeBlock.appendChild(h3);
           const p = document.createElement('p');
           p.textContent = orderType === 'delivery' ? 'Delivery' : 'Dine In/Carryout';
-          frag.appendChild(p);
+          typeBlock.appendChild(p);
+          frag.appendChild(typeBlock);
         }
 
         // Delivery details block
         if (orderType === 'delivery') {
-          const d = document.createElement('div');
+          const deliveryBlock = createSummaryBlock();
           const h = document.createElement('h3');
           h.textContent = 'Delivery Details';
-          d.appendChild(h);
+          deliveryBlock.appendChild(h);
 
-          const block = document.createElement('div');
-          block.className = 'address-block';
+          const addressBlock = document.createElement('div');
+          addressBlock.className = 'address-block';
 
           const dn = d.name;
           const dph = d.phone;
@@ -1608,7 +1615,7 @@
           if (dn || dt) {
             const line = document.createElement('div');
             line.textContent = dt ? `${dn} (${dt})` : dn;
-            block.appendChild(line);
+            addressBlock.appendChild(line);
           }
           if (dph) {
             const line = document.createElement('div');
@@ -1623,31 +1630,32 @@
               return out || v;
             })(dph);
             line.textContent = `Phone: ${pretty}`;
-            block.appendChild(line);
+            addressBlock.appendChild(line);
           }
           if (da) {
             const line = document.createElement('div');
             line.textContent = da;
-            block.appendChild(line);
+            addressBlock.appendChild(line);
           }
           if (ds) {
             const line = document.createElement('div');
             line.textContent = ds;
-            block.appendChild(line);
+            addressBlock.appendChild(line);
           }
           if (city || zip) {
             const line = document.createElement('div');
             line.textContent = [city, zip].filter(Boolean).join(' ');
-            block.appendChild(line);
+            addressBlock.appendChild(line);
           }
 
-          d.appendChild(block);
-          frag.appendChild(d);
+          deliveryBlock.appendChild(addressBlock);
+          frag.appendChild(deliveryBlock);
         }
 
+        const selectionsBlock = createSummaryBlock();
         const h3 = document.createElement('h3');
         h3.textContent = 'Selections';
-        frag.appendChild(h3);
+        selectionsBlock.appendChild(h3);
 
         const entries = Object.entries(ingredients || {});
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
@@ -1664,21 +1672,27 @@
         if (!nonEmpty.length) {
           const p = document.createElement('p');
           p.textContent = 'No ingredients selected yet.';
-          frag.appendChild(p);
+          selectionsBlock.appendChild(p);
         } else {
+          const sectionsContainer = document.createElement('div');
+          sectionsContainer.className = 'summary-sections';
           nonEmpty.forEach(([group, values]) => {
             const sec = group.replace(/_ingredients\[\]$/, '');
             if (!activeSections[sec]) return;
             const sectionWrap = document.createElement('div');
+            sectionWrap.className = 'summary-section';
+            const header = document.createElement('div');
+            header.className = 'summary-section-header';
             const title = document.createElement('strong');
             title.textContent = sec.charAt(0).toUpperCase() + sec.slice(1);
-            sectionWrap.appendChild(title);
+            header.appendChild(title);
 
             const edit = document.createElement('a');
             edit.href = `page2.html#${sec}`;
             edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
-            sectionWrap.appendChild(edit);
+            header.appendChild(edit);
+            sectionWrap.appendChild(header);
 
             const ul = document.createElement('ul');
             values.forEach((val) => {
@@ -1689,10 +1703,19 @@
               ul.appendChild(li);
             });
             sectionWrap.appendChild(ul);
-            frag.appendChild(sectionWrap);
+            sectionsContainer.appendChild(sectionWrap);
           });
+
+          if (sectionsContainer.childNodes.length) {
+            selectionsBlock.appendChild(sectionsContainer);
+          } else {
+            const p = document.createElement('p');
+            p.textContent = 'No ingredients selected yet.';
+            selectionsBlock.appendChild(p);
+          }
         }
 
+        frag.appendChild(selectionsBlock);
         container.appendChild(frag);
       }
     }

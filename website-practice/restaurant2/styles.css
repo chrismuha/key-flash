@@ -892,8 +892,58 @@ body.page2 input[type="checkbox"][data-required="true"] {
 /* Section: Page 3 Order Summary */
 body.page3 #order-summary {
     border: 1px solid #000;
-    padding: 12px;
-    margin-bottom: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+body.page3 #order-summary .summary-block {
+    border-top: 1px solid rgba(0, 0, 0, 0.35);
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+body.page3 #order-summary .summary-block:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+body.page3 #order-summary .summary-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+body.page3 #order-summary .summary-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+body.page3 #order-summary .summary-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.page3 #order-summary .summary-section-header strong {
+    margin: 0;
+}
+
+body.page3 #order-summary .summary-section + .summary-section {
+    border-top: 1px dashed rgba(0, 0, 0, 0.25);
+    padding-top: 12px;
+}
+
+body.page3 .summary-divider {
+    margin: 20px 0;
+    border-top: 1px solid #000;
+    width: 100%;
+    opacity: 0.45;
 }
 
 body.page3 #order-summary h3 {
