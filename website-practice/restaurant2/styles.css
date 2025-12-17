@@ -1432,12 +1432,12 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
     align-items: center;
     justify-content: center;
     margin-left: 8px;
-    min-width: 24px;
-    height: 24px;
-    padding: 0 6px;
+    min-width: 32px;
+    height: 32px;
+    padding: 0;
     border: 1px solid #000;
     border-radius: 999px;
-    font-size: 14px;
+    font-size: 34px;
     line-height: 1;
     background: #fff;
     color: #000;
@@ -1453,6 +1453,10 @@ body.theme-dark .menu-launch-arrow {
 
 @media (pointer: coarse) {
     .menu-launch-arrow {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+        line-height: 1;
         border-color: #000;
         background: #fff;
         color: #000;
