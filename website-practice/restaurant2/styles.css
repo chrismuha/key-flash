@@ -1339,7 +1339,7 @@ main .reset-group:hover {
 
 .menu-actions {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 12px;
     justify-items: stretch;
     align-items: stretch;
@@ -1367,6 +1367,14 @@ main .reset-group:hover {
     appearance: none;
     -webkit-text-fill-color: #000;
     touch-action: manipulation;
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .menu-actions .menu-launch {
+        font-size: 17px;
+        padding: 12px 16px;
+    }
 }
 
 body.theme-dark .menu-actions .menu-launch {
@@ -1419,6 +1427,18 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
 .menu-actions .menu-launch.menu-launch-active:focus-visible {
     background: #e4fff0;
     outline-color: #18833d;
+}
+
+@media (min-width: 960px) {
+    .menu-actions {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 900px) {
+    .menu-actions {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
 }
 
 @media (min-width: 1024px) {

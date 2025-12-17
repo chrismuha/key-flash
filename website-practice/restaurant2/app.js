@@ -86,8 +86,8 @@
     'wrap_ingredients[]|salami': 'Salami',
     'wrap_ingredients[]|tomatoes': 'Tomatoes',
     'wrap_ingredients[]|turkey': 'Turkey',
-    'wrap_ingredients[]|white': 'Bread: White',
-    'wrap_ingredients[]|wheat': 'Bread: Wheat',
+    'wrap_ingredients[]|white': 'Tortilla: White',
+    'wrap_ingredients[]|wheat': 'Tortilla: Wheat',
     'wrap_ingredients[]|tomato_basil': 'Tortilla: Tomato Basil',
     'wrap_ingredients[]|spinach': 'Tortilla: Spinach',
 
@@ -99,6 +99,33 @@
     'sauces_ingredients[]|mustard': 'Mustard',
     'sauces_ingredients[]|ranch': 'Ranch'
   };
+
+  const JALAPENO_VALUE = 'jalapenos';
+  const JALAPENO_LABEL_RE = /jalapenas|jalapenos|jalapeños/i;
+  const JALAPENO_LABEL_GLOBAL = /jalapenas|jalapenos|jalapeños/gi;
+
+  function normalizeJalapenoValue(val) {
+    if (typeof val !== 'string') return val;
+    return JALAPENO_LABEL_RE.test(val) ? JALAPENO_VALUE : val;
+  }
+
+  function normalizeJalapenoLabel(str) {
+    if (!str) return str;
+    return String(str).replace(JALAPENO_LABEL_GLOBAL, 'Jalapeños');
+  }
+
+  function normalizeIngredientData(data) {
+    if (!data || typeof data !== 'object') return data;
+    const normalized = {};
+    Object.entries(data).forEach(([group, values]) => {
+      if (!Array.isArray(values)) {
+        normalized[group] = values;
+        return;
+      }
+      normalized[group] = values.map((value) => normalizeJalapenoValue(value));
+    });
+    return normalized;
+  }
 
   // Section: Utility helpers
   const docEl = document.documentElement;
@@ -125,7 +152,8 @@
 
   function loadIngredientsFromStorage() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}');
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}');
+      return normalizeIngredientData(stored) || {};
     } catch { return {}; }
   }
 
@@ -269,7 +297,8 @@
       const saucesActive = !!activeSections.sauces;
       if (!saucesActive) return true;
       try {
-        const ing = JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}');
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}');
+        const ing = normalizeIngredientData(stored) || {};
         const sauces = Array.isArray(ing['sauces_ingredients[]']) ? ing['sauces_ingredients[]'] : [];
         return sauces.length > 0;
       } catch { return false; }
@@ -935,7 +964,12 @@
         document.querySelectorAll('input[type="checkbox"][name]').forEach((i) => {
           const nm = i.getAttribute('name');
           data[nm] = data[nm] || [];
-          if (i.checked) data[nm].push(i.value);
+          if (i.checked) {
+            const labelEl = i.closest('label');
+            const selectEl = labelEl ? labelEl.querySelector('select.ingredient-qty[data-no-qty="true"]') : null;
+            const rawValue = (selectEl && selectEl.value) ? selectEl.value : i.value;
+            data[nm].push(normalizeJalapenoValue(rawValue));
+          }
         });
         saveIngredientsToStorage(data);
       };
@@ -1149,6 +1183,17 @@
             if (ownSelect) {
               ownSelect.disabled = !cb.checked;
               ownSelect.hidden = !cb.checked;
+              const syncSelect = (persist) => {
+                const nextValue = ownSelect.value;
+                if (nextValue) cb.value = nextValue;
+                if (persist && cb.checked) {
+                  saveAllIngredientSelections();
+                  updateBuilderError();
+                  updatePage3NavState();
+                }
+              };
+              ownSelect.addEventListener('change', () => syncSelect(true));
+              syncSelect(false);
             }
             return;
           }
@@ -1619,7 +1664,7 @@
         };
         const d = readDeliveryData();
         const orderType = (() => { try { return localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { return ''; } })();
-        const ingredients = readJSON(STORAGE_KEYS.ingredients, {});
+        const ingredients = normalizeIngredientData(readJSON(STORAGE_KEYS.ingredients, {})) || {};
         const activeSections = readJSON(STORAGE_KEYS.activeSections, {});
         const qtyMap = readJSON(STORAGE_KEYS.quantities, {});
         container.innerHTML = '';
@@ -1747,7 +1792,7 @@
               const li = document.createElement('li');
               const mapKey = `${group}|${val}`;
               const pretty = INGREDIENT_LABELS[mapKey] || String(val || '').replace(/_/g, ' ');
-              li.textContent = pretty + qtyLabel(group, val);
+              li.textContent = normalizeJalapenoLabel(pretty) + qtyLabel(group, val);
               ul.appendChild(li);
             });
             sectionWrap.appendChild(ul);

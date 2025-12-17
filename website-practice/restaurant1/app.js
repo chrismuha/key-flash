@@ -43,6 +43,53 @@
     return String(str).replace(/\(x\d+\)/gi, '').replace(/\s{2,}/g, ' ').trim();
   }
 
+  const JALAPENO_VALUE = 'jalapenos';
+  const JALAPENO_LABEL_RE = /jalapenas|jalapenos|jalapeños/i;
+  const JALAPENO_LABEL_GLOBAL = /jalapenas|jalapenos|jalapeños/gi;
+
+  function normalizeJalapenoValue(val) {
+    if (typeof val !== 'string') return val;
+    return JALAPENO_LABEL_RE.test(val) ? JALAPENO_VALUE : val;
+  }
+
+  function normalizeJalapenoLabel(str) {
+    if (!str) return str;
+    return String(str).replace(JALAPENO_LABEL_GLOBAL, 'Jalapeños');
+  }
+
+  function normalizeStoredIngredients(data) {
+    if (!data || typeof data !== 'object') return data;
+    const normalized = {};
+    Object.entries(data).forEach(([group, items]) => {
+      if (!Array.isArray(items)) {
+        normalized[group] = items;
+        return;
+      }
+      normalized[group] = items.map((entry) => {
+        if (!entry) return entry;
+        if (typeof entry === 'string') {
+          return normalizeJalapenoValue(entry);
+        }
+        if (typeof entry === 'object') {
+          const next = { ...entry };
+          if (next.value) next.value = normalizeJalapenoValue(next.value);
+          if (next.label) next.label = normalizeJalapenoLabel(next.label);
+          return next;
+        }
+        return entry;
+      });
+    });
+    return normalized;
+  }
+
+  function getSelectChoiceText(label) {
+    if (!label) return '';
+    const select = label.querySelector('select');
+    if (!select) return '';
+    const option = select.options[select.selectedIndex];
+    return (option && option.textContent ? option.textContent : select.value || '').trim();
+  }
+
   // Section: Order Type (Save/Get)
   function saveOrderType(type) {
     try {
@@ -68,12 +115,22 @@
         let labelText = '';
         const label = input.closest('label') || document.querySelector(`label[for="${input.id}"]`);
         if (label) {
+          const selectChoice = getSelectChoiceText(label);
           const clone = label.cloneNode(true);
           // Remove the checkbox itself and any qty controls inside labels
           clone.querySelectorAll('input, select, .sauce-qty, .qty-controls, button').forEach((el) => el.remove());
           labelText = (clone.textContent || '').trim();
+          const hasRequired = /\(required\)/i.test(labelText);
+          const baseLabel = labelText.replace(/\(required\)/i, '').trim() || titleCase(input.value);
+          if (selectChoice) {
+            labelText = `${baseLabel}: ${selectChoice}${hasRequired ? ' (Required)' : ''}`.trim();
+          } else {
+            labelText = labelText || titleCase(input.value);
+          }
         }
-        data[name].push({ value: input.value, label: labelText || titleCase(input.value) });
+        const normalizedValue = normalizeJalapenoValue(input.value);
+        const normalizedLabel = normalizeJalapenoLabel(labelText || titleCase(normalizedValue));
+        data[name].push({ value: normalizedValue, label: normalizedLabel });
       }
     });
     return data;
@@ -81,7 +138,7 @@
 
   // Section: Ingredients (Save to Storage)
   function saveIngredients() {
-    const data = readIngredientsFromDOM();
+    const data = normalizeStoredIngredients(readIngredientsFromDOM());
     try {
       localStorage.setItem(STORAGE_KEYS.ingredients, JSON.stringify(data));
     } catch { }
@@ -92,7 +149,10 @@
     let data = {};
     try {
       const raw = localStorage.getItem(STORAGE_KEYS.ingredients);
-      if (raw) data = JSON.parse(raw);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        data = normalizeStoredIngredients(parsed);
+      }
     } catch { }
 
     const inputs = document.querySelectorAll('input[type="checkbox"][name]');
@@ -1320,6 +1380,17 @@
             if (ownSelect) {
               ownSelect.disabled = !cb.checked;
               ownSelect.hidden = !cb.checked;
+              const syncSelect = (persist) => {
+                const next = ownSelect.value;
+                if (next) cb.value = next;
+                if (persist) {
+                  saveIngredients();
+                  updateBuilderError();
+                  updatePageNavLocks();
+                }
+              };
+              ownSelect.addEventListener('change', () => syncSelect(true));
+              syncSelect(false);
             }
             return;
           }
@@ -2406,6 +2477,7 @@
           const raw = localStorage.getItem(STORAGE_KEYS.ingredients);
           ingredients = raw ? JSON.parse(raw) : {};
         } catch { ingredients = {}; }
+        ingredients = normalizeStoredIngredients(ingredients);
         let activeSections = {};
         try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
 
@@ -2598,6 +2670,7 @@
                 label = label.replace(/\bTomatoes\b|\bTomato\b/i, desired);
               }
               label = stripInlineQty(label);
+              label = normalizeJalapenoLabel(label);
 
               if (key === 'sauces') {
                 const qKey = `${group}|${normValue}`;
