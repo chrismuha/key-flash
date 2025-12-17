@@ -69,8 +69,8 @@
     'sub_ingredients[]|salami': 'Salami',
     'sub_ingredients[]|tomatoes': 'Tomatoes',
     'sub_ingredients[]|toasted': 'Toasted',
-    'sub_ingredients[]|white': 'Bread: White',
-    'sub_ingredients[]|wheat': 'Bread: Wheat',
+    'sub_ingredients[]|white': 'Bread: White (Required)',
+    'sub_ingredients[]|wheat': 'Bread: Wheat (Required)',
 
     'wrap_ingredients[]|bacon': 'Bacon',
     'wrap_ingredients[]|bologna': 'Bologna',
@@ -86,8 +86,8 @@
     'wrap_ingredients[]|salami': 'Salami',
     'wrap_ingredients[]|tomatoes': 'Tomatoes',
     'wrap_ingredients[]|turkey': 'Turkey',
-    'wrap_ingredients[]|white': 'Tortilla: White',
-    'wrap_ingredients[]|wheat': 'Tortilla: Wheat',
+    'wrap_ingredients[]|white': 'Tortilla: White (Required)',
+    'wrap_ingredients[]|wheat': 'Tortilla: Wheat (Required)',
     'wrap_ingredients[]|tomato_basil': 'Tortilla: Tomato Basil',
     'wrap_ingredients[]|spinach': 'Tortilla: Spinach',
 
@@ -1756,8 +1756,8 @@
         const qtyLabel = (group, val) => {
           const key = `${group}|${val}`;
           const q = qtyMap && qtyMap[key];
-          const qStr = q == null ? '' : String(q);
-          if (!qStr || qStr === '1') return '';
+          const qStr = q == null || q === '' ? '1' : String(q);
+          if (qStr === '1') return ' (Regular)';
           const label = qtyLabelMap[qStr];
           return label ? ` (${label})` : ` (x${qStr})`;
         };
