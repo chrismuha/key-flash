@@ -84,38 +84,39 @@
       ⚙️ Settings
     </button>
     <button id="toggle-jiggle" type="button" aria-pressed="false" title="Reorder boxes (drag or use arrow keys)">Reorder</button>
+    <button id="toggle-theme" type="button" aria-pressed="false" title="Switch between light and dark mode">Dark Mode</button>
   </div>
 
-  <div id="settings-panel" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title"
-    style="max-width:680px;margin:12px auto;padding:12px 14px;border:1px solid #ccc;border-radius:8px;background:#fff;">
+  <div id="settings-backdrop" hidden></div>
+  <div id="settings-panel" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
       <h2 id="settings-title" style="margin:0;font: 600 18px/1.2 Arial, sans-serif;">Boxify Settings</h2>
       <button id="close-settings" type="button" aria-label="Close settings">✖</button>
     </div>
     <p style="margin:8px 0 12px;opacity:.85;">Choose which items should have boxes. You can also manage templates. Changes are saved.
     </p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:8px;align-items:start;">
-      <div>
+    <div class="settings-grid">
+      <div class="settings-section">
         <h3 style="margin:0 0 6px;font:600 15px Arial, sans-serif;">Enable Items</h3>
-        <div id="settings-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+        <div id="settings-list"></div>
         <div id="add-enabled-wrap" style="display:flex;gap:6px;margin-top:8px;">
           <input id="new-enabled" type="text" placeholder="Add item name" style="flex:1;padding:6px 8px;">
           <button id="add-enabled" type="button">Add Item</button>
         </div>
       </div>
-      <div>
+      <div class="settings-section">
         <h3 style="margin:0 0 6px;font:600 15px Arial, sans-serif;">Templates</h3>
-        <div id="templates-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+        <div id="templates-list"></div>
         <div style="display:flex;gap:6px;margin-top:6px;">
           <input id="new-template" type="text" placeholder="Add new template name" style="flex:1;padding:6px 8px;">
           <button id="add-template" type="button">Add</button>
         </div>
       </div>
     </div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;">
+    <div class="settings-footer">
       <button id="enable-all" type="button">Enable All</button>
       <button id="disable-all" type="button">Disable All</button>
-      <button id="remove-all-boxes" type="button" style="margin-left:auto;">Remove All Boxes</button>
+      <button id="remove-all-boxes" type="button">Remove All Boxes</button>
       <button id="save-settings" type="button" class="primary">Save</button>
     </div>
   </div>
@@ -156,6 +157,7 @@
     (function () {
       const OPEN_BTN = document.getElementById('open-settings');
       const PANEL = document.getElementById('settings-panel');
+      const BACKDROP = document.getElementById('settings-backdrop');
       const CLOSE_BTN = document.getElementById('close-settings');
       const LIST = document.getElementById('settings-list');
       const SAVE_BTN = document.getElementById('save-settings');
@@ -224,11 +226,12 @@
         }
         const templates = ensureTemplatesSeed();
         enabledWorking.forEach((id, idx) => {
-          const row = document.createElement('div');
-          row.style.display = 'flex';
-          row.style.alignItems = 'center';
-          row.style.gap = '8px';
-          row.tabIndex = 0;
+        const row = document.createElement('div');
+        row.classList.add('settings-row');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.gap = '8px';
+        row.tabIndex = 0;
           row.setAttribute('role', 'listitem');
           row.setAttribute('aria-label', 'Enabled item ' + (idx + 1));
           // Visual drag handle
@@ -299,10 +302,11 @@
         const templates = ensureTemplatesSeed();
         TEMPLATES_LIST.innerHTML = '';
         templates.forEach((label) => {
-          const row = document.createElement('div');
-          row.style.display = 'flex';
-          row.style.alignItems = 'center';
-          row.style.gap = '8px';
+        const row = document.createElement('div');
+        row.classList.add('template-row');
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.gap = '8px';
           const span = document.createElement('span');
           span.textContent = label;
           span.style.flex = '1';
@@ -323,13 +327,16 @@
       }
 
       function open() {
-        originalEnabledSnapshot = loadEnabled().map(String);
+        enabledWorking = loadEnabled().map(String);
+        originalEnabledSnapshot = enabledWorking.slice();
         renderList();
-        PANEL.hidden = false;
+        PANEL.removeAttribute('hidden');
+        BACKDROP?.removeAttribute('hidden');
         OPEN_BTN.setAttribute('aria-expanded', 'true');
       }
       function close() {
-        PANEL.hidden = true;
+        PANEL.setAttribute('hidden', '');
+        BACKDROP?.setAttribute('hidden', '');
         OPEN_BTN.setAttribute('aria-expanded', 'false');
       }
 
@@ -378,6 +385,7 @@
 
       OPEN_BTN?.addEventListener('click', () => (PANEL.hidden ? open() : tryCloseWithConfirm()));
       CLOSE_BTN?.addEventListener('click', tryCloseWithConfirm);
+      BACKDROP?.addEventListener('click', tryCloseWithConfirm);
 
       ENABLE_ALL_BTN?.addEventListener('click', () => {
         enabledWorking = ensureTemplatesSeed().map(t => slug(t));
@@ -580,6 +588,32 @@
         const log = document.getElementById('boxify-log');
         if (log) log.remove();
       });
+    })();
+  </script>
+  <script>
+    (function () {
+      const STORAGE_KEY = "boxify.theme";
+      const btn = document.getElementById("toggle-theme");
+      function setTheme(mode, persist = false) {
+        const dark = mode === "dark";
+        document.body.classList.toggle("dark-mode", dark);
+        if (btn) {
+          btn.setAttribute("aria-pressed", dark ? "true" : "false");
+          btn.textContent = dark ? "Light Mode" : "Dark Mode";
+        }
+        if (persist) {
+          try { localStorage.setItem(STORAGE_KEY, dark ? "dark" : "light"); } catch { }
+        }
+      }
+      function init() {
+        const stored = (() => { try { return localStorage.getItem(STORAGE_KEY); } catch { return null; } })();
+        setTheme(stored === "dark" ? "dark" : "light");
+      }
+      btn?.addEventListener("click", () => {
+        const next = document.body.classList.contains("dark-mode") ? "light" : "dark";
+        setTheme(next, true);
+      });
+      init();
     })();
   </script>
 </body>
