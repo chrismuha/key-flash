@@ -676,6 +676,10 @@ body.page2 main {
     border: none;
     position: relative;
     padding-bottom: 96px;
+    width: max-content;
+    max-width: 90%;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 /* Section: Page 2 Next Button */
@@ -1365,12 +1369,13 @@ main .reset-group:hover {
     justify-items: stretch;
     align-items: stretch;
     margin: 20px 0;
+    width: 100%;
 }
 
 .menu-actions .menu-launch {
     width: 100%;
     min-width: 0;
-    padding: 14px 18px;
+    padding: 1rem 3rem;
     font-size: 18px;
     font-weight: 700;
     border: 2px solid #000;
