@@ -35,6 +35,7 @@
     'pizza_ingredients[]|onion': 'Onion',
     'pizza_ingredients[]|pickles': 'Pickles',
     'pizza_ingredients[]|pineapple': 'Pineapples',
+    'pizza_ingredients[]|thin_crust': 'Thin crust',
     'pizza_ingredients[]|tomatoes': 'Tomatoes',
     'pizza_ingredients[]|tomato_sauce': 'Tomato Sauce (Required)',
     'pizza_ingredients[]|well_done': 'Well-done',
@@ -1452,6 +1453,14 @@
         const closeBtn = overlay.querySelector('.close-overlay');
         if (closeBtn) closeBtn.addEventListener('click', () => closeOverlay(overlay));
       });
+
+      const backToMenuBtn = document.querySelector('.back-to-menu');
+      if (backToMenuBtn) {
+        backToMenuBtn.addEventListener('click', (evt) => {
+          evt.preventDefault();
+          closeAllOverlays();
+        });
+      }
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {

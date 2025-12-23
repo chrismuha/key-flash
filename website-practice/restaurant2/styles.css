@@ -607,6 +607,39 @@ body.theme-dark .go-back {
     color: #fff;
 }
 
+/* Back to menu button visible only when an ingredient overlay is open */
+.back-to-menu {
+    display: none;
+    position: fixed;
+    top: 3px;
+    left: 120px;
+    padding: 5px 10px;
+    font-weight: 600;
+    font-size: 11pt;
+    border: 1px solid #000;
+    background: #f7f7f7;
+    color: #000;
+    border-radius: 999px;
+    cursor: pointer;
+    z-index: 1000;
+}
+
+body.menu-overlay-open .back-to-menu {
+    display: inline-flex;
+}
+
+body.theme-dark .back-to-menu {
+    border-color: #fff;
+    background: #222;
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .back-to-menu {
+        left: 92px;
+    }
+}
+
 /* Hide Go Back when navigation is enabled */
 /* Dark theme: make all key outlines/borders white for contrast */
 body.theme-dark :focus-visible {
