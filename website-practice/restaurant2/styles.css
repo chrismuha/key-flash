@@ -83,22 +83,27 @@ body {
 }
 
 
-/* Mobile menu swiper (only visible on small screens) */
+/* Menu swiper (available on all breakpoints) */
 .mobile-menu-swiper {
-    display: none;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    flex: 1;
+    flex: 1 1 100%;
     min-width: 0;
+    overflow: hidden;
+    margin-top: calc(var(--gap) * 0.5);
+    width: 100%;
+    order: 98;
 }
 
 .mobile-menu-swiper .swiper-track {
     display: flex;
     gap: 8px;
-    overflow: hidden;
+    overflow-x: auto;
     scroll-behavior: smooth;
     flex: 1;
     min-width: 0;
+    scroll-snap-type: x mandatory;
 }
 
 .mobile-menu-swiper .swiper-chip {
@@ -109,6 +114,7 @@ body {
     font-weight: 700;
     flex-shrink: 0;
     cursor: pointer;
+    scroll-snap-align: start;
 }
 
 body.theme-dark .mobile-menu-swiper .swiper-chip {
