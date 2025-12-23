@@ -22,7 +22,7 @@
         <a class="box active" href="page2.html" aria-current="page">Page 2</a>
         <a class="box" href="page3.html">Page 3</a>
         <div class="order-type-chip" aria-live="polite" data-empty="true">
-            <span class="order-type-chip__label">Order</span>
+            <span class="order-type-chip__label">Order Type</span>
             <span class="order-type-chip__value">Not selected</span>
             <button type="button" class="order-type-chip__edit" aria-label="Edit order type">
                 ✎
@@ -126,6 +126,23 @@
                 <div class="menu-section" id="pizza">
                     <div class="menu-summary"><input type="checkbox" class="section-toggle" data-section="pizza">
                         <span>Pizza</span>
+                    </div>
+                    <div class="size-options">
+                        <span class="size-options__label">Size</span>
+                        <div class="size-options__pills" role="radiogroup" aria-label="Pizza size">
+                            <label class="size-pill">
+                                <input type="radio" name="pizza_size" value="small" checked>
+                                <span>Small</span>
+                            </label>
+                            <label class="size-pill">
+                                <input type="radio" name="pizza_size" value="large">
+                                <span>Large</span>
+                            </label>
+                            <label class="size-pill">
+                                <input type="radio" name="pizza_size" value="medium">
+                                <span>Medium</span>
+                            </label>
+                        </div>
                     </div>
                     <form>
                         <fieldset>

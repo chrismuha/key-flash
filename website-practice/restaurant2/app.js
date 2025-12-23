@@ -21,7 +21,8 @@
     settingsAutoDisableEmpty: 'restaurant.settings.autoDisableEmpty',
     settingsAutoDisableSection: 'restaurant.settings.autoDisableSection',
     settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
-    quantities: 'restaurant.quantities'
+    quantities: 'restaurant.quantities',
+    pizzaSize: 'restaurant.pizza.size'
   };
 
   // Pretty labels for summary display (keyed by `${name}|${value}`)
@@ -113,6 +114,26 @@
   function normalizeJalapenoLabel(str) {
     if (!str) return str;
     return String(str).replace(JALAPENO_LABEL_GLOBAL, 'Jalapeños');
+  }
+
+  const DEFAULT_PIZZA_SIZE = 'small';
+  const PIZZA_SIZE_LABELS = {
+    small: 'Small',
+    medium: 'Medium',
+    large: 'Large'
+  };
+
+  function savePizzaSize(value) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.pizzaSize, String(value || DEFAULT_PIZZA_SIZE));
+    } catch { /* ignore */ }
+  }
+
+  function loadPizzaSize() {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.pizzaSize);
+      return stored || DEFAULT_PIZZA_SIZE;
+    } catch { return DEFAULT_PIZZA_SIZE; }
   }
 
   function normalizeIngredientData(data) {
@@ -311,11 +332,9 @@
       let label = 'Not selected';
       if (type === 'delivery') {
         label = 'Delivery';
-        // On desktop, append delivery address for quick glance
         const d = readDeliveryData();
         const parts = [d.name, d.address, d.suite, [d.city, d.zip].filter(Boolean).join(' ')].filter(Boolean);
-        const desktop = !isMobileView();
-        if (desktop && parts.length) {
+        if (parts.length) {
           label = `${label} --- ${parts.join(', ')}`;
         }
       } else if (type === 'dine') {
@@ -961,6 +980,7 @@
       const overlays = Array.from(document.querySelectorAll('.menu-overlay[data-section]'));
       const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
       const sectionToggles = Array.from(document.querySelectorAll('.section-toggle[data-section]'));
+      const pizzaSizeRadios = Array.from(document.querySelectorAll('input[name="pizza_size"]'));
       const sectionTitles = Array.from(document.querySelectorAll('.menu-summary span'));
       const ingredientCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][name]'));
       const builderError = document.getElementById('builder-error');
@@ -969,6 +989,25 @@
       const isSectionDisabled = (sec) => sec === 'sauces' && sauceDisabled;
       const requiredCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-required="true"]'));
       const requiredBySection = {};
+      const ensurePizzaToggleActive = () => {
+        const pizzaToggle = sectionToggles.find((t) => t.dataset.section === 'pizza');
+        if (!pizzaToggle || pizzaToggle.disabled) return;
+        if (!pizzaToggle.checked) {
+          pizzaToggle.checked = true;
+          pizzaToggle.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      };
+      const savedPizzaSize = loadPizzaSize();
+      pizzaSizeRadios.forEach((radio) => {
+        if (radio.value === savedPizzaSize) {
+          radio.checked = true;
+        }
+        radio.addEventListener('change', () => {
+          if (!radio.checked) return;
+          savePizzaSize(radio.value);
+          ensurePizzaToggleActive();
+        });
+      });
 
       const saveAllIngredientSelections = () => {
         const data = {};
@@ -1715,6 +1754,8 @@
         const ingredients = normalizeIngredientData(readJSON(STORAGE_KEYS.ingredients, {})) || {};
         const activeSections = readJSON(STORAGE_KEYS.activeSections, {});
         const qtyMap = readJSON(STORAGE_KEYS.quantities, {});
+        const pizzaSize = loadPizzaSize();
+        const pizzaSizeLabel = PIZZA_SIZE_LABELS[pizzaSize] || pizzaSize || '';
         container.innerHTML = '';
         const frag = document.createDocumentFragment();
         const createSummaryBlock = () => {
@@ -1834,6 +1875,13 @@
             edit.className = 'summary-edit-btn';
             header.appendChild(edit);
             sectionWrap.appendChild(header);
+
+            if (sec === 'pizza' && pizzaSizeLabel) {
+              const sizeLine = document.createElement('div');
+              sizeLine.className = 'summary-section-size';
+              sizeLine.textContent = `Size: ${pizzaSizeLabel}`;
+              sectionWrap.appendChild(sizeLine);
+            }
 
             const ul = document.createElement('ul');
             values.forEach((val) => {
