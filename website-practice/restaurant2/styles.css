@@ -211,6 +211,22 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     min-width: 0;
 }
 
+@media (min-width: 1024px) {
+    .order-type-chip {
+        align-items: center;
+    }
+
+    .order-type-chip__label,
+    .order-type-chip__value {
+        margin-top: 0;
+        align-self: center;
+    }
+
+    .order-type-chip__label {
+        margin-left: 6px;
+    }
+}
+
 @media (max-width: 768px) {
     .order-type-chip {
         font-size: 15px;
@@ -1614,7 +1630,7 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
     transition: background 0.2s ease, color 0.2s ease, border 0.2s ease;
 }
 
-.size-pill input:checked + span {
+.size-pill input:checked+span {
     background: #18833d;
     color: #fff;
     border-color: #18833d;
@@ -1631,7 +1647,7 @@ body.theme-dark .size-pill span {
     color: #fff;
 }
 
-body.theme-dark .size-pill input:checked + span {
+body.theme-dark .size-pill input:checked+span {
     background: #18b35b;
     border-color: #18b35b;
     color: #fff;
@@ -1706,6 +1722,7 @@ body.theme-dark .menu-launch-arrow {
         opacity: 1;
         border-top-width: 2px;
     }
+
     .close-overlay {
         color: inherit;
         border-color: currentColor;
