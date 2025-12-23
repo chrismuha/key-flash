@@ -296,6 +296,12 @@ body.theme-dark .order-type-chip {
     border-color: #fff;
 }
 
+body.page3 .order-type-chip {
+    width: min(100%, 640px);
+    margin: 0 auto 18px;
+    box-shadow: none;
+}
+
 .settings-panel {
     margin-top: 6px;
     font-size: inherit;
@@ -555,6 +561,10 @@ body:not(.nav-enabled) main {
         justify-content: flex-start;
         padding: 10px 12px;
         white-space: normal;
+    }
+
+    body.order-type .mobile-menu-swiper {
+        display: none;
     }
 
     body.page2.mobile-ui main {

@@ -257,7 +257,7 @@
     const mobileQuery = window.matchMedia('(max-width: 768px)');
     const isMobileView = () => mobileQuery.matches;
 
-    const orderTypeChips = Array.from(document.querySelectorAll('.order-type-chip'));
+    let orderTypeChips = Array.from(document.querySelectorAll('.order-type-chip'));
     const orderTypeEditButtons = Array.from(document.querySelectorAll('.order-type-chip__edit'));
     const orderTypeHeading = document.querySelector('body.order-type main h1');
     const orderNoteEl = document.querySelector('body.order-type .order-note');
@@ -365,11 +365,18 @@
         const d = readDeliveryData();
         const parts = [d.name, d.address, d.suite, [d.city, d.zip].filter(Boolean).join(' ')].filter(Boolean);
         if (parts.length) {
-          if (isMobileView()) {
-            label = `${label}\n${parts.join('\n')}`;
-          } else {
-            label = `${label} --- ${parts.join(', ')}`;
+          const inline = `${label} --- ${parts.join(', ')}`;
+          const stacked = `${label}\n${parts.join('\n')}`;
+          const primaryChip = orderTypeChips[0];
+          let needsStacked = isMobileView();
+          if (!needsStacked && primaryChip) {
+            const primaryValueEl = primaryChip.querySelector('.order-type-chip__value');
+            if (primaryValueEl) {
+              primaryValueEl.textContent = inline;
+              needsStacked = primaryChip.scrollWidth > primaryChip.clientWidth;
+            }
           }
+          label = needsStacked ? stacked : inline;
         }
       } else if (type === 'dine') {
         label = 'Dine In/Carryout';
