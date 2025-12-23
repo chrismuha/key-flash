@@ -681,9 +681,6 @@ body.theme-dark .go-back {
 /* Back to menu button visible only when an ingredient overlay is open */
 .back-to-menu {
     display: none;
-    position: fixed;
-    top: 3px;
-    left: 120px;
     padding: 5px 10px;
     font-weight: 600;
     font-size: 11pt;
@@ -692,7 +689,8 @@ body.theme-dark .go-back {
     color: #000;
     border-radius: 999px;
     cursor: pointer;
-    z-index: 1000;
+    margin: 0 auto 12px;
+    width: fit-content;
 }
 
 body.menu-overlay-open .back-to-menu {
@@ -703,12 +701,6 @@ body.theme-dark .back-to-menu {
     border-color: #fff;
     background: #222;
     color: #fff;
-}
-
-@media (max-width: 768px) {
-    .back-to-menu {
-        left: 92px;
-    }
 }
 
 /* Hide Go Back when navigation is enabled */
@@ -1688,6 +1680,11 @@ body.theme-dark .size-pill input:checked+span {
     -webkit-text-fill-color: #000;
     appearance: none;
     -webkit-appearance: none;
+    flex: 0 0 34px;
+    min-width: 34px;
+    max-width: 34px;
+    min-height: 34px;
+    max-height: 34px;
 }
 
 body.theme-dark .menu-launch-arrow {
@@ -1699,9 +1696,9 @@ body.theme-dark .menu-launch-arrow {
 
 @media (pointer: coarse) {
     .menu-launch-arrow {
-        width: 22px;
-        height: 22px;
-        font-size: 22px;
+        width: 34px;
+        height: 34px;
+        font-size: 34px;
         line-height: 0;
         text-align: center;
         border-color: currentColor;
@@ -1710,6 +1707,11 @@ body.theme-dark .menu-launch-arrow {
         -webkit-text-fill-color: inherit;
         appearance: none;
         -webkit-appearance: none;
+        flex: 0 0 34px;
+        min-width: 34px;
+        max-width: 34px;
+        min-height: 34px;
+        max-height: 34px;
     }
 
     body.theme-dark .menu-launch-arrow {
