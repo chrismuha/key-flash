@@ -1522,6 +1522,8 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
     background: #fff;
     color: #000;
     -webkit-text-fill-color: #000;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
 body.theme-dark .menu-launch-arrow {
@@ -1538,10 +1540,12 @@ body.theme-dark .menu-launch-arrow {
         font-size: 22px;
         line-height: 0;
         text-align: center;
-        border-color: #000;
-        background: #fff;
-        color: #000;
-        -webkit-text-fill-color: #000;
+        border-color: currentColor;
+        background: inherit;
+        color: inherit;
+        -webkit-text-fill-color: inherit;
+        appearance: none;
+        -webkit-appearance: none;
     }
 
     body.theme-dark .menu-launch-arrow {
@@ -1559,6 +1563,12 @@ body.theme-dark .menu-launch-arrow {
     body.page3 .summary-divider {
         opacity: 1;
         border-top-width: 2px;
+    }
+    .close-overlay {
+        color: inherit;
+        border-color: currentColor;
+        background: transparent;
+        -webkit-text-fill-color: inherit;
     }
 }
 
@@ -1635,6 +1645,9 @@ body.menu-overlay-open main {
     padding: 6px 12px;
     font-size: 18px;
     cursor: pointer;
+    color: #000;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
 .close-overlay:hover,
