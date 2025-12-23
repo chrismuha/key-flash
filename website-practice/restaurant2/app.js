@@ -307,6 +307,36 @@
     };
     window.addEventListener('resize', updateNavOffset);
 
+    const orderChip = orderTypeChips[0] || null;
+    const orderChipOrigin = orderChip ? {
+      parent: orderChip.parentElement,
+      nextSibling: orderChip.nextElementSibling
+    } : null;
+    const moveOrderChipForMobile = () => {
+      if (!orderChip || !orderChipOrigin || !body.classList.contains('order-type')) return;
+      if (mobileQuery.matches) {
+        const heading = document.querySelector('body.order-type main h1');
+        if (!heading) return;
+        if (orderChip.parentElement !== heading.parentElement) {
+          heading.insertAdjacentElement('afterend', orderChip);
+          orderTypeChips = Array.from(document.querySelectorAll('.order-type-chip'));
+          updateNavOffset();
+        }
+      } else if (orderChip.parentElement !== orderChipOrigin.parent) {
+        if (orderChipOrigin.nextSibling) {
+          orderChipOrigin.parent.insertBefore(orderChip, orderChipOrigin.nextSibling);
+        } else {
+          orderChipOrigin.parent.appendChild(orderChip);
+        }
+        orderTypeChips = Array.from(document.querySelectorAll('.order-type-chip'));
+        updateNavOffset();
+      }
+    };
+    moveOrderChipForMobile();
+    if (mobileQuery && typeof mobileQuery.addEventListener === 'function') {
+      mobileQuery.addEventListener('change', moveOrderChipForMobile);
+    }
+
     // Lock Page 2/3 navigation until prerequisites are met
     function hasOrderTypeSelected() {
       try { return !!localStorage.getItem(STORAGE_KEYS.orderType); } catch { return false; }
@@ -335,7 +365,11 @@
         const d = readDeliveryData();
         const parts = [d.name, d.address, d.suite, [d.city, d.zip].filter(Boolean).join(' ')].filter(Boolean);
         if (parts.length) {
-          label = `${label} --- ${parts.join(', ')}`;
+          if (isMobileView()) {
+            label = `${label}\n${parts.join('\n')}`;
+          } else {
+            label = `${label} --- ${parts.join(', ')}`;
+          }
         }
       } else if (type === 'dine') {
         label = 'Dine In/Carryout';
