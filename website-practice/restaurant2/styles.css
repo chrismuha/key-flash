@@ -114,12 +114,13 @@ body {
 .mobile-menu-swiper .swiper-chip {
     border: 1px solid #000;
     background: #f5f5f5;
-    padding: 10px 14px;
+    padding: 6px 12px;
     border-radius: 999px;
     font-weight: 700;
     flex-shrink: 0;
     cursor: pointer;
     scroll-snap-align: start;
+    line-height: 1.2;
 }
 
 body.theme-dark .mobile-menu-swiper .swiper-chip {
@@ -1226,7 +1227,12 @@ body.order-type main {
     min-height: calc(100vh - (var(--nav-offset) + var(--gap) * 3));
     width: min(720px, calc(100% - var(--gap) * 2));
     margin-inline: auto;
-    padding-inline: var(--gap);
+}
+
+@media (max-width: 1024px) {
+    body.order-type main {
+        padding-inline: var(--gap);
+    }
 }
 
 body.order-type main h1 {
