@@ -164,6 +164,50 @@
     return canvas;
   };
 
+  const rotateCanvas = (sourceCanvas, degrees) => {
+    const normalized = ((degrees % 360) + 360) % 360;
+    if (!normalized) return sourceCanvas;
+    const radians = normalized * (Math.PI / 180);
+    const width = sourceCanvas.width;
+    const height = sourceCanvas.height;
+    const cos = Math.abs(Math.cos(radians));
+    const sin = Math.abs(Math.sin(radians));
+    const newWidth = Math.round(width * cos + height * sin);
+    const newHeight = Math.round(width * sin + height * cos);
+    const rotated = document.createElement('canvas');
+    rotated.width = newWidth;
+    rotated.height = newHeight;
+    const ctx = rotated.getContext('2d');
+    ctx.translate(newWidth / 2, newHeight / 2);
+    ctx.rotate(radians);
+    ctx.drawImage(sourceCanvas, -width / 2, -height / 2);
+    return rotated;
+  };
+
+  const renderAdjustedPage = async (page, scale, options) => {
+    const viewport = page.getViewport({ scale });
+    const baseCanvas = await renderPageToCanvas(page, scale);
+    const autoAngle = options.autoStraighten && viewport.width > viewport.height ? 90 : 0;
+    const combined = (options.rotation || 0) + autoAngle + (options.deskewAngle || 0);
+    const adjusted = rotateCanvas(baseCanvas, combined);
+    if (adjusted !== baseCanvas) baseCanvas.remove();
+    const widthPoints = adjusted.width / scale;
+    const heightPoints = adjusted.height / scale;
+    return { canvas: adjusted, widthPoints, heightPoints };
+  };
+
+  const canvasToPngBytes = (canvas) => {
+    const dataUrl = canvas.toDataURL('image/png');
+    const base64 = dataUrl.split(',')[1];
+    const binary = atob(base64);
+    const len = binary.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i += 1) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  };
+
   const ocrPageNumber = async ({ page, canvas, scale = 0.4 } = {}) => {
     if (!window.Tesseract) return '';
     const needsCleanup = !canvas;
@@ -242,18 +286,22 @@
     if (!window.PDFLib) throw new Error('pdf-lib not available');
     const src = await PDFLib.PDFDocument.load(bytes);
     const next = await PDFLib.PDFDocument.create();
-    const copied = await next.copyPages(src, order);
-    copied.forEach((p, idx) => {
-      const srcPage = src.getPage(order[idx]);
-      const { width, height } = srcPage.getSize();
-      let rotateDeg = (rotation || 0) % 360;
-      // auto-straighten: rotate landscape pages to portrait
-      if (autoStraighten && width > height) rotateDeg += 90;
-      rotateDeg = ((rotateDeg % 360) + 360) % 360;
-      const combinedRotation = rotateDeg + (deskewAngles[order[idx]] || 0);
-      if (combinedRotation) p.setRotation(PDFLib.degrees(combinedRotation));
-      next.addPage(p);
-    });
+    const scale = 2;
+    for (let idx = 0; idx < order.length; idx++) {
+      const originalIndex = order[idx];
+      const srcPage = src.getPage(originalIndex);
+      const deskewAngle = deskewAngles[originalIndex] || 0;
+      const { canvas, widthPoints, heightPoints } = await renderAdjustedPage(srcPage, scale, {
+        autoStraighten,
+        rotation,
+        deskewAngle
+      });
+      const pngBytes = canvasToPngBytes(canvas);
+      canvas.remove();
+      const pngImage = await next.embedPng(pngBytes);
+      const page = next.addPage([widthPoints, heightPoints]);
+      page.drawImage(pngImage, { x: 0, y: 0, width: page.getWidth(), height: page.getHeight() });
+    }
     return next.save();
   };
 
@@ -342,7 +390,7 @@
         updateStatus(i, 'done');
         const straightenNote = straighten.rotation ? `; rotation ${straighten.rotation}°` : '';
         const autoNote = straighten.autoStraighten ? '; auto-straighten on' : '';
-        const deskewNote = straighten.deskew && deskewAngles.some((angle) => Math.abs(angle) > 0.0001) ? '; deskew applied' : '';
+        const deskewNote = straighten.deskew && deskewAngles && deskewAngles.some((angle) => Math.abs(angle) > 0.0001) ? '; deskew applied' : '';
         log(`Downloaded ${item.file.name} with original filename${autoNote}${straightenNote}${deskewNote}`, 'ok');
       } catch (err) {
         console.error(err);
