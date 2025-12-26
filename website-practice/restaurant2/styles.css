@@ -786,11 +786,28 @@ body.page2 label.required {
 body.page2 main {
     border: none;
     position: relative;
-    padding-bottom: 140px;
-    width: min(960px, 90vw);
-    padding-left: 0;
-    padding-right: 0;
+    padding: calc(var(--nav-offset) + var(--gap) * 0.75) clamp(16px, 4vw, 40px) calc(180px);
+    width: min(640px, 90vw);
     margin-inline: auto;
+    min-height: calc(100vh - var(--nav-offset) - 220px);
+}
+
+body.page2 #builder-error {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    body.page2 main {
+        padding: calc(var(--nav-offset) + var(--gap) * 0.6) clamp(16px, 6vw, 32px) calc(180px);
+        width: min(100%, 90vw);
+    }
+}
+
+@media (max-width: 520px) {
+    body.page2 main {
+        padding-top: calc(var(--nav-offset) * 0.4);
+    }
 }
 
 body.page2 .page-footer {
@@ -1207,6 +1224,9 @@ body.order-type main {
     justify-content: center;
     gap: var(--gap);
     min-height: calc(100vh - (var(--nav-offset) + var(--gap) * 3));
+    width: min(720px, calc(100% - var(--gap) * 2));
+    margin-inline: auto;
+    padding-inline: var(--gap);
 }
 
 body.order-type main h1 {
@@ -1239,6 +1259,10 @@ body.order-type .delivery-details {
     margin-left: auto;
     margin-right: auto;
     transition: transform 0.2s ease;
+    max-height: calc(100vh - var(--nav-offset) - 110px);
+    overflow-y: auto;
+    padding-bottom: 20px;
+    align-self: center;
 }
 
 body.order-type .delivery-details-heading {
@@ -1377,12 +1401,6 @@ body.order-type .delivery-details .delivery-continue {
     cursor: pointer;
 }
 
-body.order-type .delivery-details .delivery-actions {
-    display: flex;
-    gap: 12px;
-    margin-top: 8px;
-}
-
 body.order-type .delivery-details .delivery-clear {
     padding: 8px 14px;
     background: #f7f7f7;
@@ -1390,6 +1408,20 @@ body.order-type .delivery-details .delivery-clear {
     color: #000;
     border-radius: 999px;
     cursor: pointer;
+}
+
+body.order-type .delivery-details .delivery-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+body.order-type .delivery-details .delivery-continue,
+body.order-type .delivery-details .delivery-clear {
+    width: 100%;
+    text-align: center;
 }
 
 body.order-type .order-card {

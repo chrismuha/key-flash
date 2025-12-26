@@ -1058,15 +1058,16 @@
 
       const ensureSliderAlignment = () => {
         if (!sliderTrack || !sliderChips.length) return;
-        const availableWidth = sliderTrack.clientWidth;
+        sliderChips.forEach((chip) => { chip.hidden = false; });
         const style = getComputedStyle(sliderTrack);
-        const gap = parseFloat(style.gap) || 0;
+        const gap = Math.round(parseFloat(style.gap) || 0);
+        const availableWidth = Math.max(1, Math.floor(sliderTrack.clientWidth - 2));
         let used = 0;
         let visible = 0;
         for (const chip of sliderChips) {
-          const chipWidth = chip.getBoundingClientRect().width;
+          const chipWidth = Math.ceil(chip.getBoundingClientRect().width);
           const required = visible === 0 ? chipWidth : chipWidth + gap;
-          if (visible === 0 || used + required <= availableWidth) {
+          if (visible === 0 ? chipWidth <= availableWidth : used + required <= availableWidth) {
             used += required;
             visible += 1;
           } else {
