@@ -116,6 +116,44 @@
     return Math.max(-15, Math.min(15, deg));
   };
 
+  const estimateSkewAngleFromCanvas = (canvas) => {
+    if (!canvas) return 0;
+    const ctx = canvas.getContext('2d');
+    const { width, height } = canvas;
+    const data = ctx.getImageData(0, 0, width, height).data;
+    let sumX = 0;
+    let sumY = 0;
+    let sumXX = 0;
+    let sumYY = 0;
+    let sumXY = 0;
+    let count = 0;
+    const threshold = 220;
+
+    for (let idx = 0; idx < data.length; idx += 4) {
+      const grey = (data[idx] + data[idx + 1] + data[idx + 2]) / 3;
+      if (grey > threshold) continue;
+      const pixelIndex = idx / 4;
+      const x = pixelIndex % width;
+      const y = Math.floor(pixelIndex / width);
+      sumX += x;
+      sumY += y;
+      sumXX += x * x;
+      sumYY += y * y;
+      sumXY += x * y;
+      count++;
+    }
+
+    if (count < 50) return 0;
+    const meanX = sumX / count;
+    const meanY = sumY / count;
+    const covXX = sumXX / count - meanX * meanX;
+    const covYY = sumYY / count - meanY * meanY;
+    const covXY = sumXY / count - meanX * meanY;
+    const angle = 0.5 * Math.atan2(2 * covXY, covXX - covYY);
+    const deg = angle * (180 / Math.PI);
+    return Math.max(-15, Math.min(15, -deg));
+  };
+
   const renderPageToCanvas = async (page, scale = 0.5) => {
     const viewport = page.getViewport({ scale });
     const canvas = document.createElement('canvas');
@@ -126,18 +164,19 @@
     return canvas;
   };
 
-  const ocrPageNumber = async (page) => {
+  const ocrPageNumber = async ({ page, canvas, scale = 0.4 } = {}) => {
     if (!window.Tesseract) return '';
-    const canvas = await renderPageToCanvas(page, 0.4);
+    const needsCleanup = !canvas;
+    const targetCanvas = canvas || await renderPageToCanvas(page, scale);
     try {
       const config = {
         tessedit_char_whitelist: '0123456789Pageof ()',
         tessedit_pageseg_mode: window.Tesseract?.PSM?.SINGLE_BLOCK || 6
       };
-      const result = await Tesseract.recognize(canvas, 'eng', config);
+      const result = await Tesseract.recognize(targetCanvas, 'eng', config);
       return result?.data?.text || '';
     } finally {
-      canvas.remove();
+      if (needsCleanup) targetCanvas.remove();
     }
   };
 
@@ -175,19 +214,23 @@
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
       const text = textContent.items.map((t) => t.str).join(' ');
-      const skew = computeDeskewAngleFromText(textContent.items);
+      const pageCanvas = await renderPageToCanvas(page, 0.6);
+      const imageSkew = estimateSkewAngleFromCanvas(pageCanvas);
+      const textSkew = computeDeskewAngleFromText(textContent.items);
+      const deskewAngle = Math.abs(imageSkew) >= Math.abs(textSkew) ? imageSkew : textSkew;
       let num = guessPageNumber(text, pdf.numPages);
       if (!num && window.Tesseract) {
         try {
-          const ocrText = await ocrPageNumber(page);
+          const ocrText = await ocrPageNumber({ canvas: pageCanvas });
           const ocrNum = guessPageNumber(ocrText, pdf.numPages);
           if (ocrNum) num = ocrNum;
         } catch (err) {
           console.warn('OCR error', err);
         }
       }
-      skewAngles.push(skew || 0);
+      skewAngles.push(deskewAngle);
       detections.push({ pageIndex: i - 1, number: num });
+      pageCanvas.remove();
     }
     await task.destroy();
     const safeNumber = (entry) => (typeof entry.number === 'number' ? entry.number : entry.pageIndex + 1);
