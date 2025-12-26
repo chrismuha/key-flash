@@ -549,7 +549,7 @@ body:not(.nav-enabled) main {
         display: inline-flex;
         width: 100%;
         flex: 1 0 100%;
-    order: 4;
+        order: 4;
         margin-top: 2px;
     }
 
@@ -561,7 +561,7 @@ body:not(.nav-enabled) main {
     }
 
     .order-type-chip {
-    order: 3;
+        order: 3;
         margin-left: 0;
         width: 100%;
         justify-content: flex-start;
@@ -787,7 +787,7 @@ body.page2 label.required {
 body.page2 main {
     border: none;
     position: relative;
-    padding: calc(var(--nav-offset) + var(--gap) * 0.75) clamp(16px, 4vw, 40px) calc(180px);
+    padding: max(calc(var(--nav-offset) - 2px), 0px) clamp(16px, 4vw, 40px) calc(180px);
     width: min(640px, 90vw);
     margin-inline: auto;
     min-height: calc(100vh - var(--nav-offset) - 220px);
@@ -795,19 +795,18 @@ body.page2 main {
 
 body.page2 #builder-error {
     margin-top: 0;
-    margin-bottom: 0;
+    margin-bottom: 16px;
+    padding-bottom: var(--gap);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 640px) {
     body.page2 main {
-        padding: calc(var(--nav-offset) + var(--gap) * 0.6) clamp(16px, 6vw, 32px) calc(180px);
+        padding: max(calc(var(--nav-offset) - 2px), 0px) clamp(16px, 6vw, 32px) calc(180px);
         width: min(100%, 90vw);
     }
-}
 
-@media (max-width: 520px) {
-    body.page2 main {
-        padding-top: calc(var(--nav-offset) * 0.4);
+    body.page2 #builder-error {
+        margin-bottom: calc(240px - var(--nav-offset));
     }
 }
 
