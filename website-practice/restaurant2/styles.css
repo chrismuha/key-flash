@@ -3,6 +3,7 @@
     --gap: 12px;
     --logo-w: 120px;
     --logo-h: 80px;
+    --swiper-arrow-size: 36px;
     --nav-height: calc(var(--logo-h) + var(--gap) * 2);
     --nav-offset: var(--nav-height);
     --rail-side-gap: calc(var(--gap) - 6px);
@@ -104,6 +105,10 @@ body {
     flex: 1;
     min-width: 0;
     scroll-snap-type: x mandatory;
+    padding-inline-start: calc(var(--swiper-arrow-size) + var(--gap));
+    padding-inline-end: max(calc(var(--swiper-arrow-size) + var(--gap)), clamp(48px, 8vw, 160px));
+    scroll-padding-inline-start: calc(var(--swiper-arrow-size) + var(--gap));
+    scroll-padding-inline-end: max(calc(var(--swiper-arrow-size) + var(--gap)), clamp(48px, 8vw, 160px));
 }
 
 .mobile-menu-swiper .swiper-chip {
@@ -145,8 +150,8 @@ body.theme-dark .mobile-menu-swiper .swiper-chip {
     border: 1px solid #000;
     background: #fff;
     border-radius: 10px;
-    width: 36px;
-    height: 36px;
+    width: var(--swiper-arrow-size);
+    height: var(--swiper-arrow-size);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -188,7 +193,7 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     justify-content: flex-start;
     white-space: normal;
     flex: 1 0 100%;
-    order: 99;
+    order: 97;
     min-width: 0;
 }
 
@@ -543,7 +548,7 @@ body:not(.nav-enabled) main {
         display: inline-flex;
         width: 100%;
         flex: 1 0 100%;
-        order: 4;
+    order: 4;
         margin-top: 2px;
     }
 
@@ -555,7 +560,7 @@ body:not(.nav-enabled) main {
     }
 
     .order-type-chip {
-        order: 5;
+    order: 3;
         margin-left: 0;
         width: 100%;
         justify-content: flex-start;
