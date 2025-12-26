@@ -574,7 +574,7 @@ body:not(.nav-enabled) main {
     }
 
     body.page2.mobile-ui main {
-        padding-top: calc(var(--nav-offset) + var(--gap) * 3.5);
+        padding-top: max(calc(var(--nav-offset) - 4px), 1px);
     }
 
 }
@@ -784,24 +784,25 @@ body.page2 label.required {
 }
 
 /* Section: Page 2 Scoped (Builder Container) */
-body.page2 main {
-    border: none;
-    position: relative;
-    padding: max(calc(var(--nav-offset) - 2px), 0px) clamp(16px, 4vw, 40px) calc(180px);
-    width: min(640px, 90vw);
-    margin-inline: auto;
-    min-height: calc(100vh - var(--nav-offset) - 220px);
-}
-
 body.page2 #builder-error {
     margin-top: 0;
     margin-bottom: 16px;
     padding-bottom: var(--gap);
 }
 
+body.page2 main {
+    border: none;
+    position: relative;
+    margin-top: 0;
+    padding: max(calc(var(--nav-offset) - 4px), 1px) clamp(16px, 4vw, 40px) calc(180px);
+    width: min(640px, 90vw);
+    margin-inline: auto;
+    min-height: calc(100vh - var(--nav-offset) - 220px);
+}
+
 @media (max-width: 640px) {
     body.page2 main {
-        padding: max(calc(var(--nav-offset) - 2px), 0px) clamp(16px, 6vw, 32px) calc(180px);
+        padding: max(calc(var(--nav-offset) - 4px), 1px) clamp(16px, 6vw, 32px) calc(180px);
         width: min(100%, 90vw);
     }
 
@@ -1828,7 +1829,7 @@ body.theme-dark.page3 .summary-divider {
     display: none;
     align-items: flex-start;
     justify-content: center;
-    padding: 96px 12px 24px;
+    padding: 64px 12px 240px;
     overflow: auto;
     z-index: 10;
 }

@@ -116,7 +116,7 @@
     return String(str).replace(JALAPENO_LABEL_GLOBAL, 'Jalapeños');
   }
 
-  const DEFAULT_PIZZA_SIZE = 'small';
+  const DEFAULT_PIZZA_SIZE = 'large';
   const PIZZA_SIZE_LABELS = {
     small: 'Small',
     medium: 'Medium',
@@ -440,7 +440,7 @@
       }
     } catch { /* ignore */ }
     if (navInitialEnabled === null) {
-      navInitialEnabled = isMobileView();
+      navInitialEnabled = true;
     }
 
     const setNavEnabled = (enabled) => {
