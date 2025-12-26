@@ -98,6 +98,49 @@
     reader.readAsArrayBuffer(file);
   });
 
+  const computeDeskewAngleFromText = (items = []) => {
+    const angles = [];
+    for (const item of items) {
+      if (!item.transform) continue;
+      const [a, b] = item.transform;
+      if (typeof a !== 'number' || typeof b !== 'number') continue;
+      if (Math.abs(a) < 1e-6 && Math.abs(b) < 1e-6) continue;
+      const angle = Math.atan2(b, a);
+      if (Math.abs(angle) > Math.PI / 6) continue;
+      angles.push(angle);
+    }
+    if (!angles.length) return 0;
+    const avg = angles.reduce((sum, value) => sum + value, 0) / angles.length;
+    if (Math.abs(avg) < 0.002) return 0;
+    const deg = -avg * (180 / Math.PI);
+    return Math.max(-15, Math.min(15, deg));
+  };
+
+  const renderPageToCanvas = async (page, scale = 0.5) => {
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    return canvas;
+  };
+
+  const ocrPageNumber = async (page) => {
+    if (!window.Tesseract) return '';
+    const canvas = await renderPageToCanvas(page, 0.4);
+    try {
+      const config = {
+        tessedit_char_whitelist: '0123456789Pageof ()',
+        tessedit_pageseg_mode: window.Tesseract?.PSM?.SINGLE_BLOCK || 6
+      };
+      const result = await Tesseract.recognize(canvas, 'eng', config);
+      return result?.data?.text || '';
+    } finally {
+      canvas.remove();
+    }
+  };
+
   const guessPageNumber = (text, totalPages, fallback) => {
     const lower = text.toLowerCase();
     const pageOf = lower.match(/page\s+(\d{1,4})\s+of\s+(\d{1,4})/i);
@@ -127,19 +170,32 @@
     const task = pdfjsLib.getDocument({ data: bytes });
     const pdf = await task.promise;
     const detections = [];
+    const skewAngles = [];
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const textContent = await page.getTextContent();
       const text = textContent.items.map((t) => t.str).join(' ');
-      const num = guessPageNumber(text, pdf.numPages, i);
+      const skew = computeDeskewAngleFromText(textContent.items);
+      let num = guessPageNumber(text, pdf.numPages, i);
+      if (!num && window.Tesseract) {
+        try {
+          const ocrText = await ocrPageNumber(page);
+          const ocrNum = guessPageNumber(ocrText, pdf.numPages, i);
+          if (ocrNum) num = ocrNum;
+        } catch (err) {
+          console.warn('OCR error', err);
+        }
+      }
+      if (skew) skewAngles.push(skew);
       detections.push({ pageIndex: i - 1, number: num });
     }
     await task.destroy();
     const ordered = [...detections].sort((a, b) => (a.number - b.number) || (a.pageIndex - b.pageIndex));
-    return ordered.map((d) => d.pageIndex);
+    const avgSkew = skewAngles.length ? skewAngles.reduce((sum, value) => sum + value, 0) / skewAngles.length : 0;
+    return { order: ordered.map((d) => d.pageIndex), deskew: avgSkew };
   };
 
-  const rebuildPdf = async (bytes, order, { autoStraighten = true, rotation = 0 } = {}) => {
+  const rebuildPdf = async (bytes, order, { autoStraighten = true, rotation = 0, deskewAngle = 0 } = {}) => {
     if (!window.PDFLib) throw new Error('pdf-lib not available');
     const src = await PDFLib.PDFDocument.load(bytes);
     const next = await PDFLib.PDFDocument.create();
@@ -151,7 +207,8 @@
       // auto-straighten: rotate landscape pages to portrait
       if (autoStraighten && width > height) rotateDeg += 90;
       rotateDeg = ((rotateDeg % 360) + 360) % 360;
-      if (rotateDeg) p.setRotation(PDFLib.degrees(rotateDeg));
+      const combinedRotation = rotateDeg + (deskewAngle || 0);
+      if (combinedRotation) p.setRotation(PDFLib.degrees(combinedRotation));
       next.addPage(p);
     });
     return next.save();
@@ -225,7 +282,8 @@
     if (!queue.length) return;
     const straighten = {
       autoStraighten: !!(els.autoStraighten && els.autoStraighten.checked),
-      rotation: els.rotation ? parseInt(els.rotation.value, 10) || 0 : 0
+      rotation: els.rotation ? parseInt(els.rotation.value, 10) || 0 : 0,
+      deskew: !!(els.deskewToggle && els.deskewToggle.checked)
     };
     setProcessingState(true);
     for (let i = 0; i < queue.length; i++) {
@@ -233,14 +291,16 @@
       const item = queue[i];
       try {
         const bytes = await readFileAsArrayBuffer(item.file);
-        const order = await detectOrder(bytes);
+        const { order, deskew } = await detectOrder(bytes.slice(0));
         log(`Detected page order for ${item.file.name}: [${order.map((o) => o + 1).join(', ')}]`, 'info');
-        const rebuilt = await rebuildPdf(bytes, order, straighten);
+        const deskewAngle = straighten.deskew ? deskew : 0;
+        const rebuilt = await rebuildPdf(bytes.slice(0), order, { ...straighten, deskewAngle });
         downloadFile(rebuilt, item.file.name);
         updateStatus(i, 'done');
         const straightenNote = straighten.rotation ? `; rotation ${straighten.rotation}°` : '';
         const autoNote = straighten.autoStraighten ? '; auto-straighten on' : '';
-        log(`Downloaded ${item.file.name} with original filename${autoNote}${straightenNote}`, 'ok');
+        const deskewNote = deskewAngle ? '; deskew applied' : '';
+        log(`Downloaded ${item.file.name} with original filename${autoNote}${straightenNote}${deskewNote}`, 'ok');
       } catch (err) {
         console.error(err);
         updateStatus(i, 'error');
@@ -307,6 +367,7 @@
     els.previewTitle = document.getElementById('previewTitle');
     els.autoStraighten = document.getElementById('autoStraighten');
     els.rotation = document.getElementById('rotation');
+    els.deskewToggle = document.getElementById('deskewToggle');
 
     renderFileList();
     bindEvents();
