@@ -141,7 +141,7 @@
     }
   };
 
-  const guessPageNumber = (text, totalPages, fallback) => {
+  const guessPageNumber = (text, totalPages) => {
     const lower = text.toLowerCase();
     const pageOf = lower.match(/page\s+(\d{1,4})\s+of\s+(\d{1,4})/i);
     if (pageOf) {
@@ -162,7 +162,7 @@
     const inRange = numbers.find((n) => n >= 1 && n <= (totalPages || 9999));
     if (inRange) return inRange;
 
-    return fallback;
+    return null;
   };
 
   const detectOrder = async (bytes) => {
@@ -176,26 +176,26 @@
       const textContent = await page.getTextContent();
       const text = textContent.items.map((t) => t.str).join(' ');
       const skew = computeDeskewAngleFromText(textContent.items);
-      let num = guessPageNumber(text, pdf.numPages, i);
+      let num = guessPageNumber(text, pdf.numPages);
       if (!num && window.Tesseract) {
         try {
           const ocrText = await ocrPageNumber(page);
-          const ocrNum = guessPageNumber(ocrText, pdf.numPages, i);
+          const ocrNum = guessPageNumber(ocrText, pdf.numPages);
           if (ocrNum) num = ocrNum;
         } catch (err) {
           console.warn('OCR error', err);
         }
       }
-      if (skew) skewAngles.push(skew);
+      skewAngles.push(skew || 0);
       detections.push({ pageIndex: i - 1, number: num });
     }
     await task.destroy();
-    const ordered = [...detections].sort((a, b) => (a.number - b.number) || (a.pageIndex - b.pageIndex));
-    const avgSkew = skewAngles.length ? skewAngles.reduce((sum, value) => sum + value, 0) / skewAngles.length : 0;
-    return { order: ordered.map((d) => d.pageIndex), deskew: avgSkew };
+    const safeNumber = (entry) => (typeof entry.number === 'number' ? entry.number : entry.pageIndex + 1);
+    const ordered = [...detections].sort((a, b) => (safeNumber(a) - safeNumber(b)) || (a.pageIndex - b.pageIndex));
+    return { order: ordered.map((d) => d.pageIndex), deskewAngles: skewAngles };
   };
 
-  const rebuildPdf = async (bytes, order, { autoStraighten = true, rotation = 0, deskewAngle = 0 } = {}) => {
+  const rebuildPdf = async (bytes, order, { autoStraighten = true, rotation = 0, deskewAngles = [] } = {}) => {
     if (!window.PDFLib) throw new Error('pdf-lib not available');
     const src = await PDFLib.PDFDocument.load(bytes);
     const next = await PDFLib.PDFDocument.create();
@@ -207,7 +207,7 @@
       // auto-straighten: rotate landscape pages to portrait
       if (autoStraighten && width > height) rotateDeg += 90;
       rotateDeg = ((rotateDeg % 360) + 360) % 360;
-      const combinedRotation = rotateDeg + (deskewAngle || 0);
+      const combinedRotation = rotateDeg + (deskewAngles[order[idx]] || 0);
       if (combinedRotation) p.setRotation(PDFLib.degrees(combinedRotation));
       next.addPage(p);
     });
@@ -291,15 +291,15 @@
       const item = queue[i];
       try {
         const bytes = await readFileAsArrayBuffer(item.file);
-        const { order, deskew } = await detectOrder(bytes.slice(0));
+        const { order, deskewAngles } = await detectOrder(bytes.slice(0));
         log(`Detected page order for ${item.file.name}: [${order.map((o) => o + 1).join(', ')}]`, 'info');
-        const deskewAngle = straighten.deskew ? deskew : 0;
-        const rebuilt = await rebuildPdf(bytes.slice(0), order, { ...straighten, deskewAngle });
+        const deskewPayload = straighten.deskew ? { deskewAngles } : {};
+        const rebuilt = await rebuildPdf(bytes.slice(0), order, { ...straighten, ...deskewPayload });
         downloadFile(rebuilt, item.file.name);
         updateStatus(i, 'done');
         const straightenNote = straighten.rotation ? `; rotation ${straighten.rotation}°` : '';
         const autoNote = straighten.autoStraighten ? '; auto-straighten on' : '';
-        const deskewNote = deskewAngle ? '; deskew applied' : '';
+        const deskewNote = straighten.deskew && deskewAngles.some((angle) => Math.abs(angle) > 0.0001) ? '; deskew applied' : '';
         log(`Downloaded ${item.file.name} with original filename${autoNote}${straightenNote}${deskewNote}`, 'ok');
       } catch (err) {
         console.error(err);
