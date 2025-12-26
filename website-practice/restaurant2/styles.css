@@ -105,10 +105,10 @@ body {
     flex: 1;
     min-width: 0;
     scroll-snap-type: x mandatory;
-    padding-inline-start: calc(var(--swiper-arrow-size) + var(--gap));
-    padding-inline-end: max(calc(var(--swiper-arrow-size) + var(--gap)), clamp(48px, 8vw, 160px));
-    scroll-padding-inline-start: calc(var(--swiper-arrow-size) + var(--gap));
-    scroll-padding-inline-end: max(calc(var(--swiper-arrow-size) + var(--gap)), clamp(48px, 8vw, 160px));
+    padding-inline-start: 0;
+    padding-inline-end: 0;
+    scroll-padding-inline-start: 0;
+    scroll-padding-inline-end: 0;
 }
 
 .mobile-menu-swiper .swiper-chip {
@@ -786,34 +786,55 @@ body.page2 label.required {
 body.page2 main {
     border: none;
     position: relative;
-    padding-bottom: 96px;
-    width: max-content;
-    max-width: 90%;
+    padding-bottom: 140px;
+    width: min(960px, 90vw);
     padding-left: 0;
     padding-right: 0;
+    margin-inline: auto;
 }
 
-/* Section: Page 2 Next Button */
-body.page2 .next-button {
+body.page2 .page-footer {
     position: fixed;
-    right: 16px;
-    bottom: 16px;
-    padding: 8px 14px;
-    background: var(--box-bg);
-    border: 2px solid var(--box-border);
-    color: #000;
-    font-weight: 700;
-    text-decoration: none;
-    border-radius: 999px;
+    inset: auto 0 0 0;
+    background: #dba37f;
+    box-shadow: 0 -6px 22px rgba(0, 0, 0, 0.24);
+    padding: 12px clamp(16px, 4vw, 40px) 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
     z-index: 1000;
 }
 
-body.page2 .next-button:hover {
+body.page2 .page-footer .action-button {
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-weight: 700;
+    border: 2px solid var(--box-border);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s ease, filter 0.1s ease;
+    background: var(--box-bg);
+    color: #000;
+    flex: 0 0 auto;
+}
+
+body.page2 .page-footer .action-button:hover {
     filter: brightness(0.95);
 }
 
-body.page2 .next-button:active {
+body.page2 .page-footer .action-button:active {
     transform: translateY(1px);
+}
+
+body.page2 .page-footer .footer-back-button {
+    background: #e03946;
+    color: #fff;
+    border-color: #fff;
 }
 
 /* Section: Main Spacing Helpers */

@@ -313,7 +313,7 @@
       nextSibling: orderChip.nextElementSibling
     } : null;
     const moveOrderChipForMobile = () => {
-      if (!orderChip || !orderChipOrigin || !body.classList.contains('order-type')) return;
+      if (!orderChip || !orderChipOrigin || !body.classList.contains('page2')) return;
       if (mobileQuery.matches) {
         const heading = document.querySelector('body.order-type main h1');
         if (!heading) return;
@@ -1023,6 +1023,73 @@
       const backToMenuBtn = document.querySelector('.back-to-menu');
       const backToMenuOriginalParent = backToMenuBtn ? backToMenuBtn.parentElement : null;
       const backToMenuOriginalNext = backToMenuBtn ? backToMenuBtn.nextElementSibling : null;
+      const sliderTrack = document.querySelector('.mobile-menu-swiper .swiper-track');
+      const sliderChips = sliderTrack ? Array.from(sliderTrack.querySelectorAll('.swiper-chip')) : [];
+      const sliderPrev = document.querySelector('.mobile-menu-swiper .swiper-arrow-prev');
+      const sliderNext = document.querySelector('.mobile-menu-swiper .swiper-arrow-next');
+      const sliderState = {
+        page: 0,
+        visibleCount: 0,
+        totalPages: 1,
+      };
+
+      const renderSliderPage = () => {
+        if (!sliderTrack || !sliderChips.length) return;
+        const start = sliderState.page * sliderState.visibleCount;
+        const end = start + sliderState.visibleCount;
+        sliderChips.forEach((chip, index) => {
+          chip.hidden = index < start || index >= end;
+        });
+        sliderTrack.scrollLeft = 0;
+        if (sliderPrev) sliderPrev.disabled = sliderState.page === 0;
+        if (sliderNext) sliderNext.disabled = sliderState.page >= sliderState.totalPages - 1;
+      };
+
+      const goToPage = (delta) => {
+        if (!sliderTrack || !sliderChips.length) return;
+        const nextPage = Math.min(
+          Math.max(0, sliderState.page + delta),
+          Math.max(0, sliderState.totalPages - 1)
+        );
+        if (nextPage === sliderState.page) return;
+        sliderState.page = nextPage;
+        renderSliderPage();
+      };
+
+      const ensureSliderAlignment = () => {
+        if (!sliderTrack || !sliderChips.length) return;
+        const availableWidth = sliderTrack.clientWidth;
+        const style = getComputedStyle(sliderTrack);
+        const gap = parseFloat(style.gap) || 0;
+        let used = 0;
+        let visible = 0;
+        for (const chip of sliderChips) {
+          const chipWidth = chip.getBoundingClientRect().width;
+          const required = visible === 0 ? chipWidth : chipWidth + gap;
+          if (visible === 0 || used + required <= availableWidth) {
+            used += required;
+            visible += 1;
+          } else {
+            break;
+          }
+        }
+        sliderState.visibleCount = Math.max(1, Math.min(visible, sliderChips.length));
+        sliderState.totalPages = Math.max(1, Math.ceil(sliderChips.length / sliderState.visibleCount));
+        sliderState.page = Math.min(sliderState.page, sliderState.totalPages - 1);
+        renderSliderPage();
+      };
+
+      if (sliderPrev) {
+        sliderPrev.addEventListener('click', () => goToPage(-1));
+      }
+      if (sliderNext) {
+        sliderNext.addEventListener('click', () => goToPage(1));
+      }
+      if (sliderTrack) {
+        window.addEventListener('resize', ensureSliderAlignment);
+        window.requestAnimationFrame(ensureSliderAlignment);
+        ensureSliderAlignment();
+      }
       const moveBackButtonToOverlay = (overlay) => {
         if (!backToMenuBtn || !overlay) return;
         const header = overlay.querySelector('.overlay-header');
