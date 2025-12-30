@@ -25,11 +25,11 @@
     background-color: #f1f1f1;
 }
 
-.dropdown:hover .dropdown-content {
+.dropdown-content.show {
     display: block;
 }
 
-.dropdown:hover .dropbtn {
+.dropbtn.active {
     background-color: #3e8e41;
 }
 

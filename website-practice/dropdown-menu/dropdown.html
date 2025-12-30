@@ -12,7 +12,7 @@
     <meta name="MobileOptimized" content="320" />
     <meta name="description" content="description" />
     <!-- Section: Stylesheets -->
-    <link rel="stylesheet" href="css/drop-down-menu.css">
+    <link rel="stylesheet" href="css/dropdown.css">
 
     <!-- Practice Collapsible Menu -->
     <title>Dropdown Menu</title>
@@ -22,11 +22,13 @@
     <!-- Section: Body Content -->
 
     <div class="dropdown">
-        <button class="dropbtn">Dropdown Button</button>
-        <div class="dropdown-content">
+        <button class="dropbtn" aria-expanded="false" type="button">Dropdown Button</button>
+        <div class="dropdown-content" role="menu">
             <a href="#link1">Link 1</a>
         </div>
     </div>
+
+    <script src="js/dropdown.js" defer></script>
 
     <!-- Section: End Body -->
 </body>
