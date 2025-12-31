@@ -28,16 +28,6 @@ document.getElementById('exportButton').addEventListener('click', async () => {
     // Save the PDF
     doc.save("custom-letter-template.pdf");
 });
-// Section: Helpers
-// Helper function to convert Blob to ImageBitmap
-async function createImageBitmap(blob) {
-    return new Promise((resolve, reject));
-}
-const img = new Image();
-img.onload = () => resolve(img);
-// img.onerror = reject;
-// img.src = URL.createObjectURL(blob);
-
 // Section: Theme Switcher (Light/Dark)
 document.querySelectorAll('.themes-switcher div').forEach(theme => {
     theme.addEventListener('click', function () {
