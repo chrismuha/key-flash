@@ -18,31 +18,34 @@
 
 html {
     height: 100%;
+    background: linear-gradient(180deg, #010203 0%, #010203 35%, #0a2618 90%, #0a2618 100%);
 }
 
 body {
     margin: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: inherit;
     color: var(--text);
     min-height: 100vh;
     display: block;
-    padding: 0 0 40px;
+    padding: 24px 32px 40px 24px;
     width: 100%;
+    overflow-y: auto;
 }
 
 .app-shell {
     display: grid;
     grid-template-columns: minmax(0, 2fr) minmax(0, 1.4fr);
     gap: 24px;
-    width: min(1200px, 100vw);
+    width: min(1200px, calc(100vw - 64px));
     max-width: 1200px;
-    min-height: calc(100vh - 40px);
     background: linear-gradient(145deg, rgba(12, 22, 18, 0.95), rgba(16, 30, 23, 0.98));
     border-radius: 24px;
     border: 1px solid var(--border);
     box-shadow: 0 18px 34px rgba(0, 0, 0, 0.55);
     overflow: hidden;
-    margin: 24px auto 40px auto;
+    margin: 0 auto;
+    padding: 14px 0 18px;
 }
 
 @media (max-width: 900px) {
