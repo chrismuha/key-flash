@@ -92,6 +92,23 @@
                 </summary>
                 <button type="button" class="collapse collapse-inline collapse-section" data-target="pizza"
                     aria-label="Collapse Pizza section">Collapse</button>
+                <div class="size-options">
+                    <span class="size-options__label">Size</span>
+                    <div class="size-options__pills" role="radiogroup" aria-label="Pizza size">
+                        <label class="size-pill">
+                            <input type="radio" name="pizza_size" value="small">
+                            <span>Small</span>
+                        </label>
+                        <label class="size-pill">
+                            <input type="radio" name="pizza_size" value="medium">
+                            <span>Medium</span>
+                        </label>
+                        <label class="size-pill">
+                            <input type="radio" name="pizza_size" value="large" checked>
+                            <span>Large</span>
+                        </label>
+                    </div>
+                </div>
                 <form>
                     <fieldset>
                         <legend>Choose Ingredients</legend>

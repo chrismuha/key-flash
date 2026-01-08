@@ -24,7 +24,8 @@
     settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
     settingsArrowActivates: 'restaurant.settings.arrowActivates',
     quantities: 'restaurant.quantities',
-    quantitiesSections: 'restaurant.quantities.sections'
+    quantitiesSections: 'restaurant.quantities.sections',
+    pizzaSize: 'restaurant.pizza.size'
   };
 
   // Section: Text Utils
@@ -101,6 +102,15 @@
     try {
       return localStorage.getItem(STORAGE_KEYS.orderType) || '';
     } catch { return ''; }
+  }
+
+  // Section: Pizza Size (Save/Get)
+  function savePizzaSize(size) {
+    try { localStorage.setItem(STORAGE_KEYS.pizzaSize, size); } catch { }
+  }
+
+  function getPizzaSize() {
+    try { return localStorage.getItem(STORAGE_KEYS.pizzaSize) || ''; } catch { return ''; }
   }
 
   // Section: Ingredients (Read from DOM)
@@ -1294,7 +1304,27 @@
     if (body.classList.contains('page2')) {
       // Restore previous selections
       restoreIngredients();
-      // Auto-open a section from hash (e.g., #pizza or #burger)
+      // Restore saved pizza size and attach change handlers to save when changed
+      try {
+        const radios = Array.from(document.querySelectorAll('input[type="radio"][name="pizza_size"]'));
+        if (radios.length) {
+          const stored = getPizzaSize();
+          if (stored) {
+            const el = document.querySelector(`input[type="radio"][name="pizza_size"][value="${stored}"]`);
+            if (el) el.checked = true;
+          }
+          // If nothing stored yet, persist the currently checked default so summary can always show it
+          if (!stored) {
+            const checked = radios.find(r => r.checked);
+            if (checked) savePizzaSize(checked.value);
+          }
+          radios.forEach((r) => r.addEventListener('change', (ev) => {
+            if (r.checked) savePizzaSize(r.value);
+          }));
+        }
+      } catch (err) { /* ignore */ }
+
+      // Auto-open a section from hash (e.g., #pizza or #burger)"
       openSectionFromHash();
       // Enforce required Burger Patty and Bun to be checked
       const patty = document.querySelector('input[type="checkbox"][name="burger_ingredients[]"][value="patty"]');
@@ -2763,6 +2793,21 @@
               ul.appendChild(li);
             });
             sectionWrap.appendChild(ul);
+
+            // Append pizza size at end of section if present
+            if (key === 'pizza') {
+              try {
+                const size = getPizzaSize();
+                if (size) {
+                  const sizeDiv = document.createElement('div');
+                  sizeDiv.className = 'summary-size';
+                  sizeDiv.style.marginTop = '8px';
+                  sizeDiv.textContent = `Size: ${titleCase(size)}`;
+                  sectionWrap.appendChild(sizeDiv);
+                }
+              } catch (err) { /* ignore */ }
+            }
+
             sectionsContainer.appendChild(sectionWrap);
           });
 
