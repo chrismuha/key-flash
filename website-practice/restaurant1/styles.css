@@ -196,7 +196,7 @@ body.theme-dark .settings-panel {
 }
 
 /* On small screens, render settings as a floating window to the right of the nav */
-@media (max-width: 768px) {
+@media screen and (max-width: 768px), screen and (max-height: 500px){
     body.nav-enabled .settings-panel {
         position: fixed;
         top: var(--gap);
