@@ -862,6 +862,63 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         min-width: 0;
         max-width: none;
     }
+
+    /* When sidebar (left-rail) is open on small screens, blur and disable main content */
+    body.nav-enabled main {
+        filter: blur(6px);
+        -webkit-filter: blur(6px);
+        transition: filter .18s ease, opacity .18s ease;
+        pointer-events: none;
+        user-select: none;
+        touch-action: none;
+        opacity: 0.9;
+    }
+
+    /* Keep left-rail interactive while main is disabled */
+    body.nav-enabled .left-rail,
+    body.nav-enabled .left-rail * {
+        pointer-events: auto;
+    }
+
+    /* Allow theme toggle and collapse controls to remain usable inside blurred main */
+    body.nav-enabled main .theme-toggle,
+    body.nav-enabled main .theme-menu,
+    body.nav-enabled main .collapse,
+    body.nav-enabled main .collapse-all,
+    body.nav-enabled main .go-back,
+    body.nav-enabled main .theme-dropdown {
+        pointer-events: auto;
+        user-select: auto;
+        touch-action: auto;
+        cursor: pointer;
+        position: relative;
+        z-index: 2; /* keep above blurred stacking context */
+    }
+
+    /* When controls are moved to body (see app.js), make sure they render above blur and are fixed in place */
+    .moved-to-body {
+        position: fixed !important;
+        z-index: 1200 !important;
+        filter: none !important;
+        -webkit-filter: none !important;
+        pointer-events: auto !important;
+        background: transparent;
+        margin: 0;
+    }
+    .moved-theme {
+        right: calc(var(--gap));
+        top: calc(var(--gap));
+    }
+    .moved-theme .theme-menu {
+        position: absolute;
+        top: calc(2.4rem + 6px);
+        right: 0;
+        z-index: 1220;
+    }
+    .moved-go-back {
+        left: calc(var(--gap));
+        top: calc(var(--gap));
+    }
 }
 
 /* SECTION: Main Spacing Helpers */

@@ -195,6 +195,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     const body = document.body;
     const mobileQuery = window.matchMedia('(max-width: 768px)');
+    const smallQuery = window.matchMedia('(max-width: 540px)');
     const isMobileView = () => mobileQuery.matches;
 
 
@@ -249,7 +250,47 @@
           link.addEventListener('click', preventNavClick);
         });
       }
+      // Ensure special controls are reparented/returned so they render above the blurred main
+      try { updateMovedControls(enabled); } catch (err) { /* ignore */ }
     };
+
+    // Helpers: move theme / go-back controls out of <main> when nav opens so they are not blurred
+    const movedControls = new Map();
+    function moveOutToBody(el, cls) {
+      if (!el || movedControls.has(el)) return;
+      try {
+        movedControls.set(el, { parent: el.parentNode, next: el.nextSibling });
+        el.classList.add('moved-to-body');
+        if (cls) el.classList.add(cls);
+        document.body.appendChild(el);
+      } catch (err) { /* ignore */ }
+    }
+    function moveBackToOriginal(el) {
+      if (!el || !movedControls.has(el)) return;
+      const info = movedControls.get(el);
+      try {
+        if (info.next && info.next.parentNode === info.parent) info.parent.insertBefore(el, info.next);
+        else info.parent.appendChild(el);
+      } catch (err) {
+        try { info.parent.appendChild(el); } catch (e) { /* ignore */ }
+      }
+      el.classList.remove('moved-to-body', 'moved-theme', 'moved-go-back');
+      movedControls.delete(el);
+    }
+    function updateMovedControls(enabled) {
+      try {
+        const theme = document.querySelector('.theme-dropdown');
+        const goback = document.querySelector('.go-back');
+        const small = window.matchMedia('(max-width: 540px)').matches;
+        if (enabled && small) {
+          moveOutToBody(theme, 'moved-theme');
+          moveOutToBody(goback, 'moved-go-back');
+        } else {
+          moveBackToOriginal(theme);
+          moveBackToOriginal(goback);
+        }
+      } catch (err) { /* ignore */ }
+    }
 
     // Lock Page 2/3 navigation until prerequisites are met
     function hasOrderTypeSelected() {
@@ -878,6 +919,22 @@
     };
     syncMobileUiState();
     mobileQuery.addEventListener('change', syncMobileUiState);
+    // Ensure moved controls are properly reparented when viewport crosses the mobile threshold
+    try {
+      smallQuery.addEventListener('change', () => {
+        try { updateMovedControls(document.body.classList.contains('nav-enabled')); } catch (err) { /* ignore */ }
+      });
+    } catch (err) { /* ignore */ }
+    // On resize, debounce and re-evaluate placement as well (handles minimize/maximize transitions)
+    (function () {
+      let resizeTimer = null;
+      window.addEventListener('resize', () => {
+        if (resizeTimer) clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          try { updateMovedControls(document.body.classList.contains('nav-enabled')); } catch (err) { /* ignore */ }
+        }, 150);
+      });
+    })();
 
     if (themeModeBtns.length) {
       themeModeBtns.forEach((btn) => {
@@ -2824,6 +2881,8 @@
 
         container.innerHTML = '';
         container.appendChild(frag);
+        // Ensure moved controls are correct after initial rendering / navigation
+        try { updateMovedControls(document.body.classList.contains('nav-enabled')); } catch (err) { /* ignore */ }
       }
     }
   });
