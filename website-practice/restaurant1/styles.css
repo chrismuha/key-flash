@@ -844,18 +844,17 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         padding: 8px 10px;
     }
 
-    /* Mobile: make footer buttons smaller */
+    /* Mobile: keep footer buttons legible on very small screens */
     body.page2 .reset-all,
     body.page2 .next-button,
     body.page2 .collapse-all,
     body.page2 .collapse-footer {
         padding: 6px 8px;
-        /* font-size: 13px; */
-        line-height: 16px;
+        line-height: 20px;
         min-width: 0;
         flex: 1 1 0;
         white-space: normal;
-        font-size: calc(1rem - 4.6pt);
+        font-size: 16px;
     }
 
     body.mobile-ui.page2 .page-actions .collapse-mobile {
