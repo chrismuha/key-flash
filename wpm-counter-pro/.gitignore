@@ -93,6 +93,5 @@ out/
 
 dist/
 
-package.json
-
+# Lock files
 package-lock.json
