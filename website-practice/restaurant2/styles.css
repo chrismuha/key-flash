@@ -855,6 +855,50 @@ body.page2 .page-footer .footer-back-button {
     border-color: #fff;
 }
 
+body.order-type .page-footer {
+    position: fixed;
+    inset: auto 0 0 0;
+    background: #dba37f;
+    box-shadow: 0 -6px 22px rgba(0, 0, 0, 0.24);
+    padding: 12px clamp(16px, 4vw, 40px) 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    z-index: 1000;
+}
+
+body.order-type .page-footer .action-button {
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-weight: 700;
+    border: 2px solid var(--box-border);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s ease, filter 0.1s ease;
+    background: var(--box-bg);
+    color: #000;
+    flex: 0 0 auto;
+}
+
+body.order-type .page-footer .action-button:hover {
+    filter: brightness(0.95);
+}
+
+body.order-type .page-footer .action-button:active {
+    transform: translateY(1px);
+}
+
+body.order-type .page-footer .footer-back-button {
+    background: #e03946;
+    color: #fff;
+    border-color: #fff;
+}
+
 /* Section: Main Spacing Helpers */
 main> :first-child {
     margin-top: 0;
@@ -1227,6 +1271,7 @@ body.order-type main {
     min-height: calc(100vh - (var(--nav-offset) + var(--gap) * 3));
     width: min(720px, calc(100% - var(--gap) * 2));
     margin-inline: auto;
+    padding-bottom: 180px;
 }
 
 @media (max-width: 1024px) {
@@ -1251,6 +1296,10 @@ body.order-type .order-options {
     gap: 24px;
     margin: 16px 0 8px;
     overflow: visible;
+}
+
+body.order-type .order-type-chip {
+    display: none;
 }
 
 /* Delivery details panel under cards */
