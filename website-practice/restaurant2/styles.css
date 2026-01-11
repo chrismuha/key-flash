@@ -125,6 +125,17 @@ body {
     padding-right: 4px;
 }
 
+.mobile-menu-swiper .swiper-track::-webkit-scrollbar {
+    height: 0;
+    background: transparent;
+}
+.mobile-menu-swiper .swiper-track {
+    scrollbar-width: none;
+}
+.mobile-menu-swiper .swiper-track::-webkit-scrollbar-thumb {
+    background: transparent;
+}
+
 .mobile-menu-swiper .swiper-chip {
     border: none;
     background: transparent;
