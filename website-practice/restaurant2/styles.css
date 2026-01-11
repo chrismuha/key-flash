@@ -97,10 +97,10 @@ body {
     margin-left: calc(var(--gap) * -1);
     margin-right: calc(var(--gap) * -1);
     order: 98;
-    background: green;
+    background: white;
     border-radius: 0;
-    padding: 8px 12px 16px;
-    min-height: 100px;
+    padding: 2px 8px 6px;
+    min-height: 48px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     position: relative;
     z-index: 0;
@@ -125,25 +125,31 @@ body {
 }
 
 .mobile-menu-swiper .swiper-chip {
-    border: 1px solid #000;
-    background: #f5f5f5;
-    padding: 0 18px;
-    border-radius: 12px;
-    height: 56px;
+    border: none;
+    background: transparent;
+    padding: 0 12px 12px;
+    border-radius: 0;
+    height: auto;
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-end;
+    justify-content: flex-start;
     font-weight: 700;
+    font-size: 1.25rem;
     flex-shrink: 0;
     cursor: pointer;
     scroll-snap-align: start;
     line-height: 1.2;
-    min-width: 90px;
+    min-width: 0;
+    color: #000;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s ease, border-bottom-color 0.2s ease;
+}
+
+.mobile-menu-swiper .menu-launch-arrow {
+    display: none;
 }
 
 body.theme-dark .mobile-menu-swiper .swiper-chip {
-    border-color: #fff;
-    background: #222;
     color: #fff;
 }
 
@@ -153,9 +159,15 @@ body.theme-dark .mobile-menu-swiper {
 }
 
 .mobile-menu-swiper .swiper-chip.menu-launch-active {
-    border-color: #18833d;
+    border-bottom-color: #18833d;
+    color: #18833d;
     box-shadow: none;
     position: relative;
+}
+
+body.theme-dark .mobile-menu-swiper .swiper-chip.menu-launch-active {
+    color: #4bb051;
+    border-bottom-color: #4bb051;
 }
 
 .mobile-menu-swiper .swiper-chip.menu-launch-active::after {
