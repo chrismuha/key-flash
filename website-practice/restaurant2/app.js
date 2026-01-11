@@ -1028,63 +1028,58 @@
       const sliderPrev = document.querySelector('.mobile-menu-swiper .swiper-arrow-prev');
       const sliderNext = document.querySelector('.mobile-menu-swiper .swiper-arrow-next');
       const sliderState = {
-        page: 0,
+        start: 0,
         visibleCount: 0,
-        totalPages: 1,
+        maxStart: 0,
       };
 
-      const renderSliderPage = () => {
+      const renderSliderWindow = () => {
         if (!sliderTrack || !sliderChips.length) return;
-        const start = sliderState.page * sliderState.visibleCount;
-        const end = start + sliderState.visibleCount;
-        sliderChips.forEach((chip, index) => {
-          chip.hidden = index < start || index >= end;
-        });
-        sliderTrack.scrollLeft = 0;
-        if (sliderPrev) sliderPrev.disabled = sliderState.page === 0;
-        if (sliderNext) sliderNext.disabled = sliderState.page >= sliderState.totalPages - 1;
+        const trackStyle = getComputedStyle(sliderTrack);
+        const paddingLeft = Math.max(0, parseFloat(trackStyle.paddingLeft) || 0);
+        const targetIndex = Math.min(sliderState.start, sliderChips.length - 1);
+        const targetChip = sliderChips[targetIndex];
+        if (targetChip) {
+          const offset = targetChip.offsetLeft - paddingLeft;
+          sliderTrack.scrollLeft = Math.max(0, offset);
+        }
+        if (sliderPrev) sliderPrev.disabled = sliderState.start === 0;
+        if (sliderNext) sliderNext.disabled = sliderState.start >= sliderState.maxStart;
       };
 
-      const goToPage = (delta) => {
+      const moveSlider = (delta) => {
         if (!sliderTrack || !sliderChips.length) return;
-        const nextPage = Math.min(
-          Math.max(0, sliderState.page + delta),
-          Math.max(0, sliderState.totalPages - 1)
+        const nextStart = Math.min(
+          Math.max(0, sliderState.start + delta),
+          sliderState.maxStart
         );
-        if (nextPage === sliderState.page) return;
-        sliderState.page = nextPage;
-        renderSliderPage();
+        if (nextStart === sliderState.start) return;
+        sliderState.start = nextStart;
+        renderSliderWindow();
+      };
+
+      const getVisibleCount = () => {
+        if (!sliderTrack) return 1;
+        const swiper = sliderTrack.closest('.mobile-menu-swiper');
+        if (!swiper) return 1;
+        const count = parseInt(getComputedStyle(swiper).getPropertyValue('--slider-visible-count'), 10);
+        if (Number.isFinite(count) && count > 0) return Math.min(count, sliderChips.length);
+        return Math.max(1, sliderChips.length);
       };
 
       const ensureSliderAlignment = () => {
         if (!sliderTrack || !sliderChips.length) return;
-        sliderChips.forEach((chip) => { chip.hidden = false; });
-        const style = getComputedStyle(sliderTrack);
-        const gap = Math.round(parseFloat(style.gap) || 0);
-        const availableWidth = Math.max(1, Math.floor(sliderTrack.clientWidth - 2));
-        let used = 0;
-        let visible = 0;
-        for (const chip of sliderChips) {
-          const chipWidth = Math.ceil(chip.getBoundingClientRect().width);
-          const required = visible === 0 ? chipWidth : chipWidth + gap;
-          if (visible === 0 ? chipWidth <= availableWidth : used + required <= availableWidth) {
-            used += required;
-            visible += 1;
-          } else {
-            break;
-          }
-        }
-        sliderState.visibleCount = Math.max(1, Math.min(visible, sliderChips.length));
-        sliderState.totalPages = Math.max(1, Math.ceil(sliderChips.length / sliderState.visibleCount));
-        sliderState.page = Math.min(sliderState.page, sliderState.totalPages - 1);
-        renderSliderPage();
+        sliderState.visibleCount = getVisibleCount();
+        sliderState.maxStart = Math.max(0, sliderChips.length - sliderState.visibleCount);
+        sliderState.start = Math.min(sliderState.start, sliderState.maxStart);
+        renderSliderWindow();
       };
 
       if (sliderPrev) {
-        sliderPrev.addEventListener('click', () => goToPage(-1));
+        sliderPrev.addEventListener('click', () => moveSlider(-1));
       }
       if (sliderNext) {
-        sliderNext.addEventListener('click', () => goToPage(1));
+        sliderNext.addEventListener('click', () => moveSlider(1));
       }
       if (sliderTrack) {
         window.addEventListener('resize', ensureSliderAlignment);
