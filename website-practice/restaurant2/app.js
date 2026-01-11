@@ -21,6 +21,7 @@
     settingsAutoDisableEmpty: 'restaurant.settings.autoDisableEmpty',
     settingsAutoDisableSection: 'restaurant.settings.autoDisableSection',
     settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
+    settingsNextClosesOverlay: 'restaurant.settings.nextClosesOverlay',
     quantities: 'restaurant.quantities',
     pizzaSize: 'restaurant.pizza.size'
   };
@@ -294,6 +295,7 @@
     const settingAutoDisableEmpty = document.getElementById('setting-auto-disable-empty') || document.querySelector('.setting-auto-disable-empty');
     const settingAutoDisableSection = document.getElementById('setting-auto-disable-section') || document.querySelector('.setting-auto-disable-section');
     const settingPillArrowOnly = document.getElementById('setting-pill-arrow-only') || document.querySelector('.setting-pill-arrow-only');
+    const settingNextClosesOverlay = document.getElementById('setting-next-closes-overlay') || document.querySelector('.setting-next-closes-overlay');
     const settingsResetBtn = document.getElementById('settings-reset') || document.querySelector('.settings-reset');
 
     const navToggleBtn = document.getElementById('nav-toggle-btn') || document.querySelector('.nav-toggle');
@@ -597,6 +599,15 @@
     } catch { pillArrowOnly = false; }
     if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
 
+    // Footer Next behavior: default OFF
+    let nextClosesOverlay = false;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsNextClosesOverlay);
+      nextClosesOverlay = v === 'true';
+    } catch { nextClosesOverlay = false; }
+    if (settingNextClosesOverlay) settingNextClosesOverlay.checked = nextClosesOverlay;
+
+    // Next arrow toggle: default OFF
     // Ensure the settings overlay has a deterministic initial hidden state.
     // If you want the settings to persist open between reloads, implement a storage key.
     if (settingsOverlay) {
@@ -673,7 +684,8 @@
           localStorage.setItem(STORAGE_KEYS.settingsResetKeepOpen, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsAutoDisableSection, 'false');
-          localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
+        localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
+        localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, 'false');
         } catch { }
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
@@ -682,6 +694,7 @@
         if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
         if (settingAutoDisableSection) settingAutoDisableSection.checked = false;
         if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
+        if (settingNextClosesOverlay) settingNextClosesOverlay.checked = false;
       });
     }
 
@@ -1080,6 +1093,15 @@
       }
       if (sliderNext) {
         sliderNext.addEventListener('click', () => moveSlider(1));
+      }
+      const footerNext = document.querySelector('.next-button');
+      if (footerNext) {
+        footerNext.addEventListener('click', (event) => {
+          if (nextClosesOverlay && typeof anyOverlayOpen === 'function' && anyOverlayOpen()) {
+            event.preventDefault();
+            if (typeof closeAllOverlays === 'function') closeAllOverlays();
+          }
+        });
       }
       if (sliderTrack) {
         window.addEventListener('resize', ensureSliderAlignment);
@@ -1806,6 +1828,13 @@
         };
         if (!maybeWarnSettingConflicts(prev, revert)) return;
         try { localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly)); } catch { }
+      });
+    }
+
+    if (settingNextClosesOverlay) {
+      settingNextClosesOverlay.addEventListener('change', () => {
+        nextClosesOverlay = !!settingNextClosesOverlay.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, String(nextClosesOverlay)); } catch { }
       });
     }
 
