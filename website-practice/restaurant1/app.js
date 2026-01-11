@@ -23,6 +23,7 @@
     settingsQtyRight: 'restaurant.settings.qtyRight',
     settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
     settingsArrowActivates: 'restaurant.settings.arrowActivates',
+    settingsNextClosesOverlay: 'restaurant.settings.nextClosesOverlay',
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantities.sections',
     pizzaSize: 'restaurant.pizza.size'
@@ -597,6 +598,7 @@
     const settingQtyRight = document.querySelector('.setting-qty-right');
     const settingPillArrowOnly = document.querySelector('.setting-pill-arrow-only');
     const settingArrowActivates = document.querySelector('.setting-arrow-activates');
+    const settingNextClosesOverlay = document.querySelector('.setting-next-closes-overlay');
     // Settings defaults: all ON by default
     let labelSelects = true;
     try {
@@ -657,6 +659,12 @@
     } catch { pillArrowOnly = settingPillArrowOnly ? !!settingPillArrowOnly.defaultChecked : false; }
     if (settingPillArrowOnly) settingPillArrowOnly.checked = pillArrowOnly;
     window.pillArrowOnly = pillArrowOnly;
+    let nextClosesOverlay = false;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsNextClosesOverlay);
+      nextClosesOverlay = v === 'true';
+    } catch { nextClosesOverlay = false; }
+    if (settingNextClosesOverlay) settingNextClosesOverlay.checked = nextClosesOverlay;
     // Arrow click also activates section checkbox: default ON
     let arrowActivates = true;
     try {
@@ -808,8 +816,14 @@
           if (settingArrowActivates) settingArrowActivates.checked = arrowActivates;
           try { localStorage.setItem(STORAGE_KEYS.settingsArrowActivates, String(arrowActivates)); } catch { }
         };
-        if (!maybeWarnSettingConflicts(prev, revert)) return;
-        try { localStorage.setItem(STORAGE_KEYS.settingsArrowActivates, String(arrowActivates)); } catch { }
+      if (!maybeWarnSettingConflicts(prev, revert)) return;
+      try { localStorage.setItem(STORAGE_KEYS.settingsArrowActivates, String(arrowActivates)); } catch { }
+    });
+  }
+    if (settingNextClosesOverlay) {
+      settingNextClosesOverlay.addEventListener('change', () => {
+        nextClosesOverlay = !!settingNextClosesOverlay.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, String(nextClosesOverlay)); } catch { }
       });
     }
     if (settingResetOnDeselect) {
@@ -875,6 +889,7 @@
           localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
           localStorage.setItem(STORAGE_KEYS.settingsAutoCollapseDisabled, 'true');
           localStorage.setItem(STORAGE_KEYS.settingsQtyRight, 'false');
+          localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, 'false');
         } catch { }
         if (settingLabelSelects) settingLabelSelects.checked = true;
         if (settingTitleSelects) settingTitleSelects.checked = true;
@@ -885,6 +900,8 @@
         if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
         if (settingAutoCollapseDisabled) settingAutoCollapseDisabled.checked = true;
         if (settingQtyRight) settingQtyRight.checked = false;
+        if (settingNextClosesOverlay) settingNextClosesOverlay.checked = false;
+        nextClosesOverlay = false;
         window.pillArrowOnly = pillArrowOnly;
         document.dispatchEvent(new Event('pillArrowOnlyChanged'));
         // Re-run change handlers to apply live behavior
@@ -1695,12 +1712,25 @@
           if (active) closeOverlay(active);
         }
       });
+      const collapseOpenMenuDetails = () => {
+        const details = Array.from(document.querySelectorAll('details'));
+        const openSections = details.filter((d) => d.open);
+        if (!openSections.length) return false;
+        openSections.forEach((d) => { d.open = false; });
+        return true;
+      };
       const nextButton = document.querySelector('.next-button');
       const resetAllBtn = document.querySelector('.reset-all');
       if (nextButton) {
         nextButton.addEventListener('click', (e) => {
           const closed = closeAllOverlays();
-          if (closed) {
+          const collapsedDetails = closed ? false : collapseOpenMenuDetails();
+          if (nextClosesOverlay && (closed || collapsedDetails)) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return;
+          }
+          if (closed || collapsedDetails) {
             const menuActions = document.querySelector('.menu-actions');
             if (menuActions) menuActions.scrollIntoView({ behavior: 'smooth', block: 'start' });
             const firstButton = document.querySelector('.menu-launch');
