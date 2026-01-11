@@ -125,15 +125,29 @@ body {
     padding-right: 4px;
 }
 
-.mobile-menu-swiper .swiper-track::-webkit-scrollbar {
-    height: 0;
+@media (max-width: 900px) {
+    .mobile-menu-swiper .swiper-track {
+        scrollbar-width: none;
+    }
+    .mobile-menu-swiper .swiper-track::-webkit-scrollbar {
+        height: 0;
+        background: transparent;
+    }
+    .mobile-menu-swiper .swiper-track::-webkit-scrollbar-thumb {
+        background: transparent;
+    }
+}
+
+.mobile-menu-swiper.show-scroll .swiper-track {
+    scrollbar-width: auto;
+}
+.mobile-menu-swiper.show-scroll .swiper-track::-webkit-scrollbar {
+    height: 8px;
     background: transparent;
 }
-.mobile-menu-swiper .swiper-track {
-    scrollbar-width: none;
-}
-.mobile-menu-swiper .swiper-track::-webkit-scrollbar-thumb {
-    background: transparent;
+.mobile-menu-swiper.show-scroll .swiper-track::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 999px;
 }
 
 .mobile-menu-swiper .swiper-chip {
@@ -173,7 +187,6 @@ body.theme-dark .mobile-menu-swiper {
 }
 
 .mobile-menu-swiper .swiper-chip.menu-launch-active {
-    color: #18833d;
     box-shadow: none;
     position: relative;
 }
@@ -185,7 +198,6 @@ body.theme-dark .mobile-menu-swiper {
 }
 
 body.theme-dark .mobile-menu-swiper .swiper-chip.menu-launch-active {
-    color: #4bb051;
     border-bottom-color: #4bb051;
 }
 

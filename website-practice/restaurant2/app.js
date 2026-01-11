@@ -1080,6 +1080,14 @@
         return Math.max(1, sliderChips.length);
       };
 
+      const updateNavScrollVisibility = () => {
+        if (!sliderTrack) return;
+        const swiper = sliderTrack.closest('.mobile-menu-swiper');
+        if (!swiper) return;
+        const show = window.innerWidth >= 1764 && window.innerHeight >= 1858;
+        swiper.classList.toggle('show-scroll', show);
+      };
+
       const ensureSliderAlignment = () => {
         if (!sliderTrack || !sliderChips.length) return;
         sliderState.visibleCount = getVisibleCount();
@@ -1104,9 +1112,12 @@
         });
       }
       if (sliderTrack) {
-        window.addEventListener('resize', ensureSliderAlignment);
-        window.requestAnimationFrame(ensureSliderAlignment);
-        ensureSliderAlignment();
+        const handleResize = () => {
+          ensureSliderAlignment();
+          updateNavScrollVisibility();
+        };
+        window.addEventListener('resize', handleResize);
+        window.requestAnimationFrame(handleResize);
       }
       const moveBackButtonToOverlay = (overlay) => {
         if (!backToMenuBtn || !overlay) return;
