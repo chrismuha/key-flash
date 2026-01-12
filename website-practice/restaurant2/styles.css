@@ -32,7 +32,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-family: system-ui, sans-serif;
-    font-size: 16px;
+    font-size: 12pt;
     /* Keep both for dynamic viewport units (mobile) while still supporting older browsers */
     min-height: 100vh;
     min-height: 100dvh;
@@ -255,7 +255,7 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     border-radius: 999px;
     font-weight: 700;
     line-height: 1.1;
-    font-size: 16px;
+    font-size: 12pt;
     margin-left: 0;
     width: 100%;
     justify-content: flex-start;
@@ -271,7 +271,7 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
 }
 
 .order-type-chip__label {
-    font-size: 14px;
+    font-size: 10.5pt;
     line-height: 1;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -281,7 +281,7 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
 }
 
 .order-type-chip__value {
-    font-size: 18px;
+    font-size: 13.5pt;
     line-height: 1.1;
     white-space: normal;
     flex: 0 1 auto;
@@ -308,7 +308,7 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
 
 @media (max-width: 768px) {
     .order-type-chip {
-        font-size: 15px;
+        font-size: 11.25pt;
         align-items: flex-start;
         flex-wrap: wrap;
         width: min(100%, 620px);
@@ -319,14 +319,14 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     }
 
     .order-type-chip__label {
-        font-size: 14px;
+        font-size: 10.5pt;
         flex: 0 0 auto;
         display: inline-block;
         margin-top: 7px;
     }
 
     .order-type-chip__value {
-        font-size: 18px;
+        font-size: 13.5pt;
         white-space: pre-line;
         flex: 1 1 auto;
         min-width: 0;
@@ -343,7 +343,7 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     font-weight: 700;
     cursor: pointer;
     padding: 0;
-    font-size: 26px;
+    font-size: 19.5pt;
     line-height: 1;
     width: 46px;
     height: 46px;
@@ -440,7 +440,7 @@ body.settings-open {
 
 .settings-modal-header h2 {
     margin: 0;
-    font-size: 24px;
+    font-size: 18pt;
 }
 
 .settings-close {
@@ -448,7 +448,7 @@ body.settings-open {
     border: 2px solid currentColor;
     border-radius: 999px;
     padding: 6px 10px;
-    font-size: 16px;
+    font-size: 12pt;
     cursor: pointer;
     color: #000;
 }
@@ -623,7 +623,7 @@ body:not(.nav-enabled) main {
     }
 
     .left-rail .box {
-        font-size: 16px;
+        font-size: 12pt;
         padding: 0 12px;
         height: 44px;
         margin-top: 4px;
@@ -1006,32 +1006,32 @@ main ol {
 }
 
 main h1 {
-    font-size: 32px;
+    font-size: 24pt;
     line-height: 48px;
 }
 
 main h2 {
-    font-size: 24px;
+    font-size: 18pt;
     line-height: 36px;
 }
 
 main h3 {
-    font-size: 20px;
+    font-size: 15pt;
     line-height: 24px;
 }
 
 main h4 {
-    font-size: 18px;
+    font-size: 13.5pt;
     line-height: 24px;
 }
 
 main h5 {
-    font-size: 16px;
+    font-size: 12pt;
     line-height: 24px;
 }
 
 main h6 {
-    font-size: 14px;
+    font-size: 10.5pt;
     line-height: 24px;
 }
 
@@ -1350,7 +1350,7 @@ body.order-type main {
 }
 
 body.order-type main h1 {
-    font-size: 32px;
+    font-size: 24pt;
     line-height: 48px;
     font-weight: 700;
     margin-bottom: 28px;
@@ -1407,7 +1407,7 @@ body.order-type .delivery-close-button {
     border-radius: 999px;
     background: #fff;
     padding: 4px 14px;
-    font-size: 18px;
+    font-size: 13.5pt;
     line-height: 1;
     cursor: pointer;
     font-family: inherit;
@@ -1581,7 +1581,7 @@ body.order-type .order-card svg {
 }
 
 body.order-type .order-label {
-    font-size: 18px;
+    font-size: 13.5pt;
     line-height: 1.2;
     text-align: center;
 }
@@ -1625,7 +1625,7 @@ main .menu-summary {
     display: flex;
     align-items: center;
     cursor: pointer;
-    font-size: 24px;
+    font-size: 18pt;
     line-height: 36px;
     font-weight: 700;
     margin: 0;
@@ -1670,7 +1670,7 @@ main .reset-group:hover {
     width: 100%;
     min-width: 0;
     padding: 1rem 3rem;
-    font-size: 18px;
+    font-size: 13.5pt;
     font-weight: 700;
     border: 2px solid #000;
     border-radius: 999px;
@@ -1692,7 +1692,7 @@ main .reset-group:hover {
 
 @media (max-width: 600px) {
     .menu-actions .menu-launch {
-        font-size: 17px;
+        font-size: 12.75pt;
         padding: 12px 16px;
     }
 }
@@ -1777,7 +1777,7 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
 }
 
 .size-options__label {
-    font-size: 16px;
+    font-size: 12pt;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -1812,7 +1812,7 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
     color: #000;
     padding: 6px 16px;
     border-radius: 999px;
-    font-size: 15px;
+    font-size: 11.25pt;
     line-height: 1;
     display: inline-flex;
     align-items: center;
@@ -1850,7 +1850,7 @@ body.theme-dark .size-pill input:checked+span {
 
     .size-pill span {
         padding: 6px 12px;
-        font-size: 14px;
+        font-size: 10.5pt;
     }
 }
 
@@ -1864,7 +1864,7 @@ body.theme-dark .size-pill input:checked+span {
     padding: 0;
     border: 1px solid #000;
     border-radius: 999px;
-    font-size: 34px;
+    font-size: 25.5pt;
     line-height: 0;
     text-align: center;
     background: #fff;
@@ -1890,7 +1890,7 @@ body.theme-dark .menu-launch-arrow {
     .menu-launch-arrow {
         width: 34px;
         height: 34px;
-        font-size: 34px;
+        font-size: 25.5pt;
         line-height: 0;
         text-align: center;
         border-color: currentColor;
@@ -1994,7 +1994,7 @@ body.menu-overlay-open main {
 
 .overlay-header h2 {
     margin: 0;
-    font-size: 28px;
+    font-size: 21pt;
 }
 
 .close-overlay {
@@ -2002,7 +2002,7 @@ body.menu-overlay-open main {
     border: 2px solid currentColor;
     border-radius: 999px;
     padding: 6px 12px;
-    font-size: 18px;
+    font-size: 13.5pt;
     cursor: pointer;
     color: #000;
     appearance: none;
@@ -2065,7 +2065,7 @@ body.theme-dark .close-overlay:focus-visible {
 .left-rail .box {
     height: 48px;
     line-height: 1;
-    font-size: 24px;
+    font-size: 18pt;
     padding: 0 14px;
     flex-shrink: 0;
     margin-top: 12px;

@@ -62,7 +62,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-family: system-ui, sans-serif;
-    font-size: 16px;
+    font-size: 12pt;
     /* Fill the viewport without forcing an oversized canvas on smaller screens */
     min-height: 100vh;
     min-height: 100dvh;
@@ -79,7 +79,7 @@ body {
 /* Slightly tighten spacing/size when the fixed nav is visible to avoid overlap */
 body.nav-enabled {
     --gap: 10px;
-    font-size: 15px;
+    font-size: 11pt;
 }
 
 @media (max-width: 768px) {
@@ -87,7 +87,7 @@ body.nav-enabled {
         --logo-w: 140px;
         --logo-h: 100px;
         --rail-width: calc(var(--logo-w) + (var(--rail-side-gap) * 2));
-        font-size: 14px;
+        font-size: 10.5pt;
     }
 
     body.nav-enabled .left-rail {
@@ -145,7 +145,7 @@ body.nav-enabled {
     margin-top: auto;
     padding: 0 10px;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 12pt;
     border: 1px solid #000;
     background: #f7f7f7;
     color: #000;
@@ -170,7 +170,7 @@ body.nav-enabled .settings-button {
 @media (max-width: 768px) {
     body.nav-enabled .settings-button {
         width: calc(var(--rail-width) - 12px);
-        font-size: 14px;
+        font-size: 10.5pt;
     }
 }
 
@@ -214,7 +214,7 @@ body.theme-dark .settings-panel {
 .settings-close {
     border: none;
     background: transparent;
-    font-size: 16px;
+    font-size: 12pt;
     cursor: pointer;
     align-self: flex-end;
 }
@@ -358,7 +358,7 @@ body.mobile-ui .theme-toggle {
     height: 36px;
     padding: 0;
     border-radius: 8px;
-    font-size: 18px;
+    font-size: 13.5pt;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -414,7 +414,7 @@ body.mobile-ui .theme-option {
     height: 32px;
     padding: 0 6px;
     text-align: center;
-    font-size: 16px;
+    font-size: 12pt;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -702,7 +702,7 @@ body.page2 .collapse-footer {
     border: 2px solid #000;
     color: #000;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 13.5pt;
     line-height: 24px;
     text-decoration: none;
     border-radius: 6px;
@@ -792,7 +792,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     body.page2 .collapse-all,
     body.page2 .collapse-footer {
         padding: 8px 12px;
-        font-size: 15px;
+        font-size: 11.25pt;
         line-height: 20px;
         min-width: 0;
         flex: 1 1 0;
@@ -808,7 +808,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     }
 
     main summary.menu-summary {
-        font-size: 20px;
+        font-size: 15pt;
         line-height: 28px;
     }
 
@@ -854,7 +854,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         min-width: 0;
         flex: 1 1 0;
         white-space: normal;
-        font-size: 16px;
+        font-size: 12pt;
     }
 
     body.mobile-ui.page2 .page-actions .collapse-mobile {
@@ -958,39 +958,39 @@ main ol {
 }
 
 main h1 {
-    font-size: 32px;
+    font-size: 24pt;
     line-height: 48px;
 }
 
 @media (max-width: 768px) {
     main h1 {
-        font-size: 28.5px;
+        font-size: 21.375pt;
         line-height: 41px;
     }
 }
 
 main h2 {
-    font-size: 24px;
+    font-size: 18pt;
     line-height: 36px;
 }
 
 main h3 {
-    font-size: 20px;
+    font-size: 15pt;
     line-height: 24px;
 }
 
 main h4 {
-    font-size: 18px;
+    font-size: 13.5pt;
     line-height: 24px;
 }
 
 main h5 {
-    font-size: 16px;
+    font-size: 12pt;
     line-height: 24px;
 }
 
 main h6 {
-    font-size: 14px;
+    font-size: 10.5pt;
     line-height: 24px;
 }
 
@@ -1304,7 +1304,7 @@ body.order-type main {
 }
 
 body.order-type main h1 {
-    font-size: 32px;
+    font-size: 24pt;
     line-height: 48px;
     font-weight: 700;
     margin-bottom: 28px;
@@ -1313,7 +1313,7 @@ body.order-type main h1 {
 
 @media (max-width: 768px) {
     body.order-type main h1 {
-        font-size: 28.5px;
+        font-size: 21.375pt;
         line-height: 41px;
     }
 }
@@ -1464,7 +1464,7 @@ body.order-type .order-card svg {
 }
 
 body.order-type .order-label {
-    font-size: 18px;
+    font-size: 13.5pt;
     line-height: 1.2;
     text-align: center;
 }
@@ -1505,7 +1505,7 @@ main summary.menu-summary {
     display: flex;
     align-items: center;
     cursor: pointer;
-    font-size: 24px;
+    font-size: 18pt;
     line-height: 36px;
     font-weight: 700;
     margin: 0;
@@ -1609,7 +1609,7 @@ main details[open]>summary.menu-summary::before {
 .left-rail .box {
     height: 33px;
     line-height: 33px;
-    font-size: 24px;
+    font-size: 18pt;
 }
 
 body.nav-enabled .left-rail .box {
@@ -1619,7 +1619,7 @@ body.nav-enabled .left-rail .box {
 @media (max-width: 768px) {
     body.nav-enabled .left-rail .box {
         width: calc(var(--rail-width) - 12px);
-        font-size: 20px;
+        font-size: 15pt;
     }
 }
 
