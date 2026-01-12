@@ -99,7 +99,7 @@
     padding: 10px 10px;
     width: 45px;
     height: 45px;
-    font-size: 24px;
+    font-size: 18pt;
     cursor: pointer;
     z-index: 1000;
 }
@@ -214,6 +214,6 @@ body {
         left: 10px;
         width: 40px;
         height: 40px;
-        font-size: 22px;
+        font-size: 16.5pt;
     } 
     } */

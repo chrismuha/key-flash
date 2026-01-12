@@ -31,13 +31,13 @@ form input [type="file"] {
     padding: 0.5rem;
     width: 100%;
     font-family: 'Aptos', Arial, sans-serif;
-    font-size: 12px;
+    font-size: 10pt;
     padding-top: 0px;
 }
 
 .themes-switcher div {
     font-family: 'Aptos', Arial, sans-serif;
-    font-size: 18px;
+    font-size: 13.5pt;
 }
 
 /* Typography */
@@ -391,7 +391,7 @@ input[type="checkbox"]:checked {
 input[type="checkbox"]:checked::after {
     content: '\2714';
     color: #7CFC00;
-    font-size: 16px;
+    font-size: 12pt;
     top: -2px;
     left: -2px;
     width: 20px;
@@ -411,7 +411,7 @@ body.dark-mode input[type="checkbox"]:checked {
 body.dark-mode input[type="checkbox"]:checked::after {
     content: '\2714';
     color: #32CD32;
-    font-size: 16px;
+    font-size: 12pt;
     top: -2px;
     left: -2px;
     width: 20px;
@@ -675,7 +675,7 @@ select {
 }
 
 label {
-    font-size: 14px;
+    font-size: 10.5pt;
     margin-bottom: 2px;
     /* Small space between label and input */
     display: block;
@@ -685,7 +685,7 @@ label {
 input {
     width: 250px;
     padding: 8px;
-    font-size: 16px;
+    font-size: 12pt;
     border: 1px solid #ccc;
     /* Default border */
     border-radius: 0px;
@@ -708,7 +708,7 @@ input:active {
 /* Error message aligns perfectly with input */
 #error-message {
     color: red;
-    font-size: 14px;
+    font-size: 10.5pt;
     display: none;
     margin-top: -12px;
     /* Ensures correct spacing below input */
@@ -726,7 +726,7 @@ textarea {
     width: 100%;
     /* Ensures full width */
     padding: 8px;
-    font-size: 16px;
+    font-size: 12pt;
     border: 1px solid #ccc;
     /* Default border */
     border-radius: 0px;

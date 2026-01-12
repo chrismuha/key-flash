@@ -37,7 +37,7 @@
     background-color: #4CAF50;
     color: white;
     padding: 16px;
-    font-size: 16px;
+    font-size: 12pt;
     border: none;
     cursor: pointer;
 }
@@ -54,7 +54,7 @@
     .dropbtn {
         width: 100%;
         padding: 12px;
-        font-size: 14px;
+        font-size: 10.5pt;
     }
 
     .dropdown-content {
@@ -65,6 +65,6 @@
 
     .dropdown-content a {
         padding: 10px;
-        font-size: 14px;
+        font-size: 10.5pt;
     }
 } */
