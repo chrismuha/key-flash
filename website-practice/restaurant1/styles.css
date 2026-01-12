@@ -822,8 +822,20 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     }
 
     main fieldset label {
+        display: flex;
+        align-items: center;
         flex-wrap: wrap;
         gap: 8px;
+    }
+
+    main fieldset label .required-tag {
+        order: 1;
+        margin-left: 6px;
+        white-space: nowrap;
+    }
+    main fieldset label .ingredient-qty {
+        order: 2;
+        margin-left: 6px;
     }
 
     main fieldset label .ingredient-qty {
@@ -842,6 +854,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         justify-content: space-between;
         gap: 6px;
         padding: 8px 10px;
+        flex-direction: column;
     }
 
     /* Mobile: keep footer buttons legible on very small screens */
@@ -855,6 +868,8 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         flex: 1 1 0;
         white-space: normal;
         font-size: 12pt;
+        width: 100%;
+        max-width: none;
     }
 
     body.mobile-ui.page2 .page-actions .collapse-mobile {
@@ -863,7 +878,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     }
 
     /* When sidebar (left-rail) is open on small screens, blur and disable main content */
-    body.nav-enabled main {
+    /* body.nav-enabled main {
         filter: blur(6px);
         -webkit-filter: blur(6px);
         transition: filter .18s ease, opacity .18s ease;
@@ -871,16 +886,16 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         user-select: none;
         touch-action: none;
         opacity: 0.9;
-    }
+    } */
 
     /* Keep left-rail interactive while main is disabled */
-    body.nav-enabled .left-rail,
+    /* body.nav-enabled .left-rail,
     body.nav-enabled .left-rail * {
         pointer-events: auto;
-    }
+    } */
 
     /* Allow theme toggle and collapse controls to remain usable inside blurred main */
-    body.nav-enabled main .theme-toggle,
+    /* body.nav-enabled main .theme-toggle,
     body.nav-enabled main .theme-menu,
     body.nav-enabled main .collapse,
     body.nav-enabled main .collapse-all,
@@ -891,8 +906,8 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         touch-action: auto;
         cursor: pointer;
         position: relative;
-        z-index: 2; /* keep above blurred stacking context */
-    }
+        z-index: 2; 
+    } */
 
     /* When controls are moved to body (see app.js), make sure they render above blur and are fixed in place */
     .moved-to-body {
@@ -917,6 +932,19 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     .moved-go-back {
         left: calc(var(--gap));
         top: calc(var(--gap));
+    }
+
+    main summary.menu-summary {
+        flex-wrap: wrap;
+    }
+
+    #order-summary .summary-section-header {
+        flex-direction: column;
+        align-items: start !important;
+    }
+
+    main > h1 {
+        font-size: 20pt !important;
     }
 }
 
