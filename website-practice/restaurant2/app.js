@@ -1471,7 +1471,11 @@
         const btns = menuLaunchLookup[section] || [];
         btns.forEach((btn) => {
           const arrow = btn.querySelector('.menu-launch-arrow');
-          if (arrow) arrow.textContent = isOpen ? '▴' : '▸';
+          if (arrow) {
+            const icon = arrow.querySelector('.icon');
+            if (icon) icon.textContent = isOpen ? '▴' : '▸';
+            else arrow.textContent = isOpen ? '▴' : '▸';
+          }
           btn.setAttribute('aria-expanded', String(!!isOpen));
         });
       };
@@ -1479,11 +1483,19 @@
       const ensureMenuLaunchArrow = (btn) => {
         let arrow = btn.querySelector('.menu-launch-arrow');
         if (!arrow) {
-          arrow = document.createElement('span');
+          arrow = document.createElement('button');
+          arrow.type = 'button';
           arrow.className = 'menu-launch-arrow';
           arrow.setAttribute('aria-hidden', 'true');
-          arrow.textContent = '▸';
+          const icon = document.createElement('span');
+          icon.className = 'icon';
+          icon.textContent = '▸';
+          arrow.appendChild(icon);
           btn.appendChild(arrow);
+        }
+        const iconEl = arrow.querySelector('.icon') || arrow;
+        if (!iconEl.textContent || !iconEl.textContent.trim()) {
+          iconEl.textContent = '▸';
         }
         return arrow;
       };
