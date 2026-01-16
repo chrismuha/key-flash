@@ -51,6 +51,7 @@ body {
     width: 100%;
     min-width: 100%;
     overflow-y: auto;
+    background: #dba37f;
 }
 
 /* Section: Left Rail Navigation */
@@ -890,7 +891,6 @@ body.page2 .page-footer {
     justify-content: space-between;
     gap: 10px;
     align-items: center;
-    border-top: 1px solid rgba(0, 0, 0, 0.12);
     z-index: 1000;
 }
 
@@ -934,7 +934,6 @@ body.order-type .page-footer {
     justify-content: space-between;
     gap: 10px;
     align-items: center;
-    border-top: 1px solid rgba(0, 0, 0, 0.12);
     z-index: 1000;
 }
 
