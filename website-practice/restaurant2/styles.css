@@ -185,12 +185,10 @@ body.page2 {
     cursor: pointer;
     scroll-snap-align: start;
     line-height: 1.2;
-    min-width: 0;
     color: #000;
     white-space: nowrap;
     transition: color 0.2s ease;
     flex: 0 0 calc((100% - (var(--gap) * (var(--slider-visible-count) - 1))) / var(--slider-visible-count));
-    max-width: calc((100% - (var(--gap) * (var(--slider-visible-count) - 1))) / var(--slider-visible-count));
 }
 
 .mobile-menu-swiper .menu-launch-arrow {
