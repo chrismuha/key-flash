@@ -1029,7 +1029,7 @@
         const active = togglesArr.some(t => t.checked);
         if (!active) {
           err.hidden = false;
-          err.textContent = 'Please choose at least one section from the menu';
+          err.textContent = 'Please choose at least one menu item.';
         } else {
           // If sauces section is active, ensure at least one sauce selected
           const saucesToggle = document.querySelector('.section[data-id="sauces"] .section-toggle');
@@ -1157,7 +1157,7 @@
             event.preventDefault();
             if (builderError) {
               builderError.hidden = false;
-              builderError.textContent = page3NavBlockedMessage || 'Please choose at least one section from the menu';
+              builderError.textContent = page3NavBlockedMessage || 'Please choose at least one menu item.';
               if (typeof ensureBuilderErrorVisible === 'function') {
                 ensureBuilderErrorVisible();
               }
@@ -1674,7 +1674,7 @@
         const anyActive = sectionToggles.some((t) => t.checked);
         if (!anyActive) {
           builderError.hidden = false;
-          builderError.textContent = 'Please choose at least one section from the menu';
+          builderError.textContent = 'Please choose at least one menu item.';
           ensureBuilderErrorVisible();
           return;
         }

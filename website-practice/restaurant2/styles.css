@@ -685,6 +685,8 @@ body:not(.nav-enabled) main {
         padding: 0 12px;
         height: 44px;
         margin-top: 4px;
+        transform: scale(0.88);
+        transform-origin: center;
     }
 
     .order-type-chip {
@@ -712,7 +714,7 @@ body:not(.nav-enabled) main {
 
 .nav-theme-controls {
     position: fixed;
-    top: 4px;
+    top: 8px;
     right: 8px;
     display: flex;
     flex-direction: row;
