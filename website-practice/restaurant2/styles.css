@@ -690,6 +690,10 @@ body:not(.nav-enabled) main {
         padding-top: max(calc(var(--nav-offset) - 4px), 1px);
     }
 
+    body.page2.mobile-ui:not(.nav-enabled) main {
+        padding-top: calc(var(--nav-height) + var(--gap) * 2);
+    }
+
 }
 
 .nav-theme-controls {
