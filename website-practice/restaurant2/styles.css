@@ -52,7 +52,7 @@ body {
     width: 100%;
     min-width: 100%;
     overflow-y: auto;
-    background: #dba37f;
+    background: #fff;
 }
 
 /* Section: Left Rail Navigation */
@@ -605,15 +605,19 @@ body.nav-enabled .left-rail {
 main {
     background: #fff;
     flex: 0 1 auto;
-    width: min(75ch, calc(100% - var(--gap) * 2));
-    max-width: 75ch;
-    min-width: 320px;
+    width: min(120ch, calc(100% - var(--gap) * 2));
+    max-width: 1200px;
+    align-self: center;
+    min-width: 360px;
     padding: calc(var(--nav-offset) + var(--gap) * 2) var(--gap) var(--gap) calc(var(--gap) * 2);
     border: none;
     line-height: 1.5;
     overflow-wrap: break-word;
     word-break: break-word;
     margin-inline: auto;
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08),
+        inset 0 0 0 40px #fff;
 }
 
 /* Leave extra headroom when the fixed Go Back button is present */
@@ -919,8 +923,9 @@ body.page2 main {
     position: relative;
     margin-top: 0;
     padding: max(calc(var(--nav-offset) - 4px), 1px) clamp(16px, 4vw, 40px) calc(180px);
-    width: min(640px, 90vw);
-    margin-inline: auto;
+    width: calc(100% - var(--gap) * 2);
+    max-width: 100%;
+    margin-inline: var(--gap);
     min-height: calc(100vh - var(--nav-offset) - 220px);
 }
 
