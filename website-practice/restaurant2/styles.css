@@ -55,6 +55,10 @@ body {
     background: #fff;
 }
 
+body.page1 {
+    background: #dba37f;
+}
+
 body.page2 {
     position: relative;
 }
@@ -2154,6 +2158,7 @@ body.theme-dark .close-overlay:focus-visible {
     opacity: 0.5;
     filter: grayscale(0.3);
     cursor: not-allowed;
+    pointer-events: none;
 }
 
 /* Align left-rail items with collapsible menu rows on all pages */

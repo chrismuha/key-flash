@@ -1685,7 +1685,11 @@ body.nav-enabled .left-rail .box {
 body.settings-open::before {
     content: "";
     position: fixed;
-    inset: 0;
+    top: 0;
+    bottom: 0;
+    /* start after the left rail */
+    left: var(--rail-width);
+    right: 0;
     background: rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
@@ -1704,6 +1708,7 @@ body.settings-open .left-rail {
 body.settings-open .settings-button {
     pointer-events: auto;
     z-index: 2002;
+    position: relative;
 }
 
 body.settings-open main {
@@ -1721,6 +1726,10 @@ body.settings-open main {
         -webkit-backdrop-filter: none;
         background: rgba(0, 0, 0, 0.08);
     }
+}
+
+body:not(.nav-enabled).settings-open::before {
+    left: 0;
 }
 
 /* Ensure the settings panel is always sharp and above the overlay */
