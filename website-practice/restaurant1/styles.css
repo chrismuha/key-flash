@@ -1693,6 +1693,27 @@ body.settings-open::before {
     pointer-events: auto;
 }
 
+body.settings-open main,
+body.settings-open .left-rail {
+    pointer-events: none;
+    user-select: none;
+    filter: blur(4px);
+    transition: filter 0.25s ease;
+}
+
+body.settings-open .settings-button {
+    pointer-events: auto;
+    z-index: 2002;
+}
+
+body.settings-open main {
+    opacity: 0.85;
+}
+
+.settings-panel {
+    pointer-events: auto;
+}
+
 /* Desktop: keep background sharp while settings is open (matches JS mobile breakpoint 768px) */
 @media (min-width: 769px) {
     body.settings-open::before {
