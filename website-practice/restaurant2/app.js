@@ -257,6 +257,7 @@
     const body = document.body;
     const mobileQuery = window.matchMedia('(max-width: 768px)');
     const isMobileView = () => mobileQuery.matches;
+    const getNavToggleIcon = (enabled) => (enabled ? '↑' : '↓');
 
     let orderTypeChips = Array.from(document.querySelectorAll('.order-type-chip'));
     const orderTypeEditButtons = Array.from(document.querySelectorAll('.order-type-chip__edit'));
@@ -487,7 +488,7 @@
         navToggleBtn.textContent = labelText;
       }
       if (iconEl) {
-        iconEl.textContent = navEnabled ? '←' : '→';
+        iconEl.textContent = getNavToggleIcon(navEnabled);
       }
       navToggleBtn.setAttribute('aria-label', labelText);
     };
@@ -1916,9 +1917,9 @@
     // Re-open section if hash present
     openSectionFromHash();
 
-    // Keep theme label in sync on viewport changes (for emoji on small screens)
+    // Keep theme/nav controls in sync when the viewport crosses the mobile breakpoint
     if (mobileQuery && typeof mobileQuery.addEventListener === 'function') {
-      mobileQuery.addEventListener('change', updateThemeModeLabel);
+      mobileQuery.addEventListener('change', syncMobileUiState);
     }
 
     // Page 3: Order summary rendering

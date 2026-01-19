@@ -352,6 +352,8 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .order-type-chip__edit:hover,
@@ -708,6 +710,8 @@ body:not(.nav-enabled) main {
     gap: 4px;
     justify-content: center;
     min-width: 48px;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .nav-theme-controls .theme-option .theme-icon {
