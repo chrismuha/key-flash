@@ -1685,16 +1685,12 @@ body.nav-enabled .left-rail .box {
 body.settings-open::before {
     content: "";
     position: fixed;
-    top: 0;
-    bottom: 0;
-    /* start after the left rail so the nav isn't blurred */
-    left: var(--rail-width);
-    right: 0;
+    inset: 0;
     background: rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    z-index: 1300;
-    pointer-events: none;
+    z-index: 1900;
+    pointer-events: auto;
 }
 
 /* Desktop: keep background sharp while settings is open (matches JS mobile breakpoint 768px) */
@@ -1704,11 +1700,6 @@ body.settings-open::before {
         -webkit-backdrop-filter: none;
         background: rgba(0, 0, 0, 0.08);
     }
-}
-
-/* If the nav is disabled we need the overlay to start at 0 */
-body:not(.nav-enabled).settings-open::before {
-    left: 0;
 }
 
 /* Ensure the settings panel is always sharp and above the overlay */
