@@ -175,40 +175,29 @@ body.nav-enabled .settings-button {
 }
 
 .settings-panel {
-    margin-top: 6px;
     font-size: inherit;
     border: 1px solid #000;
     background: #f7f7f7;
     color: #000;
-    border-radius: 6px;
-    padding: 8px;
+    border-radius: 12px;
+    padding: 12px;
     max-height: calc(100vh - (var(--gap) * 3));
     overflow: auto;
-    align-self: center;
     position: relative;
-    z-index: 1500;
+    min-width: 280px;
+    width: min(520px, 100%);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    pointer-events: auto;
+    z-index: 2201;
+    filter: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
 }
 
 body.theme-dark .settings-panel {
     border-color: #fff;
     background: #222;
     color: #fff;
-}
-
-/* On small screens, render settings as a floating window to the right of the nav */
-@media screen and (max-width: 768px), screen and (max-height: 500px){
-    body.nav-enabled .settings-panel {
-        position: fixed;
-        top: var(--gap);
-        left: calc(var(--rail-width) + var(--gap));
-        right: var(--gap);
-        margin: 0;
-        align-self: auto;
-        width: auto;
-        max-width: calc(100vw - var(--rail-width) - (var(--gap) * 2));
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-        z-index: 1500;
-    }
 }
 
 .settings-close {
@@ -250,6 +239,43 @@ body.theme-dark .settings-panel .settings-reset {
     border-color: #fff;
     background: #222;
     color: #fff;
+}
+
+.settings-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: var(--gap);
+    pointer-events: auto;
+    z-index: 2200;
+}
+
+.settings-overlay:not([hidden]) {
+    display: flex;
+}
+
+body.nav-enabled .settings-overlay {
+    justify-content: flex-start;
+    padding-left: calc(var(--rail-width) + var(--gap));
+}
+
+@media (max-width: 768px) {
+    body.nav-enabled .settings-overlay,
+    body:not(.nav-enabled) .settings-overlay {
+        justify-content: center;
+        padding-left: var(--gap);
+        padding-right: var(--gap);
+    }
+}
+
+.settings-modal {
+    width: 100%;
+    max-width: 560px;
+    max-height: calc(100vh - (var(--gap) * 2));
+    overflow: auto;
+    pointer-events: auto;
 }
 
 /* Disable nav bar */
@@ -1691,34 +1717,28 @@ body.settings-open::before {
     left: var(--rail-width);
     right: 0;
     background: rgba(0, 0, 0, 0.08);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    z-index: 1600;
-    pointer-events: auto;
-}
-
-body.settings-open main {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    z-index: 1500;
     pointer-events: none;
-    user-select: none;
-    transition: filter 0.25s ease;
-    opacity: 0.85;
 }
 
 @media (max-width: 768px) {
-    body.settings-open main,
-    body.settings-open .left-rail {
-        filter: blur(4px);
+    body.settings-open::before {
+        left: 0;
     }
+}
+
+body.settings-open main,
+body.settings-open .left-rail {
+    pointer-events: none;
+    user-select: none;
 }
 
 body.settings-open .settings-button {
     pointer-events: auto;
     z-index: 2002;
     position: relative;
-}
-
-body.settings-open main {
-    opacity: 0.85;
 }
 
 .settings-panel {
@@ -1742,14 +1762,6 @@ body.settings-open .left-rail .nav-logo {
 
 body:not(.nav-enabled).settings-open::before {
     left: 0;
-}
-
-/* Ensure the settings panel is always sharp and above the overlay */
-.settings-panel {
-    z-index: 2001 !important;
-    filter: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
 }
 
 /* Ensure left-rail (nav) remains visually above content (optional) */

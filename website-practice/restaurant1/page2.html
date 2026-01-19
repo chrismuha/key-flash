@@ -22,52 +22,6 @@
         <a class="box" href="page3.html">Page 3</a>
         <button class="settings-button" type="button" aria-haspopup="dialog" aria-expanded="false"
             aria-controls="settings-panel" aria-label="Open settings">⚙️ Settings</button>
-        <div class="settings-panel" id="settings-panel" hidden>
-            <button type="button" class="settings-close" aria-label="Close settings">✕</button>
-            <label
-                title="Menu item arrows control expand/collapse; clicking the pill toggles the section when this is off">
-                <input type="checkbox" class="setting-pill-arrow-only">
-                Menu item arrow expands/collapses only
-            </label>
-            <label title="When an overlay is open, the footer Next button closes it before navigation">
-                <input type="checkbox" class="setting-next-closes-overlay">
-                Footer Next closes overlay first
-            </label>
-            <label title="When enabled, clicking a menu item's arrow also activates its checkbox if it was off">
-                <input type="checkbox" class="setting-arrow-activates" checked>
-                Arrow also activates menu item
-            </label>
-            <label title="Clicking an ingredient label also toggles its checkbox">
-                <input type="checkbox" class="setting-label-selects" checked>
-                Ingredient label toggles checkbox
-            </label>
-            <label title="Clicking a section title (e.g., Pizza/Burger/Sauces) toggles its section checkbox">
-                <input type="checkbox" class="setting-title-selects" checked>
-                Section title toggles checkbox
-            </label>
-            <label title="When you uncheck an item/section, its quantity resets to 1">
-                <input type="checkbox" class="setting-reset-on-deselect">
-                Reset quantity when deselecting
-            </label>
-            <label title="Reset buttons also disable the item and clear its selections">
-                <input type="checkbox" class="setting-reset-disables">
-                Reset button disables item
-            </label>
-            <label title="If you uncheck all optional ingredients, the section will auto-disable">
-                <input type="checkbox" class="setting-auto-disable-empty">
-                Auto-disable section when optional ingredients are all off
-            </label>
-            <label title="When an item is disabled/unchecked, its section collapses automatically">
-                <input type="checkbox" class="setting-auto-collapse-disabled" checked>
-                Auto-collapse section when item is disabled
-            </label>
-            <label title="Place ingredient quantity dropdown after the ingredient label (uncheck to place before)">
-                <input type="checkbox" class="setting-qty-right" checked>
-                Quantity dropdown after label
-            </label>
-            <button type="button" class="settings-reset" aria-label="Reset settings to defaults">Reset to
-                defaults</button>
-        </div>
     </nav>
 
     <!-- Right-side content area (Page 2 / Menu Builder) -->
@@ -305,8 +259,58 @@
             <a class="next-button" href="page3.html" aria-label="Go to next page">Next »</a>
         </div>
     </main>
+    <div class="settings-overlay" id="settings-overlay" hidden>
+        <div class="settings-modal" role="dialog" aria-modal="true">
+            <div class="settings-panel" id="settings-panel" hidden>
+                <button type="button" class="settings-close" aria-label="Close settings">✕</button>
+                <label
+                    title="Menu item arrows control expand/collapse; clicking the pill toggles the section when this is off">
+                    <input type="checkbox" class="setting-pill-arrow-only">
+                    Menu item arrow expands/collapses only
+                </label>
+                <label title="When an overlay is open, the footer Next button closes it before navigation">
+                    <input type="checkbox" class="setting-next-closes-overlay">
+                    Footer Next closes overlay first
+                </label>
+                <label title="When enabled, clicking a menu item's arrow also activates its checkbox if it was off">
+                    <input type="checkbox" class="setting-arrow-activates" checked>
+                    Arrow also activates menu item
+                </label>
+                <label title="Clicking an ingredient label also toggles its checkbox">
+                    <input type="checkbox" class="setting-label-selects" checked>
+                    Ingredient label toggles checkbox
+                </label>
+                <label title="Clicking a section title (e.g., Pizza/Burger/Sauces) toggles its section checkbox">
+                    <input type="checkbox" class="setting-title-selects" checked>
+                    Section title toggles checkbox
+                </label>
+                <label title="When you uncheck an item/section, its quantity resets to 1">
+                    <input type="checkbox" class="setting-reset-on-deselect">
+                    Reset quantity when deselecting
+                </label>
+                <label title="Reset buttons also disable the item and clear its selections">
+                    <input type="checkbox" class="setting-reset-disables">
+                    Reset button disables item
+                </label>
+                <label title="If you uncheck all optional ingredients, the section will auto-disable">
+                    <input type="checkbox" class="setting-auto-disable-empty">
+                    Auto-disable section when optional ingredients are all off
+                </label>
+                <label title="When an item is disabled/unchecked, its section collapses automatically">
+                    <input type="checkbox" class="setting-auto-collapse-disabled" checked>
+                    Auto-collapse section when item is disabled
+                </label>
+                <label title="Place ingredient quantity dropdown after the ingredient label (uncheck to place before)">
+                    <input type="checkbox" class="setting-qty-right" checked>
+                    Quantity dropdown after label
+                </label>
+                <button type="button" class="settings-reset" aria-label="Reset settings to defaults">Reset to
+                    defaults</button>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
 
 </body>
-<script src="app.js"></script>
 
 </html>

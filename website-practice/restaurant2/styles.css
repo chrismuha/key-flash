@@ -1426,10 +1426,21 @@ body.order-type main {
     align-items: center;
     justify-content: center;
     gap: var(--gap);
-    min-height: calc(100vh - (var(--nav-offset) + var(--gap) * 3));
-    width: min(720px, calc(100% - var(--gap) * 2));
-    margin-inline: auto;
-    padding-bottom: 180px;
+    min-height: calc(100vh - var(--nav-offset));
+    height: 100%;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+    padding-bottom: calc(220px + var(--safe-area-bottom));
+}
+
+@media (max-width: 768px) {
+    body.order-type main {
+        width: 100%;
+        height: 100%;
+        margin-inline: 0;
+        padding-inline: var(--gap);
+    }
 }
 
 @media (max-width: 1024px) {
