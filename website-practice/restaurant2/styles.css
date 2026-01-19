@@ -55,6 +55,16 @@ body {
     background: #fff;
 }
 
+body.page2 {
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    body.page2 {
+        background: #dba37f;
+    }
+}
+
 /* Section: Left Rail Navigation */
 .left-rail {
     display: flex;
@@ -923,16 +933,20 @@ body.page2 main {
     position: relative;
     margin-top: 0;
     padding: max(calc(var(--nav-offset) - 4px), 1px) clamp(16px, 4vw, 40px) calc(180px);
-    width: calc(100% - var(--gap) * 2);
-    max-width: 100%;
-    margin-inline: var(--gap);
+    width: 100%;
+    max-width: none;
     min-height: calc(100vh - var(--nav-offset) - 220px);
+}
+
+body.page2:not(.nav-enabled) main {
+    padding-top: calc(var(--nav-height) + var(--gap) * 2);
 }
 
 @media (max-width: 640px) {
     body.page2 main {
         padding: max(calc(var(--nav-offset) - 4px), 1px) clamp(16px, 6vw, 32px) calc(180px);
-        width: min(100%, 90vw);
+        width: 100%;
+        margin-inline: 0;
     }
 
     body.page2 #builder-error {
