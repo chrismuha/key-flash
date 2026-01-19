@@ -1716,6 +1716,12 @@ body.settings-open .left-rail {
     user-select: none;
 }
 
+/* block user interactions for scrollable sauce list while settings is open */
+body.settings-open #sauces,
+body.settings-open .sauces {
+    pointer-events: none !important;
+}
+
 body.settings-open .settings-button {
     pointer-events: auto;
     z-index: 2002;
