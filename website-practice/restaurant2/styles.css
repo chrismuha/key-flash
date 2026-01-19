@@ -719,7 +719,7 @@ body:not(.nav-enabled) main {
 
 .nav-theme-controls {
     position: fixed;
-    top: clamp(12px, calc(var(--nav-height) + var(--gap)), 220px);
+    top: 3px;
     right: 8px;
     display: flex;
     flex-direction: row;
@@ -771,7 +771,7 @@ body.theme-dark .nav-theme-controls .theme-option {
 
 @media (max-width: 768px) {
     .nav-theme-controls {
-        top: calc(var(--nav-height) + var(--gap));
+        top: 3px;
         right: 6px;
         padding: 2px 4px;
         gap: 2px;
