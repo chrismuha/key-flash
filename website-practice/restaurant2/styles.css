@@ -141,10 +141,12 @@ body.page2 {
     .mobile-menu-swiper .swiper-track {
         scrollbar-width: none;
     }
+
     .mobile-menu-swiper .swiper-track::-webkit-scrollbar {
         height: 0;
         background: transparent;
     }
+
     .mobile-menu-swiper .swiper-track::-webkit-scrollbar-thumb {
         background: transparent;
     }
@@ -153,10 +155,12 @@ body.page2 {
 .mobile-menu-swiper.show-scroll .swiper-track {
     scrollbar-width: auto;
 }
+
 .mobile-menu-swiper.show-scroll .swiper-track::-webkit-scrollbar {
     height: 8px;
     background: transparent;
 }
+
 .mobile-menu-swiper.show-scroll .swiper-track::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.25);
     border-radius: 999px;
@@ -542,6 +546,7 @@ body.qty-right .menu-section label .sauce-qty {
 }
 
 @media (max-width: 540px) {
+
     body.qty-right .menu-section form label,
     .menu-section form label {
         display: inline-flex;
@@ -562,7 +567,7 @@ body.qty-right .menu-section label .sauce-qty {
     .menu-section form label .bread-select select {
         /* flex-basis: 100%; */
         order: 2;
-        width: 120px; 
+        width: 120px;
         min-width: 80px;
         max-width: 100%;
         margin-left: 0;
@@ -714,7 +719,7 @@ body:not(.nav-enabled) main {
 
 .nav-theme-controls {
     position: fixed;
-    top: 8px;
+    top: clamp(12px, calc(var(--nav-height) + var(--gap)), 220px);
     right: 8px;
     display: flex;
     flex-direction: row;
@@ -766,7 +771,7 @@ body.theme-dark .nav-theme-controls .theme-option {
 
 @media (max-width: 768px) {
     .nav-theme-controls {
-        top: 6px;
+        top: calc(var(--nav-height) + var(--gap));
         right: 6px;
         padding: 2px 4px;
         gap: 2px;
