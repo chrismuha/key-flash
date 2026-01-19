@@ -301,6 +301,9 @@
 
     const navToggleBtn = document.getElementById('nav-toggle-btn') || document.querySelector('.nav-toggle');
     const themeModeBtns = Array.from(document.querySelectorAll('.theme-mode-btn, .theme-mode-toggle'));
+    const footerNext = document.querySelector('.next-button');
+    let page3NavEnabled = false;
+    let page3NavBlockedMessage = '';
 
     const updateNavOffset = () => {
       const nav = document.querySelector('.left-rail');
@@ -309,6 +312,47 @@
       document.documentElement.style.setProperty('--nav-offset', `${h}px`);
     };
     window.addEventListener('resize', updateNavOffset);
+
+    const evaluatePage3Requirements = () => {
+      const okType = hasOrderTypeSelected();
+      const okMenu = hasMenuSelection();
+      const typeNow = (() => { try { return localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { return ''; } })();
+      const okDelivery = (typeNow !== 'delivery') || hasValidDeliveryDetails();
+      const enablePage2 = okType && okDelivery;
+      const enablePage3 = okType && okMenu && okDelivery;
+      const needsType = !okType;
+      const needsMenu = !okMenu;
+      const needsDelivery = (typeNow === 'delivery') && !okDelivery;
+      let tooltip = '';
+      let generalMessage = '';
+      if (!enablePage3) {
+        if (needsType && needsMenu) {
+          tooltip = 'Select an order type and choose at least one menu item to enable Page 3';
+          generalMessage = 'Select an order type and choose at least one menu item to proceed';
+        } else if (needsType) {
+          tooltip = 'Select an order type to enable Page 3';
+          generalMessage = 'Select an order type to proceed';
+        } else if (needsDelivery) {
+          tooltip = 'Complete delivery details to enable Page 3';
+          generalMessage = 'Complete delivery details to proceed';
+        } else {
+          tooltip = 'Choose at least one menu item to enable Page 3';
+          generalMessage = 'Choose at least one menu item to proceed';
+        }
+      }
+      return { okType, okMenu, okDelivery, enablePage2, enablePage3, typeNow, tooltip, generalMessage };
+    };
+
+    const updateFooterNextState = () => {
+      if (!footerNext) return;
+      if (page3NavEnabled) {
+        footerNext.removeAttribute('aria-disabled');
+        footerNext.classList.remove('next-disabled');
+      } else {
+        footerNext.setAttribute('aria-disabled', 'true');
+        footerNext.classList.add('next-disabled');
+      }
+    };
 
     const orderChip = orderTypeChips[0] || null;
     const orderChipOrigin = orderChip ? {
@@ -394,14 +438,15 @@
     };
 
     const updatePage3NavState = () => {
-      const okType = hasOrderTypeSelected();
-      const okMenu = hasMenuSelection();
-      const typeNow = (() => { try { return localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { return ''; } })();
-      const okDelivery = (typeNow !== 'delivery') || hasValidDeliveryDetails();
-      const enablePage2 = okType && okDelivery;
-      const enablePage3 = okType && okMenu && okDelivery;
+      const {
+        enablePage2,
+        enablePage3,
+        typeNow,
+        tooltip,
+        generalMessage
+      } = evaluatePage3Requirements();
 
-      const lockAnchor = (anchor, enabled, tooltip) => {
+      const lockAnchor = (anchor, enabled, hint) => {
         if (enabled) {
           anchor.removeAttribute('aria-disabled');
           anchor.removeAttribute('tabindex');
@@ -411,7 +456,7 @@
           anchor.setAttribute('aria-disabled', 'true');
           anchor.setAttribute('tabindex', '-1');
           anchor.addEventListener('click', preventNavClick);
-          if (tooltip) anchor.setAttribute('title', tooltip);
+          if (hint) anchor.setAttribute('title', hint);
         }
       };
 
@@ -421,18 +466,12 @@
       });
 
       document.querySelectorAll('.left-rail a[href$="page3.html"]').forEach((a) => {
-        let msg = '';
-        const needsType = !okType;
-        const needsMenu = !okMenu;
-        const needsDelivery = (typeNow === 'delivery') && !okDelivery;
-        if (!enablePage3) {
-          if (needsType && needsMenu) msg = 'Select an order type and choose at least one menu item to enable Page 3';
-          else if (needsType) msg = 'Select an order type to enable Page 3';
-          else if (needsDelivery) msg = 'Complete delivery details to enable Page 3';
-          else msg = 'Choose at least one menu item to enable Page 3';
-        }
-        lockAnchor(a, enablePage3, msg);
+        lockAnchor(a, enablePage3, tooltip);
       });
+
+      page3NavEnabled = enablePage3;
+      page3NavBlockedMessage = generalMessage;
+      updateFooterNextState();
     }
 
     let navInitialEnabled = null;
@@ -1103,12 +1142,26 @@
       if (sliderNext) {
         sliderNext.addEventListener('click', () => moveSlider(1));
       }
-      const footerNext = document.querySelector('.next-button');
       if (footerNext) {
         footerNext.addEventListener('click', (event) => {
           if (nextClosesOverlay && typeof anyOverlayOpen === 'function' && anyOverlayOpen()) {
             event.preventDefault();
             if (typeof closeAllOverlays === 'function') closeAllOverlays();
+            return;
+          }
+          const state = evaluatePage3Requirements();
+          page3NavEnabled = state.enablePage3;
+          page3NavBlockedMessage = state.generalMessage;
+          updateFooterNextState();
+          if (!page3NavEnabled) {
+            event.preventDefault();
+            if (builderError) {
+              builderError.hidden = false;
+              builderError.textContent = page3NavBlockedMessage || 'Please choose at least one section from the menu';
+              if (typeof ensureBuilderErrorVisible === 'function') {
+                ensureBuilderErrorVisible();
+              }
+            }
           }
         });
       }
@@ -1604,12 +1657,25 @@
         syncRequiredCheckboxes();
       };
 
+      const ensureBuilderErrorVisible = () => {
+        if (!builderError || builderError.hidden) return;
+        const footer = document.querySelector('.page-footer');
+        const footerHeight = footer ? footer.offsetHeight : 0;
+        const buffer = footerHeight + 24;
+        const rect = builderError.getBoundingClientRect();
+        const overlap = rect.bottom - (window.innerHeight - buffer);
+        if (overlap > 0) {
+          window.scrollBy({ top: overlap + 12, behavior: 'smooth' });
+        }
+      };
+
       const updateBuilderError = () => {
         if (!builderError) return;
         const anyActive = sectionToggles.some((t) => t.checked);
         if (!anyActive) {
           builderError.hidden = false;
           builderError.textContent = 'Please choose at least one section from the menu';
+          ensureBuilderErrorVisible();
           return;
         }
         const saucesToggle = sectionToggles.find((t) => t.dataset.section === 'sauces');
@@ -1619,6 +1685,7 @@
           if (!sauces.length) {
             builderError.hidden = false;
             builderError.textContent = 'Please select at least one sauce';
+            ensureBuilderErrorVisible();
             return;
           }
         }

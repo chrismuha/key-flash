@@ -13,6 +13,7 @@
     --box-border: #000;
     --nav-logo-h: var(--logo-h);
     --focus-outline-dark: #ff9800;
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Section: Global Resets */
@@ -228,6 +229,10 @@ body.theme-dark .mobile-menu-swiper .swiper-chip.menu-launch-active {
     font-weight: 800;
     cursor: pointer;
     flex-shrink: 0;
+    color: #000;
+    -webkit-text-fill-color: #000;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 body.theme-dark .mobile-menu-swiper .swiper-arrow {
@@ -354,6 +359,8 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     justify-content: center;
     -webkit-appearance: none;
     appearance: none;
+    color: #000;
+    -webkit-text-fill-color: #000;
 }
 
 .order-type-chip__edit:hover,
@@ -655,6 +662,10 @@ body:not(.nav-enabled) main {
         margin-top: 2px;
     }
 
+    body.mobile-ui:not(.nav-enabled) main {
+        padding-top: calc(var(--nav-height) + var(--gap) * 2);
+    }
+
     .left-rail .box {
         font-size: 12pt;
         padding: 0 12px;
@@ -712,6 +723,8 @@ body:not(.nav-enabled) main {
     min-width: 48px;
     -webkit-appearance: none;
     appearance: none;
+    color: #000;
+    -webkit-text-fill-color: #000;
 }
 
 .nav-theme-controls .theme-option .theme-icon {
@@ -892,6 +905,9 @@ body.page2 #builder-error {
     margin-top: 0;
     margin-bottom: 16px;
     padding-bottom: var(--gap);
+    position: relative;
+    z-index: 1;
+    scroll-margin-bottom: calc(220px + var(--safe-area-bottom));
 }
 
 body.page2 main {
@@ -911,7 +927,7 @@ body.page2 main {
     }
 
     body.page2 #builder-error {
-        margin-bottom: calc(240px - var(--nav-offset));
+        margin-bottom: max(calc(240px - var(--nav-offset)), 220px);
     }
 }
 
@@ -950,6 +966,12 @@ body.page2 .page-footer .action-button:hover {
 
 body.page2 .page-footer .action-button:active {
     transform: translateY(1px);
+}
+
+body.page2 .page-footer .action-button[aria-disabled="true"] {
+    opacity: 0.65;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 body.page2 .page-footer .footer-back-button {
