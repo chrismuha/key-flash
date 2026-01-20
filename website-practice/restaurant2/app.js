@@ -263,8 +263,8 @@
     const orderTypeEditButtons = Array.from(document.querySelectorAll('.order-type-chip__edit'));
     const orderTypeHeading = document.querySelector('body.order-type main h1');
     const orderNoteEl = document.querySelector('body.order-type .order-note');
-    const orderHeadingDefaultText = orderTypeHeading ? orderTypeHeading.textContent.trim() : 'Please select your order type';
-    const orderNoteDefaultText = orderNoteEl ? (orderNoteEl.textContent.trim() || 'Please select your order type') : 'Please select your order type';
+    const orderHeadingDefaultText = orderTypeHeading ? orderTypeHeading.textContent.trim() : 'Select your order type';
+    const orderNoteDefaultText = orderNoteEl ? (orderNoteEl.textContent.trim() || 'Select your order type') : 'Select your order type';
     const refreshOrderPrompts = (type) => {
       if (orderTypeHeading) {
         const hideHeading = type === 'delivery';
@@ -1038,7 +1038,7 @@
             const sauces = Array.isArray(ing['sauces_ingredients[]']) ? ing['sauces_ingredients[]'] : [];
             if (!sauces.length) {
               err.hidden = false;
-              err.textContent = 'Please select at least one sauce';
+              err.textContent = 'Select at least one sauce';
               return;
             }
           }
@@ -1684,7 +1684,7 @@
           const sauces = Array.isArray(ing['sauces_ingredients[]']) ? ing['sauces_ingredients[]'] : [];
           if (!sauces.length) {
             builderError.hidden = false;
-            builderError.textContent = 'Please select at least one sauce';
+            builderError.textContent = 'Select at least one sauce';
             ensureBuilderErrorVisible();
             return;
           }

@@ -2396,9 +2396,9 @@
         const saucesSelected = Array.from(document.querySelectorAll('input[type="checkbox"][name="sauces_ingredients[]"]:checked')).length > 0;
         let message = '';
         if (!anySectionActive) {
-          message = 'Please select at least one menu item.';
+          message = 'Select at least one menu item.';
         } else if (saucesActive && !saucesSelected) {
-          message = 'Please select at least one sauce or uncheck Sauces.';
+          message = 'Select at least one sauce or uncheck Sauces.';
         }
         // Clear previous invalid highlights
         document.querySelectorAll('.menu-summary').forEach((s) => s.classList.remove('invalid'));
@@ -2577,9 +2577,9 @@
           const saucesSelected = Array.from(document.querySelectorAll('input[type="checkbox"][name="sauces_ingredients[]"]:checked')).length > 0;
           let message = '';
           if (!anySectionActive) {
-            message = 'Please select at least one menu item.';
+            message = 'Select at least one menu item.';
           } else if (saucesActive && !saucesSelected) {
-            message = 'Please select at least one sauce or uncheck Sauces.';
+            message = 'Select at least one sauce or uncheck Sauces.';
           }
           if (message) {
             if (err) {
