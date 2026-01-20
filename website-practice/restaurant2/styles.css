@@ -368,6 +368,14 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     }
 }
 
+@media screen and (max-width: 812px) and (-webkit-min-device-pixel-ratio: 2) {
+    .order-type-chip__edit {
+        font-size: 30pt;
+        width: 52px;
+        height: 52px;
+    }
+}
+
 .order-type-chip__edit {
     margin-left: auto;
     border: 1px solid #000;
@@ -1111,6 +1119,12 @@ main ol {
 main h1 {
     font-size: 24pt;
     line-height: 48px;
+}
+
+@media (max-width: 768px) {
+    body.page2 main h1 {
+        font-size: 23pt;
+    }
 }
 
 main h2 {
