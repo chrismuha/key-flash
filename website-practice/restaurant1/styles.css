@@ -226,7 +226,8 @@ body.theme-dark .settings-panel {
 .settings-close {
     border: none;
     background: transparent;
-    font-size: 12pt;
+    font-size: 14pt;
+    padding: 6px 10px;
     cursor: pointer;
     align-self: flex-end;
 }
@@ -234,6 +235,14 @@ body.theme-dark .settings-panel {
 .settings-close:hover,
 .settings-close:focus-visible {
     text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    /* Increase close button tap target on smaller screens */
+    .settings-close {
+        font-size: 16pt;
+        padding: 8px 12px;
+    }
 }
 
 /* Ensure close button is visible in dark mode */
