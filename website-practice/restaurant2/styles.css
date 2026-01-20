@@ -358,7 +358,7 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     }
 
     .order-type-chip__edit {
-        font-size: 22.5pt;
+        font-size: 26pt;
     }
 }
 
@@ -482,6 +482,9 @@ body.settings-open {
     font-size: 12pt;
     cursor: pointer;
     color: #000;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-text-fill-color: currentColor;
 }
 
 .settings-close:hover,
