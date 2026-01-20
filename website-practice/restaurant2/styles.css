@@ -395,7 +395,6 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     appearance: none;
     color: #000;
     -webkit-text-fill-color: currentColor;
-    text-fill-color: currentColor;
     -webkit-text-size-adjust: none;
     text-size-adjust: none;
 }
@@ -971,6 +970,10 @@ body.page2 main {
     min-height: calc(100vh - var(--nav-offset) - 220px);
 }
 
+body.page2.has-go-back main {
+    padding-top: calc(var(--nav-offset) + 32px);
+}
+
 body.page2:not(.nav-enabled) main {
     padding-top: calc(var(--nav-height) + var(--gap) * 2);
 }
@@ -980,6 +983,10 @@ body.page2:not(.nav-enabled) main {
         padding: max(calc(var(--nav-offset) - 4px), 1px) clamp(16px, 6vw, 32px) calc(180px);
         width: 100%;
         margin-inline: 0;
+    }
+
+    body.page2.has-go-back main {
+        padding-top: calc(var(--nav-offset) + 40px);
     }
 
     body.page2 #builder-error {
