@@ -198,7 +198,8 @@ body.theme-dark .settings-panel {
 }
 
 /* On small screens, render settings as a full overlay */
-@media screen and (max-width: 768px), screen and (max-height: 500px) {
+@media screen and (max-width: 768px),
+screen and (max-height: 500px) {
     body.settings-open .settings-panel {
         position: fixed;
         top: var(--gap);
@@ -232,6 +233,7 @@ body.theme-dark .settings-panel {
     align-self: flex-end;
     color: inherit;
     -webkit-appearance: none;
+    appearance: none;
     min-width: 36px;
     min-height: 36px;
     line-height: 1;
@@ -246,6 +248,7 @@ body.theme-dark .settings-panel {
 }
 
 @media (max-width: 768px) {
+
     /* Increase close button tap target on smaller screens */
     .settings-close {
         font-size: 20pt;
@@ -862,6 +865,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         margin-left: 6px;
         white-space: nowrap;
     }
+
     main fieldset label .ingredient-qty {
         order: 2;
         margin-left: 6px;
@@ -948,16 +952,19 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         background: transparent;
         margin: 0;
     }
+
     .moved-theme {
         right: calc(var(--gap));
         top: calc(var(--gap));
     }
+
     .moved-theme .theme-menu {
         position: absolute;
         top: calc(2.4rem + 6px);
         right: 0;
         z-index: 1220;
     }
+
     .moved-go-back {
         left: calc(var(--gap));
         top: calc(var(--gap));
@@ -972,7 +979,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         align-items: start !important;
     }
 
-    main > h1 {
+    main>h1 {
         font-size: 20pt !important;
     }
 }
@@ -1024,6 +1031,7 @@ main h1 {
         font-size: 21.375pt;
         line-height: 41px;
     }
+
     body.page2 main h1 {
         margin-top: 46px;
     }
