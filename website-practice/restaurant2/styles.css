@@ -356,6 +356,10 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
         align-self: flex-start;
         margin-left: 4px;
     }
+
+    .order-type-chip__edit {
+        font-size: 22.5pt;
+    }
 }
 
 .order-type-chip__edit {
