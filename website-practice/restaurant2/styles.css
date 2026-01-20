@@ -362,6 +362,12 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     }
 }
 
+@media (max-width: 480px) {
+    .order-type-chip__edit {
+        font-size: 24pt;
+    }
+}
+
 .order-type-chip__edit {
     margin-left: auto;
     border: 1px solid #000;
