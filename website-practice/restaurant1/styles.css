@@ -1024,6 +1024,9 @@ main h1 {
         font-size: 21.375pt;
         line-height: 41px;
     }
+    body.page2 main h1 {
+        margin-top: 46px;
+    }
 }
 
 main h2 {
