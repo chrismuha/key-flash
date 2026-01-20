@@ -2396,7 +2396,7 @@
         const saucesSelected = Array.from(document.querySelectorAll('input[type="checkbox"][name="sauces_ingredients[]"]:checked')).length > 0;
         let message = '';
         if (!anySectionActive) {
-          message = 'Please select at least one menu category before continuing.';
+          message = 'Please select at least one menu item before continuing.';
         } else if (saucesActive && !saucesSelected) {
           message = 'Please select at least one sauce or uncheck Sauces.';
         }
@@ -2577,7 +2577,7 @@
           const saucesSelected = Array.from(document.querySelectorAll('input[type="checkbox"][name="sauces_ingredients[]"]:checked')).length > 0;
           let message = '';
           if (!anySectionActive) {
-            message = 'Please select at least one menu category before continuing.';
+            message = 'Please select at least one menu item before continuing.';
           } else if (saucesActive && !saucesSelected) {
             message = 'Please select at least one sauce or uncheck Sauces.';
           }
