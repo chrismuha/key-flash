@@ -230,6 +230,8 @@ body.theme-dark .settings-panel {
     padding: 6px 10px;
     cursor: pointer;
     align-self: flex-end;
+    color: inherit;
+    -webkit-appearance: none;
 }
 
 .settings-close:hover,
