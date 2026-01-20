@@ -382,6 +382,8 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     color: #000;
     -webkit-text-fill-color: currentColor;
     text-fill-color: currentColor;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
 }
 
 .order-type-chip__edit:hover,
