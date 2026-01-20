@@ -1729,10 +1729,10 @@
         openSections.forEach((d) => { d.open = false; });
         return true;
       };
-      const nextButton = document.querySelector('.next-button');
+      const pageNextButton = document.querySelector('.next-button');
       const resetAllBtn = document.querySelector('.reset-all');
-      if (nextButton) {
-        nextButton.addEventListener('click', (e) => {
+      if (pageNextButton) {
+        pageNextButton.addEventListener('click', (e) => {
           const closed = closeAllOverlays();
           const collapsedDetails = closed ? false : collapseOpenMenuDetails();
           if (nextClosesOverlay && (closed || collapsedDetails)) {
@@ -2386,6 +2386,18 @@
         }
       });
 
+      function updateNextButtonState() {
+        if (!pageNextButton) return;
+        const okMenu = hasMenuSelection();
+        if (okMenu) {
+          pageNextButton.removeAttribute('aria-disabled');
+          pageNextButton.removeAttribute('tabindex');
+        } else {
+          pageNextButton.setAttribute('aria-disabled', 'true');
+          pageNextButton.setAttribute('tabindex', '-1');
+        }
+      }
+
       // Live update builder error on any relevant change
       const updateBuilderError = () => {
         const err = document.getElementById('builder-error');
@@ -2415,6 +2427,7 @@
         } else {
           err.hidden = true;
         }
+        updateNextButtonState();
       };
       const autoDisableIfEmpty = (section) => {
         if (!autoDisableEmpty) return;
@@ -2566,9 +2579,8 @@
         });
       });
       // Next: must have at least one menu section checked; if Sauces is active, require at least one sauce
-      const next = document.querySelector('.next-button');
-      if (next) {
-        next.addEventListener('click', (e) => {
+      if (pageNextButton) {
+        pageNextButton.addEventListener('click', (e) => {
           saveIngredients();
           const err = document.getElementById('builder-error');
           const togglesArr = Array.from(document.querySelectorAll('.section-toggle'));
@@ -2587,9 +2599,11 @@
               err.hidden = false;
               err.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
-          } else {
-            if (err) err.hidden = true;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return;
           }
+          if (err) err.hidden = true;
         });
       }
     }
