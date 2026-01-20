@@ -226,12 +226,18 @@ body.theme-dark .settings-panel {
 .settings-close {
     border: none;
     background: transparent;
-    font-size: 14pt;
+    font-size: 18pt;
     padding: 6px 10px;
     cursor: pointer;
     align-self: flex-end;
     color: inherit;
     -webkit-appearance: none;
+    min-width: 36px;
+    min-height: 36px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .settings-close:hover,
@@ -242,7 +248,7 @@ body.theme-dark .settings-panel {
 @media (max-width: 768px) {
     /* Increase close button tap target on smaller screens */
     .settings-close {
-        font-size: 16pt;
+        font-size: 20pt;
         padding: 8px 12px;
     }
 }
