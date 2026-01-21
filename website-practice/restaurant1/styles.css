@@ -9,9 +9,9 @@
     --box-bg: #2ecc71;
     --box-border: #000;
     --nav-logo-h: var(--logo-h);
-    --theme-overlay-clearance: 48px;
-    --nav-expanded-clearance: 24px;
-    --nav-dropdown-clearance: 20px;
+    --theme-overlay-clearance: 15px;
+    --nav-expanded-clearance: 15px;
+    --nav-dropdown-clearance: 15px;
 }
 
 /* SECTION: Scroll patch */
@@ -343,6 +343,25 @@ body.theme-menu-open.page2 main {
 
 body.nav-enabled.theme-menu-open.page2 main {
     padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance) + var(--nav-dropdown-clearance));
+}
+
+body.nav-enabled.page2 main {
+    padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
+}
+
+@media (max-width: 768px) {
+    body.page2 main {
+        padding-top: calc(var(--gap) * 2 + var(--theme-overlay-clearance));
+    }
+    body.theme-menu-open.page2 main {
+        padding-top: calc(var(--gap) * 2 + var(--theme-overlay-clearance));
+    }
+    body.nav-enabled.theme-menu-open.page2 main {
+        padding-top: calc(var(--gap) * 2 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
+    }
+    body.nav-enabled.page2 main {
+        padding-top: calc(var(--gap) * 2 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
+    }
 }
 
 /* SECTION: Theme (Dark) */
@@ -867,7 +886,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
 /* Mobile tightening for builder page */
 @media (max-width: 540px) {
     body.page2 main {
-        padding: calc(var(--gap) * 2) var(--gap) 96px var(--gap);
+        padding: calc(var(--gap) * 2 + var(--theme-overlay-clearance)) var(--gap) 96px var(--gap);
         max-width: 100%;
     }
 
