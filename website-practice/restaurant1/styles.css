@@ -11,6 +11,7 @@
     --nav-logo-h: var(--logo-h);
     --theme-overlay-clearance: 48px;
     --nav-expanded-clearance: 24px;
+    --nav-dropdown-clearance: 20px;
 }
 
 /* SECTION: Scroll patch */
@@ -334,6 +335,14 @@ body.nav-enabled main {
     margin-left: var(--rail-width);
     padding-right: var(--gap);
     padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
+}
+
+body.theme-menu-open.page2 main {
+    padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance) + var(--nav-dropdown-clearance));
+}
+
+body.nav-enabled.theme-menu-open.page2 main {
+    padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance) + var(--nav-dropdown-clearance));
 }
 
 /* SECTION: Theme (Dark) */

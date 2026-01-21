@@ -554,15 +554,21 @@
         themeToggleBtn.setAttribute('aria-label', 'Open theme menu');
       }
     };
+    const syncThemeMenuClass = (open) => {
+      body.classList.toggle('theme-menu-open', open);
+    };
+
     const closeThemeMenu = () => {
       if (!themeMenu || !themeToggleBtn) return;
       themeMenu.hidden = true;
       themeToggleBtn.setAttribute('aria-expanded', 'false');
+      syncThemeMenuClass(false);
     };
     const openThemeMenu = () => {
       if (!themeMenu || !themeToggleBtn) return;
       themeMenu.hidden = false;
       themeToggleBtn.setAttribute('aria-expanded', 'true');
+      syncThemeMenuClass(true);
     };
     closeThemeMenu();
     if (themeToggleBtn && themeMenu) {
