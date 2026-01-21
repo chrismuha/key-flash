@@ -829,11 +829,20 @@ body.page2 .collapse-footer:hover {
     filter: brightness(0.95);
 }
 
+body.page2 .next-button[aria-disabled="true"]:hover,
+body.page2 .next-button[aria-disabled="true"]:focus-visible {
+    filter: none;
+}
+
 body.page2 .reset-all:active,
 body.page2 .next-button:active,
 body.page2 .collapse-all:active,
 body.page2 .collapse-footer:active {
     transform: translateY(1px);
+}
+
+body.page2 .next-button[aria-disabled="true"]:active {
+    transform: none;
 }
 
 body.mobile-ui.page2 .page-actions .collapse-mobile {
