@@ -333,6 +333,7 @@ body.nav-enabled main {
     max-width: 75ch;
     margin-left: var(--rail-width);
     padding-right: var(--gap);
+    padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
 }
 
 /* SECTION: Theme (Dark) */
@@ -800,12 +801,8 @@ body.theme-dark.page2 .next-button[aria-disabled="true"] {
     opacity: 0.7;
 }
 
-body.nav-enabled main {
-    margin-top: var(--nav-expanded-clearance);
-}
-
-body.nav-enabled.page2 main {
-    margin-top: var(--nav-expanded-clearance);
+body.nav-enabled .theme-dropdown {
+    top: calc(var(--nav-expanded-clearance) / 2);
 }
 
 body.page2 .reset-all:hover,
