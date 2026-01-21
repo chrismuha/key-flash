@@ -1438,6 +1438,12 @@ body.order-type main h1 {
         font-size: 21.375pt;
         line-height: 41px;
     }
+    body.order-type main {
+        padding-top: calc(var(--gap) * 3 + var(--theme-overlay-clearance));
+    }
+    body.nav-enabled.order-type main {
+        padding-top: calc(var(--gap) * 3 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
+    }
 }
 
 body.order-type .order-options {

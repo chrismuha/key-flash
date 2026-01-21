@@ -2089,8 +2089,29 @@
         const entries = Object.entries(ingredients || {});
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
         const qtyLabelMap = { '2': 'Light', '3': 'Extra', '4': 'x3' };
-        const qtyLabel = (group, val) => {
-          const key = `${group}|${val}`;
+        const resolveIngredientValueKey = (rawValue) => {
+          if (rawValue == null) return '';
+          if (typeof rawValue === 'string' || typeof rawValue === 'number' || typeof rawValue === 'boolean') {
+            return String(rawValue);
+          }
+          if (Array.isArray(rawValue)) {
+            return rawValue.map(resolveIngredientValueKey).filter(Boolean).join(',');
+          }
+          if (typeof rawValue === 'object') {
+            const candidate = rawValue.value ?? rawValue.key ?? rawValue.name ?? rawValue.label ?? rawValue.text;
+            if (candidate !== undefined) {
+              return resolveIngredientValueKey(candidate);
+            }
+            try {
+              return JSON.stringify(rawValue);
+            } catch {
+              return String(rawValue);
+            }
+          }
+          return '';
+        };
+        const qtyLabel = (group, keyValue) => {
+          const key = `${group}|${keyValue}`;
           const q = qtyMap && qtyMap[key];
           const qStr = q == null || q === '' ? '1' : String(q);
           if (qStr === '1') return ' (Regular)';
@@ -2133,9 +2154,11 @@
             const ul = document.createElement('ul');
             values.forEach((val) => {
               const li = document.createElement('li');
-              const mapKey = `${group}|${val}`;
-              const pretty = INGREDIENT_LABELS[mapKey] || String(val || '').replace(/_/g, ' ');
-              li.textContent = normalizeJalapenoLabel(pretty) + qtyLabel(group, val);
+              const valueKey = normalizeJalapenoValue(resolveIngredientValueKey(val));
+              const mapKey = `${group}|${valueKey}`;
+              const fallback = valueKey ? String(valueKey).replace(/_/g, ' ') : '';
+              const pretty = INGREDIENT_LABELS[mapKey] || fallback;
+              li.textContent = normalizeJalapenoLabel(pretty) + qtyLabel(group, valueKey);
               ul.appendChild(li);
             });
             sectionWrap.appendChild(ul);
