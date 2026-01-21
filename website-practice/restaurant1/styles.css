@@ -1798,6 +1798,10 @@ body.settings-open::before {
     body.settings-open::before {
         left: 0;
     }
+    body.page2.settings-open .page-actions {
+        width: 100%;
+        left: 0 !important;
+    }
 }
 
 body.settings-open main {
