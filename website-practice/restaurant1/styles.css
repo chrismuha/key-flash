@@ -337,14 +337,6 @@ body.nav-enabled main {
     padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
 }
 
-body.theme-menu-open.page2 main {
-    padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance) + var(--nav-dropdown-clearance));
-}
-
-body.nav-enabled.theme-menu-open.page2 main {
-    padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance) + var(--nav-dropdown-clearance));
-}
-
 body.nav-enabled.page2 main {
     padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
 }
@@ -352,12 +344,6 @@ body.nav-enabled.page2 main {
 @media (max-width: 768px) {
     body.page2 main {
         padding-top: calc(var(--gap) * 2 + var(--theme-overlay-clearance));
-    }
-    body.theme-menu-open.page2 main {
-        padding-top: calc(var(--gap) * 2 + var(--theme-overlay-clearance));
-    }
-    body.nav-enabled.theme-menu-open.page2 main {
-        padding-top: calc(var(--gap) * 2 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
     }
     body.nav-enabled.page2 main {
         padding-top: calc(var(--gap) * 2 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
@@ -819,7 +805,6 @@ body.page2 .next-button[aria-disabled="true"] {
     color: #000;
     opacity: 0.7;
     cursor: not-allowed;
-    pointer-events: none;
 }
 
 body.theme-dark.page2 .next-button[aria-disabled="true"] {
@@ -827,6 +812,10 @@ body.theme-dark.page2 .next-button[aria-disabled="true"] {
     border-color: var(--box-border);
     color: #000;
     opacity: 0.7;
+}
+
+body.page2 .next-button[aria-disabled="true"]:hover {
+    cursor: not-allowed;
 }
 
 body.nav-enabled .theme-dropdown {
