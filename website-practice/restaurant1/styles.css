@@ -10,7 +10,7 @@
     --box-border: #000;
     --nav-logo-h: var(--logo-h);
     --theme-overlay-clearance: 48px;
-    --nav-expanded-clearance: 40px;
+    --nav-expanded-clearance: 24px;
 }
 
 /* SECTION: Scroll patch */
@@ -1392,6 +1392,11 @@ body.page3 .pos-checkout:disabled:hover {
 /* SECTION: Page 1 Order Type */
 body.order-type main {
     text-align: left;
+    padding-top: calc(var(--gap) * 2 + var(--theme-overlay-clearance));
+}
+
+body.nav-enabled.order-type main {
+    padding-top: calc(var(--gap) * 2 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
 }
 
 body.order-type main h1 {
