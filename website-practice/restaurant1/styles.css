@@ -9,9 +9,10 @@
     --box-bg: #2ecc71;
     --box-border: #000;
     --nav-logo-h: var(--logo-h);
-    --theme-overlay-clearance: 15px;
-    --nav-expanded-clearance: 15px;
-    --nav-dropdown-clearance: 15px;
+    --theme-overlay-clearance: 40px;
+    --nav-expanded-clearance: 16px;
+    --base-heading-padding: 88px;
+    --nav-heading-padding: 104px;
 }
 
 /* SECTION: Scroll patch */
