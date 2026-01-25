@@ -1789,13 +1789,6 @@ main .menu-summary-label {
     white-space: nowrap;
 }
 
-main .menu-summary-price {
-    font-size: 12pt;
-    font-weight: 600;
-    color: #222;
-    white-space: nowrap;
-}
-
 /* Section: Reset Buttons */
 main .reset-group {
     margin-top: 8px;
@@ -2182,6 +2175,12 @@ body.menu-overlay-open main {
 .overlay-header h2 {
     margin: 0;
     font-size: 21pt;
+}
+
+.overlay-header-price {
+    font-size: 14pt;
+    font-weight: 700;
+    color: #222;
 }
 
 .close-overlay {

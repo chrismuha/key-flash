@@ -1536,12 +1536,10 @@
         btn.setAttribute('aria-expanded', 'false');
       });
 
-      const syncSummaryPrices = () => {
-        document.querySelectorAll('.menu-summary-price').forEach((priceEl) => {
-          const summary = priceEl.closest('.menu-summary');
-          if (!summary) return;
-          const toggle = summary.querySelector('.section-toggle[data-section]');
-          const section = toggle ? toggle.dataset.section : '';
+      const syncOverlayPrices = () => {
+        document.querySelectorAll('.overlay-header-price').forEach((priceEl) => {
+          const overlay = priceEl.closest('.menu-overlay');
+          const section = overlay?.dataset.section || '';
           if (!section) return;
           const launchPrice = document.querySelector(`.menu-launch[data-target="${section}"] .menu-launch-price`);
           if (launchPrice) {
@@ -1549,7 +1547,7 @@
           }
         });
       };
-      syncSummaryPrices();
+      syncOverlayPrices();
 
       const updateArrowState = (section, isOpen) => {
         const btns = menuLaunchLookup[section] || [];
