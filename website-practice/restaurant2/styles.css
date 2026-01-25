@@ -1806,6 +1806,25 @@ main .reset-group:hover {
     width: 100%;
 }
 
+.menu-action-card {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    width: 100%;
+}
+
+.menu-launch-label {
+    font-size: 13.5pt;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.menu-launch-price {
+    font-size: 12pt;
+    font-weight: 600;
+    color: #222;
+}
+
 .menu-actions .menu-launch {
     width: 100%;
     min-width: 0;
@@ -1819,6 +1838,7 @@ main .reset-group:hover {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: row;
     text-align: center;
     gap: 8px;
     color: #000;
