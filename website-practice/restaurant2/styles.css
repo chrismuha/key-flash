@@ -1014,6 +1014,10 @@ body.page2 .page-footer .action-button {
     background: var(--box-bg);
     color: #000;
     flex: 0 0 auto;
+    min-width: 110px;
+    min-height: 48px;
+    font-size: 1rem;
+    line-height: 1.2;
 }
 
 body.page2 .page-footer .action-button:hover {
@@ -1034,6 +1038,14 @@ body.page2 .page-footer .footer-back-button {
     background: #e03946;
     color: #fff;
     border-color: #fff;
+}
+
+body.page2 .page-footer .footer-reset {
+    background: #000;
+    color: #fff;
+    border-color: #fff;
+    min-width: 110px;
+    min-height: 48px;
 }
 
 body.order-type .page-footer {
