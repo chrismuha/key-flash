@@ -66,12 +66,12 @@ body {
 
 /* Section: Typography */
 h1 {
-    font-size: 1.4rem;
+    font-size: 16.8pt;
     margin-bottom: 4px;
 }
 
 .subtitle {
-    font-size: 0.9rem;
+    font-size: 10.8pt;
     color: var(--subtitle);
     margin-bottom: 20px;
 }
@@ -93,13 +93,13 @@ h1 {
 }
 
 .stat-label {
-    font-size: 0.75rem;
+    font-size: 9pt;
     color: var(--subtitle);
     margin-bottom: 4px;
 }
 
 .stat-value {
-    font-size: 1.2rem;
+    font-size: 14.4pt;
     font-weight: 600;
 }
 
@@ -111,7 +111,7 @@ h1 {
     border: none;
     background: var(--accent);
     color: #e5e7eb;
-    font-size: 1.4rem;
+    font-size: 16.8pt;
     font-weight: 600;
     padding: 12px;
     cursor: pointer;
@@ -142,7 +142,7 @@ h1 {
     background: var(--btn-bg);
     color: var(--text);
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 10.2pt;
     font-weight: 500;
     transition: background 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
 }
@@ -159,6 +159,6 @@ h1 {
 /* Section: Hint text */
 .hint {
     margin-top: 8px;
-    font-size: 0.8rem;
+    font-size: 9.6pt;
     color: var(--subtle-text);
 }

@@ -36,7 +36,7 @@ body {
 }
 
 .title {
-    font-size: 18px;
+    font-size: 13.5pt;
     font-weight: 600;
 }
 
@@ -155,7 +155,7 @@ body {
     top: 14px;
     left: 0;
     transform: translateX(-50%);
-    font-size: 12px;
+    font-size: 9pt;
     color: #6b7280;
     white-space: nowrap;
     user-select: none;

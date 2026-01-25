@@ -84,7 +84,7 @@ p {
 }
 
 #settings-panel h2 {
-  font-size: 20px;
+  font-size: 15pt;
   letter-spacing: 0.02em;
 }
 
@@ -249,7 +249,7 @@ body.dark-mode #settings-backdrop {
 .boxify-title {
   grid-row: 1;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 12pt;
   margin: 0;
   line-height: 1.15;
   color: var(--text-color);
@@ -272,7 +272,7 @@ body.dark-mode #settings-backdrop {
 .boxify-qty {
   min-width: 40px;
   text-align: center;
-  font-size: 18px;
+  font-size: 13.5pt;
   font-weight: bold;
 }
 
@@ -283,7 +283,7 @@ body.dark-mode #settings-backdrop {
   border-radius: 6px;
   width: 48px;
   height: 48px;
-  font-size: 22px;
+  font-size: 16.5pt;
   font-weight: bold;
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
@@ -350,7 +350,7 @@ body.dark-mode #settings-backdrop {
   color: #000;
   font-weight: bold;
   line-height: 26px;
-  font-size: 18px;
+  font-size: 13.5pt;
   text-align: center;
   cursor: pointer;
   opacity: 0;

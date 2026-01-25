@@ -91,7 +91,7 @@ body {
 
 .title-block h1 {
     margin: 0;
-    font-size: 22px;
+    font-size: 16.5pt;
     letter-spacing: 0.02em;
     display: flex;
     align-items: center;
@@ -99,7 +99,7 @@ body {
 }
 
 .badge {
-    font-size: 11px;
+    font-size: 8.25pt;
     padding: 2px 8px;
     border-radius: 999px;
     background: var(--accent-soft);
@@ -109,7 +109,7 @@ body {
 
 .title-block p {
     margin: 4px 0 0;
-    font-size: 13px;
+    font-size: 9.75pt;
     color: var(--muted);
 }
 
@@ -152,17 +152,17 @@ body {
 
 .drop-zone h2 {
     margin: 6px 0 2px;
-    font-size: 17px;
+    font-size: 12.75pt;
 }
 
 .drop-zone p {
     margin: 2px 0 0;
-    font-size: 13px;
+    font-size: 9.75pt;
     color: var(--muted);
 }
 
 .drop-zone .small {
-    font-size: 12px;
+    font-size: 9pt;
     color: #8da093;
 }
 
@@ -176,7 +176,7 @@ body {
 .btn {
     border-radius: 999px;
     padding: 10px 18px;
-    font-size: 13px;
+    font-size: 9.75pt;
     border: none;
     cursor: pointer;
     font-weight: 500;
@@ -230,7 +230,7 @@ input[type="file"] {
     align-items: center;
     justify-content: center;
     padding: 26px 14px;
-    font-size: 13px;
+    font-size: 9.75pt;
     color: var(--muted);
 }
 
@@ -240,7 +240,7 @@ input[type="file"] {
     gap: 8px;
     align-items: center;
     padding: 9px 14px;
-    font-size: 13px;
+    font-size: 9.75pt;
     border-bottom: 1px solid rgba(26, 47, 36, 0.65);
 }
 
@@ -255,13 +255,13 @@ input[type="file"] {
 }
 
 .file-size {
-    font-size: 11px;
+    font-size: 8.25pt;
     color: var(--muted);
 }
 
 .status-pill {
     justify-self: start;
-    font-size: 11px;
+    font-size: 8.25pt;
     padding: 3px 9px;
     border-radius: 999px;
     border: 1px solid var(--border);
@@ -318,7 +318,7 @@ input[type="file"] {
     background: none;
     border: none;
     color: #8da093;
-    font-size: 16px;
+    font-size: 12pt;
     cursor: pointer;
     padding: 4px;
     border-radius: 50%;
@@ -338,7 +338,7 @@ input[type="file"] {
 }
 
 .hint {
-    font-size: 11px;
+    font-size: 8.25pt;
     color: #8da093;
 }
 
@@ -366,7 +366,7 @@ input[type="file"] {
 
 .panel h3 {
     margin: 0 0 10px;
-    font-size: 14px;
+    font-size: 10.5pt;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -379,7 +379,7 @@ input[type="file"] {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 10.5pt;
     line-height: 1;
     background: #0f1c15;
     border: 1px solid rgba(226, 61, 61, 0.35);
@@ -391,11 +391,11 @@ input[type="file"] {
     justify-content: space-between;
     gap: 12px;
     margin-bottom: 8px;
-    font-size: 13px;
+    font-size: 9.75pt;
 }
 
 .setting-row label {
-    font-size: 13px;
+    font-size: 9.75pt;
     color: var(--muted);
 }
 
@@ -450,7 +450,7 @@ input[type="text"] {
     border-radius: 999px;
     border: 1px solid var(--border);
     color: var(--text);
-    font-size: 12px;
+    font-size: 9pt;
     padding: 6px 10px;
     min-width: 70px;
 }
@@ -462,7 +462,7 @@ input[type="text"]:focus {
 }
 
 .tiny {
-    font-size: 11px;
+    font-size: 8.25pt;
     color: #8da093;
     margin-top: 8px;
 }
@@ -482,7 +482,7 @@ input[type="text"]:focus {
     height: 230px;
     overflow-y: auto;
     font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
-    font-size: 11px;
+    font-size: 8.25pt;
     color: #dce8df;
     white-space: pre-wrap;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
@@ -505,7 +505,7 @@ input[type="text"]:focus {
     position: absolute;
     left: 8px;
     top: 8px;
-    font-size: 12px;
+    font-size: 9pt;
     color: #5b6e61;
 }
 
@@ -553,7 +553,7 @@ input[type="text"]:focus {
 }
 
 .preview-empty {
-    font-size: 12px;
+    font-size: 9pt;
     color: #8da093;
     text-align: center;
 }
@@ -579,7 +579,7 @@ input[type="text"]:focus {
 
 .thumb-label {
     padding: 6px 8px;
-    font-size: 11px;
+    font-size: 8.25pt;
     color: #dce8df;
 }
 
@@ -589,7 +589,7 @@ input[type="text"]:focus {
     gap: 6px;
     padding: 3px 9px;
     border-radius: 999px;
-    font-size: 11px;
+    font-size: 8.25pt;
     border: 1px solid var(--border);
     background: var(--card);
     color: var(--muted);

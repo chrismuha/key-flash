@@ -18,7 +18,7 @@ body {
 .search-box input {
   width: 100%;
   padding: 10px 14px;
-  font-size: 16px;
+  font-size: 12pt;
   border-radius: 8px;
   border: 1px solid #ccc;
   background: none;
@@ -36,7 +36,7 @@ body {
     max-width: 600px;
 }
 .header h1 {
-    font-size: 3.5rem;
+    font-size: 42pt;
 }
 
 .projects {
@@ -55,7 +55,7 @@ body {
     gap: 0.5rem;
 }
 .project h2 {
-    font-size: 1.1rem;
+    font-size: 13.2pt;
 }
 .project .links {
     display: flex;
@@ -68,7 +68,7 @@ body {
     background: #ff5f5f8a;
     padding: 0.2rem 1rem;
     border-radius: 1rem;
-    font-size: 0.9rem;
+    font-size: 10.8pt;
     display: flex;
     gap: 0.5rem;
     transition: 0.2s;
