@@ -1764,6 +1764,8 @@ main .menu-section {
 main .menu-summary {
     display: flex;
     align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
     cursor: pointer;
     font-size: 18pt;
     line-height: 36px;
@@ -1778,6 +1780,20 @@ main .menu-summary.invalid {
     outline-offset: 4px;
     border-radius: 6px;
     margin-bottom: 8px;
+}
+
+main .menu-summary-label {
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: inherit;
+    white-space: nowrap;
+}
+
+main .menu-summary-price {
+    font-size: 12pt;
+    font-weight: 600;
+    color: #222;
+    white-space: nowrap;
 }
 
 /* Section: Reset Buttons */

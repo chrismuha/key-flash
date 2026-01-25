@@ -124,6 +124,14 @@
     large: 'Large'
   };
 
+  const INGREDIENT_GROUPS = [
+    'pizza_ingredients[]',
+    'burger_ingredients[]',
+    'sub_ingredients[]',
+    'wrap_ingredients[]',
+    'sauces_ingredients[]'
+  ];
+
   function savePizzaSize(value) {
     try {
       localStorage.setItem(STORAGE_KEYS.pizzaSize, String(value || DEFAULT_PIZZA_SIZE));
@@ -705,37 +713,37 @@
       if (first && typeof first.focus === 'function') first.focus();
     };
 
-    if (settingsResetBtn) {
-      settingsResetBtn.addEventListener('click', () => {
-        // Defaults: all ON
-        labelSelects = true;
-        titleSelects = true;
-        // Defaults: reset-related toggles OFF (except keep-open ON)
-        resetDisables = false;
-        resetKeepOpen = true;
-        autoDisableEmpty = false;
-        autoDisableSection = false;
-        // Default: menu pills open/close via the whole pill
-        pillArrowOnly = false;
-        try {
-          localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
-          localStorage.setItem(STORAGE_KEYS.settingsResetKeepOpen, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
-          localStorage.setItem(STORAGE_KEYS.settingsAutoDisableSection, 'false');
+    const resetSettingsToDefaults = () => {
+      labelSelects = true;
+      titleSelects = true;
+      resetDisables = false;
+      resetKeepOpen = true;
+      autoDisableEmpty = false;
+      autoDisableSection = false;
+      pillArrowOnly = false;
+      nextClosesOverlay = false;
+      try {
+        localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
+        localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
+        localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
+        localStorage.setItem(STORAGE_KEYS.settingsResetKeepOpen, 'true');
+        localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
+        localStorage.setItem(STORAGE_KEYS.settingsAutoDisableSection, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, 'false');
-        } catch { }
-        if (settingLabelSelects) settingLabelSelects.checked = true;
-        if (settingTitleSelects) settingTitleSelects.checked = true;
-        if (settingResetDisables) settingResetDisables.checked = false;
-        if (settingResetKeepOpen) settingResetKeepOpen.checked = true;
-        if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
-        if (settingAutoDisableSection) settingAutoDisableSection.checked = false;
-        if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
-        if (settingNextClosesOverlay) settingNextClosesOverlay.checked = false;
-      });
+      } catch { }
+      if (settingLabelSelects) settingLabelSelects.checked = true;
+      if (settingTitleSelects) settingTitleSelects.checked = true;
+      if (settingResetDisables) settingResetDisables.checked = false;
+      if (settingResetKeepOpen) settingResetKeepOpen.checked = true;
+      if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
+      if (settingAutoDisableSection) settingAutoDisableSection.checked = false;
+      if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
+      if (settingNextClosesOverlay) settingNextClosesOverlay.checked = false;
+    };
+
+    if (settingsResetBtn) {
+      settingsResetBtn.addEventListener('click', resetSettingsToDefaults);
     }
 
     const syncMobileUiState = () => {
@@ -1165,6 +1173,13 @@
           }
         });
       }
+      const footerResetBtn = document.querySelector('.footer-reset');
+      if (footerResetBtn) {
+        footerResetBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          resetMenuSelections();
+        });
+      }
       if (sliderTrack) {
         const handleResize = () => {
           ensureSliderAlignment();
@@ -1191,7 +1206,7 @@
       };
       const sectionToggles = Array.from(document.querySelectorAll('.section-toggle[data-section]'));
       const pizzaSizeRadios = Array.from(document.querySelectorAll('input[name="pizza_size"]'));
-      const sectionTitles = Array.from(document.querySelectorAll('.menu-summary span'));
+      const sectionTitles = Array.from(document.querySelectorAll('.menu-summary .menu-summary-label'));
       const ingredientCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][name]'));
       const builderError = document.getElementById('builder-error');
       const primarySections = ['pizza', 'burger', 'sub', 'wrap'];
@@ -1521,6 +1536,21 @@
         btn.setAttribute('aria-expanded', 'false');
       });
 
+      const syncSummaryPrices = () => {
+        document.querySelectorAll('.menu-summary-price').forEach((priceEl) => {
+          const summary = priceEl.closest('.menu-summary');
+          if (!summary) return;
+          const toggle = summary.querySelector('.section-toggle[data-section]');
+          const section = toggle ? toggle.dataset.section : '';
+          if (!section) return;
+          const launchPrice = document.querySelector(`.menu-launch[data-target="${section}"] .menu-launch-price`);
+          if (launchPrice) {
+            priceEl.textContent = launchPrice.textContent;
+          }
+        });
+      };
+      syncSummaryPrices();
+
       const updateArrowState = (section, isOpen) => {
         const btns = menuLaunchLookup[section] || [];
         btns.forEach((btn) => {
@@ -1692,6 +1722,36 @@
         builderError.hidden = true;
         builderError.textContent = '';
       };
+
+      function resetMenuSelections() {
+        resetSettingsToDefaults();
+        if (typeof closeAllOverlays === 'function') closeAllOverlays();
+        INGREDIENT_GROUPS.forEach((group) => resetGroupByName(group));
+        pizzaSizeRadios.forEach((radio) => {
+          radio.checked = radio.value === DEFAULT_PIZZA_SIZE;
+        });
+        savePizzaSize(DEFAULT_PIZZA_SIZE);
+
+        sectionToggles.forEach((toggle) => {
+          toggle.checked = false;
+          if (toggle.disabled) {
+            toggle.disabled = false;
+            toggle.removeAttribute('aria-disabled');
+          }
+          if (toggle.dataset) {
+            delete toggle.dataset.manualDisabled;
+          }
+        });
+
+        persistActiveSections();
+        syncSaucesEnabled();
+        if (builderError) {
+          builderError.hidden = true;
+          builderError.textContent = '';
+        }
+        updateBuilderError();
+        updatePage3NavState();
+      }
 
       // Attach pill/arrow handlers
       menuLaunchButtons.forEach((btn) => {
