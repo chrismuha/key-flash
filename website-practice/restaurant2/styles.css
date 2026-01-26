@@ -476,6 +476,11 @@ body.theme-dark .order-type-chip {
     border-color: var(--border-strong);
 }
 
+/* Section: Page 3 Shell */
+body.page3 {
+    background: var(--color-white);
+}
+
 body.page3 .order-type-chip {
     width: min(100%, 640px);
     margin: 0 auto 18px;
