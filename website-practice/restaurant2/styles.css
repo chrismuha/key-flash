@@ -23,6 +23,7 @@
     --danger-strong: #933737;
     --box-bg: var(--accent);
     --box-border: var(--border-strong);
+    --reset-button-bg: #2a231d;
 
     /* Dark palette */
     --surface-dark: #13110d;
@@ -683,9 +684,9 @@ body.qty-right .menu-section label .sauce-qty {
 }
 
 body.theme-dark .settings-panel .settings-reset {
-    border-color: var(--border-strong);
-    background: var(--surface-strong);
-    color: var(--text-primary);
+    border-color: var(--color-black);
+    background: var(--color-porcelain);
+    color: var(--color-black);
 }
 
 /* Disable nav bar */
@@ -852,6 +853,11 @@ body.theme-dark .nav-theme-controls .theme-option {
     border-color: var(--border-strong);
 }
 
+body.theme-dark .nav-theme-controls .nav-toggle .theme-icon {
+    color: var(--color-white);
+    -webkit-text-fill-color: var(--color-white);
+}
+
 .nav-toggle {
     display: inline-flex;
     align-items: center;
@@ -970,9 +976,9 @@ body.theme-dark main input[type="checkbox"] {
 }
 
 body.theme-dark main .reset-group {
-    border-color: var(--border-strong);
-    background: var(--surface-strong);
-    color: var(--text-primary);
+    border-color: var(--color-black);
+    background: var(--color-porcelain);
+    color: var(--color-black);
 }
 
 body.theme-dark.page3 #order-summary {
@@ -1114,11 +1120,17 @@ body.page2 .page-footer .footer-back-button {
 }
 
 body.page2 .page-footer .footer-reset {
-    background: var(--text-primary);
+    background: var(--reset-button-bg);
     color: var(--color-white);
     border-color: var(--border-strong);
     min-width: 110px;
     min-height: 48px;
+}
+
+body.theme-dark .page-footer .footer-reset {
+    background: var(--color-porcelain);
+    color: var(--color-black);
+    border-color: var(--color-black);
 }
 
 body.order-type .page-footer {
@@ -1897,6 +1909,11 @@ main .reset-group:hover {
     font-size: 12pt;
     font-weight: 600;
     color: var(--color-charcoal);
+}
+
+body.theme-dark .menu-launch-price,
+body.theme-dark .overlay-header-price {
+    color: var(--color-white);
 }
 
 .menu-actions .menu-launch {
