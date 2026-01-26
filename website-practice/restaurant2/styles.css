@@ -905,6 +905,9 @@ body.theme-dark {
 body.theme-dark main {
     background: var(--surface);
     color: var(--text-primary);
+    box-shadow:
+        0 2px 8px var(--shadow-soft),
+        inset 0 0 0 40px var(--surface);
 }
 
 /* Links inside main inherit white so they remain readable */

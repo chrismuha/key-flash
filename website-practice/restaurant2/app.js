@@ -1885,7 +1885,7 @@
         }
         if (!cb || !cb.disabled) return;
         ensureSectionEnabledForCheckbox(cb);
-        ensureSectionActiveForCheckbox(cb);
+        if (!suppressEnsureActive) ensureSectionActiveForCheckbox(cb);
         if (cb.disabled) return;
         cb.checked = true;
         cb.dispatchEvent(new Event('change', { bubbles: true }));
