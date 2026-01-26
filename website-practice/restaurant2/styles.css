@@ -9,8 +9,16 @@
     --rail-side-gap: calc(var(--gap) - 6px);
     --rail-width: calc(var(--logo-w) + (var(--rail-side-gap) * 2));
     --box-height: 56px;
-    --box-bg: #2ecc71;
-    --box-border: #000;
+    --surface: #f7f2ec;
+    --surface-strong: #efe2d6;
+    --text-primary: #2a231d;
+    --border-strong: #3b3128;
+    --accent: #2f7a5e;
+    --accent-strong: #256a52;
+    --danger: #b04545;
+    --danger-strong: #933737;
+    --box-bg: var(--accent);
+    --box-border: var(--border-strong);
     --nav-logo-h: var(--logo-h);
     --focus-outline-dark: #ff9800;
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
@@ -52,11 +60,11 @@ body {
     width: 100%;
     min-width: 100%;
     overflow-y: auto;
-    background: #fff;
+    background: var(--surface);
 }
 
 body.order-type {
-    background: #dba37f;
+    background: var(--surface-strong);
 }
 
 body.page2 {
@@ -65,7 +73,7 @@ body.page2 {
 
 @media (max-width: 768px) {
     body.page2 {
-        background: #dba37f;
+        background: var(--surface-strong);
     }
 }
 
@@ -85,7 +93,7 @@ body.page2 {
     right: 0;
     min-height: var(--nav-height);
     z-index: 1;
-    background: #dba37f;
+    background: var(--surface-strong);
     overflow-x: auto;
     overflow-y: hidden;
 }
@@ -1035,15 +1043,15 @@ body.page2 .page-footer .action-button[aria-disabled="true"] {
 }
 
 body.page2 .page-footer .footer-back-button {
-    background: #e03946;
+    background: var(--danger);
     color: #fff;
-    border-color: #fff;
+    border-color: var(--border-strong);
 }
 
 body.page2 .page-footer .footer-reset {
-    background: #000;
+    background: var(--text-primary);
     color: #fff;
-    border-color: #fff;
+    border-color: var(--border-strong);
     min-width: 110px;
     min-height: 48px;
 }
@@ -1051,7 +1059,7 @@ body.page2 .page-footer .footer-reset {
 body.order-type .page-footer {
     position: fixed;
     inset: auto 0 0 0;
-    background: #dba37f;
+    background: var(--surface-strong);
     box-shadow: 0 -6px 22px rgba(0, 0, 0, 0.24);
     padding: 16px clamp(16px, 4vw, 40px);
     display: flex;
@@ -1073,7 +1081,7 @@ body.order-type .page-footer .action-button {
     cursor: pointer;
     transition: transform 0.1s ease, filter 0.1s ease;
     background: var(--box-bg);
-    color: #000;
+    color: #fff;
     flex: 0 0 auto;
 }
 
@@ -1086,9 +1094,9 @@ body.order-type .page-footer .action-button:active {
 }
 
 body.order-type .page-footer .footer-back-button {
-    background: #e03946;
+    background: var(--danger);
     color: #fff;
-    border-color: #fff;
+    border-color: var(--border-strong);
 }
 
 /* Section: Main Spacing Helpers */
@@ -1408,8 +1416,8 @@ body.page3 .pos-checkout {
     padding: 6px 12px;
     font-weight: 700;
     border-radius: 6px;
-    border: 1px solid #1f7a2f;
-    background: #28a745;
+    border: 1px solid var(--accent-strong);
+    background: var(--accent);
     color: #fff;
     text-decoration: none;
     font-size: 10.8pt;
@@ -1429,7 +1437,7 @@ body.page3 .pos-checkout:disabled {
 }
 
 body.page3 .pos-checkout:disabled:hover {
-    background: #28a745;
+    background: var(--accent);
 }
 
 /* spacing under multi-line address block */
@@ -1444,18 +1452,18 @@ body.page3 #order-summary .summary-edit-btn {
     justify-content: center;
     margin-left: 10px;
     padding: 6px 12px;
-    background: #c00;
+    background: var(--danger);
     color: #fff;
     border-radius: 6px;
     font-weight: 700;
     text-decoration: none;
-    border: 1px solid #900;
+    border: 1px solid var(--danger-strong);
 }
 
 body.page3 #order-summary .summary-edit-btn:hover,
 body.page3 #order-summary .summary-edit-btn:focus-visible {
-    background: #a00000;
-    outline: 2px solid #600;
+    background: var(--danger-strong);
+    outline: 2px solid #6d2b2b;
 }
 
 /* Section: Page 1 Order Type */
