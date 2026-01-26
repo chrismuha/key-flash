@@ -21,6 +21,12 @@
     --box-border: var(--border-strong);
     --nav-logo-h: var(--logo-h);
     --focus-outline-dark: #ff9800;
+    --surface-dark: #13110d;
+    --surface-dark-strong: #1a1915;
+    --text-dark: #f7f2ec;
+    --border-dark: #dba37f;
+    --box-bg-dark: #2f7a5e;
+    --box-border-dark: #4bb051;
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -204,12 +210,12 @@ body.page2 {
 }
 
 body.theme-dark .mobile-menu-swiper .swiper-chip {
-    color: #fff;
+    color: var(--text-primary);
 }
 
 body.theme-dark .mobile-menu-swiper {
-    background: #111;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    background: var(--surface-strong);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
 }
 
 .mobile-menu-swiper .swiper-chip.menu-launch-active {
@@ -224,7 +230,7 @@ body.theme-dark .mobile-menu-swiper {
 }
 
 body.theme-dark .mobile-menu-swiper .swiper-chip.menu-launch-active {
-    border-bottom-color: #4bb051;
+    border-bottom-color: var(--box-border-dark);
 }
 
 .mobile-menu-swiper .swiper-chip.menu-launch-active::after {
@@ -260,9 +266,10 @@ body.theme-dark .mobile-menu-swiper .swiper-chip.menu-launch-active {
 }
 
 body.theme-dark .mobile-menu-swiper .swiper-arrow {
-    border-color: #fff;
-    background: #111;
-    color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface);
+    color: var(--text-primary);
+    -webkit-text-fill-color: currentColor;
 }
 
 .mobile-menu-swiper .swiper-arrow:disabled {
@@ -413,15 +420,15 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
 }
 
 body.theme-dark .order-type-chip__edit {
-    background: #222;
-    color: #fff;
-    border-color: #fff;
+    background: var(--surface-strong);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
 }
 
 body.theme-dark .order-type-chip {
-    background: #111;
-    color: #fff;
-    border-color: #fff;
+    background: var(--surface-strong);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
 }
 
 body.page3 .order-type-chip {
@@ -443,9 +450,9 @@ body.page3 .order-type-chip {
 }
 
 body.theme-dark .settings-panel {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface-strong);
+    color: var(--text-primary);
 }
 
 .settings-overlay {
@@ -476,9 +483,9 @@ body.theme-dark .settings-panel {
 }
 
 body.theme-dark .settings-modal {
-    background: #111;
-    color: #fff;
-    border-color: #fff;
+    background: var(--surface-strong);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
 }
 
 body.settings-open {
@@ -523,7 +530,7 @@ body.theme-dark .settings-close:focus-visible {
 }
 
 body.theme-dark .settings-close {
-    color: #fff;
+    color: var(--text-primary);
     border-color: currentColor;
 }
 
@@ -540,9 +547,9 @@ body.theme-dark .settings-close {
 }
 
 body.theme-dark .ingredient-qty {
-    border-color: #fff;
-    background: #111;
-    color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface-strong);
+    color: var(--text-primary);
 }
 
 .bread-select select {
@@ -626,9 +633,9 @@ body.qty-right .menu-section label .sauce-qty {
 }
 
 body.theme-dark .settings-panel .settings-reset {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface-strong);
+    color: var(--text-primary);
 }
 
 /* Disable nav bar */
@@ -790,9 +797,9 @@ body:not(.nav-enabled) main {
 }
 
 body.theme-dark .nav-theme-controls .theme-option {
-    background: #222;
-    color: #fff;
-    border-color: #fff;
+    background: var(--surface-strong);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
 }
 
 .nav-toggle {
@@ -827,24 +834,31 @@ body.theme-dark .nav-theme-controls .theme-option {
 }
 
 /* Section: Theme (Dark) */
-/* Only flips the main content background to black and text to white */
+/* Activate the earthy palette when dark mode is enabled */
 body.theme-dark {
-    background: #000;
+    --surface: var(--surface-dark);
+    --surface-strong: var(--surface-dark-strong);
+    --text-primary: var(--text-dark);
+    --border-strong: var(--border-dark);
+    --box-bg: var(--box-bg-dark);
+    --box-border: var(--box-border-dark);
+    background: var(--surface);
+    color: var(--text-primary);
 }
 
 body.theme-dark main {
-    background: #000;
-    color: #fff;
+    background: var(--surface);
+    color: var(--text-primary);
 }
 
 /* Links inside main inherit white so they remain readable */
 body.theme-dark main a {
-    color: #fff;
+    color: var(--text-primary);
 }
 
 /* Make fieldset borders white in dark theme */
 body.theme-dark main fieldset {
-    border-color: #fff;
+    border-color: var(--border-strong);
 }
 
 /* Go Back button (fixed, next to theme toggle) */
@@ -864,9 +878,9 @@ body.theme-dark main fieldset {
 }
 
 body.theme-dark .go-back {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface-strong);
+    color: var(--text-primary);
 }
 
 /* Back to menu button visible only when an ingredient overlay is open */
@@ -889,9 +903,9 @@ body.menu-overlay-open .back-to-menu {
 }
 
 body.theme-dark .back-to-menu {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface-strong);
+    color: var(--text-primary);
 }
 
 /* Hide Go Back when navigation is enabled */
@@ -901,41 +915,42 @@ body.theme-dark :focus-visible {
 }
 
 body.theme-dark main input[type="checkbox"] {
-    border-color: #fff;
-    background: #000;
+    border-color: var(--border-strong);
+    background: var(--surface);
 }
 
 body.theme-dark main .reset-group {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface-strong);
+    color: var(--text-primary);
 }
 
 body.theme-dark.page3 #order-summary {
-    border-color: #fff;
-    background: #000;
-    color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface);
+    color: var(--text-primary);
 }
 
 body.theme-dark.order-type .delivery-details .delivery-clear {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface-strong);
+    color: var(--text-primary);
 }
 
 body.theme-dark.order-type .order-card {
-    border-color: #fff;
-    background: #111;
-    color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface-strong);
+    color: var(--text-primary);
 }
 
 body.theme-dark.order-type .order-card.selected {
-    box-shadow: 0 0 0 3px #fff inset;
-    color: #fff;
+    box-shadow: 0 0 0 3px var(--text-primary) inset;
+    color: var(--text-primary);
 }
 
 body.theme-dark .left-rail .box.active {
-    border-color: #fff;
+    border-color: var(--box-border);
+    color: var(--text-primary);
 }
 
 /* Prevent hover animation/color change on required Burger items */
@@ -1204,7 +1219,7 @@ main input[type="checkbox"]:checked {
 /* Ensure dark mode keeps the red fill when checked */
 body.theme-dark main input[type="checkbox"]:checked {
     background-color: #e53935;
-    border-color: #fff;
+    border-color: var(--border-strong);
 }
 
 main input[type="checkbox"]::after {
@@ -1241,7 +1256,7 @@ body.page2 label.required {
 /* Dark theme text color for required label (explicit for safety) */
 body.theme-dark.page2 label.required,
 body.theme-dark .page2 label.required {
-    color: #fff;
+    color: var(--text-primary);
 }
 
 /* Remove focus outline and tap highlight on restricted */
@@ -1350,7 +1365,7 @@ body.page3 #order-summary .summary-block:first-child {
 }
 
 body.theme-dark.page3 #order-summary .summary-block {
-    border-top-color: #fff;
+    border-top-color: var(--border-strong);
 }
 
 body.page3 #order-summary .summary-sections {
@@ -1565,9 +1580,9 @@ body.order-type .delivery-close-button {
 }
 
 body.theme-dark.order-type .delivery-close-button {
-    border-color: #fff;
-    background: #111;
-    color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface-strong);
+    color: var(--text-primary);
 }
 
 body.order-type.delivery-open .delivery-close-button {
@@ -1588,9 +1603,9 @@ body.order-type.delivery-open .order-options {
 }
 
 body.theme-dark.order-type .delivery-details {
-    background: #000;
-    color: #fff;
-    border-color: #fff;
+    background: var(--surface-strong);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
 }
 
 body.order-type .delivery-details .field {
@@ -1651,15 +1666,15 @@ body.order-type .delivery-details select {
 
 body.theme-dark.order-type .delivery-details input[type="text"],
 body.theme-dark.order-type .delivery-details input[type="tel"] {
-    background: #111;
-    color: #fff;
-    border-color: #fff;
+    background: var(--surface);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
 }
 
 body.theme-dark.order-type .delivery-details select {
-    background: #111;
-    color: #fff;
-    border-color: #fff;
+    background: var(--surface);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
 }
 
 body.order-type .delivery-details .delivery-continue {
@@ -1875,10 +1890,10 @@ main .reset-group:hover {
 }
 
 body.theme-dark .menu-actions .menu-launch {
-    border-color: #fff;
-    background: #111;
-    color: #fff;
-    -webkit-text-fill-color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface-strong);
+    color: var(--text-primary);
+    -webkit-text-fill-color: currentColor;
 }
 
 .menu-actions .menu-launch:disabled {
@@ -1890,8 +1905,8 @@ body.theme-dark .menu-actions .menu-launch {
 }
 
 body.theme-dark .menu-actions .menu-launch:disabled {
-    border-color: #555;
-    background: #1d1d1d;
+    border-color: var(--border-strong);
+    background: var(--surface);
     color: #777;
 }
 
@@ -1902,9 +1917,9 @@ body.theme-dark .menu-actions .menu-launch:disabled {
 }
 
 body.theme-dark .menu-actions .menu-launch.menu-launch-active {
-    border-color: #4bb051;
+    border-color: var(--box-border);
     box-shadow: 0 0 0 3px #2f8f49;
-    background: #152414;
+    background: var(--box-bg);
 }
 
 .menu-actions .menu-launch:hover,
@@ -1916,7 +1931,7 @@ body.theme-dark .menu-actions .menu-launch.menu-launch-active {
 
 body.theme-dark .menu-actions .menu-launch:hover,
 body.theme-dark .menu-actions .menu-launch:focus-visible {
-    background: #1a1a1a;
+    background: var(--surface);
     outline-color: var(--focus-outline-dark);
 }
 
@@ -2004,19 +2019,19 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
 }
 
 body.theme-dark .size-options {
-    background: #111;
-    border-color: #fff;
+    background: var(--surface-strong);
+    border-color: var(--border-strong);
 }
 
 body.theme-dark .size-pill span {
-    border-color: #fff;
-    background: #000;
-    color: #fff;
+    border-color: var(--border-strong);
+    background: var(--surface);
+    color: var(--text-primary);
 }
 
 body.theme-dark .size-pill input:checked+span {
-    background: #18b35b;
-    border-color: #18b35b;
+    background: var(--box-bg);
+    border-color: var(--box-border);
     color: #fff;
 }
 
@@ -2056,10 +2071,10 @@ body.theme-dark .size-pill input:checked+span {
 }
 
 body.theme-dark .menu-launch-arrow {
-    background: #fff;
-    color: #000;
-    border-color: #fff;
-    -webkit-text-fill-color: #000;
+    background: var(--surface);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+    -webkit-text-fill-color: currentColor;
 }
 
 
@@ -2094,10 +2109,10 @@ body.theme-dark .menu-launch-arrow {
     }
 
     body.theme-dark .menu-launch-arrow {
-        background: #fff;
-        color: #000;
-        border-color: #fff;
-        -webkit-text-fill-color: #000;
+        background: var(--surface);
+        color: var(--text-primary);
+        border-color: var(--border-strong);
+        -webkit-text-fill-color: currentColor;
     }
 
     body.page3 #order-summary .summary-section+.summary-section {
@@ -2119,11 +2134,11 @@ body.theme-dark .menu-launch-arrow {
 }
 
 body.theme-dark.page3 #order-summary .summary-section+.summary-section {
-    border-top-color: #fff;
+    border-top-color: var(--border-strong);
 }
 
 body.theme-dark.page3 .summary-divider {
-    border-color: #fff;
+    border-color: var(--border-strong);
     opacity: 1;
 }
 
@@ -2154,13 +2169,13 @@ body.theme-dark.page3 .summary-divider {
 }
 
 body.theme-dark .menu-overlay-card {
-    background: #222;
-    color: #f0f0f0;
+    background: var(--surface-strong);
+    color: var(--text-primary);
 }
 
 body.theme-dark .close-overlay {
-    color: #fff;
-    border-color: #fff;
+    color: var(--text-primary);
+    border-color: var(--border-strong);
 }
 
 /* Keep page scrollable when overlays are open */
