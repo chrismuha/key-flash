@@ -68,6 +68,7 @@
     --overlay-soft: rgba(0, 0, 0, 0.6);
     --overlay-strong: rgba(0, 0, 0, 0.65);
     --overlay-max: rgba(0, 0, 0, 0.7);
+    --checkbox-disabled-opacity: 0.55;
     --shadow-white-soft: rgba(255, 255, 255, 0.12);
 
     /* Safe area inset for iOS/browser chrome */
@@ -1079,7 +1080,7 @@ body.page2 .page-footer .action-button {
     cursor: pointer;
     transition: transform 0.1s ease, filter 0.1s ease;
     background: var(--box-bg);
-    color: var(--color-black);
+    color: var(--color-white);
     flex: 0 0 auto;
     min-width: 110px;
     min-height: 48px;
@@ -1281,14 +1282,10 @@ main input[type="checkbox"]:checked::after {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%232ecc71' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='4,10 8,14 16,6'/></svg>");
 }
 
-/* Required + disabled items keep black checkmark for clarity */
-body.page2 input[type="checkbox"][data-required="true"][disabled]:checked::after {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='4,10 8,14 16,6'/></svg>");
-}
 
 /* Section: Restricted/Required Overrides */
 body.page2 input[type="checkbox"][disabled] {
-    opacity: 1;
+    opacity: var(--checkbox-disabled-opacity);
 }
 
 body.page2 label.required {
@@ -1324,9 +1321,9 @@ body.page2 label.required:focus {
 
 /* block any accent/hover styling overrides for required */
 
-/* Custom-render the restricted, disabled checkbox to keep green box + black check */
+/* Keep required checkboxes dimmed but visually consistent when disabled */
 body.page2 input[type="checkbox"][data-required="true"][disabled] {
-    opacity: 1;
+    opacity: var(--checkbox-disabled-opacity);
     cursor: not-allowed;
     transform: translateY(1px);
 }
@@ -1361,7 +1358,7 @@ body.page2 label.required.required-disabled input:not([type="checkbox"]) {
 }
 
 body.page2 label.required.required-disabled input[type="checkbox"] {
-    opacity: 0.5;
+    opacity: var(--checkbox-disabled-opacity);
 }
 
 /* Dim any ingredient text until its checkbox is checked */
@@ -1371,10 +1368,6 @@ main fieldset label:has(> input:not(:checked)) {
 
 body.theme-dark main fieldset label:has(> input:not(:checked)) {
     color: var(--color-border-soft);
-}
-
-body.page2 input[type="checkbox"][data-required="true"][disabled]:checked {
-    background-color: var(--box-bg);
 }
 
 /* pseudo-element and checked styles are shared above for all checkboxes */
@@ -1725,7 +1718,7 @@ body.order-type .delivery-details .delivery-continue {
     padding: 8px 14px;
     background: var(--box-bg);
     border: 2px solid var(--box-border);
-    color: var(--color-black);
+    color: var(--color-white);
     font-weight: 700;
     text-decoration: none;
     border-radius: 999px;
@@ -1773,13 +1766,13 @@ body.order-type .order-card {
 
 body.order-type .order-card:hover {
     background: var(--box-bg);
-    color: var(--color-black);
+    color: var(--color-white);
 }
 
 /* Visual selection if user returns to index */
 body.order-type .order-card.selected {
     background: var(--box-bg);
-    color: var(--color-black);
+    color: var(--color-white);
     box-shadow: 0 0 0 3px var(--color-black) inset;
 }
 
@@ -2307,7 +2300,7 @@ body.theme-dark .close-overlay:focus-visible {
 .box:hover,
 .box:active,
 .box:focus {
-    color: var(--color-black);
+    color: var(--color-white);
     text-decoration: none;
 }
 
