@@ -1214,6 +1214,7 @@
       const isSectionDisabled = (sec) => sec === 'sauces' && sauceDisabled;
       const requiredCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-required="true"]'));
       const requiredBySection = {};
+      const resettingSections = new Set();
       const ensurePizzaToggleActive = () => {
         const pizzaToggle = sectionToggles.find((t) => t.dataset.section === 'pizza');
         if (!pizzaToggle || pizzaToggle.disabled) return;
@@ -1330,6 +1331,7 @@
       // Track when an auto-disable is driving the section toggle change
       let autoDisableTrigger = '';
       let suppressAutoDisable = false;
+      let suppressEnsureActive = false;
       const clearOptionalSelections = (secId) => {
         if (!secId) return;
         const sectionEl = document.getElementById(secId);
@@ -1387,33 +1389,54 @@
         }
       };
 
+      const getSectionForGroup = (group) => {
+        if (!group) return '';
+        if (group.startsWith('pizza_')) return 'pizza';
+        if (group.startsWith('burger_')) return 'burger';
+        if (group.startsWith('sauces_')) return 'sauces';
+        if (group.startsWith('sub_')) return 'sub';
+        if (group.startsWith('wrap_')) return 'wrap';
+        return '';
+      };
+
       const resetGroupByName = (group) => {
         if (!group) return;
         const inputs = Array.from(document.querySelectorAll(`input[type="checkbox"][name="${group}"]`));
         if (!inputs.length) return;
-        inputs.forEach((cb) => {
-          const isRequired = cb.dataset.required === 'true';
-          cb.checked = isRequired;
-          const lbl = cb.closest('label');
-          const qty = lbl && lbl.querySelector('select.ingredient-qty');
-          if (qty) {
-            qty.disabled = !cb.checked;
-            if (!cb.checked && qty.options.length) qty.value = qty.options[0].value;
-          }
-          cb.dispatchEvent(new Event('change', { bubbles: true }));
-        });
+        const groupingSection = getSectionForGroup(group);
+        const sectionToggle = groupingSection ? document.querySelector(`.section-toggle[data-section="${groupingSection}"]`) : null;
+        const initialToggleState = sectionToggle ? {
+          checked: sectionToggle.checked,
+          disabled: sectionToggle.disabled,
+          manualDisabled: sectionToggle.dataset && sectionToggle.dataset.manualDisabled === 'true'
+        } : null;
+        const previousSuppression = suppressEnsureActive;
+        suppressEnsureActive = true;
+        const shouldGuardSection = (sectionToggle && sectionToggle.disabled) || (resetDisables && groupingSection);
+        if (shouldGuardSection && groupingSection) resettingSections.add(groupingSection);
+        try {
+          inputs.forEach((cb) => {
+            const isRequired = cb.dataset.required === 'true';
+            cb.checked = isRequired;
+            const lbl = cb.closest('label');
+            const qty = lbl && lbl.querySelector('select.ingredient-qty');
+            if (qty) {
+              qty.disabled = !cb.checked;
+              if (!cb.checked && qty.options.length) qty.value = qty.options[0].value;
+            }
+            cb.dispatchEvent(new Event('change', { bubbles: true }));
+          });
+        } finally {
+          if (shouldGuardSection && groupingSection) resettingSections.delete(groupingSection);
+          suppressEnsureActive = previousSuppression;
+        }
         saveAllIngredientSelections();
         syncRequiredCheckboxes();
         updateBuilderError();
         updatePage3NavState();
 
         if (resetDisables) {
-          let section = '';
-          if (group.startsWith('pizza_')) section = 'pizza';
-          else if (group.startsWith('burger_')) section = 'burger';
-          else if (group.startsWith('sauces_')) section = 'sauces';
-          else if (group.startsWith('sub_')) section = 'sub';
-          else if (group.startsWith('wrap_')) section = 'wrap';
+          const section = groupingSection;
           if (section) {
             const toggle = document.querySelector(`.section-toggle[data-section="${section}"]`);
             if (toggle && toggle.checked) {
@@ -1428,6 +1451,21 @@
           }
           if (!resetKeepOpen) {
             closeOverlay(section);
+          }
+        }
+        if (!resetDisables && sectionToggle && initialToggleState) {
+          sectionToggle.checked = initialToggleState.checked;
+          if (initialToggleState.disabled) {
+            sectionToggle.disabled = true;
+            sectionToggle.setAttribute('aria-disabled', 'true');
+          } else {
+            sectionToggle.disabled = false;
+            sectionToggle.removeAttribute('aria-disabled');
+          }
+          if (initialToggleState.manualDisabled) {
+            sectionToggle.dataset.manualDisabled = 'true';
+          } else {
+            delete sectionToggle.dataset.manualDisabled;
           }
         }
       };
@@ -1819,13 +1857,14 @@
       // Persist ingredient selections
       ingredientCheckboxes.forEach((cb) => {
         cb.addEventListener('change', () => {
-          if (cb.checked) {
+          const secEl = cb.closest('.menu-section');
+          const secId = secEl && secEl.id;
+          if (!suppressEnsureActive && cb.checked && !(secId && resettingSections.has(secId))) {
             ensureSectionActiveForCheckbox(cb);
           }
-          const secEl = cb.closest('.menu-section');
-          if (secEl && secEl.id) {
+          if (secEl && secId) {
             if (!suppressAutoDisable) {
-              autoDisableIfEmpty(secEl.id);
+              autoDisableIfEmpty(secId);
             }
           }
           saveAllIngredientSelections();

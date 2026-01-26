@@ -2082,6 +2082,10 @@ body.theme-dark .size-options {
     border-color: var(--border-strong);
 }
 
+body.theme-dark .size-options__label {
+    color: var(--color-white);
+}
+
 body.theme-dark .size-pill span {
     border-color: var(--border-strong);
     background: var(--surface);
