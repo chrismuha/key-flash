@@ -9,6 +9,10 @@
     --rail-side-gap: calc(var(--gap) - 6px);
     --rail-width: calc(var(--logo-w) + (var(--rail-side-gap) * 2));
     --box-height: 56px;
+    --nav-logo-h: var(--logo-h);
+    --focus-outline-dark: #ff9800;
+
+    /* Light palette */
     --surface: #f7f2ec;
     --surface-strong: #efe2d6;
     --text-primary: #2a231d;
@@ -19,14 +23,16 @@
     --danger-strong: #933737;
     --box-bg: var(--accent);
     --box-border: var(--border-strong);
-    --nav-logo-h: var(--logo-h);
-    --focus-outline-dark: #ff9800;
+
+    /* Dark palette */
     --surface-dark: #13110d;
     --surface-dark-strong: #1a1915;
     --text-dark: #f7f2ec;
     --border-dark: #dba37f;
     --box-bg-dark: #2f7a5e;
     --box-border-dark: #4bb051;
+
+    /* Safe area inset for iOS/browser chrome */
     --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
