@@ -712,7 +712,7 @@ body.page2 label.required {
 body.page2 main {
     border: none;
     position: relative;
-    padding-bottom: 96px;
+    padding-bottom: 180px;
 }
 
 /* SECTION: Page 2 Actions */
@@ -892,7 +892,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
 /* Mobile tightening for builder page */
 @media (max-width: 540px) {
     body.page2 main {
-        padding: calc(var(--gap) * 2 + var(--theme-overlay-clearance)) var(--gap) 96px var(--gap);
+        padding: calc(var(--gap) * 2 + var(--theme-overlay-clearance)) var(--gap) 180px var(--gap);
         max-width: 100%;
     }
 
