@@ -58,13 +58,13 @@
                     <input type="checkbox" class="setting-title-selects" checked>
                     Section title toggles checkbox
                 </label>
-                <label title="Reset buttons also disable the item and clear its selections">
+                <label title="Menu item reset buttons also disable the item and clear its selections">
                     <input type="checkbox" class="setting-reset-disables">
-                    Reset button disables item
+                    Menu item reset button disables item
                 </label>
-                <label title="When reset disables an item, keep the section open">
+                <label title="When a menu item reset disables an item, keep the section open">
                     <input type="checkbox" class="setting-reset-keep-open">
-                    Keep section open after reset
+                    Keep section open after menu item reset
                 </label>
                 <label title="If you uncheck all optional ingredients, the section will auto-disable">
                     <input type="checkbox" class="setting-auto-disable-empty">
@@ -113,11 +113,36 @@
         <p>Select ingredients for each menu item below.</p>
 
         <div class="menu-actions" role="list">
-            <button type="button" class="menu-launch" data-target="pizza" role="listitem">Pizza</button>
-            <button type="button" class="menu-launch" data-target="burger" role="listitem">Burger</button>
-            <button type="button" class="menu-launch" data-target="sub" role="listitem">Sub</button>
-            <button type="button" class="menu-launch" data-target="wrap" role="listitem">Wrap</button>
-            <button type="button" class="menu-launch" data-target="sauces" role="listitem">Sauces</button>
+            <div class="menu-action-card" role="listitem">
+                <button type="button" class="menu-launch" data-target="pizza">
+                    <span class="menu-launch-label">Pizza</span>
+                    <span class="menu-launch-price" aria-hidden="true">$0</span>
+                </button>
+            </div>
+            <div class="menu-action-card" role="listitem">
+                <button type="button" class="menu-launch" data-target="burger">
+                    <span class="menu-launch-label">Burger</span>
+                    <span class="menu-launch-price" aria-hidden="true">$0</span>
+                </button>
+            </div>
+            <div class="menu-action-card" role="listitem">
+                <button type="button" class="menu-launch" data-target="sub">
+                    <span class="menu-launch-label">Sub</span>
+                    <span class="menu-launch-price" aria-hidden="true">$0</span>
+                </button>
+            </div>
+            <div class="menu-action-card" role="listitem">
+                <button type="button" class="menu-launch" data-target="wrap">
+                    <span class="menu-launch-label">Wrap</span>
+                    <span class="menu-launch-price" aria-hidden="true">$0</span>
+                </button>
+            </div>
+            <div class="menu-action-card" role="listitem">
+                <button type="button" class="menu-launch" data-target="sauces">
+                    <span class="menu-launch-label">Sauces</span>
+                    <span class="menu-launch-price" aria-hidden="true">$0</span>
+                </button>
+            </div>
         </div>
 
         <!-- Menu Item: Pizza -->
@@ -125,11 +150,13 @@
             <div class="menu-overlay-card">
                 <div class="overlay-header">
                     <h2>Pizza</h2>
+                    <span class="overlay-header-price" aria-hidden="true">$0</span>
                     <button type="button" class="close-overlay" aria-label="Close Pizza options">✕</button>
                 </div>
                 <div class="menu-section" id="pizza">
-                    <div class="menu-summary"><input type="checkbox" class="section-toggle" data-section="pizza">
-                        <span>Pizza</span>
+                    <div class="menu-summary">
+                        <input type="checkbox" class="section-toggle" data-section="pizza">
+                        <span class="menu-summary-label">Pizza</span>
                     </div>
                     <div class="size-options">
                         <span class="size-options__label">Size</span>
@@ -186,11 +213,13 @@
             <div class="menu-overlay-card">
                 <div class="overlay-header">
                     <h2>Burger</h2>
+                    <span class="overlay-header-price" aria-hidden="true">$0</span>
                     <button type="button" class="close-overlay" aria-label="Close Burger options">✕</button>
                 </div>
                 <div class="menu-section" id="burger">
-                    <div class="menu-summary"><input type="checkbox" class="section-toggle" data-section="burger">
-                        <span>Burger</span>
+                    <div class="menu-summary">
+                        <input type="checkbox" class="section-toggle" data-section="burger">
+                        <span class="menu-summary-label">Burger</span>
                     </div>
                     <form>
                         <fieldset>
@@ -234,11 +263,13 @@
             <div class="menu-overlay-card">
                 <div class="overlay-header">
                     <h2>Sub</h2>
+                    <span class="overlay-header-price" aria-hidden="true">$0</span>
                     <button type="button" class="close-overlay" aria-label="Close Sub options">✕</button>
                 </div>
                 <div class="menu-section" id="sub">
-                    <div class="menu-summary"><input type="checkbox" class="section-toggle" data-section="sub">
-                        <span>Sub</span>
+                    <div class="menu-summary">
+                        <input type="checkbox" class="section-toggle" data-section="sub">
+                        <span class="menu-summary-label">Sub</span>
                     </div>
                     <form>
                         <fieldset>
@@ -290,11 +321,13 @@
             <div class="menu-overlay-card">
                 <div class="overlay-header">
                     <h2>Wrap</h2>
+                    <span class="overlay-header-price" aria-hidden="true">$0</span>
                     <button type="button" class="close-overlay" aria-label="Close Wrap options">✕</button>
                 </div>
                 <div class="menu-section" id="wrap">
-                    <div class="menu-summary"><input type="checkbox" class="section-toggle" data-section="wrap">
-                        <span>Wrap</span>
+                    <div class="menu-summary">
+                        <input type="checkbox" class="section-toggle" data-section="wrap">
+                        <span class="menu-summary-label">Wrap</span>
                     </div>
                     <form>
                         <fieldset>
@@ -345,12 +378,13 @@
             <div class="menu-overlay-card">
                 <div class="overlay-header">
                     <h2>Sauces</h2>
+                    <span class="overlay-header-price" aria-hidden="true">$0</span>
                     <button type="button" class="close-overlay" aria-label="Close Sauces options">✕</button>
                 </div>
                 <div class="menu-section" id="sauces">
-                    <div class="menu-summary"><input type="checkbox" class="section-toggle" data-section="sauces"
-                            disabled aria-disabled="true">
-                        <span>Sauces</span>
+                    <div class="menu-summary">
+                        <input type="checkbox" class="section-toggle" data-section="sauces" disabled aria-disabled="true">
+                        <span class="menu-summary-label">Sauces</span>
                     </div>
                     <form>
                         <fieldset>
@@ -382,6 +416,7 @@
         <footer class="page-footer">
             <a class="footer-back-button action-button" href="index.html" aria-label="Back to the menu builder">Back to
                 menu</a>
+            <button type="button" class="footer-reset action-button" aria-label="Reset all selections">Reset</button>
             <a class="next-button action-button" href="page3.html" aria-label="Go to next page">Next »</a>
         </footer>
     </main>

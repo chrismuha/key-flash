@@ -1392,7 +1392,7 @@ body.page3 .pos-checkout {
     background: #28a745;
     color: #fff;
     text-decoration: none;
-    font-size: calc(0.9rem - 1pt);
+    font-size: calc(10.8pt - 1pt);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1538,7 +1538,7 @@ body.order-type .delivery-details .delivery-continue {
     text-decoration: none;
     border-radius: 6px;
     cursor: pointer;
-    font-size: calc(1rem - 3.6pt);
+    font-size: calc(12pt - 3.6pt);
 }
 
 body.order-type .delivery-details .delivery-actions {
@@ -1554,7 +1554,7 @@ body.order-type .delivery-details .delivery-clear {
     color: #000;
     border-radius: 6px;
     cursor: pointer;
-    font-size: calc(1rem - 3.6pt);
+    font-size: calc(12pt - 3.6pt);
 }
 
 body.order-type .order-card {

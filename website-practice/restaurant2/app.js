@@ -124,6 +124,14 @@
     large: 'Large'
   };
 
+  const INGREDIENT_GROUPS = [
+    'pizza_ingredients[]',
+    'burger_ingredients[]',
+    'sub_ingredients[]',
+    'wrap_ingredients[]',
+    'sauces_ingredients[]'
+  ];
+
   function savePizzaSize(value) {
     try {
       localStorage.setItem(STORAGE_KEYS.pizzaSize, String(value || DEFAULT_PIZZA_SIZE));
@@ -705,37 +713,37 @@
       if (first && typeof first.focus === 'function') first.focus();
     };
 
-    if (settingsResetBtn) {
-      settingsResetBtn.addEventListener('click', () => {
-        // Defaults: all ON
-        labelSelects = true;
-        titleSelects = true;
-        // Defaults: reset-related toggles OFF (except keep-open ON)
-        resetDisables = false;
-        resetKeepOpen = true;
-        autoDisableEmpty = false;
-        autoDisableSection = false;
-        // Default: menu pills open/close via the whole pill
-        pillArrowOnly = false;
-        try {
-          localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
-          localStorage.setItem(STORAGE_KEYS.settingsResetKeepOpen, 'true');
-          localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
-          localStorage.setItem(STORAGE_KEYS.settingsAutoDisableSection, 'false');
+    const resetSettingsToDefaults = () => {
+      labelSelects = true;
+      titleSelects = true;
+      resetDisables = false;
+      resetKeepOpen = true;
+      autoDisableEmpty = false;
+      autoDisableSection = false;
+      pillArrowOnly = false;
+      nextClosesOverlay = false;
+      try {
+        localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
+        localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
+        localStorage.setItem(STORAGE_KEYS.settingsResetDisables, 'false');
+        localStorage.setItem(STORAGE_KEYS.settingsResetKeepOpen, 'true');
+        localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
+        localStorage.setItem(STORAGE_KEYS.settingsAutoDisableSection, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, 'false');
-        } catch { }
-        if (settingLabelSelects) settingLabelSelects.checked = true;
-        if (settingTitleSelects) settingTitleSelects.checked = true;
-        if (settingResetDisables) settingResetDisables.checked = false;
-        if (settingResetKeepOpen) settingResetKeepOpen.checked = true;
-        if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
-        if (settingAutoDisableSection) settingAutoDisableSection.checked = false;
-        if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
-        if (settingNextClosesOverlay) settingNextClosesOverlay.checked = false;
-      });
+      } catch { }
+      if (settingLabelSelects) settingLabelSelects.checked = true;
+      if (settingTitleSelects) settingTitleSelects.checked = true;
+      if (settingResetDisables) settingResetDisables.checked = false;
+      if (settingResetKeepOpen) settingResetKeepOpen.checked = true;
+      if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
+      if (settingAutoDisableSection) settingAutoDisableSection.checked = false;
+      if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
+      if (settingNextClosesOverlay) settingNextClosesOverlay.checked = false;
+    };
+
+    if (settingsResetBtn) {
+      settingsResetBtn.addEventListener('click', resetSettingsToDefaults);
     }
 
     const syncMobileUiState = () => {
@@ -1165,6 +1173,13 @@
           }
         });
       }
+      const footerResetBtn = document.querySelector('.footer-reset');
+      if (footerResetBtn) {
+        footerResetBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          resetMenuSelections();
+        });
+      }
       if (sliderTrack) {
         const handleResize = () => {
           ensureSliderAlignment();
@@ -1191,7 +1206,7 @@
       };
       const sectionToggles = Array.from(document.querySelectorAll('.section-toggle[data-section]'));
       const pizzaSizeRadios = Array.from(document.querySelectorAll('input[name="pizza_size"]'));
-      const sectionTitles = Array.from(document.querySelectorAll('.menu-summary span'));
+      const sectionTitles = Array.from(document.querySelectorAll('.menu-summary .menu-summary-label'));
       const ingredientCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][name]'));
       const builderError = document.getElementById('builder-error');
       const primarySections = ['pizza', 'burger', 'sub', 'wrap'];
@@ -1199,6 +1214,7 @@
       const isSectionDisabled = (sec) => sec === 'sauces' && sauceDisabled;
       const requiredCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-required="true"]'));
       const requiredBySection = {};
+      const resettingSections = new Set();
       const ensurePizzaToggleActive = () => {
         const pizzaToggle = sectionToggles.find((t) => t.dataset.section === 'pizza');
         if (!pizzaToggle || pizzaToggle.disabled) return;
@@ -1315,6 +1331,7 @@
       // Track when an auto-disable is driving the section toggle change
       let autoDisableTrigger = '';
       let suppressAutoDisable = false;
+      let suppressEnsureActive = false;
       const clearOptionalSelections = (secId) => {
         if (!secId) return;
         const sectionEl = document.getElementById(secId);
@@ -1372,33 +1389,54 @@
         }
       };
 
+      const getSectionForGroup = (group) => {
+        if (!group) return '';
+        if (group.startsWith('pizza_')) return 'pizza';
+        if (group.startsWith('burger_')) return 'burger';
+        if (group.startsWith('sauces_')) return 'sauces';
+        if (group.startsWith('sub_')) return 'sub';
+        if (group.startsWith('wrap_')) return 'wrap';
+        return '';
+      };
+
       const resetGroupByName = (group) => {
         if (!group) return;
         const inputs = Array.from(document.querySelectorAll(`input[type="checkbox"][name="${group}"]`));
         if (!inputs.length) return;
-        inputs.forEach((cb) => {
-          const isRequired = cb.dataset.required === 'true';
-          cb.checked = isRequired;
-          const lbl = cb.closest('label');
-          const qty = lbl && lbl.querySelector('select.ingredient-qty');
-          if (qty) {
-            qty.disabled = !cb.checked;
-            if (!cb.checked && qty.options.length) qty.value = qty.options[0].value;
-          }
-          cb.dispatchEvent(new Event('change', { bubbles: true }));
-        });
+        const groupingSection = getSectionForGroup(group);
+        const sectionToggle = groupingSection ? document.querySelector(`.section-toggle[data-section="${groupingSection}"]`) : null;
+        const initialToggleState = sectionToggle ? {
+          checked: sectionToggle.checked,
+          disabled: sectionToggle.disabled,
+          manualDisabled: sectionToggle.dataset && sectionToggle.dataset.manualDisabled === 'true'
+        } : null;
+        const previousSuppression = suppressEnsureActive;
+        suppressEnsureActive = true;
+        const shouldGuardSection = (sectionToggle && sectionToggle.disabled) || (resetDisables && groupingSection);
+        if (shouldGuardSection && groupingSection) resettingSections.add(groupingSection);
+        try {
+          inputs.forEach((cb) => {
+            const isRequired = cb.dataset.required === 'true';
+            cb.checked = isRequired;
+            const lbl = cb.closest('label');
+            const qty = lbl && lbl.querySelector('select.ingredient-qty');
+            if (qty) {
+              qty.disabled = !cb.checked;
+              if (!cb.checked && qty.options.length) qty.value = qty.options[0].value;
+            }
+            cb.dispatchEvent(new Event('change', { bubbles: true }));
+          });
+        } finally {
+          if (shouldGuardSection && groupingSection) resettingSections.delete(groupingSection);
+          suppressEnsureActive = previousSuppression;
+        }
         saveAllIngredientSelections();
         syncRequiredCheckboxes();
         updateBuilderError();
         updatePage3NavState();
 
         if (resetDisables) {
-          let section = '';
-          if (group.startsWith('pizza_')) section = 'pizza';
-          else if (group.startsWith('burger_')) section = 'burger';
-          else if (group.startsWith('sauces_')) section = 'sauces';
-          else if (group.startsWith('sub_')) section = 'sub';
-          else if (group.startsWith('wrap_')) section = 'wrap';
+          const section = groupingSection;
           if (section) {
             const toggle = document.querySelector(`.section-toggle[data-section="${section}"]`);
             if (toggle && toggle.checked) {
@@ -1413,6 +1451,21 @@
           }
           if (!resetKeepOpen) {
             closeOverlay(section);
+          }
+        }
+        if (!resetDisables && sectionToggle && initialToggleState) {
+          sectionToggle.checked = initialToggleState.checked;
+          if (initialToggleState.disabled) {
+            sectionToggle.disabled = true;
+            sectionToggle.setAttribute('aria-disabled', 'true');
+          } else {
+            sectionToggle.disabled = false;
+            sectionToggle.removeAttribute('aria-disabled');
+          }
+          if (initialToggleState.manualDisabled) {
+            sectionToggle.dataset.manualDisabled = 'true';
+          } else {
+            delete sectionToggle.dataset.manualDisabled;
           }
         }
       };
@@ -1520,6 +1573,19 @@
         menuLaunchLookup[target].push(btn);
         btn.setAttribute('aria-expanded', 'false');
       });
+
+      const syncOverlayPrices = () => {
+        document.querySelectorAll('.overlay-header-price').forEach((priceEl) => {
+          const overlay = priceEl.closest('.menu-overlay');
+          const section = overlay?.dataset.section || '';
+          if (!section) return;
+          const launchPrice = document.querySelector(`.menu-launch[data-target="${section}"] .menu-launch-price`);
+          if (launchPrice) {
+            priceEl.textContent = launchPrice.textContent;
+          }
+        });
+      };
+      syncOverlayPrices();
 
       const updateArrowState = (section, isOpen) => {
         const btns = menuLaunchLookup[section] || [];
@@ -1693,6 +1759,36 @@
         builderError.textContent = '';
       };
 
+      function resetMenuSelections() {
+        resetSettingsToDefaults();
+        if (typeof closeAllOverlays === 'function') closeAllOverlays();
+        INGREDIENT_GROUPS.forEach((group) => resetGroupByName(group));
+        pizzaSizeRadios.forEach((radio) => {
+          radio.checked = radio.value === DEFAULT_PIZZA_SIZE;
+        });
+        savePizzaSize(DEFAULT_PIZZA_SIZE);
+
+        sectionToggles.forEach((toggle) => {
+          toggle.checked = false;
+          if (toggle.disabled) {
+            toggle.disabled = false;
+            toggle.removeAttribute('aria-disabled');
+          }
+          if (toggle.dataset) {
+            delete toggle.dataset.manualDisabled;
+          }
+        });
+
+        persistActiveSections();
+        syncSaucesEnabled();
+        if (builderError) {
+          builderError.hidden = true;
+          builderError.textContent = '';
+        }
+        updateBuilderError();
+        updatePage3NavState();
+      }
+
       // Attach pill/arrow handlers
       menuLaunchButtons.forEach((btn) => {
         const target = btn.dataset.target;
@@ -1761,13 +1857,14 @@
       // Persist ingredient selections
       ingredientCheckboxes.forEach((cb) => {
         cb.addEventListener('change', () => {
-          if (cb.checked) {
+          const secEl = cb.closest('.menu-section');
+          const secId = secEl && secEl.id;
+          if (!suppressEnsureActive && cb.checked && !(secId && resettingSections.has(secId))) {
             ensureSectionActiveForCheckbox(cb);
           }
-          const secEl = cb.closest('.menu-section');
-          if (secEl && secEl.id) {
+          if (secEl && secId) {
             if (!suppressAutoDisable) {
-              autoDisableIfEmpty(secEl.id);
+              autoDisableIfEmpty(secId);
             }
           }
           saveAllIngredientSelections();
@@ -1788,7 +1885,7 @@
         }
         if (!cb || !cb.disabled) return;
         ensureSectionEnabledForCheckbox(cb);
-        ensureSectionActiveForCheckbox(cb);
+        if (!suppressEnsureActive) ensureSectionActiveForCheckbox(cb);
         if (cb.disabled) return;
         cb.checked = true;
         cb.dispatchEvent(new Event('change', { bubbles: true }));

@@ -135,7 +135,7 @@ body {
     border-radius: 50%;
     width: 22px;
     height: 22px;
-    font-size: 14px;
+    font-size: 10.5pt;
     font-weight: bold;
     cursor: pointer;
     margin-left: 6px;
@@ -160,7 +160,7 @@ body {
     position: relative;
     z-index: 2;
     margin-top: 8px;
-    font-size: 13px;
+    font-size: 9.75pt;
     box-shadow: 0 0 12px rgba(165, 255, 125, .5);
 }
 
@@ -170,7 +170,7 @@ body {
     align-items: center;
     justify-content: center;
     line-height: 1;
-    font-size: clamp(36px, 6.5vmin, 54px);
+    font-size: clamp(27pt, 6.5vmin, 40.5pt);
     background: rgba(255, 255, 255, .02);
     border-radius: 8px;
     position: relative;
@@ -219,7 +219,7 @@ body {
 
 /* Form Elements */
 label {
-    font-size: 12px;
+    font-size: 9pt;
     color: var(--muted);
     display: block;
     margin-bottom: 6px;
@@ -232,7 +232,7 @@ input[type=number] {
     border: 1px solid rgba(255, 255, 255, .1);
     border-radius: 8px;
     padding: 8px 10px;
-    font-size: 14px;
+    font-size: 10.5pt;
     outline: none;
 }
 
@@ -325,7 +325,7 @@ button:focus-visible,
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 6px;
-    font-size: 14px;
+    font-size: 10.5pt;
 }
 
 .table div {
@@ -344,7 +344,7 @@ button:focus-visible,
 
 /* Lines Preview */
 .legend {
-    font-size: 12px;
+    font-size: 9pt;
     color: var(--muted);
 }
 
@@ -376,7 +376,7 @@ button:focus-visible,
 
 /* Footer / Credit Controls */
 .footer {
-    font-size: 12px;
+    font-size: 9pt;
     color: var(--muted);
     margin-top: 8px;
 }
