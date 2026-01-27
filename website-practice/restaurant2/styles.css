@@ -710,7 +710,9 @@ body.nav-enabled .left-rail {
 /* Section: Main Content Area */
 main {
     background: var(--color-white);
-    flex: 0 1 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     width: min(120ch, calc(100% - var(--gap) * 2));
     max-width: 1200px;
     align-self: center;
@@ -721,9 +723,16 @@ main {
     overflow-wrap: break-word;
     word-break: break-word;
     margin-inline: auto;
+    overflow-y: hidden;
     box-shadow:
         0 2px 8px var(--shadow-soft),
         inset 0 0 0 40px var(--color-white);
+}
+
+main .wrapper {
+    overflow-y: scroll;
+    flex: 1;
+    min-height: 0;
 }
 
 /* Leave extra headroom when the fixed Go Back button is present */
