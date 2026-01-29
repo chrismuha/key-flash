@@ -1761,11 +1761,12 @@
             const g = btn.getAttribute('data-group');
             if (g) groups.add(g);
           });
-          groups.forEach((g) => resetGroupByName(g));
+          groups.forEach((g) => resetGroupByName(g, { forceDisable: true }));
           saveIngredients();
           updateBuilderError();
           updatePageNavLocks();
           closeAllOverlays();
+          collapseOpenMenuDetails();
         });
       }
       if (location.hash) {
@@ -2496,8 +2497,9 @@
       // Ensure builder validation state is accurate after initial render/restore
       updateBuilderError();
       // Reset buttons per group
-      const resetGroupByName = (group) => {
+      const resetGroupByName = (group, { forceDisable = false } = {}) => {
         if (!group) return;
+        const shouldDisable = forceDisable || resetDisables;
         document.querySelectorAll(`input[type="checkbox"][name="${group}"]`).forEach((cb) => {
           if (cb.dataset.required === 'true' || cb.disabled) {
             // keep required selections checked
@@ -2533,14 +2535,14 @@
             if (pattyQtyTxt) pattyQtyTxt.textContent = `(x1)`;
           } else if (group.startsWith('sauces_')) {
             Object.keys(qm).forEach((k) => {
-              if (k.startsWith('sauces_ingredients[]|')) qm[k] = resetDisables ? 0 : 1;
+              if (k.startsWith('sauces_ingredients[]|')) qm[k] = shouldDisable ? 0 : 1;
             });
             localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
           } else {
             localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
           }
         } catch { }
-        if (resetDisables) {
+        if (shouldDisable) {
           let section = '';
           if (group.startsWith('pizza_')) section = 'pizza';
           else if (group.startsWith('burger_')) section = 'burger';
