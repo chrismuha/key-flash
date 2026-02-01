@@ -147,6 +147,8 @@
     sub: 'Sub',
     wrap: 'Wrap',
     sauces: 'Sauces'
+    ,
+    order: 'Order'
   };
 
   function savePizzaSize(value) {
@@ -194,14 +196,24 @@
   })();
 
   let cartToastTimer = null;
-  function showCartToast(section, isActive) {
+  function hideCartToast() {
+    if (!cartToast) return;
+    cartToast.classList.remove('visible');
+    if (cartToastTimer) {
+      clearTimeout(cartToastTimer);
+      cartToastTimer = null;
+    }
+  }
+
+  function showCartToast(section, isActive, overrideMessage) {
     if (!cartToast || !section) return;
     const label = SECTION_LABELS[section] || section;
-    const message = isActive ? `${label} added to cart` : `${label} removed from cart`;
+    const defaultMessage = isActive ? `${label} added to cart` : `${label} removed from cart`;
+    const message = overrideMessage || defaultMessage;
     cartToast.textContent = message;
     cartToast.classList.add('visible');
     if (cartToastTimer) clearTimeout(cartToastTimer);
-    cartToastTimer = setTimeout(() => cartToast.classList.remove('visible'), 1500);
+    cartToastTimer = setTimeout(() => hideCartToast(), 1500);
   }
 
   function getIngredientGroupsForSection(section) {
@@ -2226,6 +2238,19 @@
       const container = document.getElementById('order-summary');
       if (!container) return;
 
+      function redirectIfNoActiveSections() {
+        if (!document.body.classList.contains('page3')) return false;
+        const active = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {});
+        const hasActive = Object.values(active || {}).some((v) => !!v);
+        if (hasActive) return false;
+        showCartToast('order', false, 'No more items selected; returning to the menu.');
+        setTimeout(() => {
+          hideCartToast();
+          window.location.href = 'page2.html';
+        }, 2600);
+        return true;
+      }
+
       function handleRemoveSection(section) {
         const normalized = String(section || '').toLowerCase();
         if (!normalized) return;
@@ -2235,7 +2260,9 @@
         markSectionInactive(normalized);
         renderOrderSummary();
         if (typeof updatePage3NavState === 'function') updatePage3NavState();
-        showCartToast(normalized, false);
+        if (!redirectIfNoActiveSections()) {
+          showCartToast(normalized, false);
+        }
       }
 
       function renderOrderSummary() {
