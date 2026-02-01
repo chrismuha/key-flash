@@ -994,6 +994,7 @@
     });
 
     // Example: order flow specific initialization
+    maybeShowPage2RedirectReason(body);
     if (body.classList.contains('order-type')) {
       // Track delivery submit failures to show fallback help after 2 failed attempts
       let deliveryFailCount = 0;
@@ -1290,7 +1291,6 @@
 
     // Page 2: menu overlays + pills
     if (body.classList.contains('page2')) {
-      maybeShowPage2RedirectReason(body);
       const overlays = Array.from(document.querySelectorAll('.menu-overlay[data-section]'));
       const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
       const backToMenuBtn = document.querySelector('.back-to-menu');
