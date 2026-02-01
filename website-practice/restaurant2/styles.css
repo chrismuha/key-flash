@@ -1595,7 +1595,7 @@ body.page3 .summary-divider {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
     transition: opacity 0.35s ease, transform 0.35s ease;
     z-index: 2220;
-    max-width: min(92vw, 420px);
+    width: min(96vw, 520px);
     letter-spacing: 0.4px;
     line-height: 1.3;
 }

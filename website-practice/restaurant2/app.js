@@ -193,6 +193,8 @@
   const DEFAULT_TOAST_DURATION = 500;
   const PAGE2_TOAST_SHORT_DURATION = 2500;
   const PAGE2_TOAST_LONG_DURATION = 4000;
+  const PAGE3_REDIRECT_TOAST_MESSAGE = 'Rerouting to the menu builder because all items were removed.';
+  const PAGE3_REDIRECT_DELAY = 4500;
 
   const cartToast = (() => {
     const el = document.createElement('div');
@@ -230,7 +232,7 @@
     }
   }
 
-  function showRedirectNotice(message, duration = 2500) {
+  function showRedirectNotice(message, duration = 4500) {
     if (!redirectNotice || !message) return;
     redirectNotice.textContent = message;
     redirectNotice.classList.add('visible');
@@ -2340,38 +2342,18 @@
         const active = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {});
         const hasActive = Object.values(active || {}).some((v) => !!v);
         if (hasActive) return false;
-        const reasonMessage = 'No more items selected; returning to the menu.';
-        setRedirectReason(reasonMessage);
-        showCartToast('order', false, reasonMessage, { persistUntilHide: true, force: true });
-        const proceedToPage2 = () => {
-          window.location.href = 'page2.html';
-        };
-        const toastVisible = cartToast && cartToast.classList.contains('visible');
+        const page2ReasonMessage = 'No more items were selected on Page 3, so you were rerouted back to the menu builder.';
+        setRedirectReason(page2ReasonMessage);
+        showCartToast('order', false, PAGE3_REDIRECT_TOAST_MESSAGE, { persistUntilHide: true, force: true });
         let redirectTimer = null;
         const handleRedirect = () => {
-          if (cartToast) {
-            cartToast.removeEventListener('transitionend', onTransitionEnd);
-          }
           if (redirectTimer) {
             clearTimeout(redirectTimer);
             redirectTimer = null;
           }
-          proceedToPage2();
+          window.location.href = 'page2.html';
         };
-        const onTransitionEnd = (evt) => {
-          if (evt.propertyName !== 'opacity') return;
-          handleRedirect();
-        };
-        if (cartToast) {
-          if (toastVisible) {
-            redirectTimer = setTimeout(handleRedirect, 600);
-          } else {
-            cartToast.addEventListener('transitionend', onTransitionEnd);
-            redirectTimer = setTimeout(handleRedirect, 800);
-          }
-        } else {
-          redirectTimer = setTimeout(handleRedirect, 0);
-        }
+        redirectTimer = setTimeout(handleRedirect, PAGE3_REDIRECT_DELAY);
         return true;
       }
 
