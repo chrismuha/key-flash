@@ -25,6 +25,7 @@
     settingsNextClosesOverlay: 'restaurant.settings.nextClosesOverlay',
     settingsToastEnabled: 'restaurant.settings.toastEnabled',
     settingsToastPage2Long: 'restaurant.settings.toastPage2Long',
+    redirectReason: 'restaurant.redirectReason',
     quantities: 'restaurant.quantities',
     pizzaSize: 'restaurant.pizza.size'
   };
@@ -189,8 +190,9 @@
     try { return JSON.parse(v); } catch { return fallback; }
   }
 
-  const DEFAULT_TOAST_DURATION = 1500;
-  const PAGE2_TOAST_DURATION = 2500;
+  const DEFAULT_TOAST_DURATION = 500;
+  const PAGE2_TOAST_SHORT_DURATION = 2500;
+  const PAGE2_TOAST_LONG_DURATION = 4000;
 
   const cartToast = (() => {
     const el = document.createElement('div');
@@ -210,16 +212,72 @@
     }
   }
 
+  const redirectNotice = (() => {
+    const el = document.createElement('div');
+    el.className = 'redirect-notice';
+    el.setAttribute('aria-live', 'polite');
+    document.body.appendChild(el);
+    return el;
+  })();
+
+  let redirectNoticeTimer = null;
+  function hideRedirectNotice() {
+    if (!redirectNotice) return;
+    redirectNotice.classList.remove('visible');
+    if (redirectNoticeTimer) {
+      clearTimeout(redirectNoticeTimer);
+      redirectNoticeTimer = null;
+    }
+  }
+
+  function showRedirectNotice(message, duration = 2500) {
+    if (!redirectNotice || !message) return;
+    redirectNotice.textContent = message;
+    redirectNotice.classList.add('visible');
+    if (redirectNoticeTimer) clearTimeout(redirectNoticeTimer);
+    redirectNoticeTimer = setTimeout(() => hideRedirectNotice(), duration);
+  }
+
+  function setRedirectReason(reason) {
+    try {
+      if (reason) {
+        localStorage.setItem(STORAGE_KEYS.redirectReason, reason);
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.redirectReason);
+      }
+    } catch { /* ignore */ }
+  }
+
+  function consumeRedirectReason() {
+    try {
+      const value = localStorage.getItem(STORAGE_KEYS.redirectReason);
+      if (!value) return '';
+      localStorage.removeItem(STORAGE_KEYS.redirectReason);
+      return value;
+    } catch { return ''; }
+  }
+
+  function maybeShowPage2RedirectReason(bodyEl) {
+    if (!bodyEl || !bodyEl.classList.contains('page2')) return;
+    const reason = consumeRedirectReason();
+    if (!reason) return;
+    showRedirectNotice(reason);
+  }
+
   function showCartToast(section, isActive, overrideMessage, options = {}) {
-    if (!cartToast || !section) return;
+    const delayOptions = options || {};
+    if (!cartToast || !section || (!toastEnabled && !delayOptions.force)) return;
     const label = SECTION_LABELS[section] || section;
     const defaultMessage = isActive ? `${label} added to cart` : `${label} removed from cart`;
     const message = overrideMessage || defaultMessage;
     cartToast.textContent = message;
     cartToast.classList.add('visible');
     if (cartToastTimer) clearTimeout(cartToastTimer);
-    if (!options.persistUntilHide) {
-      const delay = options.duration || 1500;
+    if (!delayOptions.persistUntilHide) {
+      const explicitDuration = Number.isFinite(delayOptions.duration) ? delayOptions.duration : null;
+      const isPage2 = document.body && document.body.classList && document.body.classList.contains('page2');
+      const page2Delay = toastPage2Long ? PAGE2_TOAST_LONG_DURATION : PAGE2_TOAST_SHORT_DURATION;
+      const delay = explicitDuration ?? (isPage2 ? page2Delay : DEFAULT_TOAST_DURATION);
       cartToastTimer = setTimeout(() => hideCartToast(), delay);
     }
   }
@@ -442,6 +500,8 @@
     const settingAutoDisableSection = document.getElementById('setting-auto-disable-section') || document.querySelector('.setting-auto-disable-section');
     const settingPillArrowOnly = document.getElementById('setting-pill-arrow-only') || document.querySelector('.setting-pill-arrow-only');
     const settingNextClosesOverlay = document.getElementById('setting-next-closes-overlay') || document.querySelector('.setting-next-closes-overlay');
+    const settingToastEnabled = document.getElementById('setting-toast-enabled');
+    const settingToastPage2Long = document.getElementById('setting-toast-page2-long');
     const settingsResetBtn = document.getElementById('settings-reset') || document.querySelector('.settings-reset');
 
     const navToggleBtn = document.getElementById('nav-toggle-btn') || document.querySelector('.nav-toggle');
@@ -740,6 +800,18 @@
       titleSelects = v === null ? true : v === 'true';
     } catch { titleSelects = true; }
     if (settingTitleSelects) settingTitleSelects.checked = titleSelects;
+
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsToastEnabled);
+      toastEnabled = v === null ? true : v === 'true';
+    } catch { toastEnabled = true; }
+    if (settingToastEnabled) settingToastEnabled.checked = toastEnabled;
+
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsToastPage2Long);
+      toastPage2Long = v === null ? true : v === 'true';
+    } catch { toastPage2Long = true; }
+    if (settingToastPage2Long) settingToastPage2Long.checked = toastPage2Long;
 
     // Reset-on-deselect: always ON (setting removed for Restaurant 2)
     const resetOnDeselect = true;
@@ -1216,6 +1288,7 @@
 
     // Page 2: menu overlays + pills
     if (body.classList.contains('page2')) {
+      maybeShowPage2RedirectReason(body);
       const overlays = Array.from(document.querySelectorAll('.menu-overlay[data-section]'));
       const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
       const backToMenuBtn = document.querySelector('.back-to-menu');
@@ -2184,6 +2257,18 @@
         try { localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, String(nextClosesOverlay)); } catch { }
       });
     }
+    if (settingToastEnabled) {
+      settingToastEnabled.addEventListener('change', () => {
+        toastEnabled = !!settingToastEnabled.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsToastEnabled, String(toastEnabled)); } catch { }
+      });
+    }
+    if (settingToastPage2Long) {
+      settingToastPage2Long.addEventListener('change', () => {
+        toastPage2Long = !!settingToastPage2Long.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsToastPage2Long, String(toastPage2Long)); } catch { }
+      });
+    }
 
     // Settings open/close
     if (settingsToggleBtns.length) {
@@ -2255,10 +2340,38 @@
         const active = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {});
         const hasActive = Object.values(active || {}).some((v) => !!v);
         if (hasActive) return false;
-        showCartToast('order', false, 'No more items selected; returning to the menu.', { persistUntilHide: true });
-        requestAnimationFrame(() => {
+        const reasonMessage = 'No more items selected; returning to the menu.';
+        setRedirectReason(reasonMessage);
+        showCartToast('order', false, reasonMessage, { persistUntilHide: true, force: true });
+        const proceedToPage2 = () => {
           window.location.href = 'page2.html';
-        });
+        };
+        const toastVisible = cartToast && cartToast.classList.contains('visible');
+        let redirectTimer = null;
+        const handleRedirect = () => {
+          if (cartToast) {
+            cartToast.removeEventListener('transitionend', onTransitionEnd);
+          }
+          if (redirectTimer) {
+            clearTimeout(redirectTimer);
+            redirectTimer = null;
+          }
+          proceedToPage2();
+        };
+        const onTransitionEnd = (evt) => {
+          if (evt.propertyName !== 'opacity') return;
+          handleRedirect();
+        };
+        if (cartToast) {
+          if (toastVisible) {
+            redirectTimer = setTimeout(handleRedirect, 600);
+          } else {
+            cartToast.addEventListener('transitionend', onTransitionEnd);
+            redirectTimer = setTimeout(handleRedirect, 800);
+          }
+        } else {
+          redirectTimer = setTimeout(handleRedirect, 0);
+        }
         return true;
       }
 
