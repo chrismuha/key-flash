@@ -13,6 +13,7 @@
     deliveryCity: 'restaurant.delivery.city',
     deliveryZip: 'restaurant.delivery.zip',
     activeSections: 'restaurant.activeSections',
+    manualDisabledSections: 'restaurant.manualDisabledSections',
     navEnabled: 'restaurant.nav.enabled',
     settingsLabelSelects: 'restaurant.settings.labelSelects',
     settingsTitleSelects: 'restaurant.settings.titleSelects',
@@ -132,6 +133,14 @@
     'sauces_ingredients[]'
   ];
 
+  const SECTION_INGREDIENT_GROUPS = {
+    pizza: ['pizza_ingredients[]'],
+    burger: ['burger_ingredients[]'],
+    sub: ['sub_ingredients[]'],
+    wrap: ['wrap_ingredients[]'],
+    sauces: ['sauces_ingredients[]']
+  };
+
   function savePizzaSize(value) {
     try {
       localStorage.setItem(STORAGE_KEYS.pizzaSize, String(value || DEFAULT_PIZZA_SIZE));
@@ -166,6 +175,83 @@
 
   function safeParseJSON(v, fallback) {
     try { return JSON.parse(v); } catch { return fallback; }
+  }
+
+  function getIngredientGroupsForSection(section) {
+    if (!section) return [];
+    const key = String(section).toLowerCase();
+    return SECTION_INGREDIENT_GROUPS[key] || [];
+  }
+
+  function removeIngredientGroupsForSection(section) {
+    const groups = getIngredientGroupsForSection(section);
+    if (!groups.length) return;
+    const stored = safeParseJSON(localStorage.getItem(STORAGE_KEYS.ingredients), {});
+    if (!stored || typeof stored !== 'object') return;
+    let mutated = false;
+    groups.forEach((group) => {
+      if (group in stored) {
+        delete stored[group];
+        mutated = true;
+      }
+    });
+    if (mutated) {
+      saveIngredientsToStorage(stored);
+    }
+  }
+
+  function removeQuantitiesForSection(section) {
+    const groups = getIngredientGroupsForSection(section);
+    if (!groups.length) return;
+    try {
+      const quantities = safeParseJSON(localStorage.getItem(STORAGE_KEYS.quantities), {});
+      if (!quantities || typeof quantities !== 'object') return;
+      let mutated = false;
+      const prefixes = groups.map((group) => `${group}|`);
+      Object.keys(quantities).forEach((key) => {
+        if (prefixes.some((prefix) => key.startsWith(prefix))) {
+          delete quantities[key];
+          mutated = true;
+        }
+      });
+      if (mutated) {
+        localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(quantities));
+      }
+    } catch { /* ignore */ }
+  }
+
+  function readManualDisabledSections() {
+    const stored = safeParseJSON(localStorage.getItem(STORAGE_KEYS.manualDisabledSections), []);
+    if (!Array.isArray(stored)) return [];
+    return stored.map((sec) => String(sec || '').toLowerCase()).filter(Boolean);
+  }
+
+  function persistManualDisabledSections(sections) {
+    const list = Array.isArray(sections) ? sections : [];
+    const normalized = Array.from(new Set(list.filter(Boolean).map((sec) => String(sec).toLowerCase())));
+    try {
+      localStorage.setItem(STORAGE_KEYS.manualDisabledSections, JSON.stringify(normalized));
+    } catch { /* ignore */ }
+  }
+
+  function markSectionManualDisabled(section) {
+    if (!section) return;
+    const normalized = String(section).toLowerCase();
+    const manual = new Set(readManualDisabledSections());
+    if (manual.has(normalized)) return;
+    manual.add(normalized);
+    persistManualDisabledSections(Array.from(manual));
+  }
+
+  function markSectionInactive(section) {
+    if (!section) return;
+    const normalized = String(section).toLowerCase();
+    try {
+      const active = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {});
+      if (!active || typeof active !== 'object') return;
+      active[normalized] = false;
+      localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(active));
+    } catch { /* ignore */ }
   }
 
   // Section: Persisted settings variables (defaults set further down)
@@ -1209,6 +1295,17 @@
       const sectionTitles = Array.from(document.querySelectorAll('.menu-summary .menu-summary-label'));
       const ingredientCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][name]'));
       const builderError = document.getElementById('builder-error');
+      const manualDisabledSet = new Set(readManualDisabledSections());
+      sectionToggles.forEach((toggle) => {
+        const sec = toggle.dataset.section;
+        if (!sec) return;
+        if (manualDisabledSet.has(sec)) {
+          toggle.checked = false;
+          toggle.disabled = true;
+          toggle.setAttribute('aria-disabled', 'true');
+          toggle.dataset.manualDisabled = 'true';
+        }
+      });
       const primarySections = ['pizza', 'burger', 'sub', 'wrap'];
       let sauceDisabled = false;
       const isSectionDisabled = (sec) => sec === 'sauces' && sauceDisabled;
@@ -2099,14 +2196,27 @@
     // Page 3: Order summary rendering
     if (body.classList.contains('page3')) {
       const container = document.getElementById('order-summary');
-      if (container) {
+      if (!container) return;
+
+      function handleRemoveSection(section) {
+        const normalized = String(section || '').toLowerCase();
+        if (!normalized) return;
+        removeIngredientGroupsForSection(normalized);
+        removeQuantitiesForSection(normalized);
+        markSectionManualDisabled(normalized);
+        markSectionInactive(normalized);
+        renderOrderSummary();
+        if (typeof updatePage3NavState === 'function') updatePage3NavState();
+      }
+
+      function renderOrderSummary() {
         const readJSON = (key, fallback) => {
           try { return safeParseJSON(localStorage.getItem(key), fallback); } catch { return fallback; }
         };
         const d = readDeliveryData();
         const orderType = (() => { try { return localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { return ''; } })();
         const ingredients = normalizeIngredientData(readJSON(STORAGE_KEYS.ingredients, {})) || {};
-        const activeSections = readJSON(STORAGE_KEYS.activeSections, {});
+        const activeSections = readJSON(STORAGE_KEYS.activeSections, {}) || {};
         const qtyMap = readJSON(STORAGE_KEYS.quantities, {});
         const pizzaSize = loadPizzaSize();
         const pizzaSizeLabel = PIZZA_SIZE_LABELS[pizzaSize] || pizzaSize || '';
@@ -2118,7 +2228,6 @@
           return block;
         };
 
-        // Order type
         if (orderType) {
           const typeBlock = createSummaryBlock();
           const h3 = document.createElement('h3');
@@ -2130,7 +2239,6 @@
           frag.appendChild(typeBlock);
         }
 
-        // Delivery details block
         if (orderType === 'delivery') {
           const deliveryBlock = createSummaryBlock();
           const h = document.createElement('h3');
@@ -2217,6 +2325,7 @@
           }
           return '';
         };
+
         const qtyLabel = (group, keyValue) => {
           const key = `${group}|${keyValue}`;
           const q = qtyMap && qtyMap[key];
@@ -2249,6 +2358,19 @@
             edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
             header.appendChild(edit);
+
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'summary-remove-btn';
+            remove.textContent = 'Remove';
+            remove.setAttribute('aria-label', `Remove ${title.textContent}`);
+            remove.addEventListener('click', (evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              handleRemoveSection(sec);
+            });
+            header.appendChild(remove);
+
             sectionWrap.appendChild(header);
 
             if (sec === 'pizza' && pizzaSizeLabel) {
@@ -2284,6 +2406,8 @@
         frag.appendChild(selectionsBlock);
         container.appendChild(frag);
       }
+
+      renderOrderSummary();
     }
   });
 

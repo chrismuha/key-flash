@@ -1533,16 +1533,47 @@ body.page3 #order-summary .summary-edit-btn {
     justify-content: center;
     margin-left: 10px;
     padding: 6px 12px;
-    background: var(--danger);
+    background: var(--accent);
     color: var(--color-white);
     border-radius: 6px;
     font-weight: 700;
     text-decoration: none;
-    border: 1px solid var(--danger-strong);
+    border: 1px solid var(--accent-strong);
+    width: 90px;
+    height: 34px;
+    line-height: 1;
+    font-size: 10.8pt;
+    font-family: inherit;
 }
 
 body.page3 #order-summary .summary-edit-btn:hover,
 body.page3 #order-summary .summary-edit-btn:focus-visible {
+    background: var(--accent-strong);
+    outline: 2px solid var(--border-strong);
+}
+
+body.page3 #order-summary .summary-remove-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--danger-strong);
+    background: var(--danger);
+    color: var(--color-white);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    width: 90px;
+    height: 34px;
+    line-height: 1;
+    font-size: 10.8pt;
+    font-family: inherit;
+}
+
+body.page3 #order-summary .summary-remove-btn:hover,
+body.page3 #order-summary .summary-remove-btn:focus-visible {
     background: var(--danger-strong);
     outline: 2px solid var(--color-oxblood);
 }
