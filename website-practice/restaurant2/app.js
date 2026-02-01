@@ -205,7 +205,7 @@
     }
   }
 
-  function showCartToast(section, isActive, overrideMessage) {
+  function showCartToast(section, isActive, overrideMessage, duration = 1500) {
     if (!cartToast || !section) return;
     const label = SECTION_LABELS[section] || section;
     const defaultMessage = isActive ? `${label} added to cart` : `${label} removed from cart`;
@@ -213,7 +213,7 @@
     cartToast.textContent = message;
     cartToast.classList.add('visible');
     if (cartToastTimer) clearTimeout(cartToastTimer);
-    cartToastTimer = setTimeout(() => hideCartToast(), 1500);
+    cartToastTimer = setTimeout(() => hideCartToast(), duration);
   }
 
   function getIngredientGroupsForSection(section) {
@@ -2243,11 +2243,12 @@
         const active = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {});
         const hasActive = Object.values(active || {}).some((v) => !!v);
         if (hasActive) return false;
-        showCartToast('order', false, 'No more items selected; returning to the menu.');
+        const redirectDelay = 2600;
+        showCartToast('order', false, 'No more items selected; returning to the menu.', redirectDelay);
         setTimeout(() => {
           hideCartToast();
           window.location.href = 'page2.html';
-        }, 2600);
+        }, redirectDelay);
         return true;
       }
 
