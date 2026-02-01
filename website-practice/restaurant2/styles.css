@@ -1553,6 +1553,30 @@ body.page3 .summary-divider {
     opacity: 0.45;
 }
 
+.cart-toast {
+    position: fixed;
+    bottom: 32px;
+    right: 28px;
+    padding: 12px 18px;
+    background: #f9d71c;
+    color: var(--color-black);
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 12pt;
+    opacity: 0;
+    pointer-events: none;
+    border: 1px solid var(--color-black);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    transform: translateY(12px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 2200;
+}
+
+.cart-toast.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 body.page3 #order-summary {
     width: 100%;
     max-width: 880px;

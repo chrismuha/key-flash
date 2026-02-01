@@ -1,5 +1,5 @@
-// Section: IIFE Wrapper
-(function () {
+  // Section: IIFE Wrapper
+  (function () {
   // Section: Storage Keys
   const STORAGE_KEYS = {
     orderType: 'restaurant.orderType',
@@ -141,6 +141,14 @@
     sauces: ['sauces_ingredients[]']
   };
 
+  const SECTION_LABELS = {
+    pizza: 'Pizza',
+    burger: 'Burger',
+    sub: 'Sub',
+    wrap: 'Wrap',
+    sauces: 'Sauces'
+  };
+
   function savePizzaSize(value) {
     try {
       localStorage.setItem(STORAGE_KEYS.pizzaSize, String(value || DEFAULT_PIZZA_SIZE));
@@ -175,6 +183,25 @@
 
   function safeParseJSON(v, fallback) {
     try { return JSON.parse(v); } catch { return fallback; }
+  }
+
+  const cartToast = (() => {
+    const el = document.createElement('div');
+    el.className = 'cart-toast';
+    el.setAttribute('aria-live', 'polite');
+    document.body.appendChild(el);
+    return el;
+  })();
+
+  let cartToastTimer = null;
+  function showCartToast(section, isActive) {
+    if (!cartToast || !section) return;
+    const label = SECTION_LABELS[section] || section;
+    const message = isActive ? `${label} added to cart` : `${label} removed from cart`;
+    cartToast.textContent = message;
+    cartToast.classList.add('visible');
+    if (cartToastTimer) clearTimeout(cartToastTimer);
+    cartToastTimer = setTimeout(() => cartToast.classList.remove('visible'), 1500);
   }
 
   function getIngredientGroupsForSection(section) {
@@ -2049,6 +2076,7 @@
           persistActiveSections();
           updateBuilderError();
           updatePage3NavState();
+          if (sec) showCartToast(sec, !!t.checked);
         });
       });
 
@@ -2207,6 +2235,7 @@
         markSectionInactive(normalized);
         renderOrderSummary();
         if (typeof updatePage3NavState === 'function') updatePage3NavState();
+        showCartToast(normalized, false);
       }
 
       function renderOrderSummary() {
