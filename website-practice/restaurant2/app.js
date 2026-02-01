@@ -1830,6 +1830,16 @@
         if (closeBtn) closeBtn.addEventListener('click', () => closeOverlay(overlay));
       });
 
+      const sectionDoneButtons = Array.from(document.querySelectorAll('.section-done[data-section]'));
+      sectionDoneButtons.forEach((btn) => {
+        btn.addEventListener('click', (evt) => {
+          evt.stopPropagation();
+          evt.preventDefault();
+          const section = btn.dataset.section;
+          if (section) closeOverlay(section);
+        });
+      });
+
       if (backToMenuBtn) {
         backToMenuBtn.addEventListener('click', (evt) => {
           evt.preventDefault();

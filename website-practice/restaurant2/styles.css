@@ -1863,6 +1863,38 @@ main .menu-summary {
     list-style: none;
 }
 
+main .section-actions {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+    gap: 8px;
+    width: 100%;
+}
+
+main .section-actions .section-done {
+    margin-left: auto;
+    padding: 4px 14px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: transparent;
+    font-size: 11pt;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    color: inherit;
+    transition: background 0.2s, color 0.2s;
+}
+
+main .section-actions .section-done:hover,
+main .section-actions .section-done:focus-visible {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-dark main .section-actions .section-done:hover,
+body.theme-dark main .section-actions .section-done:focus-visible {
+    background: rgba(255, 255, 255, 0.12);
+}
+
 /* Visual cue for invalid/attention-needed sections */
 main .menu-summary.invalid {
     outline: 2px solid var(--color-error);
