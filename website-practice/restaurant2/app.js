@@ -23,6 +23,7 @@
     settingsAutoDisableSection: 'restaurant.settings.autoDisableSection',
     settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
     settingsNextClosesOverlay: 'restaurant.settings.nextClosesOverlay',
+    settingsQuantityCanDisable: 'restaurant.settings.quantityCanDisable',
     settingsToastEnabled: 'restaurant.settings.toastEnabled',
     settingsToastPage2Long: 'restaurant.settings.toastPage2Long',
     redirectReason: 'restaurant.redirectReason',
@@ -150,10 +151,17 @@
     burger: 'Burger',
     sub: 'Sub',
     wrap: 'Wrap',
-    sauces: 'Sauces'
-    ,
+    sauces: 'Sauces',
     order: 'Order'
   };
+
+  const SECTION_QUANTITY_DEFAULT_MIN = 1;
+  const SECTION_QUANTITY_MAX = 12;
+  const SECTION_QUANTITY_SECTIONS = ['pizza', 'burger', 'sub', 'wrap', 'sauces'];
+  const SECTION_QUANTITY_ALLOW_DISABLE_DEFAULT = true;
+  let quantityCanDisable = SECTION_QUANTITY_ALLOW_DISABLE_DEFAULT;
+  let sectionQuantities = {};
+  let applyQuantitySettingState = null;
 
   function savePizzaSize(value) {
     try {
@@ -191,14 +199,15 @@
     try { return JSON.parse(v); } catch { return fallback; }
   }
 
-  const SECTION_QUANTITY_SECTIONS = ['pizza', 'burger'];
-  const SECTION_QUANTITY_MIN = 1;
-  const SECTION_QUANTITY_MAX = 12;
+  function getQuantityMin() {
+    return quantityCanDisable ? 0 : SECTION_QUANTITY_DEFAULT_MIN;
+  }
 
   function clampSectionQuantity(value) {
+    const min = getQuantityMin();
     const num = Number(value);
-    if (!Number.isFinite(num)) return SECTION_QUANTITY_MIN;
-    return Math.min(SECTION_QUANTITY_MAX, Math.max(SECTION_QUANTITY_MIN, Math.floor(num)));
+    if (!Number.isFinite(num)) return min;
+    return Math.min(SECTION_QUANTITY_MAX, Math.max(min, Math.floor(num)));
   }
 
   function loadSectionQuantities() {
@@ -210,8 +219,6 @@
     return normalized;
   }
 
-  let sectionQuantities = loadSectionQuantities();
-
   function saveSectionQuantities() {
     try {
       localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(sectionQuantities));
@@ -220,14 +227,14 @@
 
   function getSectionQuantity(section) {
     const key = String(section || '').toLowerCase();
-    if (!SECTION_QUANTITY_SECTIONS.includes(key)) return SECTION_QUANTITY_MIN;
+    if (!SECTION_QUANTITY_SECTIONS.includes(key)) return getQuantityMin();
     const stored = sectionQuantities[key];
     return clampSectionQuantity(stored);
   }
 
   function setSectionQuantity(section, value) {
     const key = String(section || '').toLowerCase();
-    if (!SECTION_QUANTITY_SECTIONS.includes(key)) return SECTION_QUANTITY_MIN;
+    if (!SECTION_QUANTITY_SECTIONS.includes(key)) return getQuantityMin();
     if (!sectionQuantities || typeof sectionQuantities !== 'object') {
       sectionQuantities = {};
     }
@@ -238,8 +245,9 @@
   }
 
   function resetSectionQuantitiesToDefaults() {
+    const min = getQuantityMin();
     sectionQuantities = SECTION_QUANTITY_SECTIONS.reduce((acc, sec) => {
-      acc[sec] = SECTION_QUANTITY_MIN;
+      acc[sec] = min;
       return acc;
     }, {});
     saveSectionQuantities();
@@ -555,6 +563,7 @@
     const settingResetKeepOpen = document.getElementById('setting-reset-keep-open') || document.querySelector('.setting-reset-keep-open');
     const settingAutoDisableEmpty = document.getElementById('setting-auto-disable-empty') || document.querySelector('.setting-auto-disable-empty');
     const settingAutoDisableSection = document.getElementById('setting-auto-disable-section') || document.querySelector('.setting-auto-disable-section');
+    const settingQuantityCanDisable = document.getElementById('setting-quantity-can-disable') || document.querySelector('.setting-quantity-can-disable');
     const settingPillArrowOnly = document.getElementById('setting-pill-arrow-only') || document.querySelector('.setting-pill-arrow-only');
     const settingNextClosesOverlay = document.getElementById('setting-next-closes-overlay') || document.querySelector('.setting-next-closes-overlay');
     const settingToastEnabled = document.getElementById('setting-toast-enabled');
@@ -870,6 +879,13 @@
     } catch { toastPage2Long = true; }
     if (settingToastPage2Long) settingToastPage2Long.checked = toastPage2Long;
 
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsQuantityCanDisable);
+      quantityCanDisable = v === null ? true : v === 'true';
+    } catch { quantityCanDisable = true; }
+    if (settingQuantityCanDisable) settingQuantityCanDisable.checked = quantityCanDisable;
+    if (typeof applyQuantitySettingState === 'function') applyQuantitySettingState();
+
     // Reset-on-deselect: always ON (setting removed for Restaurant 2)
     const resetOnDeselect = true;
 
@@ -986,6 +1002,7 @@
       resetKeepOpen = true;
       autoDisableEmpty = false;
       autoDisableSection = false;
+      quantityCanDisable = true;
       pillArrowOnly = false;
       nextClosesOverlay = false;
       try {
@@ -995,6 +1012,7 @@
         localStorage.setItem(STORAGE_KEYS.settingsResetKeepOpen, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsAutoDisableEmpty, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsAutoDisableSection, 'false');
+        localStorage.setItem(STORAGE_KEYS.settingsQuantityCanDisable, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, 'false');
       } catch { }
@@ -1004,8 +1022,10 @@
       if (settingResetKeepOpen) settingResetKeepOpen.checked = true;
       if (settingAutoDisableEmpty) settingAutoDisableEmpty.checked = false;
       if (settingAutoDisableSection) settingAutoDisableSection.checked = false;
+      if (settingQuantityCanDisable) settingQuantityCanDisable.checked = true;
       if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
       if (settingNextClosesOverlay) settingNextClosesOverlay.checked = false;
+      if (typeof applyQuantitySettingState === 'function') applyQuantitySettingState();
     };
 
     if (settingsResetBtn) {
@@ -1483,7 +1503,8 @@
         const qty = getSectionQuantity(sec);
         if (countSpan) countSpan.textContent = `(x${qty})`;
         const dec = wrap.querySelector('.qty-control-decrement');
-        if (dec) dec.disabled = qty <= SECTION_QUANTITY_MIN;
+        const min = getQuantityMin();
+        if (dec) dec.disabled = qty <= min;
       };
       const ensureSectionQuantityControl = (sec) => {
         const sectionEl = document.getElementById(sec);
@@ -1510,9 +1531,20 @@
           const adjust = (delta) => {
             const current = getSectionQuantity(sec);
             const next = setSectionQuantity(sec, current + delta);
-            if (next !== null) {
-              updateSectionQuantityControl(wrap, sec);
+            if (next === null) return;
+            const toggle = document.querySelector(`.section-toggle[data-section="${sec}"]`);
+            if (toggle && !toggle.disabled) {
+              if (quantityCanDisable && next === 0) {
+                if (toggle.checked) {
+                  toggle.checked = false;
+                  toggle.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+              } else if (!toggle.checked) {
+                toggle.checked = true;
+                toggle.dispatchEvent(new Event('change', { bubbles: true }));
+              }
             }
+            updateSectionQuantityControl(wrap, sec);
           };
           ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach((evt) => {
             wrap.addEventListener(evt, (event) => event.stopPropagation());
@@ -1537,7 +1569,26 @@
       const refreshSectionQuantityControls = () => {
         SECTION_QUANTITY_SECTIONS.forEach((sec) => ensureSectionQuantityControl(sec));
       };
-      refreshSectionQuantityControls();
+      function applySectionQuantityStateImpl() {
+        sectionQuantities = loadSectionQuantities();
+        if (!quantityCanDisable) {
+          const min = getQuantityMin();
+          SECTION_QUANTITY_SECTIONS.forEach((sec) => {
+            const current = getSectionQuantity(sec);
+            if (current < min) {
+              setSectionQuantity(sec, min);
+              const toggle = document.querySelector(`.section-toggle[data-section="${sec}"]`);
+              if (toggle && !toggle.disabled && !toggle.checked) {
+                toggle.checked = true;
+                toggle.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+            }
+          });
+        }
+        refreshSectionQuantityControls();
+      }
+      applyQuantitySettingState = applySectionQuantityStateImpl;
+      applySectionQuantityStateImpl();
       sectionToggles.forEach((toggle) => {
         const sec = toggle.dataset.section;
         if (!sec) return;
@@ -2351,6 +2402,13 @@
         try { localStorage.setItem(STORAGE_KEYS.settingsAutoDisableSection, String(autoDisableSection)); } catch { }
       });
     }
+    if (settingQuantityCanDisable) {
+      settingQuantityCanDisable.addEventListener('change', () => {
+        quantityCanDisable = !!settingQuantityCanDisable.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsQuantityCanDisable, String(quantityCanDisable)); } catch { }
+        if (typeof applyQuantitySettingState === 'function') applyQuantitySettingState();
+      });
+    }
     if (settingResetKeepOpen) {
       settingResetKeepOpen.addEventListener('change', () => {
         resetKeepOpen = !!settingResetKeepOpen.checked;
@@ -2634,7 +2692,7 @@
             title.textContent = sec.charAt(0).toUpperCase() + sec.slice(1);
             header.appendChild(title);
 
-            if (sec === 'pizza' || sec === 'burger') {
+            if (SECTION_QUANTITY_SECTIONS.includes(sec)) {
               const qtyValue = clampSectionQuantity(qtySections[sec]);
               const qtyBadge = document.createElement('span');
               qtyBadge.className = 'summary-section-qty';
