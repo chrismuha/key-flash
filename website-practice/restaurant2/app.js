@@ -27,6 +27,7 @@
     settingsToastPage2Long: 'restaurant.settings.toastPage2Long',
     redirectReason: 'restaurant.redirectReason',
     quantities: 'restaurant.quantities',
+    quantitiesSections: 'restaurant.quantitiesSections',
     pizzaSize: 'restaurant.pizza.size'
   };
 
@@ -188,6 +189,60 @@
 
   function safeParseJSON(v, fallback) {
     try { return JSON.parse(v); } catch { return fallback; }
+  }
+
+  const SECTION_QUANTITY_SECTIONS = ['pizza', 'burger'];
+  const SECTION_QUANTITY_MIN = 1;
+  const SECTION_QUANTITY_MAX = 12;
+
+  function clampSectionQuantity(value) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return SECTION_QUANTITY_MIN;
+    return Math.min(SECTION_QUANTITY_MAX, Math.max(SECTION_QUANTITY_MIN, Math.floor(num)));
+  }
+
+  function loadSectionQuantities() {
+    const stored = safeParseJSON(localStorage.getItem(STORAGE_KEYS.quantitiesSections), {}) || {};
+    const normalized = {};
+    SECTION_QUANTITY_SECTIONS.forEach((sec) => {
+      normalized[sec] = clampSectionQuantity(stored[sec]);
+    });
+    return normalized;
+  }
+
+  let sectionQuantities = loadSectionQuantities();
+
+  function saveSectionQuantities() {
+    try {
+      localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(sectionQuantities));
+    } catch { /* ignore */ }
+  }
+
+  function getSectionQuantity(section) {
+    const key = String(section || '').toLowerCase();
+    if (!SECTION_QUANTITY_SECTIONS.includes(key)) return SECTION_QUANTITY_MIN;
+    const stored = sectionQuantities[key];
+    return clampSectionQuantity(stored);
+  }
+
+  function setSectionQuantity(section, value) {
+    const key = String(section || '').toLowerCase();
+    if (!SECTION_QUANTITY_SECTIONS.includes(key)) return SECTION_QUANTITY_MIN;
+    if (!sectionQuantities || typeof sectionQuantities !== 'object') {
+      sectionQuantities = {};
+    }
+    const next = clampSectionQuantity(value);
+    sectionQuantities[key] = next;
+    saveSectionQuantities();
+    return next;
+  }
+
+  function resetSectionQuantitiesToDefaults() {
+    sectionQuantities = SECTION_QUANTITY_SECTIONS.reduce((acc, sec) => {
+      acc[sec] = SECTION_QUANTITY_MIN;
+      return acc;
+    }, {});
+    saveSectionQuantities();
   }
 
   const DEFAULT_TOAST_DURATION = 500;
@@ -1422,6 +1477,67 @@
       const ingredientCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][name]'));
       const builderError = document.getElementById('builder-error');
       const manualDisabledSet = new Set(readManualDisabledSections());
+      const updateSectionQuantityControl = (wrap, sec) => {
+        if (!wrap) return;
+        const countSpan = wrap.querySelector('.qty-controls-value');
+        const qty = getSectionQuantity(sec);
+        if (countSpan) countSpan.textContent = `(x${qty})`;
+        const dec = wrap.querySelector('.qty-control-decrement');
+        if (dec) dec.disabled = qty <= SECTION_QUANTITY_MIN;
+      };
+      const ensureSectionQuantityControl = (sec) => {
+        const sectionEl = document.getElementById(sec);
+        if (!sectionEl) return;
+        const summary = sectionEl.querySelector('.menu-summary');
+        if (!summary) return;
+        let wrap = summary.querySelector('.qty-controls');
+        if (!wrap) {
+          wrap = document.createElement('span');
+          wrap.className = 'qty-controls';
+          wrap.dataset.section = sec;
+          const count = document.createElement('span');
+          count.className = 'qty-controls-value';
+          const dec = document.createElement('button');
+          dec.type = 'button';
+          dec.className = 'qty-control-decrement';
+          dec.textContent = '−';
+          dec.setAttribute('aria-label', `Decrease ${SECTION_LABELS[sec] || sec} quantity`);
+          const inc = document.createElement('button');
+          inc.type = 'button';
+          inc.className = 'qty-control-increment';
+          inc.textContent = '+';
+          inc.setAttribute('aria-label', `Increase ${SECTION_LABELS[sec] || sec} quantity`);
+          const adjust = (delta) => {
+            const current = getSectionQuantity(sec);
+            const next = setSectionQuantity(sec, current + delta);
+            if (next !== null) {
+              updateSectionQuantityControl(wrap, sec);
+            }
+          };
+          ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach((evt) => {
+            wrap.addEventListener(evt, (event) => event.stopPropagation());
+          });
+          dec.addEventListener('click', (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+            adjust(-1);
+          });
+          inc.addEventListener('click', (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+            adjust(1);
+          });
+          wrap.appendChild(count);
+          wrap.appendChild(dec);
+          wrap.appendChild(inc);
+          summary.appendChild(wrap);
+        }
+        updateSectionQuantityControl(wrap, sec);
+      };
+      const refreshSectionQuantityControls = () => {
+        SECTION_QUANTITY_SECTIONS.forEach((sec) => ensureSectionQuantityControl(sec));
+      };
+      refreshSectionQuantityControls();
       sectionToggles.forEach((toggle) => {
         const sec = toggle.dataset.section;
         if (!sec) return;
@@ -1983,6 +2099,7 @@
       };
 
       function resetMenuSelections() {
+        resetSectionQuantitiesToDefaults();
         resetSettingsToDefaults();
         if (typeof closeAllOverlays === 'function') closeAllOverlays();
         INGREDIENT_GROUPS.forEach((group) => resetGroupByName(group));
@@ -2010,6 +2127,7 @@
         }
         updateBuilderError();
         updatePage3NavState();
+        refreshSectionQuantityControls();
       }
 
       // Attach pill/arrow handlers
@@ -2380,6 +2498,7 @@
         const ingredients = normalizeIngredientData(readJSON(STORAGE_KEYS.ingredients, {})) || {};
         const activeSections = readJSON(STORAGE_KEYS.activeSections, {}) || {};
         const qtyMap = readJSON(STORAGE_KEYS.quantities, {});
+        const qtySections = readJSON(STORAGE_KEYS.quantitiesSections, {}) || {};
         const pizzaSize = loadPizzaSize();
         const pizzaSizeLabel = PIZZA_SIZE_LABELS[pizzaSize] || pizzaSize || '';
         container.innerHTML = '';
@@ -2514,6 +2633,14 @@
             const title = document.createElement('strong');
             title.textContent = sec.charAt(0).toUpperCase() + sec.slice(1);
             header.appendChild(title);
+
+            if (sec === 'pizza' || sec === 'burger') {
+              const qtyValue = clampSectionQuantity(qtySections[sec]);
+              const qtyBadge = document.createElement('span');
+              qtyBadge.className = 'summary-section-qty';
+              qtyBadge.textContent = `(x${qtyValue})`;
+              header.appendChild(qtyBadge);
+            }
 
             const edit = document.createElement('a');
             edit.href = `page2.html#${sec}`;

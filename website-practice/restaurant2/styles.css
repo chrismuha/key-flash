@@ -42,6 +42,7 @@
     --color-border-muted: #9b9b9b;
     --color-border-soft: #bbb;
     --color-error: #c00;
+    --color-red: #d32f2f;
     --color-oxblood: #6d2b2b;
     --color-cloud-soft: #eee;
     --color-smoke: #f3f3f3;
@@ -1536,10 +1537,16 @@ body.page3 #order-summary .summary-section-header {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 body.page3 #order-summary .summary-section-header strong {
     margin: 0;
+}
+
+body.page3 #order-summary .summary-section-qty {
+    font-size: 11pt;
+    color: var(--color-muted);
 }
 
 body.page3 #order-summary .summary-section+.summary-section {
@@ -2089,6 +2096,59 @@ main .menu-summary-label {
     white-space: nowrap;
 }
 
+main .qty-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 12px;
+    font-size: 10.5pt;
+    letter-spacing: 0.02em;
+}
+
+main .qty-controls-value {
+    font-weight: 600;
+}
+
+main .qty-control-decrement,
+main .qty-control-increment {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--color-red);
+    background: var(--color-porcelain-light);
+    color: var(--color-black);
+    font-size: 18pt;
+    padding: 0;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+main .qty-control-decrement:disabled,
+main .qty-control-increment:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+main .qty-control-decrement:not(:disabled):hover,
+main .qty-control-increment:not(:disabled):hover {
+    transform: scale(1.05);
+}
+
+body.theme-dark main .qty-controls {
+    color: var(--text-primary);
+}
+
+body.theme-dark main .qty-control-decrement,
+body.theme-dark main .qty-control-increment {
+    border-color: var(--border-strong);
+    background: var(--surface);
+    color: var(--text-primary);
+}
+
 /* Section: Reset Buttons */
 main .reset-group {
     margin-top: 8px;
@@ -2426,6 +2486,10 @@ body.theme-dark.page3 #order-summary .summary-section+.summary-section {
 body.theme-dark.page3 .summary-divider {
     border-color: var(--border-strong);
     opacity: 1;
+}
+
+body.theme-dark.page3 #order-summary .summary-section-qty {
+    color: var(--color-muted-strong);
 }
 
 .menu-overlay {
