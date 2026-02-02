@@ -57,6 +57,7 @@
     --color-emerald: #18833d;
     --color-forest: #2f8f49;
     --color-pistachio: #3cb371;
+    --color-item-arrows: #7b6f19;
     --color-danger-accent: #e53935;
 
     /* Shadow helpers */
@@ -2344,8 +2345,8 @@ body.theme-dark .size-pill input:checked+span {
     font-size: 25.5pt;
     text-align: center;
     background: var(--color-white);
-    color: var(--color-black);
-    -webkit-text-fill-color: var(--color-black);
+    color: var(--color-item-arrows);
+    -webkit-text-fill-color: var(--color-item-arrows);
     appearance: none;
     -webkit-appearance: none;
     flex: 0 0 34px;
@@ -2357,9 +2358,9 @@ body.theme-dark .size-pill input:checked+span {
 
 body.theme-dark .menu-launch-arrow {
     background: var(--surface);
-    color: var(--text-primary);
+    color: var(--color-item-arrows);
     border-color: var(--border-strong);
-    -webkit-text-fill-color: currentColor;
+    -webkit-text-fill-color: var(--color-item-arrows);
 }
 
 
@@ -2395,9 +2396,9 @@ body.theme-dark .menu-launch-arrow {
 
     body.theme-dark .menu-launch-arrow {
         background: var(--surface);
-        color: var(--text-primary);
+        color: var(--color-item-arrows);
         border-color: var(--border-strong);
-        -webkit-text-fill-color: currentColor;
+        -webkit-text-fill-color: var(--color-item-arrows);
     }
 
     body.page3 #order-summary .summary-section+.summary-section {
