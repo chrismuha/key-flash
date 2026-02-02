@@ -2337,23 +2337,23 @@ body.theme-dark .size-pill input:checked+span {
     align-items: center;
     justify-content: center;
     margin-left: 8px;
-    width: 34px;
-    height: 34px;
+    width: 40px;
+    height: 40px;
     padding: 0;
     border: 1px solid var(--color-black);
     border-radius: 999px;
-    font-size: 25.5pt;
+    font-size: 26pt;
     text-align: center;
     background: var(--color-white);
     color: var(--color-item-arrows);
     -webkit-text-fill-color: var(--color-item-arrows);
     appearance: none;
     -webkit-appearance: none;
-    flex: 0 0 34px;
-    min-width: 34px;
-    max-width: 34px;
-    min-height: 34px;
-    max-height: 34px;
+    flex: 0 0 40px;
+    min-width: 40px;
+    max-width: 40px;
+    min-height: 40px;
+    max-height: 40px;
 }
 
 body.theme-dark .menu-launch-arrow {
@@ -2376,9 +2376,9 @@ body.theme-dark .menu-launch-arrow {
 
 @media (pointer: coarse) {
     .menu-launch-arrow {
-        width: 34px;
-        height: 34px;
-        font-size: 25.5pt;
+        width: 40px;
+        height: 40px;
+        font-size: 26pt;
         line-height: 0;
         text-align: center;
         border-color: currentColor;
