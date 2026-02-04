@@ -1383,12 +1383,19 @@
 
       const renderSliderWindow = () => {
         if (!sliderTrack || !sliderChips.length) return;
-        const trackStyle = getComputedStyle(sliderTrack);
-        const paddingLeft = Math.max(0, parseFloat(trackStyle.paddingLeft) || 0);
         const targetIndex = Math.min(sliderState.start, sliderChips.length - 1);
         const targetChip = sliderChips[targetIndex];
-        if (targetChip) {
-          const offset = targetChip.offsetLeft - paddingLeft;
+        
+        if (sliderState.start === 0) {
+          sliderTrack.scrollLeft = 0;
+        } else if (targetChip) {
+          const trackStyle = getComputedStyle(sliderTrack);
+          const paddingLeft = parseFloat(trackStyle.paddingLeft) || 0;
+          const gap = parseFloat(trackStyle.gap) || 0;
+          let offset = targetChip.offsetLeft - paddingLeft;
+          if (sliderState.start > 0) {
+            offset -= gap;
+          }
           sliderTrack.scrollLeft = Math.max(0, offset);
         }
         if (sliderPrev) sliderPrev.disabled = sliderState.start === 0;
