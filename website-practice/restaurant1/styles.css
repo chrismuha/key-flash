@@ -6,13 +6,41 @@
     --rail-side-gap: calc(var(--gap) - 6px);
     --rail-width: calc(var(--logo-w) + (var(--rail-side-gap) * 2));
     --box-height: 56px;
-    --box-bg: #2ecc71;
-    --box-border: #000;
     --nav-logo-h: var(--logo-h);
     --theme-overlay-clearance: 27px;
     --nav-expanded-clearance: 17px;
     --base-heading-padding: 87px;
     --nav-heading-padding: 107px;
+
+    /* SECTION: Color palette */
+    --accent: #2ecc71;
+    --accent-strong: #28a745;
+    --accent-deep: #1f7a2f;
+    --rail-background: #dba37f;
+
+    --surface: #fff;
+    --surface-strong: #f7f7f7;
+    --surface-muted: #eee;
+    --surface-dark: #222;
+    --surface-dark-strong: #111;
+
+    --color-black: #000;
+
+    --text-muted: #777;
+    --text-muted-strong: #999;
+
+    --border-strong: #444;
+    --border-muted: #bbb;
+    --border-soft: #ddd;
+
+    --danger: #c00;
+    --danger-strong: #a00000;
+    --danger-highlight: #e53935;
+    --danger-outline: #900;
+    --danger-outline-strong: #600;
+
+    --box-bg: var(--accent);
+    --box-border: var(--color-black);
 }
 
 /* SECTION: Scroll patch */
@@ -119,7 +147,7 @@ body.nav-enabled {
     left: 0;
     z-index: 1;
     align-items: flex-start;
-    background: #dba37f;
+    background: var(--rail-background);
     overflow: hidden;
     overflow-y: auto;
     scrollbar-gutter: stable both-edges;
@@ -150,9 +178,9 @@ body.nav-enabled {
     padding: 0 10px;
     font-weight: 600;
     font-size: 12pt;
-    border: 1px solid #000;
-    background: #f7f7f7;
-    color: #000;
+    border: 1px solid var(--color-black);
+    background: var(--surface-strong);
+    color: var(--color-black);
     border-radius: 4px;
     cursor: pointer;
     width: 190px;
@@ -162,9 +190,9 @@ body.nav-enabled {
 }
 
 body.theme-dark .settings-button {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--surface);
+    background: var(--surface-dark);
+    color: var(--surface);
 }
 
 body.nav-enabled .settings-button {
@@ -182,9 +210,9 @@ body.nav-enabled .settings-button {
 .settings-panel {
     margin-top: 6px;
     font-size: inherit;
-    border: 1px solid #000;
-    background: #f7f7f7;
-    color: #000;
+    border: 1px solid var(--color-black);
+    background: var(--surface-strong);
+    color: var(--color-black);
     border-radius: 6px;
     padding: 8px;
     max-height: calc(100vh - (var(--gap) * 3));
@@ -196,9 +224,9 @@ body.nav-enabled .settings-button {
 }
 
 body.theme-dark .settings-panel {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--surface);
+    background: var(--surface-dark);
+    color: var(--surface);
 }
 
 /* On small screens, render settings as a full overlay */
@@ -262,7 +290,7 @@ screen and (max-height: 500px) {
 
 /* Ensure close button is visible in dark mode */
 .theme-dark .settings-close {
-    color: #fff;
+    color: var(--surface);
 }
 
 .settings-panel label {
@@ -275,17 +303,17 @@ screen and (max-height: 500px) {
 .settings-panel .settings-reset {
     margin-top: 8px;
     padding: 6px 10px;
-    border: 1px solid #000;
-    background: #f7f7f7;
-    color: #000;
+    border: 1px solid var(--color-black);
+    background: var(--surface-strong);
+    color: var(--color-black);
     border-radius: 4px;
     cursor: pointer;
 }
 
 body.theme-dark .settings-panel .settings-reset {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--surface);
+    background: var(--surface-dark);
+    color: var(--surface);
 }
 
 /* Disable nav bar */
@@ -312,7 +340,7 @@ body:not(.nav-enabled) main {
 
 /* SECTION: Main Content Area */
 main {
-    background: #fff;
+    background: var(--surface);
     flex: 0 1 auto;
     width: 100%;
     max-width: 75ch;
@@ -354,27 +382,27 @@ body.nav-enabled.page2 main {
 /* SECTION: Theme (Dark) */
 /* Only flips the main content background to black and text to white */
 body.theme-dark {
-    background: #000;
+    background: var(--color-black);
 }
 
 body.theme-dark main {
-    background: #000;
-    color: #fff;
+    background: var(--color-black);
+    color: var(--surface);
 }
 
 /* Keep summary arrow visible on dark */
 body.theme-dark main summary.menu-summary::before {
-    color: #fff;
+    color: var(--surface);
 }
 
 /* Links inside main inherit white so they remain readable */
 body.theme-dark main a {
-    color: #fff;
+    color: var(--surface);
 }
 
 /* Make fieldset borders white in dark theme */
 body.theme-dark main fieldset {
-    border-color: #fff;
+    border-color: var(--surface);
 }
 
 /* Theme dropdown */
@@ -393,9 +421,9 @@ body.theme-dark main fieldset {
 .theme-toggle {
     padding: 6px 10px;
     font-weight: 600;
-    border: 1px solid #000;
-    background: #f7f7f7;
-    color: #000;
+    border: 1px solid var(--color-black);
+    background: var(--surface-strong);
+    color: var(--color-black);
     border-radius: 4px;
     cursor: pointer;
     width: 100%;
@@ -438,9 +466,9 @@ body.mobile-ui .theme-toggle::after {
 .theme-menu {
     display: flex;
     flex-direction: column;
-    border: 1px solid #000;
-    background: #f7f7f7;
-    color: #000;
+    border: 1px solid var(--color-black);
+    background: var(--surface-strong);
+    color: var(--color-black);
     border-radius: 6px;
     padding: 4px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
@@ -487,13 +515,13 @@ body.mobile-ui .theme-option {
 }
 
 .theme-option+.theme-option {
-    border-top: 1px solid #000;
+    border-top: 1px solid var(--color-black);
 }
 
 /* Divider between inline icon buttons on mobile */
 body.mobile-ui .theme-option+.theme-option {
     border-top: none;
-    border-left: 1px solid #000;
+    border-left: 1px solid var(--color-black);
 }
 
 .theme-option:hover,
@@ -503,15 +531,15 @@ body.mobile-ui .theme-option+.theme-option {
 }
 
 body.theme-dark .theme-toggle {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--surface);
+    background: var(--surface-dark);
+    color: var(--surface);
 }
 
 body.theme-dark .theme-menu {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--surface);
+    background: var(--surface-dark);
+    color: var(--surface);
 }
 
 body.theme-dark .theme-option:hover,
@@ -520,11 +548,11 @@ body.theme-dark .theme-option:focus-visible {
 }
 
 body.theme-dark .theme-option+.theme-option {
-    border-top-color: #fff;
+    border-top-color: var(--surface);
 }
 
 body.theme-dark.mobile-ui .theme-option+.theme-option {
-    border-left-color: #fff;
+    border-left-color: var(--surface);
 }
 
 /* Go Back button (fixed, next to theme toggle) */
@@ -534,9 +562,9 @@ body.theme-dark.mobile-ui .theme-option+.theme-option {
     left: 8px;
     padding: 6px 10px;
     font-weight: 600;
-    border: 1px solid #000;
-    background: #f7f7f7;
-    color: #000;
+    border: 1px solid var(--color-black);
+    background: var(--surface-strong);
+    color: var(--color-black);
     border-radius: 4px;
     cursor: pointer;
     z-index: 1000;
@@ -546,9 +574,9 @@ body.theme-dark.mobile-ui .theme-option+.theme-option {
     display: inline-block;
     padding: 6px 10px;
     font-weight: 600;
-    border: 1px solid #000;
-    background: #f7f7f7;
-    color: #000;
+    border: 1px solid var(--color-black);
+    background: var(--surface-strong);
+    color: var(--color-black);
     border-radius: 4px;
     cursor: pointer;
     z-index: 1000;
@@ -579,9 +607,9 @@ body.theme-dark.mobile-ui .theme-option+.theme-option {
 
 body.theme-dark .collapse,
 body.theme-dark .go-back {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--surface);
+    background: var(--surface-dark);
+    color: var(--surface);
 }
 
 /* Hide Go Back when navigation is enabled */
@@ -591,23 +619,23 @@ body.nav-enabled .go-back {
 
 /* Dark theme: make all key outlines/borders white for contrast */
 body.theme-dark :focus-visible {
-    outline-color: #fff;
+    outline-color: var(--surface);
 }
 
 body.theme-dark main input[type="checkbox"] {
-    border-color: #fff;
-    background: #000;
+    border-color: var(--surface);
+    background: var(--color-black);
 }
 
 body.theme-dark main .reset-group {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--surface);
+    background: var(--surface-dark);
+    color: var(--surface);
 }
 
 .ingredient-qty {
     margin-left: 8px;
-    border: 1px solid #000;
+    border: 1px solid var(--color-black);
     border-radius: 8px;
     padding: 2px 6px;
     font: inherit;
@@ -617,9 +645,9 @@ body.theme-dark main .reset-group {
 }
 
 body.theme-dark .ingredient-qty {
-    border-color: #fff;
-    background: #111;
-    color: #fff;
+    border-color: var(--surface);
+    background: var(--surface-dark-strong);
+    color: var(--surface);
 }
 
 /* Align ingredient labels when qty dropdown is on the right */
@@ -649,9 +677,9 @@ body.qty-right .menu-section label .sauce-qty {
 }
 
 body.theme-dark.page3 #order-summary {
-    border-color: #fff;
-    background: #000;
-    color: #fff;
+    border-color: var(--surface);
+    background: var(--color-black);
+    color: var(--surface);
 }
 
 body.theme-dark.page3 #order-summary .summary-section+.summary-section::before {
@@ -659,7 +687,7 @@ body.theme-dark.page3 #order-summary .summary-section+.summary-section::before {
 }
 
 body.theme-dark.page3 .summary-divider {
-    border-top-color: #fff;
+    border-top-color: var(--surface);
     opacity: 1;
 }
 
@@ -668,24 +696,24 @@ body.theme-dark.page3 #order-summary .summary-block:first-child+.summary-block::
 }
 
 body.theme-dark.order-type .delivery-details .delivery-clear {
-    border-color: #fff;
-    background: #222;
-    color: #fff;
+    border-color: var(--surface);
+    background: var(--surface-dark);
+    color: var(--surface);
 }
 
 body.theme-dark.order-type .order-card {
-    border-color: #fff;
-    background: #111;
-    color: #fff;
+    border-color: var(--surface);
+    background: var(--surface-dark-strong);
+    color: var(--surface);
 }
 
 body.theme-dark.order-type .order-card.selected {
-    box-shadow: 0 0 0 3px #fff inset;
-    color: #fff;
+    box-shadow: 0 0 0 3px var(--surface) inset;
+    color: var(--surface);
 }
 
 body.theme-dark .left-rail .box.active {
-    border-color: #fff;
+    border-color: var(--surface);
 }
 
 /* Prevent hover animation/color change on required Burger items */
@@ -728,7 +756,7 @@ body.page2 .page-actions {
     padding: 12px 16px;
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(6px);
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--border-soft);
     margin-top: 24px;
     z-index: 1200;
 }
@@ -740,7 +768,7 @@ body.nav-enabled.page2 .page-actions {
 
 body.theme-dark.page2 .page-actions {
     background: rgba(20, 20, 20, 0.9);
-    border-top-color: #444;
+    border-top-color: var(--border-strong);
 }
 
 body.page2 .reset-all,
@@ -748,9 +776,9 @@ body.page2 .next-button,
 body.page2 .collapse-all,
 body.page2 .collapse-footer {
     padding: 12px 18px;
-    background: #f7f7f7;
-    border: 2px solid #000;
-    color: #000;
+    background: var(--surface-strong);
+    border: 2px solid var(--color-black);
+    color: var(--color-black);
     font-weight: 700;
     font-size: 13.5pt;
     line-height: 24px;
@@ -765,45 +793,45 @@ body.page2 .collapse-footer {
 }
 
 body.page2 .reset-all {
-    background: #f7f7f7;
-    border-color: #000;
+    background: var(--surface-strong);
+    border-color: var(--color-black);
 }
 
 body.page2 .collapse-all,
 body.page2 .collapse-footer {
-    background: #f7f7f7;
-    border-color: #000;
+    background: var(--surface-strong);
+    border-color: var(--color-black);
 }
 
 body.page2 .next-button {
     background: var(--box-bg);
     border-color: var(--box-border);
-    color: #000;
+    color: var(--color-black);
 }
 
 body.theme-dark.page2 .reset-all {
-    background: #222;
-    color: #fff;
-    border-color: #fff;
+    background: var(--surface-dark);
+    color: var(--surface);
+    border-color: var(--surface);
 }
 
 body.theme-dark.page2 .collapse-all,
 body.theme-dark.page2 .collapse-footer {
-    background: #222;
-    color: #fff;
-    border-color: #fff;
+    background: var(--surface-dark);
+    color: var(--surface);
+    border-color: var(--surface);
 }
 
 body.theme-dark.page2 .next-button {
     background: var(--box-bg);
-    color: #000;
+    color: var(--color-black);
     border-color: var(--box-border);
 }
 
 body.page2 .next-button[aria-disabled="true"] {
     background: var(--box-bg);
     border-color: var(--box-border);
-    color: #000;
+    color: var(--color-black);
     opacity: 0.7;
     cursor: not-allowed;
 }
@@ -811,7 +839,7 @@ body.page2 .next-button[aria-disabled="true"] {
 body.theme-dark.page2 .next-button[aria-disabled="true"] {
     background: var(--box-bg);
     border-color: var(--box-border);
-    color: #000;
+    color: var(--color-black);
     opacity: 0.7;
 }
 
@@ -1124,9 +1152,9 @@ main input[type="checkbox"] {
     box-sizing: border-box;
     width: 20px;
     height: 20px;
-    border: 2px solid #000;
+    border: 2px solid var(--color-black);
     border-radius: 3px;
-    background: #fff;
+    background: var(--surface);
     position: relative;
     vertical-align: middle;
     margin-right: 6px;
@@ -1134,13 +1162,13 @@ main input[type="checkbox"] {
 }
 
 main input[type="checkbox"]:checked {
-    background-color: #e53935;
+    background-color: var(--danger-highlight);
 }
 
 /* Ensure dark mode keeps the red fill when checked */
 body.theme-dark main input[type="checkbox"]:checked {
-    background-color: #e53935;
-    border-color: #fff;
+    background-color: var(--danger-highlight);
+    border-color: var(--surface);
 }
 
 main input[type="checkbox"]::after {
@@ -1177,7 +1205,7 @@ body.page2 label.required {
 /* Dark theme text color for required label (explicit for safety) */
 body.theme-dark.page2 label.required,
 body.theme-dark .page2 label.required {
-    color: #fff;
+    color: var(--surface);
 }
 
 /* Remove focus outline and tap highlight on restricted */
@@ -1225,7 +1253,7 @@ main fieldset label:has(> input:not(:checked)) {
 }
 
 body.theme-dark main fieldset label:has(> input:not(:checked)) {
-    color: #bbb;
+    color: var(--border-muted);
 }
 
 body.page2 input[type="checkbox"][data-required="true"][disabled]:checked {
@@ -1243,13 +1271,13 @@ body.page2 input[type="checkbox"][data-required="true"] {
 /* Visually gray required items when their section is inactive */
 body.page2 label.required.required-disabled {
     opacity: 0.55;
-    color: #777;
+    color: var(--text-muted);
     cursor: not-allowed;
     pointer-events: none !important;
 }
 
 body.theme-dark.page2 label.required.required-disabled {
-    color: #999;
+    color: var(--text-muted-strong);
 }
 
 body.page2 label.required.required-disabled select,
@@ -1264,7 +1292,7 @@ body.page2 label.required.required-disabled input[type="checkbox"] {
 
 /* SECTION: Page 3 Order Summary */
 body.page3 #order-summary {
-    border: 1px solid #000;
+    border: 1px solid var(--color-black);
     padding: 16px;
     margin-bottom: 16px;
     display: flex;
@@ -1337,7 +1365,7 @@ body.page3 #order-summary .summary-section+.summary-section::before {
 
 body.page3 .summary-divider {
     margin: 20px 0;
-    border-top: 1px solid #000;
+    border-top: 1px solid var(--color-black);
     width: 100%;
     opacity: 0.45;
 }
@@ -1357,19 +1385,19 @@ body.page3 #order-summary .summary-edit-btn {
     justify-content: center;
     margin-left: 10px;
     padding: 6px 12px;
-    background: #c00;
-    color: #fff;
+    background: var(--danger);
+    color: var(--surface);
     border-radius: 6px;
     font-weight: 700;
     text-decoration: none;
-    border: 1px solid #900;
+    border: 1px solid var(--danger-outline);
     transition: background 0.15s ease, color 0.15s ease;
 }
 
 body.page3 #order-summary .summary-edit-btn:focus-visible,
 body.page3 #order-summary .summary-edit-btn:hover {
-    background: #a00000;
-    outline: 2px solid #600;
+    background: var(--danger-strong);
+    outline: 2px solid var(--danger-outline-strong);
     outline-offset: 2px;
 }
 
@@ -1388,9 +1416,9 @@ body.page3 .pos-checkout {
     padding: 6px 12px;
     font-weight: 700;
     border-radius: 6px;
-    border: 1px solid #1f7a2f;
-    background: #28a745;
-    color: #fff;
+    border: 1px solid var(--accent-deep);
+    background: var(--accent-strong);
+    color: var(--surface);
     text-decoration: none;
     font-size: calc(10.8pt - 1pt);
     display: inline-flex;
@@ -1409,7 +1437,7 @@ body.page3 .pos-checkout:disabled {
 }
 
 body.page3 .pos-checkout:disabled:hover {
-    background: #28a745;
+    background: var(--accent-strong);
 }
 
 /* SECTION: Page 1 Order Type */
@@ -1455,15 +1483,15 @@ body.order-type .order-options {
 body.order-type .delivery-details {
     margin-top: 12px;
     padding: 12px;
-    border: 1px solid #000;
+    border: 1px solid var(--color-black);
     max-width: 520px;
-    background: #fff;
+    background: var(--surface);
 }
 
 body.theme-dark.order-type .delivery-details {
-    background: #000;
-    color: #fff;
-    border-color: #fff;
+    background: var(--color-black);
+    color: var(--surface);
+    border-color: var(--surface);
 }
 
 body.order-type .delivery-details .field {
@@ -1476,24 +1504,24 @@ body.order-type .delivery-details label {
 }
 
 body.order-type .delivery-details .req {
-    color: #c00;
+    color: var(--danger);
 }
 
 body.order-type .delivery-details .form-error {
-    color: #c00;
+    color: var(--danger);
     margin: 8px 0;
 }
 
 /* Live invalid highlighting for delivery details */
 body.order-type .delivery-details .field.invalid input,
 body.order-type .delivery-details .field.invalid select {
-    outline: 2px solid #c00;
+    outline: 2px solid var(--danger);
     outline-offset: 2px;
 }
 
 /* Generic inline form error styling */
 .form-error {
-    color: #c00;
+    color: var(--danger);
     margin: 8px 0;
 }
 
@@ -1501,39 +1529,39 @@ body.order-type .delivery-details input[type="text"],
 body.order-type .delivery-details input[type="tel"] {
     width: 100%;
     padding: 8px;
-    border: 1px solid #000;
+    border: 1px solid var(--color-black);
     border-radius: 4px;
-    background: #fff;
-    color: #000;
+    background: var(--surface);
+    color: var(--color-black);
 }
 
 body.order-type .delivery-details select {
     width: 100%;
     padding: 8px;
-    border: 1px solid #000;
+    border: 1px solid var(--color-black);
     border-radius: 4px;
-    background: #fff;
-    color: #000;
+    background: var(--surface);
+    color: var(--color-black);
 }
 
 body.theme-dark.order-type .delivery-details input[type="text"],
 body.theme-dark.order-type .delivery-details input[type="tel"] {
-    background: #111;
-    color: #fff;
-    border-color: #fff;
+    background: var(--surface-dark-strong);
+    color: var(--surface);
+    border-color: var(--surface);
 }
 
 body.theme-dark.order-type .delivery-details select {
-    background: #111;
-    color: #fff;
-    border-color: #fff;
+    background: var(--surface-dark-strong);
+    color: var(--surface);
+    border-color: var(--surface);
 }
 
 body.order-type .delivery-details .delivery-continue {
     padding: 8px 14px;
     background: var(--box-bg);
     border: 2px solid var(--box-border);
-    color: #000;
+    color: var(--color-black);
     font-weight: 700;
     text-decoration: none;
     border-radius: 6px;
@@ -1549,9 +1577,9 @@ body.order-type .delivery-details .delivery-actions {
 
 body.order-type .delivery-details .delivery-clear {
     padding: 8px 14px;
-    background: #f7f7f7;
-    border: 1px solid #000;
-    color: #000;
+    background: var(--surface-strong);
+    border: 1px solid var(--color-black);
+    color: var(--color-black);
     border-radius: 6px;
     cursor: pointer;
     font-size: calc(12pt - 3.6pt);
@@ -1560,28 +1588,28 @@ body.order-type .delivery-details .delivery-clear {
 body.order-type .order-card {
     width: 180px;
     height: 180px;
-    border: 2px solid #000;
+    border: 2px solid var(--color-black);
     border-radius: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #000;
+    color: var(--color-black);
     text-decoration: none;
-    background: #fff;
+    background: var(--surface);
     transition: none;
 }
 
 body.order-type .order-card:hover {
     background: var(--box-bg);
-    color: #000;
+    color: var(--color-black);
 }
 
 /* Visual selection if user returns to index */
 body.order-type .order-card.selected {
     background: var(--box-bg);
-    color: #000;
-    box-shadow: 0 0 0 3px #000 inset;
+    color: var(--color-black);
+    box-shadow: 0 0 0 3px var(--color-black) inset;
 }
 
 body.order-type .order-card svg {
@@ -1606,7 +1634,7 @@ body.order-type .order-powered {
 
 body.order-type .order-links a,
 body.order-type .order-powered a {
-    color: #000;
+    color: var(--color-black);
 }
 
 /* SECTION: Order Type Responsive */
@@ -1639,7 +1667,7 @@ main summary.menu-summary {
 
 /* Visual cue for invalid/attention-needed sections */
 main summary.menu-summary.invalid {
-    outline: 2px solid #c00;
+    outline: 2px solid var(--danger);
     outline-offset: 4px;
     border-radius: 6px;
     margin-bottom: 8px;
@@ -1649,16 +1677,16 @@ main summary.menu-summary.invalid {
 main .reset-group {
     margin-top: 8px;
     padding: 6px 10px;
-    background: #f7f7f7;
-    border: 1px solid #000;
+    background: var(--surface-strong);
+    border: 1px solid var(--color-black);
     border-radius: 4px;
-    color: #000;
+    color: var(--color-black);
     font-weight: 600;
     cursor: pointer;
 }
 
 main .reset-group:hover {
-    background: #eee;
+    background: var(--surface-muted);
 }
 
 /* hide default marker in WebKit/Blink */
@@ -1672,13 +1700,13 @@ main summary.menu-summary::before {
     display: inline-block;
     width: 1em;
     margin-right: 8px;
-    color: #000;
+    color: var(--color-black);
     transition: transform 0.2s ease;
 }
 
 /* Flip arrow to white in dark mode */
 body.theme-dark main summary.menu-summary::marker {
-    color: #fff;
+    color: var(--surface);
 }
 
 /* slight spacing when open */
@@ -1719,7 +1747,7 @@ main details[open]>summary.menu-summary::before {
 .box:hover,
 .box:active,
 .box:focus {
-    color: #000;
+    color: var(--color-black);
     text-decoration: none;
 }
 
@@ -1762,7 +1790,7 @@ body.nav-enabled .left-rail .box {
 
 /* SECTION: Focus Styles */
 :focus-visible {
-    outline: 2px solid #000;
+    outline: 2px solid var(--color-black);
     outline-offset: 2px;
 }
 
