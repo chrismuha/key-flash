@@ -2787,6 +2787,18 @@
             edit.className = 'summary-edit-btn';
             actions.appendChild(edit);
 
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'summary-remove-btn';
+            remove.textContent = 'Remove';
+            remove.setAttribute('aria-label', `Remove ${title.textContent}`);
+            remove.addEventListener('click', (evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              handleRemoveSection(sec);
+            });
+            actions.appendChild(remove);
+
             if (SECTION_QUANTITY_SECTIONS.includes(sec)) {
               const qtyValue = Math.max(SECTION_QUANTITY_DEFAULT_MIN, clampSectionQuantity(qtySections[sec]));
               const qtyWrap = document.createElement('span');
@@ -2825,18 +2837,6 @@
               qtyWrap.appendChild(inc);
               actions.appendChild(qtyWrap);
             }
-
-            const remove = document.createElement('button');
-            remove.type = 'button';
-            remove.className = 'summary-remove-btn';
-            remove.textContent = 'Remove';
-            remove.setAttribute('aria-label', `Remove ${title.textContent}`);
-            remove.addEventListener('click', (evt) => {
-              evt.preventDefault();
-              evt.stopPropagation();
-              handleRemoveSection(sec);
-            });
-            actions.appendChild(remove);
 
             sectionWrap.appendChild(header);
             sectionWrap.appendChild(actions);
