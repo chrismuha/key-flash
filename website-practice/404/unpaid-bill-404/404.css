@@ -146,8 +146,8 @@ body {
 
     html,
     body {
-        width: 100%;
-        max-width: 100%;
+        width: 100% !important;
+        max-width: 100% !important;
         margin: 0;
         padding: 0;
         overflow-x: hidden !important;
@@ -164,8 +164,8 @@ body {
     #rectangle3,
     #rectangle4,
     .content-wrapper {
-        width: 100%;
-        max-width: 100%;
+        width: 100% !important;
+        max-width: 100% !important;
         margin: 0;
         padding-left: 0;
         padding-right: 0;
