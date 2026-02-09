@@ -1859,11 +1859,17 @@
         return '';
       };
 
-      const resetGroupByName = (group) => {
+      const resetGroupByName = (group, options = {}) => {
+        const { skipConfirm = false } = options || {};
         if (!group) return;
         const inputs = Array.from(document.querySelectorAll(`input[type="checkbox"][name="${group}"]`));
         if (!inputs.length) return;
         const groupingSection = getSectionForGroup(group);
+        if (!skipConfirm) {
+          const sectionLabel = SECTION_LABELS[groupingSection] || (groupingSection ? groupingSection.charAt(0).toUpperCase() + groupingSection.slice(1) : 'this item');
+          const confirmed = window.confirm(`Reset ${sectionLabel} and remove selected items?`);
+          if (!confirmed) return;
+        }
         const sectionToggle = groupingSection ? document.querySelector(`.section-toggle[data-section="${groupingSection}"]`) : null;
         const initialToggleState = sectionToggle ? {
           checked: sectionToggle.checked,
@@ -2230,10 +2236,12 @@
       };
 
       function resetMenuSelections() {
+        const confirmed = window.confirm('Reset all menu items and remove all selected items?');
+        if (!confirmed) return;
         resetSectionQuantitiesToDefaults();
         resetSettingsToDefaults();
         if (typeof closeAllOverlays === 'function') closeAllOverlays();
-        INGREDIENT_GROUPS.forEach((group) => resetGroupByName(group));
+        INGREDIENT_GROUPS.forEach((group) => resetGroupByName(group, { skipConfirm: true }));
         pizzaSizeRadios.forEach((radio) => {
           radio.checked = radio.value === DEFAULT_PIZZA_SIZE;
         });
@@ -2610,6 +2618,9 @@
       function handleRemoveSection(section) {
         const normalized = String(section || '').toLowerCase();
         if (!normalized) return;
+        const sectionLabel = SECTION_LABELS[normalized] || (normalized.charAt(0).toUpperCase() + normalized.slice(1));
+        const confirmed = window.confirm(`Remove ${sectionLabel} from your order?`);
+        if (!confirmed) return;
         setSectionQuantity(normalized, getQuantityMin());
         removeIngredientGroupsForSection(normalized);
         removeQuantitiesForSection(normalized);

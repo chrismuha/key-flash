@@ -1561,6 +1561,8 @@ body.page3 #order-summary .summary-section-actions {
 body.page3 #order-summary .summary-section-actions .summary-qty-controls {
     margin-left: 0;
     flex-basis: 100%;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 body.page3 #order-summary .summary-section-qty {
