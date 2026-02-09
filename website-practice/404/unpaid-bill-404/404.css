@@ -139,7 +139,7 @@ body {
 /* MOBILE OPTIMIZATION */
 @media screen and (max-width: 900px) {
     :root {
-        --mobile-logo-width: min(160px, 45vw);
+        --mobile-logo-width: min(302px, 90vw);
     }
 
     *,
@@ -193,7 +193,7 @@ body {
     }
 
     #rectangle2 img {
-        max-width: 160px;
+        max-width: 302px;
     }
 
     .header2-h2,
