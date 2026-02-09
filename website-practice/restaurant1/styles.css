@@ -1438,6 +1438,13 @@ body.page3 #order-summary .summary-section-header strong {
     margin: 0;
 }
 
+body.page3 #order-summary .summary-section-qty-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+}
+
 body.page3 #order-summary .summary-section+.summary-section {
     padding-top: 18px;
 }
@@ -1474,10 +1481,15 @@ body.page3 #order-summary .summary-remove-btn {
     justify-content: center;
     margin-left: 10px;
     padding: 6px 12px;
+    min-height: 34px;
     color: var(--surface);
     border-radius: 6px;
+    font: inherit;
+    line-height: 1;
     font-weight: 700;
     text-decoration: none;
+    appearance: none;
+    -webkit-appearance: none;
     transition: background 0.15s ease, color 0.15s ease;
 }
 

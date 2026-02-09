@@ -1909,6 +1909,17 @@
       const saveQtySections = () => { try { localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections)); } catch { } };
       const saveQtyMap = () => { try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { } };
       const SECTION_QTY_KEYS = ['pizza', 'burger', 'sub', 'wrap'];
+      const syncSectionQtyControlVisibility = () => {
+        SECTION_QTY_KEYS.forEach((sec) => {
+          const sectionEl = document.getElementById(sec);
+          if (!sectionEl) return;
+          const sectionToggle = sectionEl.querySelector('.section-toggle');
+          const qtyWrap = sectionEl.querySelector('.menu-summary .qty-controls');
+          if (!qtyWrap) return;
+          const active = sectionToggle ? sectionToggle.checked : true;
+          qtyWrap.style.display = active ? 'inline-flex' : 'none';
+        });
+      };
 
       // Helper: ensure Burger "Tomato(s)" label reflects Burger item quantity
       const updateBurgerTomatoLabel = () => {
@@ -2342,6 +2353,8 @@
           syncRequiredCheckboxes();
         });
       });
+      // Quantity controls are created before toggles are restored, so re-sync after restore.
+      syncSectionQtyControlVisibility();
       syncMenuLaunchState();
       syncRequiredCheckboxes();
       if (autoCollapseDisabled) {
@@ -2852,6 +2865,7 @@
             sectionWrap.className = 'summary-section';
             const header = document.createElement('div');
             header.className = 'summary-section-header';
+            let sectionQtyRow = null;
             const listTitle = document.createElement('strong');
             listTitle.textContent = prettyGroup.charAt(0).toUpperCase() + prettyGroup.slice(1);
             header.appendChild(listTitle);
@@ -2907,8 +2921,8 @@
 
             // Section-level quantity controls
             if (SECTION_QTY_KEYS.includes(key)) {
-              const qWrap = document.createElement('span');
-              qWrap.style.marginLeft = '12px';
+              const qWrap = document.createElement('div');
+              qWrap.className = 'summary-section-qty-row';
               const qKey = key;
               // Allow 0 if previously set via deselection; otherwise controls clamp to 1..12
               let current = Math.max(0, Math.min(12, parseInt(qtySections[qKey] || '0', 10) || 0));
@@ -2957,10 +2971,11 @@
               qWrap.appendChild(labelSpan);
               qWrap.appendChild(dec);
               qWrap.appendChild(inc);
-              header.appendChild(qWrap);
+              sectionQtyRow = qWrap;
             }
 
             sectionWrap.appendChild(header);
+            if (sectionQtyRow) sectionWrap.appendChild(sectionQtyRow);
             const ul = document.createElement('ul');
             values.forEach((item) => {
               const li = document.createElement('li');
