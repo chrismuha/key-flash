@@ -140,5 +140,50 @@ body {
         width: 95%;
         margin: initial auto;
     }
+
+    .logo-container {
+        width: min(240px, 72vw);
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
+    #rectangle2 img {
+        max-width: 240px;
+    }
+
+    .header2-h2 {
+        padding: 10px 14px;
+        border-radius: 22px;
+        line-height: 1.2;
+    }
+
+    .header2-h2 b {
+        font-size: clamp(1.5rem, 7vw, 2rem);
+    }
+
+    .header1-h1 {
+        padding: 10px 12px;
+        font-size: 1.05rem;
+        line-height: 1.2;
+        margin-bottom: 12px;
+    }
+
+    .header1-p {
+        padding: 12px;
+        font-size: 0.9rem;
+        line-height: 1.25;
+        margin-top: 12px;
+    }
+
+    .header3-h3 {
+        font-size: 1.15rem;
+        padding: 12px 12px 0;
+    }
+
+    .header3-p {
+        padding: 12px;
+        font-size: 0.9rem;
+        line-height: 1.3;
+    }
 }
 /* Section: 404 Unpaid Bill Styles */
