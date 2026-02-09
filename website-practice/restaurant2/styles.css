@@ -545,6 +545,13 @@ body.settings-open {
     overflow: hidden;
 }
 
+html.settings-open,
+body.settings-open,
+body.settings-open.menu-overlay-open {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+}
+
 .settings-modal-header {
     display: flex;
     align-items: center;
@@ -1544,6 +1551,13 @@ body.page3 #order-summary .summary-section-header strong {
     margin: 0;
 }
 
+body.page3 #order-summary .summary-section-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
 body.page3 #order-summary .summary-section-qty {
     font-size: 11pt;
     color: var(--color-muted);
@@ -1686,7 +1700,7 @@ body.page3 #order-summary .summary-edit-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-left: 10px;
+    margin-left: 0;
     padding: 6px 12px;
     background: var(--accent);
     color: var(--color-white);
@@ -1711,7 +1725,7 @@ body.page3 #order-summary .summary-remove-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-left: 6px;
+    margin-left: 0;
     padding: 6px 12px;
     border-radius: 6px;
     border: 1px solid var(--danger-strong);
@@ -2125,6 +2139,8 @@ main .qty-control-increment {
     line-height: 1;
     cursor: pointer;
     transition: transform 0.1s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 main .qty-control-decrement:disabled,
@@ -2418,9 +2434,9 @@ body.theme-dark .size-pill input:checked+span {
 
 body.theme-dark .menu-launch-arrow {
     background: var(--surface);
-    color: var(--color-item-arrows);
+    color: var(--color-white);
     border-color: var(--border-strong);
-    -webkit-text-fill-color: var(--color-item-arrows);
+    -webkit-text-fill-color: var(--color-white);
 }
 
 
@@ -2436,10 +2452,10 @@ body.theme-dark .menu-launch-arrow {
 
 @media (pointer: coarse) {
     .menu-launch-arrow {
-        width: 40px;
-        height: 40px;
-        font-size: 26pt;
-        line-height: 0;
+        width: 34px;
+        height: 34px;
+        font-size: 22pt;
+        line-height: 1;
         text-align: center;
         border-color: currentColor;
         background: inherit;
@@ -2452,13 +2468,14 @@ body.theme-dark .menu-launch-arrow {
         max-width: 34px;
         min-height: 34px;
         max-height: 34px;
+        padding: 0;
     }
 
     body.theme-dark .menu-launch-arrow {
         background: var(--surface);
-        color: var(--color-item-arrows);
+        color: var(--color-white);
         border-color: var(--border-strong);
-        -webkit-text-fill-color: var(--color-item-arrows);
+        -webkit-text-fill-color: var(--color-white);
     }
 
     body.page3 #order-summary .summary-section+.summary-section {

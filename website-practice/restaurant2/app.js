@@ -946,6 +946,12 @@
       settingsOverlay.hidden = true;
       settingsOverlay.setAttribute('aria-hidden', 'true');
       body.classList.remove('settings-open');
+      docEl.classList.remove('settings-open');
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.width = '';
       settingsToggleBtns.forEach((btn) => btn.setAttribute('aria-expanded', 'false'));
     }
 
@@ -976,11 +982,36 @@
       return proceed;
     };
 
+    let settingsScrollY = 0;
+    const lockSettingsScroll = () => {
+      if (body.classList.contains('settings-open')) return;
+      settingsScrollY = window.scrollY || window.pageYOffset || 0;
+      body.classList.add('settings-open');
+      docEl.classList.add('settings-open');
+      body.style.position = 'fixed';
+      body.style.top = `-${settingsScrollY}px`;
+      body.style.left = '0';
+      body.style.right = '0';
+      body.style.width = '100%';
+    };
+    const unlockSettingsScroll = () => {
+      if (!body.classList.contains('settings-open')) return;
+      body.classList.remove('settings-open');
+      docEl.classList.remove('settings-open');
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.width = '';
+      window.scrollTo(0, settingsScrollY || 0);
+      settingsScrollY = 0;
+    };
+
     const closeSettings = () => {
       if (!settingsOverlay) return;
       settingsOverlay.hidden = true;
       settingsOverlay.setAttribute('aria-hidden', 'true');
-      body.classList.remove('settings-open');
+      unlockSettingsScroll();
       settingsToggleBtns.forEach((btn) => btn.setAttribute('aria-expanded', 'false'));
     };
 
@@ -988,7 +1019,7 @@
       if (!settingsOverlay) return;
       settingsOverlay.hidden = false;
       settingsOverlay.setAttribute('aria-hidden', 'false');
-      body.classList.add('settings-open');
+      lockSettingsScroll();
       settingsToggleBtns.forEach((btn) => btn.setAttribute('aria-expanded', 'true'));
       // Focus first focusable control for keyboard users if present
       const first = settingsOverlay.querySelector('input, button, [tabindex]:not([tabindex="-1"])');
@@ -1005,6 +1036,8 @@
       quantityCanDisable = true;
       pillArrowOnly = false;
       nextClosesOverlay = false;
+      toastEnabled = true;
+      toastPage2Long = true;
       try {
         localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
@@ -1015,6 +1048,8 @@
         localStorage.setItem(STORAGE_KEYS.settingsQuantityCanDisable, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, 'false');
+        localStorage.setItem(STORAGE_KEYS.settingsToastEnabled, 'true');
+        localStorage.setItem(STORAGE_KEYS.settingsToastPage2Long, 'true');
       } catch { }
       if (settingLabelSelects) settingLabelSelects.checked = true;
       if (settingTitleSelects) settingTitleSelects.checked = true;
@@ -1025,6 +1060,8 @@
       if (settingQuantityCanDisable) settingQuantityCanDisable.checked = true;
       if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
       if (settingNextClosesOverlay) settingNextClosesOverlay.checked = false;
+      if (settingToastEnabled) settingToastEnabled.checked = true;
+      if (settingToastPage2Long) settingToastPage2Long.checked = true;
       if (typeof applyQuantitySettingState === 'function') applyQuantitySettingState();
     };
 
@@ -1543,8 +1580,13 @@
             if (toggle && !toggle.disabled) {
               if (quantityCanDisable && next === 0) {
                 if (toggle.checked) {
-                  toggle.checked = false;
-                  toggle.dispatchEvent(new Event('change', { bubbles: true }));
+                  quantityDisableTrigger = sec;
+                  try {
+                    toggle.checked = false;
+                    toggle.dispatchEvent(new Event('change', { bubbles: true }));
+                  } finally {
+                    quantityDisableTrigger = '';
+                  }
                 }
               } else if (!toggle.checked) {
                 toggle.checked = true;
@@ -1556,16 +1598,29 @@
           ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach((evt) => {
             wrap.addEventListener(evt, (event) => event.stopPropagation());
           });
-          dec.addEventListener('click', (evt) => {
-            evt.preventDefault();
-            evt.stopPropagation();
-            adjust(-1);
-          });
-          inc.addEventListener('click', (evt) => {
-            evt.preventDefault();
-            evt.stopPropagation();
-            adjust(1);
-          });
+          const bindAdjustButton = (btn, delta) => {
+            let lastPointerAdjustAt = 0;
+            const triggerAdjust = (evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              lastPointerAdjustAt = performance.now();
+              adjust(delta);
+            };
+            btn.addEventListener('pointerdown', (evt) => {
+              if (evt.button != null && evt.button !== 0) return;
+              triggerAdjust(evt);
+            });
+            btn.addEventListener('touchstart', triggerAdjust, { passive: false });
+            btn.addEventListener('click', (evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              // Ignore synthetic click that follows pointerdown.
+              if (performance.now() - lastPointerAdjustAt < 450) return;
+              adjust(delta);
+            });
+          };
+          bindAdjustButton(dec, -1);
+          bindAdjustButton(inc, 1);
           wrap.appendChild(count);
           wrap.appendChild(dec);
           wrap.appendChild(inc);
@@ -1606,7 +1661,6 @@
           toggle.dataset.manualDisabled = 'true';
         }
       });
-      const primarySections = ['pizza', 'burger', 'sub', 'wrap'];
       let sauceDisabled = false;
       const isSectionDisabled = (sec) => sec === 'sauces' && sauceDisabled;
       const requiredCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][data-required="true"]'));
@@ -1727,6 +1781,8 @@
 
       // Track when an auto-disable is driving the section toggle change
       let autoDisableTrigger = '';
+      let resetDisableTrigger = '';
+      let quantityDisableTrigger = '';
       let suppressAutoDisable = false;
       let suppressEnsureActive = false;
       const clearOptionalSelections = (secId) => {
@@ -1837,8 +1893,13 @@
           if (section) {
             const toggle = document.querySelector(`.section-toggle[data-section="${section}"]`);
             if (toggle && toggle.checked) {
-              toggle.checked = false;
-              toggle.dispatchEvent(new Event('change', { bubbles: true }));
+              resetDisableTrigger = section;
+              try {
+                toggle.checked = false;
+                toggle.dispatchEvent(new Event('change', { bubbles: true }));
+              } finally {
+                resetDisableTrigger = '';
+              }
             }
             try {
               const act = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {});
@@ -2102,8 +2163,8 @@
       };
 
       const syncSaucesEnabled = () => {
-        const anyPrimaryActive = sectionToggles.some((t) => primarySections.includes(t.dataset.section) && t.checked);
-        setSaucesDisabled(!anyPrimaryActive);
+        // Sauces should remain available even when no other sections are selected.
+        setSaucesDisabled(false);
       };
 
       const persistActiveSections = () => {
@@ -2333,13 +2394,21 @@
         t.addEventListener('change', () => {
           const sec = t.dataset.section;
           const isAuto = autoDisableTrigger && sec === autoDisableTrigger;
+          const isResetDisable = resetDisableTrigger && sec === resetDisableTrigger;
+          const isQuantityDisable = quantityDisableTrigger && sec === quantityDisableTrigger;
+          const keepOverlayOpenOnDisable = !!resetKeepOpen && (isResetDisable || isQuantityDisable);
+          if (sec && !t.checked) {
+            // Closing a section resets its quantity to the configured minimum.
+            setSectionQuantity(sec, getQuantityMin());
+            refreshSectionQuantityControls();
+          }
           // If the user manually disables the section and the setting is on, lock it and close its overlay.
           if (!t.checked && !isAuto && autoDisableSection) {
             if (sec) clearOptionalSelections(sec);
             t.disabled = true;
             t.setAttribute('aria-disabled', 'true');
             t.dataset.manualDisabled = 'true';
-            if (sec) closeOverlay(sec);
+            if (sec && !keepOverlayOpenOnDisable) closeOverlay(sec);
           }
           // Clear manual disable if re-enabled later.
           if (t.checked && t.disabled) {
@@ -2543,6 +2612,7 @@
       function handleRemoveSection(section) {
         const normalized = String(section || '').toLowerCase();
         if (!normalized) return;
+        setSectionQuantity(normalized, getQuantityMin());
         removeIngredientGroupsForSection(normalized);
         removeQuantitiesForSection(normalized);
         markSectionManualDisabled(normalized);
@@ -2707,11 +2777,13 @@
               header.appendChild(qtyBadge);
             }
 
+            const actions = document.createElement('div');
+            actions.className = 'summary-section-actions';
             const edit = document.createElement('a');
             edit.href = `page2.html#${sec}`;
             edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
-            header.appendChild(edit);
+            actions.appendChild(edit);
 
             const remove = document.createElement('button');
             remove.type = 'button';
@@ -2723,9 +2795,10 @@
               evt.stopPropagation();
               handleRemoveSection(sec);
             });
-            header.appendChild(remove);
+            actions.appendChild(remove);
 
             sectionWrap.appendChild(header);
+            sectionWrap.appendChild(actions);
 
             if (sec === 'pizza' && pizzaSizeLabel) {
               const sizeLine = document.createElement('div');
