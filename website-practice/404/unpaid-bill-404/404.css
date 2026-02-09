@@ -138,6 +138,10 @@ body {
 
 /* MOBILE OPTIMIZATION */
 @media screen and (max-width: 900px) {
+    :root {
+        --mobile-logo-width: min(160px, 45vw);
+    }
+
     *,
     *::before,
     *::after {
@@ -182,7 +186,7 @@ body {
     }
 
     .logo-container {
-        width: min(160px, 45vw);
+        width: var(--mobile-logo-width);
         margin: 0 auto;
         padding-top: 6px;
         padding-bottom: 6px;
@@ -271,12 +275,12 @@ body {
     }
 
     #rectangle3 {
-        height: 10px;
+        height: 30px;
         margin-top: 12px;
     }
 
     #rectangle4 {
-        height: 40px;
+        height: calc((var(--mobile-logo-width) * 100 / 302) + 12px);
         margin-bottom: 0;
     }
 }
