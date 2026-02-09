@@ -1592,8 +1592,14 @@ body.order-type main h1 {
 
 @media (max-width: 768px) {
     body.order-type main h1 {
-        font-size: 20pt;
-        line-height: 41px;
+        font-size: clamp(12pt, 5.2vw, 20pt);
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow-wrap: normal;
+        word-break: normal;
+    }
+    body.nav-enabled.order-type main h1 {
+        font-size: clamp(10pt, 3.7vw, 15pt);
     }
     body.order-type main {
         padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance));
