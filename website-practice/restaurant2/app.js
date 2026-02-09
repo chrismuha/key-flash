@@ -1614,7 +1614,10 @@
       if (footerResetBtn) {
         footerResetBtn.addEventListener('click', (event) => {
           event.preventDefault();
-          resetMenuSelections();
+          openCustomConfirm('Reset all selections and settings?', (confirmed) => {
+            if (!confirmed) return;
+            resetMenuSelections();
+          });
         });
       }
       if (sliderTrack) {
@@ -2760,6 +2763,34 @@
         renderOrderSummary();
         if (typeof updatePage3NavState === 'function') updatePage3NavState();
       }
+      const bindSummaryAdjustButton = (btn, section, delta) => {
+        let lastPointerAdjustAt = 0;
+        const triggerAdjust = (evt) => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          lastPointerAdjustAt = performance.now();
+          handleAdjustSectionQuantity(section, delta);
+        };
+        if (window.PointerEvent) {
+          btn.addEventListener('pointerdown', (evt) => {
+            if (evt.button != null && evt.button !== 0) return;
+            triggerAdjust(evt);
+          });
+        } else {
+          btn.addEventListener('mousedown', (evt) => {
+            if (evt.button != null && evt.button !== 0) return;
+            triggerAdjust(evt);
+          });
+          btn.addEventListener('touchstart', triggerAdjust, { passive: false });
+        }
+        btn.addEventListener('click', (evt) => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          // Ignore synthetic click that follows pointer/touch/mouse press.
+          if (performance.now() - lastPointerAdjustAt < 450) return;
+          handleAdjustSectionQuantity(section, delta);
+        });
+      };
 
       function renderOrderSummary() {
         const readJSON = (key, fallback) => {
@@ -2930,6 +2961,9 @@
               const qtyValue = Math.max(SECTION_QUANTITY_DEFAULT_MIN, clampSectionQuantity(qtySections[sec]));
               const qtyWrap = document.createElement('span');
               qtyWrap.className = 'qty-controls summary-qty-controls';
+              ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach((evt) => {
+                qtyWrap.addEventListener(evt, (event) => event.stopPropagation());
+              });
 
               const qtyCount = document.createElement('span');
               qtyCount.className = 'qty-controls-value summary-qty-value';
@@ -2941,11 +2975,7 @@
               dec.textContent = '−';
               dec.setAttribute('aria-label', `Decrease ${title.textContent} quantity`);
               dec.disabled = qtyValue <= SECTION_QUANTITY_DEFAULT_MIN;
-              dec.addEventListener('click', (evt) => {
-                evt.preventDefault();
-                evt.stopPropagation();
-                handleAdjustSectionQuantity(sec, -1);
-              });
+              bindSummaryAdjustButton(dec, sec, -1);
 
               const inc = document.createElement('button');
               inc.type = 'button';
@@ -2953,11 +2983,7 @@
               inc.textContent = '+';
               inc.setAttribute('aria-label', `Increase ${title.textContent} quantity`);
               inc.disabled = qtyValue >= SECTION_QUANTITY_MAX;
-              inc.addEventListener('click', (evt) => {
-                evt.preventDefault();
-                evt.stopPropagation();
-                handleAdjustSectionQuantity(sec, 1);
-              });
+              bindSummaryAdjustButton(inc, sec, 1);
 
               qtyWrap.appendChild(qtyCount);
               qtyWrap.appendChild(dec);
