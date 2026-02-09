@@ -197,11 +197,11 @@ body {
     .header1-p,
     .header3-h3,
     .header3-p {
-        width: 92%;
-        max-width: 92%;
+        width: 96%;
+        max-width: 96%;
         margin: 8px auto 0;
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-left: 12px;
+        padding-right: 12px;
         overflow-x: hidden;
         overflow-wrap: anywhere;
         word-break: break-word;
@@ -209,41 +209,41 @@ body {
     }
 
     .header2-h2 {
-        padding-top: 6px;
-        padding-bottom: 6px;
+        padding-top: 8px;
+        padding-bottom: 8px;
         border-radius: 10px;
         line-height: 1.15;
     }
 
     .header2-h2 b {
-        font-size: clamp(0.9rem, 5.2vw, 1.15rem);
+        font-size: clamp(1rem, 6vw, 1.3rem);
     }
 
     .header1-h1 {
-        padding-top: 6px;
-        padding-bottom: 6px;
-        font-size: clamp(0.86rem, 5.6vw, 1.05rem);
+        padding-top: 8px;
+        padding-bottom: 8px;
+        font-size: clamp(0.98rem, 6.2vw, 1.2rem);
         line-height: 1.15;
     }
 
     .header1-p {
-        padding-top: 6px;
-        padding-bottom: 6px;
-        font-size: clamp(0.64rem, 3vw, 0.75rem);
-        line-height: 1.15;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        font-size: clamp(0.75rem, 3.6vw, 0.9rem);
+        line-height: 1.2;
     }
 
     .header3-h3 {
-        font-size: clamp(0.88rem, 5.2vw, 1.05rem);
-        line-height: 1.15;
-        padding: 6px 8px 0;
+        font-size: clamp(0.98rem, 5.8vw, 1.2rem);
+        line-height: 1.2;
+        padding: 8px 10px 0;
     }
 
     .header3-p {
-        padding-top: 6px;
-        padding-bottom: 6px;
-        font-size: clamp(0.62rem, 2.8vw, 0.72rem);
-        line-height: 1.18;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        font-size: clamp(0.74rem, 3.4vw, 0.86rem);
+        line-height: 1.2;
         margin-bottom: 0;
     }
 
