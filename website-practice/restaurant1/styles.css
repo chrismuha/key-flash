@@ -1060,8 +1060,13 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     }
 
     #order-summary .summary-section-header {
-        flex-direction: column;
-        align-items: start !important;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center !important;
+    }
+
+    #order-summary .summary-section-header strong {
+        flex-basis: 100%;
     }
 
     main>h1 {
@@ -1386,31 +1391,34 @@ body.page3 #order-summary .summary-remove-btn {
     justify-content: center;
     margin-left: 10px;
     padding: 6px 12px;
-    background: var(--danger);
     color: var(--surface);
     border-radius: 6px;
     font-weight: 700;
     text-decoration: none;
-    border: 1px solid var(--danger-outline);
     transition: background 0.15s ease, color 0.15s ease;
+}
+
+body.page3 #order-summary .summary-edit-btn {
+    background: var(--accent);
+    border: 1px solid var(--accent-deep);
 }
 
 body.page3 #order-summary .summary-edit-btn:focus-visible,
 body.page3 #order-summary .summary-edit-btn:hover {
-    background: var(--danger-strong);
-    outline: 2px solid var(--danger-outline-strong);
+    background: var(--accent-strong);
+    outline: 2px solid var(--accent-deep);
     outline-offset: 2px;
 }
 
 body.page3 #order-summary .summary-remove-btn {
-    background: var(--surface-dark);
-    border-color: var(--border-strong);
+    background: var(--danger);
+    border: 1px solid var(--danger-outline);
 }
 
 body.page3 #order-summary .summary-remove-btn:focus-visible,
 body.page3 #order-summary .summary-remove-btn:hover {
-    background: var(--surface-dark-strong);
-    outline: 2px solid var(--color-black);
+    background: var(--danger-strong);
+    outline: 2px solid var(--danger-outline-strong);
     outline-offset: 2px;
 }
 
