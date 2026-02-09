@@ -83,6 +83,22 @@ body {
     border-radius: 3px;
 }
 
+.contact-box {
+    color: black;
+    background-color: red;
+    max-width: 684px;
+    padding: 16px;
+    border-radius: 3px;
+    font-size: 14pt;
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 16px auto 0;
+}
+
+.phone-nowrap {
+    white-space: nowrap;
+}
+
 /* .center {
     display: block;
     margin: auto;
