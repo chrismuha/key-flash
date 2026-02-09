@@ -1469,6 +1469,22 @@ body.page3 #order-summary ul {
     margin: 0 0 8px 0;
 }
 
+body.page3 #order-summary li.summary-item-with-qty {
+    margin-bottom: 4px;
+}
+
+body.page3 #order-summary .summary-item-qty-controls {
+    display: flex;
+    gap: 4px;
+    width: max-content;
+    margin-top: 4px;
+    white-space: nowrap;
+}
+
+body.page3 #order-summary .summary-item-qty-controls button {
+    flex: 0 0 auto;
+}
+
 /* spacing under multi-line address block */
 body.page3 #order-summary .address-block {
     margin-bottom: 12px;

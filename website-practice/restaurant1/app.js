@@ -2995,6 +2995,7 @@
               if (key === 'sauces') {
                 const qKey = `${group}|${normValue}`;
                 let current = Math.max(1, Math.min(12, parseInt(qtyMap[qKey] || '1', 10) || 1));
+                li.classList.add('summary-item-with-qty');
 
                 const nameSpan = document.createElement('span');
                 nameSpan.textContent = `${label} (x${current})`;
@@ -3041,12 +3042,16 @@
                 dec.addEventListener('click', () => { updateQty(current - 1); });
                 inc.addEventListener('click', () => { updateQty(current + 1); });
 
-                li.appendChild(dec);
-                li.appendChild(inc);
+                const controlsRow = document.createElement('div');
+                controlsRow.className = 'summary-item-qty-controls';
+                controlsRow.appendChild(dec);
+                controlsRow.appendChild(inc);
+                li.appendChild(controlsRow);
               } else if (key === 'burger' && normValue === 'patty') {
                 const qKey = `${group}|${normValue}`;
                 let current = 1;
                 try { current = Math.max(1, Math.min(3, parseInt(qtyMap[qKey] || '1', 10) || 1)); } catch { current = 1; }
+                li.classList.add('summary-item-with-qty');
 
                 const nameSpan = document.createElement('span');
                 nameSpan.textContent = `${label} (x${current})`;
@@ -3067,8 +3072,11 @@
                 };
                 dec.addEventListener('click', () => { updateQty(current - 1); });
                 inc.addEventListener('click', () => { updateQty(current + 1); });
-                li.appendChild(dec);
-                li.appendChild(inc);
+                const controlsRow = document.createElement('div');
+                controlsRow.className = 'summary-item-qty-controls';
+                controlsRow.appendChild(dec);
+                controlsRow.appendChild(inc);
+                li.appendChild(controlsRow);
               } else {
                 const qKey = `${group}|${normValue}`;
                 let qv = 1;
