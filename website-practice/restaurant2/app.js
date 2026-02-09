@@ -191,9 +191,110 @@
 
   // Section: Utility helpers
   const docEl = document.documentElement;
+  const CONFIRM_DIALOG_ID = 'custom-confirm-dialog';
+  let confirmDialogInstance = null;
 
   function $(sel, ctx = document) { return ctx.querySelector(sel); }
   function $all(sel, ctx = document) { return Array.from((ctx || document).querySelectorAll(sel)); }
+
+  function ensureCustomConfirmDialog() {
+    if (confirmDialogInstance) return confirmDialogInstance;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'custom-confirm-overlay';
+    overlay.hidden = true;
+    overlay.setAttribute('aria-hidden', 'true');
+
+    const modal = document.createElement('div');
+    modal.className = 'custom-confirm-modal';
+    modal.id = CONFIRM_DIALOG_ID;
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', `${CONFIRM_DIALOG_ID}-title`);
+    modal.setAttribute('aria-describedby', `${CONFIRM_DIALOG_ID}-message`);
+
+    const title = document.createElement('h2');
+    title.id = `${CONFIRM_DIALOG_ID}-title`;
+    title.textContent = 'Confirm Action';
+
+    const message = document.createElement('p');
+    message.id = `${CONFIRM_DIALOG_ID}-message`;
+    message.className = 'custom-confirm-message';
+
+    const actions = document.createElement('div');
+    actions.className = 'custom-confirm-actions';
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'custom-confirm-cancel';
+    cancelBtn.textContent = 'No';
+
+    const confirmBtn = document.createElement('button');
+    confirmBtn.type = 'button';
+    confirmBtn.className = 'custom-confirm-accept';
+    confirmBtn.textContent = 'Yes';
+
+    actions.appendChild(cancelBtn);
+    actions.appendChild(confirmBtn);
+    modal.appendChild(title);
+    modal.appendChild(message);
+    modal.appendChild(actions);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    confirmDialogInstance = {
+      overlay,
+      message,
+      cancelBtn,
+      confirmBtn,
+      onDecision: null,
+      lastFocused: null
+    };
+
+    const closeDialog = (approved) => {
+      if (!confirmDialogInstance) return;
+      const state = confirmDialogInstance;
+      state.overlay.hidden = true;
+      state.overlay.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('custom-confirm-open');
+      const decisionHandler = state.onDecision;
+      state.onDecision = null;
+      if (state.lastFocused && typeof state.lastFocused.focus === 'function') {
+        state.lastFocused.focus();
+      }
+      state.lastFocused = null;
+      if (typeof decisionHandler === 'function') {
+        decisionHandler(!!approved);
+      }
+    };
+
+    overlay.addEventListener('click', (evt) => {
+      if (evt.target === overlay) closeDialog(false);
+    });
+    cancelBtn.addEventListener('click', () => closeDialog(false));
+    confirmBtn.addEventListener('click', () => closeDialog(true));
+    document.addEventListener('keydown', (evt) => {
+      if (evt.key !== 'Escape') return;
+      if (!confirmDialogInstance || confirmDialogInstance.overlay.hidden) return;
+      evt.preventDefault();
+      closeDialog(false);
+    });
+
+    return confirmDialogInstance;
+  }
+
+  function openCustomConfirm(messageText, onDecision) {
+    const dialog = ensureCustomConfirmDialog();
+    dialog.message.textContent = String(messageText || 'Are you sure?');
+    dialog.onDecision = onDecision;
+    dialog.lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    dialog.overlay.hidden = false;
+    dialog.overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('custom-confirm-open');
+    window.requestAnimationFrame(() => {
+      dialog.confirmBtn.focus();
+    });
+  }
 
   function safeParseJSON(v, fallback) {
     try { return JSON.parse(v); } catch { return fallback; }
@@ -971,15 +1072,20 @@
       }
       return issues;
     };
-    const maybeWarnSettingConflicts = (prevState, revertFn) => {
+    const maybeWarnSettingConflicts = (prevState, revertFn, onProceed) => {
       const issues = detectSettingConflicts(collectSettingState());
-      if (!issues.length) return true;
-      const msg = `Warning: These settings may make menus feel unresponsive:\n- ${issues.join('\n- ')}\n\nContinue with this combination?`;
-      const proceed = window.confirm(msg);
-      if (!proceed && typeof revertFn === 'function') {
-        revertFn(prevState);
+      if (!issues.length) {
+        if (typeof onProceed === 'function') onProceed();
+        return;
       }
-      return proceed;
+      const msg = `Warning: These settings may make menus feel unresponsive:\n- ${issues.join('\n- ')}\n\nContinue with this combination?`;
+      openCustomConfirm(msg, (proceed) => {
+        if (!proceed && typeof revertFn === 'function') {
+          revertFn(prevState);
+          return;
+        }
+        if (proceed && typeof onProceed === 'function') onProceed();
+      });
     };
 
     let settingsScrollY = 0;
@@ -1867,8 +1973,11 @@
         const groupingSection = getSectionForGroup(group);
         if (!skipConfirm) {
           const sectionLabel = SECTION_LABELS[groupingSection] || (groupingSection ? groupingSection.charAt(0).toUpperCase() + groupingSection.slice(1) : 'this item');
-          const confirmed = window.confirm(`Reset ${sectionLabel} and remove selected items?`);
-          if (!confirmed) return;
+          openCustomConfirm(`Reset ${sectionLabel} and remove selected items?`, (confirmed) => {
+            if (!confirmed) return;
+            resetGroupByName(group, { ...options, skipConfirm: true });
+          });
+          return;
         }
         const sectionToggle = groupingSection ? document.querySelector(`.section-toggle[data-section="${groupingSection}"]`) : null;
         const initialToggleState = sectionToggle ? {
@@ -2236,8 +2345,6 @@
       };
 
       function resetMenuSelections() {
-        const confirmed = window.confirm('Reset all menu items and remove all selected items?');
-        if (!confirmed) return;
         resetSectionQuantitiesToDefaults();
         resetSettingsToDefaults();
         if (typeof closeAllOverlays === 'function') closeAllOverlays();
@@ -2464,8 +2571,9 @@
           if (settingLabelSelects) settingLabelSelects.checked = state.labelSelects;
           try { localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, String(labelSelects)); } catch { }
         };
-        if (!maybeWarnSettingConflicts(prev, revert)) return;
-        try { localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, String(labelSelects)); } catch { }
+        maybeWarnSettingConflicts(prev, revert, () => {
+          try { localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, String(labelSelects)); } catch { }
+        });
       });
     }
     if (settingTitleSelects) {
@@ -2477,8 +2585,9 @@
           if (settingTitleSelects) settingTitleSelects.checked = state.titleSelects;
           try { localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, String(titleSelects)); } catch { }
         };
-        if (!maybeWarnSettingConflicts(prev, revert)) return;
-        try { localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, String(titleSelects)); } catch { }
+        maybeWarnSettingConflicts(prev, revert, () => {
+          try { localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, String(titleSelects)); } catch { }
+        });
       });
     }
     if (settingResetDisables) {
@@ -2521,8 +2630,9 @@
           if (settingPillArrowOnly) settingPillArrowOnly.checked = state.pillArrowOnly;
           try { localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly)); } catch { }
         };
-        if (!maybeWarnSettingConflicts(prev, revert)) return;
-        try { localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly)); } catch { }
+        maybeWarnSettingConflicts(prev, revert, () => {
+          try { localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, String(pillArrowOnly)); } catch { }
+        });
       });
     }
 
@@ -2615,12 +2725,18 @@
         return true;
       }
 
-      function handleRemoveSection(section) {
+      function handleRemoveSection(section, options = {}) {
+        const { skipConfirm = false } = options || {};
         const normalized = String(section || '').toLowerCase();
         if (!normalized) return;
-        const sectionLabel = SECTION_LABELS[normalized] || (normalized.charAt(0).toUpperCase() + normalized.slice(1));
-        const confirmed = window.confirm(`Remove ${sectionLabel} from your order?`);
-        if (!confirmed) return;
+        if (!skipConfirm) {
+          const sectionLabel = SECTION_LABELS[normalized] || (normalized.charAt(0).toUpperCase() + normalized.slice(1));
+          openCustomConfirm(`Remove ${sectionLabel} from your order?`, (confirmed) => {
+            if (!confirmed) return;
+            handleRemoveSection(normalized, { ...options, skipConfirm: true });
+          });
+          return;
+        }
         setSectionQuantity(normalized, getQuantityMin());
         removeIngredientGroupsForSection(normalized);
         removeQuantitiesForSection(normalized);
