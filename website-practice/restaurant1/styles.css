@@ -1379,7 +1379,8 @@ body.page3 #order-summary .address-block {
     margin-bottom: 12px;
 }
 
-body.page3 #order-summary .summary-edit-btn {
+body.page3 #order-summary .summary-edit-btn,
+body.page3 #order-summary .summary-remove-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1398,6 +1399,18 @@ body.page3 #order-summary .summary-edit-btn:focus-visible,
 body.page3 #order-summary .summary-edit-btn:hover {
     background: var(--danger-strong);
     outline: 2px solid var(--danger-outline-strong);
+    outline-offset: 2px;
+}
+
+body.page3 #order-summary .summary-remove-btn {
+    background: var(--surface-dark);
+    border-color: var(--border-strong);
+}
+
+body.page3 #order-summary .summary-remove-btn:focus-visible,
+body.page3 #order-summary .summary-remove-btn:hover {
+    background: var(--surface-dark-strong);
+    outline: 2px solid var(--color-black);
     outline-offset: 2px;
 }
 
@@ -1807,6 +1820,12 @@ body.nav-enabled .left-rail .box {
 }
 
 /* SECTION: SETTINGS OVERLAY */
+html.settings-open,
+body.settings-open {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+}
+
 body.settings-open::before {
     content: "";
     position: fixed;

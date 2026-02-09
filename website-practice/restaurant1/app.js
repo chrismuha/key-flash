@@ -722,13 +722,13 @@
           settingsPanel.style.display = 'none';
           settingsPanel.setAttribute('aria-hidden', 'true');
         }
-        body.classList.remove('settings-open');
       } else if (settingsPanel) {
         settingsPanel.hidden = true;
         settingsPanel.style.display = 'none';
         settingsPanel.setAttribute('aria-hidden', 'true');
-        body.classList.remove('settings-open');
       }
+      body.classList.remove('settings-open');
+      document.documentElement.classList.remove('settings-open');
       settingsBtn.setAttribute('aria-expanded', 'false');
     };
     const openSettings = () => {
@@ -749,6 +749,7 @@
       }
       settingsBtn.setAttribute('aria-expanded', 'true');
       body.classList.add('settings-open');
+      document.documentElement.classList.add('settings-open');
     };
     // ensure closed on fresh load
     closeSettings();
@@ -1790,13 +1791,14 @@
         });
       } catch { }
 
-      // Load/save quantities for sections (pizza/burger) and sauces
+      // Load/save quantities for sections and sauces
       let qtySections = {};
       try { qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}'); } catch { qtySections = {}; }
       let qtyMap = {};
       try { qtyMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'); } catch { qtyMap = {}; }
       const saveQtySections = () => { try { localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections)); } catch { } };
       const saveQtyMap = () => { try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { } };
+      const SECTION_QTY_KEYS = ['pizza', 'burger', 'sub', 'wrap'];
 
       // Helper: ensure Burger "Tomato(s)" label reflects Burger item quantity
       const updateBurgerTomatoLabel = () => {
@@ -1828,8 +1830,8 @@
         } catch { }
       };
 
-      // Decorate section summaries (Pizza/Burger) with quantity controls (1-12)
-      ['pizza', 'burger'].forEach((sec) => {
+      // Decorate section summaries with quantity controls (1-12)
+      SECTION_QTY_KEYS.forEach((sec) => {
         const d = document.getElementById(sec);
         if (!d) return;
         const summary = d.querySelector('.menu-summary');
@@ -2184,8 +2186,8 @@
             // Enforce required when activating
             d2.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
             saveIngredients();
-            // If activating Pizza/Burger, ensure quantity is at least 1 (was 0 when deselected)
-            if (section === 'pizza' || section === 'burger') {
+            // If activating a section with quantity controls, ensure quantity is at least 1 (was 0 when deselected)
+            if (SECTION_QTY_KEYS.includes(section)) {
               try {
                 let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                 const cur = parseInt(qtySections[section] || '0', 10) || 0;
@@ -2208,7 +2210,7 @@
             saveIngredients();
             // Auto-collapse is optional (controlled by setting)
             // If the menu item (section) is not selected, its quantity becomes 0
-            if (section === 'pizza' || section === 'burger') {
+            if (SECTION_QTY_KEYS.includes(section)) {
               try {
                 let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                 const currentQty = parseInt(qtySections[section] || '0', 10) || 0;
@@ -2561,7 +2563,7 @@
               act[section] = false;
               localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
             } catch { }
-            if (section === 'pizza' || section === 'burger') {
+            if (SECTION_QTY_KEYS.includes(section)) {
               try {
                 let qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                 qs[section] = 0;
@@ -2711,9 +2713,10 @@
         // Load saved per-ingredient quantities (legacy, not used for display now)
         let qtyMap = {};
         try { qtyMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'); } catch { qtyMap = {}; }
-        // Load per-section quantities (pizza/burger)
+        // Load per-section quantities
         let qtySections = {};
         try { qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}'); } catch { qtySections = {}; }
+        const SECTION_QTY_KEYS = ['pizza', 'burger', 'sub', 'wrap'];
         const qtyLabelMap = { 1: 'Regular', 2: 'Light', 3: 'Extra', 4: 'x3' };
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
         if (entries.length === 0 || nonEmpty.length === 0) {
@@ -2728,8 +2731,8 @@
             const prettyGroup = key.replace(/_/g, ' ');
             // Skip categories that are not active (checkbox not selected on Page 2)
             if (!activeSections[key]) return;
-            // Also skip Pizza/Burger if their section quantity is 0
-            if ((key === 'pizza' || key === 'burger')) {
+            // Skip sections with quantity controls if quantity is 0
+            if (SECTION_QTY_KEYS.includes(key)) {
               let qv = 0;
               try { qv = parseInt(qtySections[key] || '0', 10) || 0; } catch { qv = 0; }
               if (qv <= 0) return;
@@ -2749,11 +2752,54 @@
             edit.className = 'summary-edit-btn';
             header.appendChild(edit);
 
-            // Section-level quantity controls for Pizza and Burger
-            if (key === 'pizza' || key === 'burger') {
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.textContent = 'Remove';
+            remove.className = 'summary-remove-btn';
+            remove.setAttribute('aria-label', `Remove ${prettyGroup} from order`);
+            remove.addEventListener('click', () => {
+              try {
+                const ing = JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}');
+                ing[group] = [];
+                localStorage.setItem(STORAGE_KEYS.ingredients, JSON.stringify(ing));
+              } catch { }
+              try {
+                const act = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}');
+                act[key] = false;
+                localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
+              } catch { }
+              if (SECTION_QTY_KEYS.includes(key)) {
+                try {
+                  const qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
+                  qs[key] = 0;
+                  localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qs));
+                } catch { }
+              }
+              if (key === 'sauces') {
+                try {
+                  const qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
+                  Object.keys(qm).forEach((k) => {
+                    if (k.startsWith(`${group}|`)) qm[k] = 0;
+                  });
+                  localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qm));
+                } catch { }
+              }
+
+              sectionWrap.remove();
+              if (sectionsContainer.childElementCount === 0) {
+                sectionsContainer.remove();
+                const none = document.createElement('p');
+                none.textContent = 'No ingredients selected yet.';
+                selectionsBlock.appendChild(none);
+              }
+            });
+            header.appendChild(remove);
+
+            // Section-level quantity controls
+            if (SECTION_QTY_KEYS.includes(key)) {
               const qWrap = document.createElement('span');
               qWrap.style.marginLeft = '12px';
-              const qKey = key; // 'pizza' or 'burger'
+              const qKey = key;
               // Allow 0 if previously set via deselection; otherwise controls clamp to 1..12
               let current = Math.max(0, Math.min(12, parseInt(qtySections[qKey] || '0', 10) || 0));
 
