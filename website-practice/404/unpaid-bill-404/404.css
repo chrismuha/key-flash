@@ -9,6 +9,8 @@ body {
     flex-direction: column;
     justify-content: space-between;
     font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
 /* HEADER CLASSES */
@@ -79,23 +81,8 @@ body {
     border-radius: 3px;
 }
 
-.center {
-    display: block;
-    margin: auto;
-    width: 50%;
-    height: 50%;
-    padding-bottom: -10px;
-}
-
 .text-center {
     text-align: center;
-}
-
-.logo {
-    width: 50%;
-    height: 50%;
-    padding-top: -10px;
-    padding-bottom: -10px;
 }
 
 /* PAGE HEADER DESIGN CLASSES */
@@ -113,7 +100,11 @@ body {
 
 #rectangle2 {
     background-color: black;
-    width: 100%;
+}
+
+.logo-container {
+    width: min(302px, 90vw);
+    margin: auto;
     padding-top: 16px;
     padding-bottom: 16px;
 }
@@ -132,8 +123,10 @@ body {
 
 /* PAGE HEADER ID SHAPE IMAGES */
 #rectangle2 img {
-    width: fit-content;
-    height: 100px;
+    display: block;
+    width: 100%;
+    max-width: 302px;
+    height: auto;
 }
 
 /* MOBILE OPTIMIZATION */
