@@ -1783,8 +1783,11 @@ body.order-type .order-powered a {
     }
 
     body.order-type .order-card {
-        width: 140px;
-        height: 140px;
+        width: calc((100% - 16px) / 2);
+        max-width: 140px;
+        min-width: 0;
+        height: auto;
+        aspect-ratio: 1 / 1;
     }
 }
 
