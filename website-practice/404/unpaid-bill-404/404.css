@@ -197,11 +197,11 @@ body {
     .header1-p,
     .header3-h3,
     .header3-p {
-        width: 96%;
-        max-width: 96%;
+        width: 100%;
+        max-width: 100%;
         margin: 8px auto 0;
-        padding-left: 12px;
-        padding-right: 12px;
+        padding-left: 14px;
+        padding-right: 14px;
         overflow-x: hidden;
         overflow-wrap: anywhere;
         word-break: break-word;
@@ -209,40 +209,41 @@ body {
     }
 
     .header2-h2 {
-        padding-top: 8px;
-        padding-bottom: 8px;
+        padding-top: 10px;
+        padding-bottom: 10px;
         border-radius: 10px;
         line-height: 1.15;
     }
 
     .header2-h2 b {
-        font-size: clamp(1rem, 6vw, 1.3rem);
+        font-size: clamp(1.22rem, 7.4vw, 1.75rem);
     }
 
     .header1-h1 {
-        padding-top: 8px;
-        padding-bottom: 8px;
-        font-size: clamp(0.98rem, 6.2vw, 1.2rem);
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: clamp(1.22rem, 7.5vw, 1.75rem);
         line-height: 1.15;
     }
 
     .header1-p {
-        padding-top: 8px;
-        padding-bottom: 8px;
-        font-size: clamp(0.75rem, 3.6vw, 0.9rem);
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: clamp(0.96rem, 4.5vw, 1.14rem);
         line-height: 1.2;
     }
 
     .header3-h3 {
-        font-size: clamp(0.98rem, 5.8vw, 1.2rem);
+        font-size: clamp(1.26rem, 7.1vw, 1.75rem);
         line-height: 1.2;
-        padding: 8px 10px 0;
+        padding: 10px 12px 18px;
+        margin-bottom: 0;
     }
 
     .header3-p {
-        padding-top: 8px;
-        padding-bottom: 8px;
-        font-size: clamp(0.74rem, 3.4vw, 0.86rem);
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: clamp(0.94rem, 4.4vw, 1.1rem);
         line-height: 1.2;
         margin-bottom: 0;
     }
@@ -253,7 +254,7 @@ body {
 
     #rectangle3 {
         height: 10px;
-        margin-top: 0;
+        margin-top: 12px;
     }
 
     #rectangle4 {
