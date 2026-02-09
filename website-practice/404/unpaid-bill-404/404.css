@@ -117,13 +117,13 @@ body {
 }
 
 #rectangle3 {
-    background: black;
+    background: red;
     width: 100%;
     height: 20px;
 }
 
 #rectangle4 {
-    background-color: red;
+    background-color: black;
     width: 100%;
     height: 59.5px;
 }
@@ -197,11 +197,11 @@ body {
     .header1-p,
     .header3-h3,
     .header3-p {
-        width: 100%;
-        max-width: 100%;
+        width: 95%;
+        max-width: 95%;
         margin: 8px auto 0;
-        padding-left: 14px;
-        padding-right: 14px;
+        padding-left: 0;
+        padding-right: 0;
         overflow-x: hidden;
         overflow-wrap: anywhere;
         word-break: break-word;
@@ -211,7 +211,7 @@ body {
     .header2-h2 {
         padding-top: 10px;
         padding-bottom: 10px;
-        border-radius: 10px;
+        border-radius: 0;
         line-height: 1.15;
     }
 
@@ -219,11 +219,21 @@ body {
         font-size: clamp(1.22rem, 7.4vw, 1.75rem);
     }
 
+    .header2-h2 h2 {
+        font-size: inherit;
+        margin: 0;
+    }
+
     .header1-h1 {
         padding-top: 10px;
         padding-bottom: 10px;
-        font-size: clamp(1.22rem, 7.5vw, 1.75rem);
+        font-size: clamp(1.15rem, 7.5vw, 1.75rem);
         line-height: 1.15;
+    }
+
+    .header1-h1 h1 {
+        font-size: inherit;
+        margin: 0;
     }
 
     .header1-p {
@@ -234,10 +244,14 @@ body {
     }
 
     .header3-h3 {
-        font-size: clamp(1.26rem, 7.1vw, 1.75rem);
+        font-size: clamp(1rem, 5.4vw, 1.35rem);
         line-height: 1.2;
-        padding: 10px 12px 18px;
+        padding: 10px 0 18px;
         margin-bottom: 0;
+    }
+
+    .header3-h3 h3 {
+        white-space: nowrap;
     }
 
     .header3-p {
@@ -258,7 +272,7 @@ body {
     }
 
     #rectangle4 {
-        height: 24px;
+        height: 40px;
         margin-bottom: 0;
     }
 }
