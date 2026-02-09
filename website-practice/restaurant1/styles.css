@@ -1592,7 +1592,7 @@ body.order-type main h1 {
 
 @media (max-width: 768px) {
     body.order-type main h1 {
-        font-size: 21.375pt;
+        font-size: 18pt;
         line-height: 41px;
     }
     body.order-type main {
