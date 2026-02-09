@@ -158,17 +158,17 @@ body {
     body {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
         justify-content: flex-start;
         min-height: 0;
         min-width: 0;
     }
 
     body > * {
-        width: 88%;
-        max-width: 88%;
+        width: 100%;
+        max-width: 100%;
         min-width: 0;
-        margin: 0 auto;
+        margin: 0;
     }
 
     header,
@@ -180,7 +180,7 @@ body {
         box-sizing: border-box;
         width: 100% !important;
         max-width: 100% !important;
-        margin: 0 auto !important;
+        margin: 0 !important;
         padding-left: 0 !important;
         padding-right: 0 !important;
         overflow-x: hidden;
@@ -192,7 +192,10 @@ body {
         max-width: 100% !important;
         margin: 0 auto !important;
         padding: 0;
-        overflow-x: hidden;
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .content-wrapper * {
@@ -222,6 +225,7 @@ body {
         margin: 8px auto 0 !important;
         padding-right: 10px !important;
         padding-left: 10px !important;
+        overflow: visible;
         overflow-wrap: anywhere;
         word-break: break-word;
         hyphens: auto;
