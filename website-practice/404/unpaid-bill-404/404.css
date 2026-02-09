@@ -203,9 +203,13 @@ body {
         padding-left: 0;
         padding-right: 0;
         overflow-x: hidden;
-        overflow-wrap: anywhere;
-        word-break: break-word;
-        hyphens: auto;
+        overflow-wrap: break-word;
+        word-break: normal;
+        hyphens: none;
+    }
+
+    .phone-nowrap {
+        white-space: nowrap;
     }
 
     .header2-h2 {
