@@ -149,7 +149,7 @@ body {
     body {
         width: 100%;
         max-width: 100%;
-        min-height: 100vh;
+        min-height: 0;
         margin: 0;
         padding: 0;
         overflow-x: hidden !important;
@@ -160,6 +160,7 @@ body {
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
+        min-height: 0;
         min-width: 0;
     }
 
@@ -216,8 +217,8 @@ body {
     .header1-p,
     .header3-h3,
     .header3-p {
-        width: 100% !important;
-        max-width: 100% !important;
+        width: 76% !important;
+        max-width: 76% !important;
         margin: 8px auto 0 !important;
         padding-right: 10px !important;
         padding-left: 10px !important;
@@ -227,25 +228,25 @@ body {
     }
 
     .header2-h2 {
-        padding: 8px 10px !important;
-        border-radius: 12px !important;
+        padding: 6px 8px !important;
+        border-radius: 10px !important;
         line-height: 1.15 !important;
     }
 
     .header2-h2 b {
-        font-size: clamp(0.98rem, 6vw, 1.35rem) !important;
+        font-size: clamp(0.9rem, 5.2vw, 1.15rem) !important;
     }
 
     .header1-h1 {
-        padding: 7px 10px !important;
-        font-size: clamp(0.92rem, 6.6vw, 1.2rem) !important;
+        padding: 6px 8px !important;
+        font-size: clamp(0.86rem, 5.6vw, 1.05rem) !important;
         line-height: 1.15 !important;
     }
 
     .header1-p {
-        padding-top: 8px !important;
-        padding-bottom: 8px !important;
-        font-size: clamp(0.7rem, 3.4vw, 0.82rem) !important;
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+        font-size: clamp(0.64rem, 3vw, 0.75rem) !important;
         line-height: 1.15 !important;
     }
 
@@ -256,23 +257,31 @@ body {
     }
 
     .header3-p {
-        padding-top: 8px !important;
-        padding-bottom: 8px !important;
-        font-size: clamp(0.68rem, 3.2vw, 0.78rem) !important;
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+        font-size: clamp(0.62rem, 2.8vw, 0.72rem) !important;
         line-height: 1.18 !important;
+        margin-bottom: 0 !important;
     }
 
     #rectangle1 {
-        height: 36px;
+        height: 30px;
     }
 
     #rectangle3 {
         height: 10px;
-        margin-top: 6px;
+        margin-top: 0 !important;
     }
 
     #rectangle4 {
-        height: 30px;
+        height: 24px;
+        margin-bottom: 0 !important;
+    }
+
+    footer {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
     }
 }
 /* Section: 404 Unpaid Bill Styles */
