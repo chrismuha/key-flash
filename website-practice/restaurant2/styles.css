@@ -1558,6 +1558,10 @@ body.page3 #order-summary .summary-section-actions {
     flex-wrap: wrap;
 }
 
+body.page3 #order-summary .summary-section-actions .summary-qty-controls {
+    margin-left: 0;
+}
+
 body.page3 #order-summary .summary-section-qty {
     font-size: 11pt;
     color: var(--color-muted);
@@ -2152,6 +2156,14 @@ main .qty-control-increment:disabled {
 main .qty-control-decrement:not(:disabled):hover,
 main .qty-control-increment:not(:disabled):hover {
     transform: scale(1.05);
+}
+
+/* Larger hit targets for quantity controls in menu item section headers */
+main .menu-summary .qty-control-decrement,
+main .menu-summary .qty-control-increment {
+    width: 36px;
+    height: 36px;
+    font-size: 21pt;
 }
 
 body.theme-dark main .qty-controls {

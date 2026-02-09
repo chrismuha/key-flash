@@ -1606,15 +1606,22 @@
               lastPointerAdjustAt = performance.now();
               adjust(delta);
             };
-            btn.addEventListener('pointerdown', (evt) => {
-              if (evt.button != null && evt.button !== 0) return;
-              triggerAdjust(evt);
-            });
-            btn.addEventListener('touchstart', triggerAdjust, { passive: false });
+            if (window.PointerEvent) {
+              btn.addEventListener('pointerdown', (evt) => {
+                if (evt.button != null && evt.button !== 0) return;
+                triggerAdjust(evt);
+              });
+            } else {
+              btn.addEventListener('mousedown', (evt) => {
+                if (evt.button != null && evt.button !== 0) return;
+                triggerAdjust(evt);
+              });
+              btn.addEventListener('touchstart', triggerAdjust, { passive: false });
+            }
             btn.addEventListener('click', (evt) => {
               evt.preventDefault();
               evt.stopPropagation();
-              // Ignore synthetic click that follows pointerdown.
+              // Ignore synthetic click that follows pointer/touch/mouse press.
               if (performance.now() - lastPointerAdjustAt < 450) return;
               adjust(delta);
             });
@@ -1887,6 +1894,11 @@
         syncRequiredCheckboxes();
         updateBuilderError();
         updatePage3NavState();
+
+        if (groupingSection) {
+          setSectionQuantity(groupingSection, SECTION_QUANTITY_DEFAULT_MIN);
+          refreshSectionQuantityControls();
+        }
 
         if (resetDisables) {
           const section = groupingSection;
@@ -2398,8 +2410,9 @@
           const isQuantityDisable = quantityDisableTrigger && sec === quantityDisableTrigger;
           const keepOverlayOpenOnDisable = !!resetKeepOpen && (isResetDisable || isQuantityDisable);
           if (sec && !t.checked) {
-            // Closing a section resets its quantity to the configured minimum.
-            setSectionQuantity(sec, getQuantityMin());
+            // Reset-button disables should preserve the item quantity at x1.
+            const nextQty = isResetDisable ? SECTION_QUANTITY_DEFAULT_MIN : getQuantityMin();
+            setSectionQuantity(sec, nextQty);
             refreshSectionQuantityControls();
           }
           // If the user manually disables the section and the setting is on, lock it and close its overlay.
@@ -2530,7 +2543,6 @@
         btn.addEventListener('click', () => {
           if (!settingsOverlay) return;
           if (settingsOverlay.hidden) openSettings();
-          else closeSettings();
         });
       });
     }
@@ -2552,21 +2564,7 @@
       settingsCloseBtn.addEventListener('click', closeSettings);
     }
 
-    // Allow backdrop click to close settings (clicking the overlay but not the content)
-    if (settingsOverlay) {
-      settingsOverlay.addEventListener('click', (e) => {
-        if (e.target === settingsOverlay) {
-          closeSettings();
-        }
-      });
-    }
-
-    // Close on ESC for convenience
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' || e.key === 'Esc') {
-        closeSettings();
-      }
-    });
+    // Settings closes only via the dedicated close button.
 
     // initial sync
     syncMobileUiState();
@@ -2622,6 +2620,18 @@
         if (!redirectIfNoActiveSections()) {
           showCartToast(normalized, false);
         }
+      }
+
+      function handleAdjustSectionQuantity(section, delta) {
+        const normalized = String(section || '').toLowerCase();
+        const step = Number(delta);
+        if (!normalized || !Number.isFinite(step) || !step) return;
+        const current = Math.max(SECTION_QUANTITY_DEFAULT_MIN, getSectionQuantity(normalized));
+        const next = Math.min(SECTION_QUANTITY_MAX, Math.max(SECTION_QUANTITY_DEFAULT_MIN, current + step));
+        if (next === current) return;
+        setSectionQuantity(normalized, next);
+        renderOrderSummary();
+        if (typeof updatePage3NavState === 'function') updatePage3NavState();
       }
 
       function renderOrderSummary() {
@@ -2769,14 +2779,6 @@
             title.textContent = sec.charAt(0).toUpperCase() + sec.slice(1);
             header.appendChild(title);
 
-            if (SECTION_QUANTITY_SECTIONS.includes(sec)) {
-              const qtyValue = clampSectionQuantity(qtySections[sec]);
-              const qtyBadge = document.createElement('span');
-              qtyBadge.className = 'summary-section-qty';
-              qtyBadge.textContent = `(x${qtyValue})`;
-              header.appendChild(qtyBadge);
-            }
-
             const actions = document.createElement('div');
             actions.className = 'summary-section-actions';
             const edit = document.createElement('a');
@@ -2784,6 +2786,45 @@
             edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
             actions.appendChild(edit);
+
+            if (SECTION_QUANTITY_SECTIONS.includes(sec)) {
+              const qtyValue = Math.max(SECTION_QUANTITY_DEFAULT_MIN, clampSectionQuantity(qtySections[sec]));
+              const qtyWrap = document.createElement('span');
+              qtyWrap.className = 'qty-controls summary-qty-controls';
+
+              const qtyCount = document.createElement('span');
+              qtyCount.className = 'qty-controls-value summary-qty-value';
+              qtyCount.textContent = `(x${qtyValue})`;
+
+              const dec = document.createElement('button');
+              dec.type = 'button';
+              dec.className = 'qty-control-decrement summary-qty-decrement';
+              dec.textContent = '−';
+              dec.setAttribute('aria-label', `Decrease ${title.textContent} quantity`);
+              dec.disabled = qtyValue <= SECTION_QUANTITY_DEFAULT_MIN;
+              dec.addEventListener('click', (evt) => {
+                evt.preventDefault();
+                evt.stopPropagation();
+                handleAdjustSectionQuantity(sec, -1);
+              });
+
+              const inc = document.createElement('button');
+              inc.type = 'button';
+              inc.className = 'qty-control-increment summary-qty-increment';
+              inc.textContent = '+';
+              inc.setAttribute('aria-label', `Increase ${title.textContent} quantity`);
+              inc.disabled = qtyValue >= SECTION_QUANTITY_MAX;
+              inc.addEventListener('click', (evt) => {
+                evt.preventDefault();
+                evt.stopPropagation();
+                handleAdjustSectionQuantity(sec, 1);
+              });
+
+              qtyWrap.appendChild(qtyCount);
+              qtyWrap.appendChild(dec);
+              qtyWrap.appendChild(inc);
+              actions.appendChild(qtyWrap);
+            }
 
             const remove = document.createElement('button');
             remove.type = 'button';
