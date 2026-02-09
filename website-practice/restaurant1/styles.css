@@ -17,28 +17,22 @@
     --accent-strong: #28a745;
     --accent-deep: #1f7a2f;
     --rail-background: #dba37f;
-
     --surface: #fff;
     --surface-strong: #f7f7f7;
     --surface-muted: #eee;
     --surface-dark: #222;
     --surface-dark-strong: #111;
-
     --color-black: #000;
-
     --text-muted: #777;
     --text-muted-strong: #999;
-
     --border-strong: #444;
     --border-muted: #bbb;
     --border-soft: #ddd;
-
     --danger: #c00;
     --danger-strong: #a00000;
     --danger-highlight: #e53935;
     --danger-outline: #900;
     --danger-outline-strong: #600;
-
     --box-bg: var(--accent);
     --box-border: var(--color-black);
 }
@@ -457,6 +451,7 @@ body.nav-enabled.page2 main {
     body.page2 main {
         padding-top: calc(var(--gap) * 2 + var(--theme-overlay-clearance));
     }
+
     body.nav-enabled.page2 main {
         padding-top: calc(var(--gap) * 2 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
     }
@@ -995,6 +990,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     body.page2 main {
         padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance));
     }
+
     body.nav-enabled.page2 main {
         padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
     }
@@ -1592,21 +1588,40 @@ body.order-type main h1 {
 
 @media (max-width: 768px) {
     body.order-type main h1 {
-        font-size: 16.5pt;
+        font-size: 22.5pt !important;
         line-height: 1.2;
         white-space: nowrap;
         overflow-wrap: normal;
         word-break: normal;
         max-width: 100%;
     }
+
     body.nav-enabled.order-type main h1 {
-        font-size: clamp(16.5pt, 3.5vw, 19.5pt);
+        font-size: 20.5pt !important;
     }
+
     body.order-type main {
         padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance));
     }
+
     body.nav-enabled.order-type main {
         padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
+    }
+}
+
+@media (max-width: 430px) {
+    body.order-type main h1 {
+        font-size: 22.5pt !important;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow-wrap: normal;
+        word-break: normal;
+        max-width: 100%;
+    }
+
+    body.order-type main h1,
+    body.nav-enabled.order-type main h1 {
+        font-size: 16.5pt !important;
     }
 }
 
@@ -1971,6 +1986,7 @@ body.settings-open::before {
     body.settings-open::before {
         left: 0;
     }
+
     body.page2.settings-open .page-actions {
         width: 100%;
         left: 0 !important;
