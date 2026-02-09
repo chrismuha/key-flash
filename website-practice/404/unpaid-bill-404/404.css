@@ -4,6 +4,13 @@
     box-sizing: border-box;
 }
 
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 body {
     display: flex;
     flex-direction: column;
@@ -131,89 +138,141 @@ body {
 
 /* MOBILE OPTIMIZATION */
 @media screen and (max-width: 900px) {
-    body {
-        min-height: 100vh;
-        justify-content: flex-start;
-        overflow-x: hidden;
-        overflow-y: auto;
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        max-width: 100%;
     }
 
-    #rectangle1 {
-        height: 40px;
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden !important;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-width: 0;
+    }
+
+    body > * {
+        width: 88%;
+        max-width: 88%;
+        min-width: 0;
+        margin: 0 auto;
+    }
+
+    header,
+    footer,
+    #rectangle1,
+    #rectangle2,
+    #rectangle3,
+    #rectangle4 {
+        box-sizing: border-box;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        overflow-x: hidden;
     }
 
     .content-wrapper {
-        width: 92%;
-        margin: 0 auto;
-        padding-top: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+        box-sizing: border-box;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto !important;
+        padding: 0;
+        overflow-x: hidden;
     }
 
-    .header2-h2 {
-        width: 100%;
-        margin: 0 auto !important;
+    .content-wrapper * {
+        box-sizing: border-box;
+        max-width: 100%;
+        min-width: 0;
     }
 
     .logo-container {
-        width: min(170px, 52vw);
+        width: min(160px, 45vw);
+        margin: 0 auto;
         padding-top: 6px;
         padding-bottom: 6px;
     }
 
     #rectangle2 img {
-        max-width: 170px;
+        max-width: 160px;
+    }
+
+    .header2-h2,
+    .header1-h1,
+    .header1-p,
+    .header3-h3,
+    .header3-p {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 8px auto 0 !important;
+        padding-right: 10px !important;
+        padding-left: 10px !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        hyphens: auto;
     }
 
     .header2-h2 {
         padding: 8px 10px !important;
-        border-radius: 14px !important;
+        border-radius: 12px !important;
         line-height: 1.15 !important;
     }
 
     .header2-h2 b {
-        font-size: clamp(1rem, 6.4vw, 1.45rem) !important;
+        font-size: clamp(0.98rem, 6vw, 1.35rem) !important;
     }
 
     .header1-h1 {
         padding: 7px 10px !important;
-        font-size: clamp(0.95rem, 7.2vw, 1.3rem) !important;
+        font-size: clamp(0.92rem, 6.6vw, 1.2rem) !important;
         line-height: 1.15 !important;
-        margin: 0 auto !important;
     }
 
     .header1-p {
-        padding: 9px !important;
-        font-size: clamp(0.72rem, 3.6vw, 0.86rem) !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        font-size: clamp(0.7rem, 3.4vw, 0.82rem) !important;
         line-height: 1.15 !important;
-        margin: 0 auto !important;
     }
 
     .header3-h3 {
-        font-size: clamp(0.92rem, 6vw, 1.15rem) !important;
+        font-size: clamp(0.88rem, 5.2vw, 1.05rem) !important;
         line-height: 1.15 !important;
         padding: 6px 8px 0 !important;
-        margin: 0 auto !important;
     }
 
     .header3-p {
-        padding: 8px !important;
-        font-size: clamp(0.7rem, 3.4vw, 0.82rem) !important;
-        line-height: 1.2 !important;
-        margin: 0 auto !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        font-size: clamp(0.68rem, 3.2vw, 0.78rem) !important;
+        line-height: 1.18 !important;
+    }
+
+    #rectangle1 {
+        height: 36px;
     }
 
     #rectangle3 {
-        height: 12px;
+        height: 10px;
+        margin-top: 6px;
     }
 
     #rectangle4 {
-        height: 34px;
-    }
-
-    footer {
-        margin-top: 8px;
+        height: 30px;
     }
 }
 /* Section: 404 Unpaid Bill Styles */
