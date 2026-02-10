@@ -1627,6 +1627,29 @@
         };
         window.addEventListener('resize', handleResize);
         window.requestAnimationFrame(handleResize);
+
+        let sliderScrollRaf = null;
+        const updateStartFromScroll = () => {
+          if (!sliderTrack || !sliderChips.length) return;
+          const sl = sliderTrack.scrollLeft || 0;
+          const trackStyle = getComputedStyle(sliderTrack);
+          const paddingLeft = parseFloat(trackStyle.paddingLeft) || 0;
+
+          let idx = 0;
+          for (let i = 0; i < sliderChips.length; i++) {
+            const chip = sliderChips[i];
+            const left = chip.offsetLeft - paddingLeft;
+            if (left <= sl + 1) idx = i;
+            else break;
+          }
+          sliderState.start = Math.min(Math.max(0, idx), sliderState.maxStart || 0);
+          if (sliderPrev) sliderPrev.disabled = sliderState.start === 0;
+          if (sliderNext) sliderNext.disabled = sliderState.start >= sliderState.maxStart;
+        };
+        sliderTrack.addEventListener('scroll', () => {
+          if (sliderScrollRaf) cancelAnimationFrame(sliderScrollRaf);
+          sliderScrollRaf = requestAnimationFrame(updateStartFromScroll);
+        }, { passive: true });
       }
       const moveBackButtonToOverlay = (overlay) => {
         if (!backToMenuBtn || !overlay) return;
