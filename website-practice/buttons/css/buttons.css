@@ -3,8 +3,12 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
+    padding: 16px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    background: #d3d3d3;
 }
 
 /* flex container for buttons */
@@ -12,22 +16,32 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 80px;
+    gap: clamp(20px, 6vw, 80px);
+    width: 100%;
+    max-width: 920px;
+    flex-wrap: nowrap;
 }
 
 /* classes for both buttons to be the same */
 .button1,
 .button2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    font-size: 18pt;
-    line-height: 0px;
-    min-width: 20px;
-    min-height: 20px;
-    max-width: 200px;
-    max-height: 200px;
+    width: min(42vw, 240px);
+    min-height: 110px;
+    padding: 10px 14px;
     border-radius: 20px;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    box-sizing: border-box;
+}
+
+.button1 h1,
+.button2 h1 {
+    margin: 0;
+    font-size: 33pt;
+    line-height: 1.05;
+    white-space: nowrap;
 }
 
 /* classes for individual styling */
@@ -37,7 +51,10 @@ body {
     border: 10px solid #000000;
     outline: 10px solid #ffff00;
     background-color: #ff0000;
-    margin-right: 80px;
+}
+
+.button1 h1 {
+    color: #0000ff;
 }
 
 .button2 {
@@ -45,21 +62,33 @@ body {
     border: 10px solid #800080;
     outline: 10px solid #adff2f;
     background-color: #0000ff;
-    margin-left: 80px;
+}
+
+.button2 h1 {
+    color: #ff0000;
 }
 
 /* mobile optimization */
-/* @media (max-width: 600px) {
+@media (max-width: 700px) {
     .button-container {
         flex-direction: column;
-        gap: 20px;
+        gap: 24px;
     }
 
     .button1,
     .button2 {
-        width: 80%;
-        max-width: 180px;
-        font-size: 16pt;
+        width: min(88vw, 340px);
+    }
+
+    .button1 h1,
+    .button2 h1 {
+        font-size: 24pt;
     }
 }
-*/
+
+@media (max-width: 420px) {
+    .button1 h1,
+    .button2 h1 {
+        font-size: 20pt;
+    }
+}

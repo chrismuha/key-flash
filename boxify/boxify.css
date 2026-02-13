@@ -367,7 +367,7 @@ body.dark-mode #settings-backdrop {
 }
 
 /* Settings / Reorder buttons */
-#open-settings, #toggle-jiggle {
+#open-settings, #toggle-jiggle, #toggle-theme {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -381,41 +381,26 @@ body.dark-mode #settings-backdrop {
   transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
 }
 
-#open-settings:hover, #toggle-jiggle:hover {
+#open-settings:hover, #toggle-jiggle:hover, #toggle-theme:hover {
   filter: brightness(1.1);
   transform: translateY(-1px);
   box-shadow: 0 14px 25px rgba(31, 152, 255, 0.35);
 }
 
-#open-settings:active, #toggle-jiggle:active {
+#open-settings:active, #toggle-jiggle:active, #toggle-theme:active {
   transform: translateY(1px);
   box-shadow: 0 6px 12px rgba(31, 152, 255, 0.4);
 }
 
 #toggle-theme {
-  border: 1px solid var(--border-color);
-  background: rgba(255,255,255,0.15);
-  color: var(--text-color);
   min-width: 144px;
   justify-content: center;
-  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
-  font: 600 14px/1 "Segoe UI", Arial, sans-serif;
-  display: inline-flex;
-  align-items: center;
   gap: 0.35rem;
 }
 
 #toggle-theme i.bi {
   font-size: 15px;
   line-height: 1;
-}
-
-#toggle-theme:hover {
-  background: rgba(255,255,255,0.25);
-}
-
-#toggle-theme:active {
-  transform: translateY(1px);
 }
 
 /* Live Actions Layout */
@@ -484,14 +469,4 @@ body.dark-mode #reset-all {
 body.dark-mode #remove-all-live {
   background: #dc2626;
   color: #fff;
-}
-
-body.dark-mode #toggle-theme {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(148, 163, 184, 0.6);
-  color: #f8fafc;
-}
-
-body.dark-mode #toggle-theme:hover {
-  background: rgba(255, 255, 255, 0.15);
 }
