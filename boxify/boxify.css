@@ -405,6 +405,11 @@ body.dark-mode #settings-backdrop {
   gap: 0.35rem;
 }
 
+#toggle-theme i.bi {
+  font-size: 15px;
+  line-height: 1;
+}
+
 #toggle-theme:hover {
   background: rgba(255,255,255,0.25);
 }

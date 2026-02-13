@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Boxify Demo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
   <link rel="stylesheet" href="boxify.css" />
   <style>
     /* Settings drag handle visual */
@@ -84,7 +85,10 @@
       ⚙️ Settings
     </button>
     <button id="toggle-jiggle" type="button" aria-pressed="false" title="Reorder boxes (drag or use arrow keys)">Reorder</button>
-    <button id="toggle-theme" type="button" aria-pressed="false" title="Switch between light and dark mode">Dark Mode</button>
+    <button id="toggle-theme" type="button" aria-pressed="false" title="Switch to dark mode" aria-label="Switch to dark mode">
+      <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
+      <span class="theme-toggle-label">Dark Mode</span>
+    </button>
   </div>
 
   <div id="settings-backdrop" hidden></div>
@@ -594,12 +598,21 @@
     (function () {
       const STORAGE_KEY = "boxify.theme";
       const btn = document.getElementById("toggle-theme");
+      const icon = btn ? btn.querySelector("i.bi") : null;
+      const label = btn ? btn.querySelector(".theme-toggle-label") : null;
       function setTheme(mode, persist = false) {
         const dark = mode === "dark";
         document.body.classList.toggle("dark-mode", dark);
         if (btn) {
           btn.setAttribute("aria-pressed", dark ? "true" : "false");
-          btn.textContent = dark ? "Light Mode" : "Dark Mode";
+          const nextLabel = dark ? "Light Mode" : "Dark Mode";
+          const nextTitle = dark ? "Switch to light mode" : "Switch to dark mode";
+          btn.setAttribute("title", nextTitle);
+          btn.setAttribute("aria-label", nextTitle);
+          if (label) label.textContent = nextLabel;
+          if (icon) {
+            icon.className = `bi ${dark ? "bi-sun-fill" : "bi-moon-stars-fill"}`;
+          }
         }
         if (persist) {
           try { localStorage.setItem(STORAGE_KEY, dark ? "dark" : "light"); } catch { }

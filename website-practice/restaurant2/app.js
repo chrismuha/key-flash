@@ -2400,6 +2400,17 @@
         updateBuilderError();
         updatePage3NavState();
         refreshSectionQuantityControls();
+        const activeEl = document.activeElement;
+        if (
+          activeEl instanceof HTMLElement
+          && (
+            activeEl.classList.contains('menu-launch')
+            || activeEl.classList.contains('menu-launch-arrow')
+            || activeEl.closest('.menu-launch')
+          )
+        ) {
+          activeEl.blur();
+        }
       }
 
       // Attach pill/arrow handlers
