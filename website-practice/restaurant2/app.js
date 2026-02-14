@@ -2374,6 +2374,12 @@
         resetSectionQuantitiesToDefaults();
         resetSettingsToDefaults();
         if (typeof closeAllOverlays === 'function') closeAllOverlays();
+        menuLaunchButtons.forEach((btn) => {
+          btn.classList.remove('menu-launch-active');
+          btn.setAttribute('aria-expanded', 'false');
+          const arrowIcon = btn.querySelector('.menu-launch-arrow .icon');
+          if (arrowIcon) arrowIcon.textContent = '▸';
+        });
         INGREDIENT_GROUPS.forEach((group) => resetGroupByName(group, { skipConfirm: true }));
         pizzaSizeRadios.forEach((radio) => {
           radio.checked = radio.value === DEFAULT_PIZZA_SIZE;
