@@ -1062,7 +1062,8 @@
 
     const updateFooterNextState = () => {
       if (!footerNext) return;
-      if (page3NavEnabled) {
+      const hasDoneItems = hasMenuSelection();
+      if (page3NavEnabled || hasDoneItems) {
         footerNext.removeAttribute('aria-disabled');
         footerNext.classList.remove('next-disabled');
       } else {
@@ -2001,7 +2002,8 @@
           page3NavEnabled = state.enablePage3;
           page3NavBlockedMessage = state.generalMessage;
           updateFooterNextState();
-          if (!page3NavEnabled) {
+          const hasDoneItems = hasMenuSelection();
+          if (!page3NavEnabled && !hasDoneItems) {
             event.preventDefault();
             if (builderError) {
               builderError.hidden = false;
@@ -2454,7 +2456,6 @@
         updatePage3NavState();
 
         if (groupingSection) {
-          setSectionQuantity(groupingSection, SECTION_QUANTITY_DEFAULT_MIN);
           refreshSectionQuantityControls();
         }
 
@@ -3110,9 +3111,10 @@
             }
           }
           if (sec && !t.checked) {
-            // Reset-button disables should preserve the item quantity at x1.
-            const nextQty = isResetDisable ? SECTION_QUANTITY_DEFAULT_MIN : getQuantityMin();
-            setSectionQuantity(sec, nextQty);
+            // Reset-triggered disables preserve quantity; all other disables use x0.
+            if (!isResetDisable) {
+              setSectionQuantity(sec, 0);
+            }
             refreshSectionQuantityControls();
           }
           // If the user manually disables the section and the setting is on, lock it and close its overlay.

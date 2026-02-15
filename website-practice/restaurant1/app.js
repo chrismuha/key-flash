@@ -2177,16 +2177,8 @@
       const saveQtySections = () => { try { localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections)); } catch { } };
       const saveQtyMap = () => { try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { } };
       const SECTION_QTY_KEYS = ['pizza', 'burger', 'calzone', 'chicken_wings', 'salad', 'sub', 'wrap'];
-      const SECTION_DEFAULT_QTY_BY_SECTION = { calzone: 1, salad: 1 };
+      const SECTION_DEFAULT_QTY_BY_SECTION = {};
       const getSectionDefaultQty = (sec) => Object.prototype.hasOwnProperty.call(SECTION_DEFAULT_QTY_BY_SECTION, sec) ? SECTION_DEFAULT_QTY_BY_SECTION[sec] : 0;
-      // Normalize legacy saved value: salad used to initialize as 0; keep it at 1 by default.
-      try {
-        const saladQty = parseInt(qtySections.salad, 10) || 0;
-        if (!Object.prototype.hasOwnProperty.call(qtySections, 'salad') || saladQty <= 0) {
-          qtySections.salad = 1;
-          saveQtySections();
-        }
-      } catch { }
       const syncSectionQtyControlVisibility = () => {
         SECTION_QTY_KEYS.forEach((sec) => {
           const sectionEl = document.getElementById(sec);
@@ -2583,6 +2575,7 @@
       // Restore previously saved active sections (so Go Back preserves state)
       let activeSections = {};
       try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
+      let resetDisableTrigger = '';
       toggles.forEach((t) => {
         const section = t.dataset.section;
         const d = detailsBySection[section];
@@ -2596,6 +2589,7 @@
         t.addEventListener('click', (ev) => { ev.stopPropagation(); });
         t.addEventListener('change', (evt) => {
           const d2 = detailsBySection[section];
+          const isResetDisable = resetDisableTrigger && section === resetDisableTrigger;
           if (t.checked && d2) {
             // Enforce required when activating
             d2.querySelectorAll('input[type="checkbox"][data-required="true"]').forEach((cb) => { cb.checked = true; });
@@ -2626,17 +2620,30 @@
             // Auto-collapse is optional (controlled by setting)
             // If the menu item (section) is not selected, its quantity becomes 0
             if (SECTION_QTY_KEYS.includes(section)) {
-              try {
-                let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
-                const currentQty = parseInt(qtySections[section] || '0', 10) || 0;
-                if (!resetOnDeselect && t.dataset) {
-                  t.dataset.lastQty = String(Math.max(1, currentQty || 1));
-                }
-                qtySections[section] = resetOnDeselect ? 1 : 0;
-                localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections));
-              } catch { }
+              if (!isResetDisable) {
+                try {
+                  let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
+                  const currentQty = parseInt(qtySections[section] || '0', 10) || 0;
+                  if (!resetOnDeselect && t.dataset) {
+                    t.dataset.lastQty = String(Math.max(1, currentQty || 1));
+                  }
+                  qtySections[section] = 0;
+                  localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections));
+                } catch { }
+              }
               const sum = d2.querySelector('.menu-summary .qty-controls span');
-              if (sum) sum.textContent = `(x${resetOnDeselect ? 1 : 0})`;
+              if (sum) {
+                if (isResetDisable) {
+                  let kept = 0;
+                  try {
+                    const qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
+                    kept = parseInt(qs[section] || '0', 10) || 0;
+                  } catch { kept = 0; }
+                  sum.textContent = `(x${kept})`;
+                } else {
+                  sum.textContent = '(x0)';
+                }
+              }
             }
             collapseSectionIfInactive(section);
           }
@@ -2825,7 +2832,7 @@
             const selectedCount = document.querySelectorAll(`input[type="checkbox"][name="${section}_ingredients[]"]:checked`).length;
             return selectedCount === 0;
           });
-        const okMenu = (anySectionActive || hasDoneItems) && missingSections.length === 0;
+        const okMenu = hasDoneItems || (anySectionActive && missingSections.length === 0);
         if (okMenu) {
           pageNextButton.removeAttribute('aria-disabled');
           pageNextButton.removeAttribute('tabindex');
@@ -2853,9 +2860,9 @@
         let message = '';
         if (!anySectionActive && !hasDoneItems) {
           message = 'Select at least one menu item.';
-        } else if (missingSections.length === 1) {
+        } else if (!hasDoneItems && missingSections.length === 1) {
           message = `Select at least one ingredient for ${titleCase(missingSections[0].replace(/_/g, ' '))}.`;
-        } else if (missingSections.length > 1) {
+        } else if (!hasDoneItems && missingSections.length > 1) {
           message = 'Select at least one ingredient for each selected menu item.';
         }
         // Clear previous invalid highlights
@@ -3017,23 +3024,20 @@
             const d2 = document.getElementById(section);
             const toggle = d2 ? d2.querySelector('.section-toggle') : null;
             if (toggle && toggle.checked) {
-              toggle.checked = false;
-              toggle.dispatchEvent(new Event('change', { bubbles: true }));
+              resetDisableTrigger = section;
+              try {
+                toggle.checked = false;
+                toggle.dispatchEvent(new Event('change', { bubbles: true }));
+              } finally {
+                resetDisableTrigger = '';
+              }
             }
             try {
               let act = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}');
               act[section] = false;
               localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
             } catch { }
-            if (SECTION_QTY_KEYS.includes(section)) {
-              try {
-                let qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
-                qs[section] = 0;
-                localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qs));
-              } catch { }
-              const sum = d2 && d2.querySelector('.menu-summary .qty-controls span');
-              if (sum) sum.textContent = `(x0)`;
-            } else if (section === 'sauces') {
+            if (section === 'sauces') {
               try {
                 let qm = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}');
                 Object.keys(qm).forEach((k) => { if (k.startsWith('sauces_ingredients[]|')) qm[k] = 0; });
@@ -3128,9 +3132,9 @@
           let message = '';
           if (!anySectionActive && !hasDoneItems) {
             message = 'Select at least one menu item.';
-          } else if (missingSections.length === 1) {
+          } else if (!hasDoneItems && missingSections.length === 1) {
             message = `Select at least one ingredient for ${titleCase(missingSections[0].replace(/_/g, ' '))}.`;
-          } else if (missingSections.length > 1) {
+          } else if (!hasDoneItems && missingSections.length > 1) {
             message = 'Select at least one ingredient for each selected menu item.';
           }
           if (message) {
