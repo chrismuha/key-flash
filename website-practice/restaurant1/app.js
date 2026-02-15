@@ -3016,19 +3016,6 @@
         const qtyLabelMap = { 1: 'Regular', 2: 'Light', 3: 'Extra', 4: 'x3' };
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
 
-        // OLD SECTION (kept for reference): previous menu-item -> order-summary logic
-        // This older behavior listed every group with selected ingredients, even when the
-        // menu section toggle was off or the section quantity was zero.
-        //
-        // const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
-        // nonEmpty.forEach(([group, values]) => {
-        //   const key = group.replace(/_ingredients\[\]$/, '');
-        //   const prettyGroup = key.replace(/_/g, ' ');
-        //   // Old behavior: no activeSections check
-        //   // Old behavior: no SECTION_QTY_KEYS zero-quantity check
-        //   // Result: added items could still appear in summary after section deselection
-        // });
-
         if (entries.length === 0 || nonEmpty.length === 0) {
           const none = document.createElement('p');
           none.textContent = 'No ingredients selected yet.';
@@ -3039,14 +3026,6 @@
           nonEmpty.forEach(([group, values]) => {
             const key = group.replace(/_ingredients\[\]$/, '');
             const prettyGroup = key.replace(/_/g, ' ');
-
-            // OLD SECTION (kept for reference): querySelector-based active lookup
-            // const sectionToggle = document.querySelector(`.section-toggle[data-section="${key}"]`);
-            // const isActive = sectionToggle ? sectionToggle.checked : !!activeSections[key];
-            // if (!isActive) return;
-
-            // OLD SECTION (kept for reference): active map lookup
-            // if (!activeSections[key]) return;
 
             // Skip categories that are not active (checkbox not selected on Page 2)
             if (!activeSections[key]) return;
