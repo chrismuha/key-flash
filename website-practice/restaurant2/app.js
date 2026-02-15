@@ -1593,6 +1593,14 @@
         if (!sliderTrack || !sliderChips.length) return;
         const targetIndex = Math.min(sliderState.start, sliderChips.length - 1);
         const targetChip = sliderChips[targetIndex];
+        const syncSliderArrowDisabledState = () => {
+          if (!sliderTrack) return;
+          const sl = sliderTrack.scrollLeft || 0;
+          const maxScroll = Math.max(0, sliderTrack.scrollWidth - sliderTrack.clientWidth);
+          const canScroll = maxScroll > 1;
+          if (sliderPrev) sliderPrev.disabled = !canScroll || sl <= 1;
+          if (sliderNext) sliderNext.disabled = !canScroll || sl >= (maxScroll - 1);
+        };
         
         if (sliderState.start === 0) {
           sliderTrack.scrollLeft = 0;
@@ -1606,8 +1614,7 @@
           }
           sliderTrack.scrollLeft = Math.max(0, offset);
         }
-        if (sliderPrev) sliderPrev.disabled = sliderState.start === 0;
-        if (sliderNext) sliderNext.disabled = sliderState.start >= sliderState.maxStart;
+        syncSliderArrowDisabledState();
       };
 
       const moveSlider = (delta) => {
@@ -1646,12 +1653,45 @@
         renderSliderWindow();
       };
 
-      if (sliderPrev) {
-        sliderPrev.addEventListener('click', () => moveSlider(-1));
-      }
-      if (sliderNext) {
-        sliderNext.addEventListener('click', () => moveSlider(1));
-      }
+      const bindSliderArrow = (btn, delta) => {
+        if (!btn) return;
+        let lastPointerMoveAt = 0;
+        const runMove = (evt) => {
+          if (evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+          }
+          ensureSliderAlignment();
+          moveSlider(delta);
+        };
+        if (window.PointerEvent) {
+          btn.addEventListener('pointerdown', (evt) => {
+            if (evt.button != null && evt.button !== 0) return;
+            lastPointerMoveAt = performance.now();
+            runMove(evt);
+          });
+        } else {
+          btn.addEventListener('mousedown', (evt) => {
+            if (evt.button != null && evt.button !== 0) return;
+            lastPointerMoveAt = performance.now();
+            runMove(evt);
+          });
+          btn.addEventListener('touchstart', (evt) => {
+            lastPointerMoveAt = performance.now();
+            runMove(evt);
+          }, { passive: false });
+        }
+        btn.addEventListener('click', (evt) => {
+          if (performance.now() - lastPointerMoveAt < 450) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            return;
+          }
+          runMove(evt);
+        });
+      };
+      bindSliderArrow(sliderPrev, -1);
+      bindSliderArrow(sliderNext, 1);
       if (footerNext) {
         footerNext.addEventListener('click', (event) => {
           if (nextClosesOverlay && typeof anyOverlayOpen === 'function' && anyOverlayOpen()) {
@@ -1700,6 +1740,7 @@
         const updateStartFromScroll = () => {
           if (!sliderTrack || !sliderChips.length) return;
           const sl = sliderTrack.scrollLeft || 0;
+          const maxScroll = Math.max(0, sliderTrack.scrollWidth - sliderTrack.clientWidth);
           const trackStyle = getComputedStyle(sliderTrack);
           const paddingLeft = parseFloat(trackStyle.paddingLeft) || 0;
 
@@ -1711,8 +1752,8 @@
             else break;
           }
           sliderState.start = Math.min(Math.max(0, idx), sliderState.maxStart || 0);
-          if (sliderPrev) sliderPrev.disabled = sliderState.start === 0;
-          if (sliderNext) sliderNext.disabled = sliderState.start >= sliderState.maxStart;
+          if (sliderPrev) sliderPrev.disabled = maxScroll <= 1 || sl <= 1;
+          if (sliderNext) sliderNext.disabled = maxScroll <= 1 || sl >= (maxScroll - 1);
         };
         sliderTrack.addEventListener('scroll', () => {
           if (sliderScrollRaf) cancelAnimationFrame(sliderScrollRaf);
