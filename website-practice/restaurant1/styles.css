@@ -1218,7 +1218,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         z-index: 2; 
     } */
 
-    /* When controls are moved to body (see app.js), make sure they render above blur and are fixed in place */
+    /* When controls are moved to body (see main.js), make sure they render above blur and are fixed in place */
     .moved-to-body {
         position: fixed !important;
         z-index: 1200 !important;

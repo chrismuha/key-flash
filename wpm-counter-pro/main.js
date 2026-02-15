@@ -10,7 +10,7 @@ function createMainWindow() {
         height: 750,
         webPreferences: {
             contextIsolation: true,
-            preload: path.join(__dirname, "preload.js")
+            preload: path.join(__dirname, "preload/main.js")
         }
     });
 
@@ -34,7 +34,7 @@ function createOverlayWindow() {
         autoHideMenuBar: true,
         webPreferences: {
             contextIsolation: true,
-            preload: path.join(__dirname, "preload.js")
+            preload: path.join(__dirname, "preload/main.js")
         }
     });
 

@@ -3865,7 +3865,7 @@
    App merged fixes: "pill arrow only" behavior for both
    - .menu-launch[data-target] "pills"
    - <summary class="menu-summary"> inside <details>
-   This file augments existing app.js behavior to ensure menus only
+   This file augments existing main.js behavior to ensure menus only
    open when the arrow is activated if the global setting
    `window.pillArrowOnly` (or a checkbox with class `.setting-pill-arrow-only`)
    is enabled.
