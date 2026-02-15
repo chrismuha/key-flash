@@ -1839,6 +1839,40 @@ body.page3 #order-summary .summary-remove-btn:focus-visible {
     outline: 2px solid var(--color-oxblood);
 }
 
+body.page3 #order-summary .summary-inline-editor {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--color-white) 92%, var(--accent) 8%);
+}
+
+body.page3 #order-summary .summary-inline-editor-list {
+    display: grid;
+    gap: 6px;
+}
+
+body.page3 #order-summary .summary-inline-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+body.page3 #order-summary .summary-inline-editor-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+body.page3 #order-summary .summary-inline-save-btn,
+body.page3 #order-summary .summary-inline-cancel-btn {
+    border-radius: 6px;
+    border: 1px solid var(--border-strong);
+    padding: 6px 10px;
+    font: inherit;
+    font-weight: 700;
+}
+
 /* Section: Page 1 Order Type */
 body.order-type main {
     text-align: center;

@@ -26,7 +26,8 @@
     settingsNextClosesOverlay: 'restaurant.settings.nextClosesOverlay',
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantities.sections',
-    pizzaSize: 'restaurant.pizza.size'
+    pizzaSize: 'restaurant.pizza.size',
+    ingredientCatalog: 'restaurant.ingredientCatalog'
   };
 
   // Section: Text Utils
@@ -82,6 +83,55 @@
       });
     });
     return normalized;
+  }
+
+  function getSectionFromGroupName(group) {
+    if (!group) return '';
+    return String(group).replace(/_ingredients\[\]$/, '');
+  }
+
+  function extractIngredientLabel(input) {
+    if (!input) return '';
+    const label = input.closest('label') || document.querySelector(`label[for="${input.id}"]`);
+    if (!label) return titleCase(input.value || '');
+    const clone = label.cloneNode(true);
+    clone.querySelectorAll('input, select, .sauce-qty, .qty-controls, button').forEach((el) => el.remove());
+    let txt = (clone.textContent || '').replace(/\s+/g, ' ').trim();
+    if (!txt) txt = titleCase(input.value || '');
+    return normalizeJalapenoLabel(stripInlineQty(txt));
+  }
+
+  function buildIngredientCatalogFromDOM() {
+    const catalog = {};
+    const inputs = document.querySelectorAll('input[type="checkbox"][name$="_ingredients[]"]');
+    inputs.forEach((input) => {
+      const group = input.getAttribute('name');
+      const section = getSectionFromGroupName(group);
+      if (!group || !section) return;
+      if (!catalog[section]) catalog[section] = [];
+      const value = normalizeJalapenoValue(input.value);
+      const label = extractIngredientLabel(input);
+      const required = input.dataset && input.dataset.required === 'true';
+      if (catalog[section].some((item) => item && item.value === value)) return;
+      catalog[section].push({ group, value, label, required });
+    });
+    return catalog;
+  }
+
+  function saveIngredientCatalogFromDOM() {
+    try {
+      const catalog = buildIngredientCatalogFromDOM();
+      localStorage.setItem(STORAGE_KEYS.ingredientCatalog, JSON.stringify(catalog));
+    } catch { }
+  }
+
+  function loadIngredientCatalogFromStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.ingredientCatalog);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch { return {}; }
   }
 
   function getSelectChoiceText(label) {
@@ -1617,6 +1667,7 @@
 
     // [H2] PAGE 2: MENU BUILDER
     if (body.classList.contains('page2')) {
+      saveIngredientCatalogFromDOM();
       // Restore previous selections
       restoreIngredients();
       // Restore saved pizza size and attach change handlers to save when changed
@@ -1852,15 +1903,8 @@
         updateSwiperArrows();
       };
       const syncMenuLaunchState = () => {
-        const activeLookup = {};
-        document.querySelectorAll('.section-toggle').forEach((toggle) => {
-          const sec = toggle.dataset.section;
-          if (sec) activeLookup[sec] = toggle.checked;
-        });
         menuLaunchButtons.forEach((btn) => {
-          const target = btn.getAttribute('data-target');
-          const isActive = target ? !!activeLookup[target] : false;
-          btn.classList.toggle('menu-launch-active', isActive);
+          btn.classList.remove('menu-launch-active');
         });
       };
       const ensureMenuLaunchArrow = (btn) => {
@@ -2987,8 +3031,8 @@
             listTitle.textContent = prettyGroup.charAt(0).toUpperCase() + prettyGroup.slice(1);
             header.appendChild(listTitle);
 
-            const edit = document.createElement('a');
-            edit.href = `page2.html#${key}`;
+            const edit = document.createElement('button');
+            edit.type = 'button';
             edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
             header.appendChild(edit);
@@ -3208,6 +3252,84 @@
               ul.appendChild(li);
             });
             sectionWrap.appendChild(ul);
+
+            const catalog = loadIngredientCatalogFromStorage();
+            const sectionOptions = Array.isArray(catalog[key]) ? catalog[key] : [];
+            const options = sectionOptions.length
+              ? sectionOptions
+              : values.map((item) => {
+                const value = typeof item === 'string' ? item : (item && item.value ? item.value : '');
+                const label = typeof item === 'string' ? titleCase(value) : (item && item.label ? item.label : titleCase(value));
+                return { group, value, label, required: false };
+              });
+            const selectedSet = new Set(
+              values
+                .map((item) => (typeof item === 'string' ? item : (item && item.value ? item.value : '')))
+                .filter(Boolean)
+            );
+            const editor = document.createElement('div');
+            editor.className = 'summary-inline-editor';
+            editor.hidden = true;
+            const editorList = document.createElement('div');
+            editorList.className = 'summary-inline-editor-list';
+            options.forEach((opt, idx) => {
+              if (!opt || !opt.value) return;
+              const id = `summary-edit-${key}-${idx}`;
+              const row = document.createElement('label');
+              row.className = 'summary-inline-option';
+              row.setAttribute('for', id);
+              const cb = document.createElement('input');
+              cb.type = 'checkbox';
+              cb.id = id;
+              cb.value = opt.value;
+              const isRequired = !!opt.required;
+              cb.checked = isRequired || selectedSet.has(opt.value);
+              if (isRequired) cb.disabled = true;
+              const text = document.createElement('span');
+              text.textContent = opt.label || titleCase(opt.value);
+              row.appendChild(cb);
+              row.appendChild(text);
+              editorList.appendChild(row);
+            });
+            editor.appendChild(editorList);
+            const editorActions = document.createElement('div');
+            editorActions.className = 'summary-inline-editor-actions';
+            const saveBtn = document.createElement('button');
+            saveBtn.type = 'button';
+            saveBtn.className = 'summary-inline-save-btn';
+            saveBtn.textContent = 'Save';
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'summary-inline-cancel-btn';
+            cancelBtn.textContent = 'Cancel';
+            editorActions.appendChild(saveBtn);
+            editorActions.appendChild(cancelBtn);
+            editor.appendChild(editorActions);
+            sectionWrap.appendChild(editor);
+
+            edit.addEventListener('click', () => {
+              editor.hidden = !editor.hidden;
+            });
+            cancelBtn.addEventListener('click', () => {
+              editor.hidden = true;
+            });
+            saveBtn.addEventListener('click', () => {
+              const checkedValues = Array.from(editor.querySelectorAll('input[type="checkbox"]:checked')).map((i) => normalizeJalapenoValue(i.value));
+              const nextValues = options
+                .filter((opt) => opt && checkedValues.includes(normalizeJalapenoValue(opt.value)))
+                .map((opt) => ({ value: normalizeJalapenoValue(opt.value), label: normalizeJalapenoLabel(opt.label || titleCase(opt.value)) }));
+              try {
+                const ing = normalizeStoredIngredients(JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}')) || {};
+                ing[group] = nextValues;
+                localStorage.setItem(STORAGE_KEYS.ingredients, JSON.stringify(ing));
+              } catch { }
+              try {
+                const act = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}');
+                act[key] = nextValues.length > 0;
+                localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
+              } catch { }
+              location.reload();
+            });
 
             // Append pizza size at end of section if present
             if (key === 'pizza') {

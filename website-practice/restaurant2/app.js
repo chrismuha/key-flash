@@ -29,7 +29,8 @@
     redirectReason: 'restaurant.redirectReason',
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantitiesSections',
-    pizzaSize: 'restaurant.pizza.size'
+    pizzaSize: 'restaurant.pizza.size',
+    ingredientCatalog: 'restaurant.ingredientCatalog'
   };
 
   // Pretty labels for summary display (keyed by `${name}|${value}`)
@@ -166,6 +167,21 @@
   const JALAPENO_LABEL_RE = /jalapenos|jalapeños/i;
   const JALAPENO_LABEL_GLOBAL = /jalapenos|jalapeños/gi;
 
+  function titleCase(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/[_-]+/g, ' ')
+      .split(/\s+/)
+      .map((word) => word ? word.charAt(0).toUpperCase() + word.slice(1) : '')
+      .join(' ')
+      .trim();
+  }
+
+  function stripInlineQty(str) {
+    if (!str) return '';
+    return String(str).replace(/\(x\d+\)/gi, '').replace(/\s{2,}/g, ' ').trim();
+  }
+
   function normalizeJalapenoValue(val) {
     if (typeof val !== 'string') return val;
     return JALAPENO_LABEL_RE.test(val) ? JALAPENO_VALUE : val;
@@ -249,6 +265,52 @@
       normalized[group] = values.map((value) => normalizeJalapenoValue(value));
     });
     return normalized;
+  }
+
+  function getSectionFromGroupName(group) {
+    if (!group) return '';
+    return String(group).replace(/_ingredients\[\]$/, '');
+  }
+
+  function extractIngredientLabel(input) {
+    if (!input) return '';
+    const label = input.closest('label') || document.querySelector(`label[for="${input.id}"]`);
+    if (!label) return titleCase(input.value || '');
+    const clone = label.cloneNode(true);
+    clone.querySelectorAll('input, select, textarea, button, .sauce-qty, .qty-controls').forEach((el) => el.remove());
+    const txt = (clone.textContent || '').replace(/\s+/g, ' ').trim();
+    return normalizeJalapenoLabel(stripInlineQty(txt || titleCase(input.value || '')));
+  }
+
+  function buildIngredientCatalogFromDOM() {
+    const catalog = {};
+    document.querySelectorAll('input[type="checkbox"][name$="_ingredients[]"]').forEach((input) => {
+      const group = input.getAttribute('name');
+      const section = getSectionFromGroupName(group);
+      if (!group || !section) return;
+      if (!catalog[section]) catalog[section] = [];
+      const value = normalizeJalapenoValue(input.value);
+      const label = extractIngredientLabel(input);
+      const required = input.dataset && input.dataset.required === 'true';
+      if (catalog[section].some((item) => item && item.value === value)) return;
+      catalog[section].push({ group, value, label, required });
+    });
+    return catalog;
+  }
+
+  function saveIngredientCatalogFromDOM() {
+    try {
+      localStorage.setItem(STORAGE_KEYS.ingredientCatalog, JSON.stringify(buildIngredientCatalogFromDOM()));
+    } catch { /* ignore */ }
+  }
+
+  function loadIngredientCatalogFromStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.ingredientCatalog);
+      if (!raw) return {};
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch { return {}; }
   }
 
   // Section: Utility helpers
@@ -1707,6 +1769,7 @@
 
     // Page 2: menu overlays + pills
     if (body.classList.contains('page2')) {
+      saveIngredientCatalogFromDOM();
       const overlays = Array.from(document.querySelectorAll('.menu-overlay[data-section]'));
       const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
       const backToMenuBtn = document.querySelector('.back-to-menu');
@@ -2584,9 +2647,7 @@
           const sec = t.dataset.section;
           const isActive = !!t.checked;
           if (sec) active[sec] = isActive;
-          if (sec && menuLaunchLookup[sec]) {
-            menuLaunchLookup[sec].forEach((btn) => btn.classList.toggle('menu-launch-active', isActive));
-          }
+          if (sec && menuLaunchLookup[sec]) menuLaunchLookup[sec].forEach((btn) => btn.classList.remove('menu-launch-active'));
         });
         try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(active)); } catch { }
         syncRequiredCheckboxes();
@@ -3262,8 +3323,8 @@
 
             const actions = document.createElement('div');
             actions.className = 'summary-section-actions';
-            const edit = document.createElement('a');
-            edit.href = `page2.html#${sec}`;
+            const edit = document.createElement('button');
+            edit.type = 'button';
             edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
             actions.appendChild(edit);
@@ -3335,6 +3396,86 @@
               ul.appendChild(li);
             });
             sectionWrap.appendChild(ul);
+
+            const catalog = loadIngredientCatalogFromStorage();
+            const sectionOptions = Array.isArray(catalog[sec]) ? catalog[sec] : [];
+            const options = sectionOptions.length
+              ? sectionOptions
+              : values.map((val) => {
+                const raw = normalizeJalapenoValue(resolveIngredientValueKey(val));
+                const mapKey = `${group}|${raw}`;
+                return {
+                  group,
+                  value: raw,
+                  label: normalizeJalapenoLabel(INGREDIENT_LABELS[mapKey] || String(raw || '').replace(/_/g, ' ')),
+                  required: false
+                };
+              });
+            const selectedValues = new Set(values.map((val) => normalizeJalapenoValue(resolveIngredientValueKey(val))).filter(Boolean));
+            const editor = document.createElement('div');
+            editor.className = 'summary-inline-editor';
+            editor.hidden = true;
+            const editorList = document.createElement('div');
+            editorList.className = 'summary-inline-editor-list';
+            options.forEach((opt, idx) => {
+              if (!opt || !opt.value) return;
+              const id = `summary-edit-${sec}-${idx}`;
+              const row = document.createElement('label');
+              row.className = 'summary-inline-option';
+              row.setAttribute('for', id);
+              const cb = document.createElement('input');
+              cb.type = 'checkbox';
+              cb.id = id;
+              cb.value = opt.value;
+              cb.checked = !!opt.required || selectedValues.has(opt.value);
+              if (opt.required) cb.disabled = true;
+              const txt = document.createElement('span');
+              txt.textContent = opt.label || String(opt.value).replace(/_/g, ' ');
+              row.appendChild(cb);
+              row.appendChild(txt);
+              editorList.appendChild(row);
+            });
+            editor.appendChild(editorList);
+            const editorActions = document.createElement('div');
+            editorActions.className = 'summary-inline-editor-actions';
+            const saveBtn = document.createElement('button');
+            saveBtn.type = 'button';
+            saveBtn.className = 'summary-inline-save-btn';
+            saveBtn.textContent = 'Save';
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'summary-inline-cancel-btn';
+            cancelBtn.textContent = 'Cancel';
+            editorActions.appendChild(saveBtn);
+            editorActions.appendChild(cancelBtn);
+            editor.appendChild(editorActions);
+            sectionWrap.appendChild(editor);
+
+            edit.addEventListener('click', () => {
+              editor.hidden = !editor.hidden;
+            });
+            cancelBtn.addEventListener('click', () => {
+              editor.hidden = true;
+            });
+            saveBtn.addEventListener('click', () => {
+              const checked = new Set(
+                Array.from(editor.querySelectorAll('input[type="checkbox"]:checked')).map((i) => normalizeJalapenoValue(i.value))
+              );
+              const next = options
+                .map((opt) => normalizeJalapenoValue(opt && opt.value))
+                .filter((value) => value && checked.has(value));
+              try {
+                const ing = normalizeIngredientData(readJSON(STORAGE_KEYS.ingredients, {})) || {};
+                ing[group] = next;
+                localStorage.setItem(STORAGE_KEYS.ingredients, JSON.stringify(ing));
+              } catch { /* ignore */ }
+              try {
+                const act = readJSON(STORAGE_KEYS.activeSections, {}) || {};
+                act[sec] = next.length > 0;
+                localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(act));
+              } catch { /* ignore */ }
+              renderOrderSummary();
+            });
             sectionsContainer.appendChild(sectionWrap);
           });
 
