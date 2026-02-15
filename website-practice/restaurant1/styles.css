@@ -711,6 +711,35 @@ body.theme-dark main .reset-group {
     color: var(--surface);
 }
 
+main .section-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+main .section-actions .section-done {
+    margin-left: auto;
+    padding: 4px 14px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: transparent;
+    font-size: 11pt;
+    font-weight: 600;
+    cursor: pointer;
+    color: inherit;
+}
+
+main .section-actions .section-done:hover,
+main .section-actions .section-done:focus-visible {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+body.theme-dark main .section-actions .section-done:hover,
+body.theme-dark main .section-actions .section-done:focus-visible {
+    background: rgba(255, 255, 255, 0.12);
+}
+
 .ingredient-qty {
     margin-left: 8px;
     border: 1px solid var(--color-black);

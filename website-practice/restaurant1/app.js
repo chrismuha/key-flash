@@ -27,7 +27,30 @@
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantities.sections',
     pizzaSize: 'restaurant.pizza.size',
-    ingredientCatalog: 'restaurant.ingredientCatalog'
+    ingredientCatalog: 'restaurant.ingredientCatalog',
+    orderItems: 'restaurant.orderItems'
+  };
+
+  const SECTION_INGREDIENT_GROUPS = {
+    pizza: ['pizza_ingredients[]'],
+    burger: ['burger_ingredients[]'],
+    calzone: ['calzone_ingredients[]'],
+    chicken_wings: ['chicken_wings_ingredients[]'],
+    salad: ['salad_ingredients[]'],
+    sub: ['sub_ingredients[]'],
+    wrap: ['wrap_ingredients[]'],
+    sauces: ['sauces_ingredients[]']
+  };
+
+  const SECTION_LABELS = {
+    pizza: 'Pizza',
+    burger: 'Burger',
+    calzone: 'Calzone',
+    chicken_wings: 'Chicken Wings',
+    salad: 'Salad',
+    sub: 'Sub',
+    wrap: 'Wrap',
+    sauces: 'Sauces'
   };
 
   // Section: Text Utils
@@ -132,6 +155,19 @@
       const parsed = JSON.parse(raw);
       return parsed && typeof parsed === 'object' ? parsed : {};
     } catch { return {}; }
+  }
+
+  function loadOrderItemsFromStorage() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(STORAGE_KEYS.orderItems) || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch { return []; }
+  }
+
+  function saveOrderItemsToStorage(items) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.orderItems, JSON.stringify(Array.isArray(items) ? items : []));
+    } catch { }
   }
 
   function getSelectChoiceText(label) {
@@ -544,6 +580,8 @@
       try { return !!localStorage.getItem(STORAGE_KEYS.orderType); } catch { return false; }
     }
     function hasMenuSelection() {
+      const orderItems = loadOrderItemsFromStorage();
+      if (Array.isArray(orderItems) && orderItems.length > 0) return true;
       let activeSections = {};
       try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
       const anySectionActive = Object.values(activeSections).some(Boolean);
@@ -2127,6 +2165,7 @@
             if (g) groups.add(g);
           });
           groups.forEach((g) => resetGroupByName(g, { forceDisable: true }));
+          saveOrderItemsToStorage([]);
           saveIngredients();
           updateBuilderError();
           updatePageNavLocks();
@@ -2802,6 +2841,7 @@
         if (!pageNextButton) return;
         const togglesArr = Array.from(document.querySelectorAll('.section-toggle'));
         const anySectionActive = togglesArr.some((t) => t.checked);
+        const hasDoneItems = loadOrderItemsFromStorage().length > 0;
         const missingSections = togglesArr
           .filter((t) => t.checked)
           .map((t) => t.dataset.section || '')
@@ -2810,7 +2850,7 @@
             const selectedCount = document.querySelectorAll(`input[type="checkbox"][name="${section}_ingredients[]"]:checked`).length;
             return selectedCount === 0;
           });
-        const okMenu = anySectionActive && missingSections.length === 0;
+        const okMenu = (anySectionActive || hasDoneItems) && missingSections.length === 0;
         if (okMenu) {
           pageNextButton.removeAttribute('aria-disabled');
           pageNextButton.removeAttribute('tabindex');
@@ -2826,6 +2866,7 @@
         if (!err) return;
         const togglesArr = Array.from(document.querySelectorAll('.section-toggle'));
         const anySectionActive = togglesArr.some((t) => t.checked);
+        const hasDoneItems = loadOrderItemsFromStorage().length > 0;
         const missingSections = togglesArr
           .filter((t) => t.checked)
           .map((t) => t.dataset.section || '')
@@ -2835,7 +2876,7 @@
             return selectedCount === 0;
           });
         let message = '';
-        if (!anySectionActive) {
+        if (!anySectionActive && !hasDoneItems) {
           message = 'Select at least one menu item.';
         } else if (missingSections.length === 1) {
           message = `Select at least one ingredient for ${titleCase(missingSections[0].replace(/_/g, ' '))}.`;
@@ -2844,7 +2885,7 @@
         }
         // Clear previous invalid highlights
         document.querySelectorAll('.menu-summary').forEach((s) => s.classList.remove('invalid'));
-        if (!anySectionActive) {
+        if (!anySectionActive && !hasDoneItems) {
           // highlight all summaries when nothing is selected
           document.querySelectorAll('.menu-summary').forEach((s) => s.classList.add('invalid'));
         } else if (missingSections.length > 0) {
@@ -3017,6 +3058,65 @@
           resetGroupByName(btn.getAttribute('data-group'));
         });
       });
+      const qtyLabelMapForDone = { '2': 'Light', '3': 'Extra', '4': 'x3' };
+      const resolveIngredientValueForDone = (raw) => {
+        if (raw == null) return '';
+        if (typeof raw === 'string' || typeof raw === 'number' || typeof raw === 'boolean') return normalizeJalapenoValue(String(raw));
+        if (typeof raw === 'object') return normalizeJalapenoValue(String(raw.value ?? raw.key ?? raw.name ?? raw.label ?? raw.text ?? ''));
+        return '';
+      };
+      const buildOrderItemFromSection = (section) => {
+        const groups = Array.isArray(SECTION_INGREDIENT_GROUPS[section]) ? SECTION_INGREDIENT_GROUPS[section] : [];
+        if (!groups.length) return null;
+        let ingredientsState = {};
+        try { ingredientsState = normalizeStoredIngredients(JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}')) || {}; } catch { ingredientsState = {}; }
+        const ingredientRows = [];
+        groups.forEach((group) => {
+          const values = Array.isArray(ingredientsState[group]) ? ingredientsState[group] : [];
+          values.forEach((raw) => {
+            const value = resolveIngredientValueForDone(raw);
+            if (!value) return;
+            const mapKey = `${group}|${value}`;
+            const label = normalizeJalapenoLabel(typeof raw === 'object' && raw && raw.label ? raw.label : titleCase(String(value).replace(/_/g, ' ')));
+            const qRaw = qtyMap[mapKey];
+            const qStr = qRaw == null || qRaw === '' ? '1' : String(qRaw);
+            const qtyLabel = qStr === '1' ? 'Regular' : (qtyLabelMapForDone[qStr] || `x${qStr}`);
+            ingredientRows.push({ group, value, label, qtyLabel });
+          });
+        });
+        if (!ingredientRows.length) return null;
+        const rawSectionQty = parseInt(qtySections[section] || '0', 10) || 0;
+        const sectionQty = Math.max(1, Math.min(12, rawSectionQty || 1));
+        return {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+          section,
+          sectionLabel: SECTION_LABELS[section] || titleCase(String(section || '').replace(/_/g, ' ')),
+          sectionQty,
+          pizzaSize: section === 'pizza' ? (getPizzaSize() || 'large') : '',
+          ingredients: ingredientRows
+        };
+      };
+      const clearSectionOnPage2AfterDone = (section) => {
+        const groups = Array.isArray(SECTION_INGREDIENT_GROUPS[section]) ? SECTION_INGREDIENT_GROUPS[section] : [];
+        groups.forEach((group) => resetGroupByName(group, { forceDisable: true }));
+        saveIngredients();
+        updateBuilderError();
+        updatePageNavLocks();
+      };
+      document.querySelectorAll('.section-done[data-section]').forEach((btn) => {
+        btn.addEventListener('click', (evt) => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          const section = btn.dataset.section;
+          if (!section) return;
+          const item = buildOrderItemFromSection(section);
+          if (!item) return;
+          const orderItems = loadOrderItemsFromStorage();
+          orderItems.push(item);
+          saveOrderItemsToStorage(orderItems);
+          clearSectionOnPage2AfterDone(section);
+        });
+      });
       // Next: must have at least one section checked and each active section must have >=1 ingredient selected
       if (pageNextButton) {
         pageNextButton.addEventListener('click', (e) => {
@@ -3024,6 +3124,7 @@
           const err = document.getElementById('builder-error');
           const togglesArr = Array.from(document.querySelectorAll('.section-toggle'));
           const anySectionActive = togglesArr.some((t) => t.checked);
+          const hasDoneItems = loadOrderItemsFromStorage().length > 0;
           const missingSections = togglesArr
             .filter((t) => t.checked)
             .map((t) => t.dataset.section || '')
@@ -3033,7 +3134,7 @@
               return selectedCount === 0;
             });
           let message = '';
-          if (!anySectionActive) {
+          if (!anySectionActive && !hasDoneItems) {
             message = 'Select at least one menu item.';
           } else if (missingSections.length === 1) {
             message = `Select at least one ingredient for ${titleCase(missingSections[0].replace(/_/g, ' '))}.`;
@@ -3156,8 +3257,225 @@
         const SECTION_QTY_KEYS = ['pizza', 'burger', 'calzone', 'chicken_wings', 'salad', 'sub', 'wrap'];
         const qtyLabelMap = { 1: 'Regular', 2: 'Light', 3: 'Extra', 4: 'x3' };
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
+        const orderItems = loadOrderItemsFromStorage();
 
-        if (entries.length === 0 || nonEmpty.length === 0) {
+        if (Array.isArray(orderItems) && orderItems.length > 0) {
+          const sectionsContainer = document.createElement('div');
+          sectionsContainer.className = 'summary-sections';
+          const catalog = loadIngredientCatalogFromStorage();
+          const clampOrderItemQty = (value) => {
+            const n = parseInt(value, 10) || 1;
+            return Math.max(1, Math.min(12, n));
+          };
+          const updateOrderItemQty = (itemId, nextQty) => {
+            const clamped = clampOrderItemQty(nextQty);
+            const next = loadOrderItemsFromStorage().map((it) => {
+              if (!it || it.id !== itemId) return it;
+              return { ...it, sectionQty: clamped };
+            });
+            saveOrderItemsToStorage(next);
+          };
+          const buildItemList = (ul, itemIngredients) => {
+            ul.innerHTML = '';
+            itemIngredients.forEach((row) => {
+              if (!row || !row.value) return;
+              const li = document.createElement('li');
+              const label = normalizeJalapenoLabel(row.label || titleCase(String(row.value).replace(/_/g, ' ')));
+              const qtyLabel = row.qtyLabel || 'Regular';
+              li.textContent = `${label} (${qtyLabel})`;
+              ul.appendChild(li);
+            });
+          };
+
+          orderItems.forEach((item, idx) => {
+            if (!item || !item.section) return;
+            const sectionWrap = document.createElement('div');
+            sectionWrap.className = 'summary-section';
+            const header = document.createElement('div');
+            header.className = 'summary-section-header';
+            const actions = document.createElement('div');
+            actions.className = 'summary-section-actions';
+            const title = document.createElement('strong');
+            const sectionLabel = item.sectionLabel || SECTION_LABELS[item.section] || titleCase(String(item.section).replace(/_/g, ' '));
+            title.textContent = `${sectionLabel} #${idx + 1}`;
+            header.appendChild(title);
+
+            const edit = document.createElement('button');
+            edit.type = 'button';
+            edit.textContent = 'Edit';
+            edit.className = 'summary-edit-btn';
+            // OLD SECTION (hidden old behavior): header.appendChild(edit);
+            actions.appendChild(edit);
+
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.textContent = 'Remove';
+            remove.className = 'summary-remove-btn';
+            remove.setAttribute('aria-label', `Remove ${title.textContent}`);
+            // OLD SECTION (hidden old behavior): header.appendChild(remove);
+            actions.appendChild(remove);
+
+            const qtyRow = document.createElement('div');
+            qtyRow.className = 'summary-section-qty-row';
+            const currentItemQty = clampOrderItemQty(item.sectionQty);
+            const qtyLabel = document.createElement('span');
+            qtyLabel.textContent = `(x${currentItemQty})`;
+            qtyLabel.style.marginRight = '6px';
+            const dec = document.createElement('button');
+            dec.type = 'button';
+            dec.textContent = '−';
+            dec.style.marginRight = '4px';
+            dec.setAttribute('aria-label', `Decrease ${title.textContent} quantity`);
+            const inc = document.createElement('button');
+            inc.type = 'button';
+            inc.textContent = '+';
+            inc.setAttribute('aria-label', `Increase ${title.textContent} quantity`);
+            dec.disabled = currentItemQty <= 1;
+            inc.disabled = currentItemQty >= 12;
+            qtyRow.appendChild(qtyLabel);
+            qtyRow.appendChild(dec);
+            qtyRow.appendChild(inc);
+
+            const ul = document.createElement('ul');
+            const itemIngredients = Array.isArray(item.ingredients) ? item.ingredients : [];
+            buildItemList(ul, itemIngredients);
+
+            dec.addEventListener('click', () => {
+              const nextQty = clampOrderItemQty((parseInt(qtyLabel.textContent.replace(/\D+/g, ''), 10) || 1) - 1);
+              updateOrderItemQty(item.id, nextQty);
+              qtyLabel.textContent = `(x${nextQty})`;
+              dec.disabled = nextQty <= 1;
+              inc.disabled = nextQty >= 12;
+            });
+            inc.addEventListener('click', () => {
+              const nextQty = clampOrderItemQty((parseInt(qtyLabel.textContent.replace(/\D+/g, ''), 10) || 1) + 1);
+              updateOrderItemQty(item.id, nextQty);
+              qtyLabel.textContent = `(x${nextQty})`;
+              dec.disabled = nextQty <= 1;
+              inc.disabled = nextQty >= 12;
+            });
+
+            remove.addEventListener('click', () => {
+              const next = loadOrderItemsFromStorage().filter((it) => it && it.id !== item.id);
+              saveOrderItemsToStorage(next);
+              sectionWrap.remove();
+              if (sectionsContainer.childElementCount === 0) {
+                sectionsContainer.remove();
+                const none = document.createElement('p');
+                none.textContent = 'No ingredients selected yet.';
+                selectionsBlock.appendChild(none);
+              }
+            });
+
+            const optionsRaw = Array.isArray(catalog[item.section]) ? catalog[item.section] : [];
+            const options = optionsRaw.length
+              ? optionsRaw.map((opt) => ({
+                group: opt.group || `${item.section}_ingredients[]`,
+                value: normalizeJalapenoValue(opt.value),
+                label: normalizeJalapenoLabel(opt.label || titleCase(String(opt.value || '').replace(/_/g, ' '))),
+                required: !!opt.required
+              })).filter((opt) => !!opt.value)
+              : itemIngredients.map((row) => ({
+                group: row.group || `${item.section}_ingredients[]`,
+                value: normalizeJalapenoValue(row.value),
+                label: normalizeJalapenoLabel(row.label || titleCase(String(row.value || '').replace(/_/g, ' '))),
+                required: false
+              }));
+            const selectedValues = new Set(itemIngredients.map((row) => normalizeJalapenoValue(row.value)).filter(Boolean));
+            const editor = document.createElement('div');
+            editor.className = 'summary-inline-editor';
+            editor.hidden = true;
+            const editorList = document.createElement('div');
+            editorList.className = 'summary-inline-editor-list';
+            options.forEach((opt, optIdx) => {
+              if (!opt || !opt.value) return;
+              const id = `summary-item-edit-${idx}-${optIdx}`;
+              const row = document.createElement('label');
+              row.className = 'summary-inline-option';
+              row.setAttribute('for', id);
+              const cb = document.createElement('input');
+              cb.type = 'checkbox';
+              cb.id = id;
+              cb.value = opt.value;
+              cb.checked = !!opt.required || selectedValues.has(opt.value);
+              if (opt.required) cb.disabled = true;
+              const txt = document.createElement('span');
+              txt.textContent = opt.label || titleCase(String(opt.value).replace(/_/g, ' '));
+              row.appendChild(cb);
+              row.appendChild(txt);
+              editorList.appendChild(row);
+            });
+            editor.appendChild(editorList);
+
+            const editorActions = document.createElement('div');
+            editorActions.className = 'summary-inline-editor-actions';
+            const saveBtn = document.createElement('button');
+            saveBtn.type = 'button';
+            saveBtn.className = 'summary-inline-save-btn';
+            saveBtn.textContent = 'Save';
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'summary-inline-cancel-btn';
+            cancelBtn.textContent = 'Cancel';
+            editorActions.appendChild(saveBtn);
+            editorActions.appendChild(cancelBtn);
+            editor.appendChild(editorActions);
+
+            edit.addEventListener('click', () => {
+              editor.hidden = !editor.hidden;
+            });
+            cancelBtn.addEventListener('click', () => {
+              editor.hidden = true;
+            });
+            saveBtn.addEventListener('click', () => {
+              const checked = new Set(Array.from(editor.querySelectorAll('input[type="checkbox"]:checked')).map((el) => normalizeJalapenoValue(el.value)));
+              const updatedIngredients = options
+                .filter((opt) => checked.has(normalizeJalapenoValue(opt.value)))
+                .map((opt) => {
+                  const normalizedValue = normalizeJalapenoValue(opt.value);
+                  const rowKey = `${opt.group}|${normalizedValue}`;
+                  const qRaw = qtyMap[rowKey];
+                  const qNum = parseInt(qRaw, 10) || 1;
+                  const qtyText = qNum === 1 ? 'Regular' : (qtyLabelMap[qNum] || `x${qNum}`);
+                  return {
+                    group: opt.group,
+                    value: normalizedValue,
+                    label: normalizeJalapenoLabel(opt.label || titleCase(String(normalizedValue).replace(/_/g, ' '))),
+                    qtyLabel: qtyText
+                  };
+                });
+              const next = loadOrderItemsFromStorage().map((it) => {
+                if (!it || it.id !== item.id) return it;
+                return { ...it, ingredients: updatedIngredients };
+              });
+              saveOrderItemsToStorage(next);
+              buildItemList(ul, updatedIngredients);
+              editor.hidden = true;
+            });
+
+            sectionWrap.appendChild(header);
+            sectionWrap.appendChild(actions);
+            sectionWrap.appendChild(qtyRow);
+            if (item.section === 'pizza' && item.pizzaSize) {
+              const sizeDiv = document.createElement('div');
+              sizeDiv.className = 'summary-size';
+              sizeDiv.style.marginTop = '8px';
+              sizeDiv.textContent = `Size: ${titleCase(item.pizzaSize)}`;
+              sectionWrap.appendChild(sizeDiv);
+            }
+            sectionWrap.appendChild(ul);
+            sectionWrap.appendChild(editor);
+            sectionsContainer.appendChild(sectionWrap);
+          });
+
+          if (sectionsContainer.childNodes.length) {
+            selectionsBlock.appendChild(sectionsContainer);
+          } else {
+            const none = document.createElement('p');
+            none.textContent = 'No ingredients selected yet.';
+            selectionsBlock.appendChild(none);
+          }
+        } else if (entries.length === 0 || nonEmpty.length === 0) {
           const none = document.createElement('p');
           none.textContent = 'No ingredients selected yet.';
           selectionsBlock.appendChild(none);
@@ -3198,6 +3516,7 @@
             // edit.href = `page2.html#${key}`;
             // edit.textContent = 'Edit';
             // edit.className = 'summary-edit-btn';
+            // OLD SECTION (hidden old behavior): header.appendChild(edit);
 
             actions.appendChild(edit);
 
@@ -3242,6 +3561,7 @@
                 selectionsBlock.appendChild(none);
               }
             });
+            // OLD SECTION (hidden old behavior): header.appendChild(remove);
             actions.appendChild(remove);
 
             // Section-level quantity controls

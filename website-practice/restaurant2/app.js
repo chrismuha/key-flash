@@ -3508,6 +3508,7 @@
             edit.type = 'button';
             edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
+            // OLD SECTION (hidden old behavior): header.appendChild(edit);
             actions.appendChild(edit);
 
             const remove = document.createElement('button');
@@ -3523,6 +3524,7 @@
               if (!next.length) redirectIfNoActiveSections();
               renderOrderSummary();
             });
+            // OLD SECTION (hidden old behavior): header.appendChild(remove);
             actions.appendChild(remove);
 
             const currentItemQty = clampOrderItemQty(item.sectionQty);
@@ -3745,6 +3747,7 @@
             // edit.href = `page2.html#${sec}`;
             // edit.textContent = 'Edit';
             // edit.className = 'summary-edit-btn';
+            // OLD SECTION (hidden old behavior): header.appendChild(edit);
 
             actions.appendChild(edit);
 
@@ -3758,6 +3761,7 @@
               evt.stopPropagation();
               handleRemoveSection(sec);
             });
+            // OLD SECTION (hidden old behavior): header.appendChild(remove);
             actions.appendChild(remove);
 
             if (SECTION_QUANTITY_SECTIONS.includes(sec)) {
