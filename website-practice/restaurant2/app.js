@@ -112,7 +112,6 @@
     'salad_ingredients[]|ham': 'Ham',
     'salad_ingredients[]|olives': 'Olives',
     'salad_ingredients[]|provolone_cheese': 'Provolone cheese',
-    'salad_ingredients[]|right_onion': 'Right onion',
     'salad_ingredients[]|salami': 'Salami',
     'salad_ingredients[]|banana_peppers': 'Banana peppers',
     'salad_ingredients[]|green_peppers': 'Green peppers',

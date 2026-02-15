@@ -242,7 +242,7 @@ body.page2 {
     align-items: flex-end;
     justify-content: center;
     font-weight: 700;
-    font-size: 15pt;
+    font-size: 13pt;
     flex-shrink: 0;
     cursor: pointer;
     scroll-snap-align: start;
@@ -2340,8 +2340,12 @@ body.theme-dark .overlay-header-price {
 
 @media (max-width: 600px) {
     .menu-actions .menu-launch {
-        font-size: 12.75pt;
+        font-size: 10.75pt;
         padding: 12px 16px;
+    }
+
+    .menu-launch-label {
+        font-size: 11.5pt;
     }
 }
 
