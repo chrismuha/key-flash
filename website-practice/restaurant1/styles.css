@@ -911,6 +911,14 @@ body.page2 main {
     padding-bottom: 180px;
 }
 
+body.page2 main>h1 {
+    margin-bottom: 4px;
+}
+
+body.page2 main>h1+p {
+    margin-bottom: 4px;
+}
+
 /* SECTION: Page 2 Actions */
 body.page2 .page-actions {
     position: fixed;

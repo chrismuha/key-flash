@@ -1234,6 +1234,14 @@ body.page2 main {
     -webkit-overflow-scrolling: touch;
 }
 
+body.page2 main>h1 {
+    margin-bottom: 4px;
+}
+
+body.page2 main>h1+p {
+    margin-bottom: 4px;
+}
+
 
 body.page2:not(.nav-enabled) main {
     padding-top: calc(var(--nav-height) + var(--gap) * 2);
