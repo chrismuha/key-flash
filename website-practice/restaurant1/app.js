@@ -1903,6 +1903,18 @@
         updateSwiperArrows();
       };
       const syncMenuLaunchState = () => {
+        // OLD SECTION (kept for reference): querySelector/active lookup for launch state
+        // const activeLookup = {};
+        // document.querySelectorAll('.section-toggle').forEach((toggle) => {
+        //   const sec = toggle.dataset.section;
+        //   if (sec) activeLookup[sec] = toggle.checked;
+        // });
+        // menuLaunchButtons.forEach((btn) => {
+        //   const target = btn.getAttribute('data-target');
+        //   const isActive = target ? !!activeLookup[target] : false;
+        //   btn.classList.toggle('menu-launch-active', isActive);
+        // });
+
         menuLaunchButtons.forEach((btn) => {
           btn.classList.remove('menu-launch-active');
         });
@@ -3003,6 +3015,20 @@
         const SECTION_QTY_KEYS = ['pizza', 'burger', 'calzone', 'chicken_wings', 'salad', 'sub', 'wrap'];
         const qtyLabelMap = { 1: 'Regular', 2: 'Light', 3: 'Extra', 4: 'x3' };
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
+
+        // OLD SECTION (kept for reference): previous menu-item -> order-summary logic
+        // This older behavior listed every group with selected ingredients, even when the
+        // menu section toggle was off or the section quantity was zero.
+        //
+        // const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
+        // nonEmpty.forEach(([group, values]) => {
+        //   const key = group.replace(/_ingredients\[\]$/, '');
+        //   const prettyGroup = key.replace(/_/g, ' ');
+        //   // Old behavior: no activeSections check
+        //   // Old behavior: no SECTION_QTY_KEYS zero-quantity check
+        //   // Result: added items could still appear in summary after section deselection
+        // });
+
         if (entries.length === 0 || nonEmpty.length === 0) {
           const none = document.createElement('p');
           none.textContent = 'No ingredients selected yet.';
@@ -3013,6 +3039,15 @@
           nonEmpty.forEach(([group, values]) => {
             const key = group.replace(/_ingredients\[\]$/, '');
             const prettyGroup = key.replace(/_/g, ' ');
+
+            // OLD SECTION (kept for reference): querySelector-based active lookup
+            // const sectionToggle = document.querySelector(`.section-toggle[data-section="${key}"]`);
+            // const isActive = sectionToggle ? sectionToggle.checked : !!activeSections[key];
+            // if (!isActive) return;
+
+            // OLD SECTION (kept for reference): active map lookup
+            // if (!activeSections[key]) return;
+
             // Skip categories that are not active (checkbox not selected on Page 2)
             if (!activeSections[key]) return;
             // Skip sections with quantity controls if quantity is 0
@@ -3035,6 +3070,13 @@
             edit.type = 'button';
             edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
+
+            // OLD SECTION (kept for reference): summary edit link behavior
+            // const edit = document.createElement('a');
+            // edit.href = `page2.html#${key}`;
+            // edit.textContent = 'Edit';
+            // edit.className = 'summary-edit-btn';
+
             header.appendChild(edit);
 
             const remove = document.createElement('button');

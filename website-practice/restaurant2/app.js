@@ -3271,6 +3271,18 @@
 
         const entries = Object.entries(ingredients || {});
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
+
+        // OLD SECTION (kept for reference): previous menu-item -> order-summary logic
+        // This older behavior listed every group with selected ingredients, even when the
+        // menu section toggle was off.
+        //
+        // const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
+        // nonEmpty.forEach(([group, values]) => {
+        //   const sec = group.replace(/_ingredients\[\]$/, '');
+        //   // Old behavior: no activeSections check
+        //   // Result: added items could still appear in summary after section deselection
+        // });
+
         const qtyLabelMap = { '2': 'Light', '3': 'Extra', '4': 'x3' };
         const resolveIngredientValueKey = (rawValue) => {
           if (rawValue == null) return '';
@@ -3312,6 +3324,15 @@
           sectionsContainer.className = 'summary-sections';
           nonEmpty.forEach(([group, values]) => {
             const sec = group.replace(/_ingredients\[\]$/, '');
+
+            // OLD SECTION (kept for reference): querySelector-based active lookup
+            // const sectionToggle = document.querySelector(`.section-toggle[data-section="${sec}"]`);
+            // const isActive = sectionToggle ? sectionToggle.checked : !!activeSections[sec];
+            // if (!isActive) return;
+
+            // OLD SECTION (kept for reference): active map lookup
+            // if (!activeSections[sec]) return;
+
             if (!activeSections[sec]) return;
             const sectionWrap = document.createElement('div');
             sectionWrap.className = 'summary-section';
