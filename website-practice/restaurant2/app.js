@@ -3094,6 +3094,13 @@
           const isResetDisable = resetDisableTrigger && sec === resetDisableTrigger;
           const isQuantityDisable = quantityDisableTrigger && sec === quantityDisableTrigger;
           const keepOverlayOpenOnDisable = !!resetKeepOpen && (isResetDisable || isQuantityDisable);
+          if (sec && t.checked && SECTION_QUANTITY_SECTIONS.includes(sec)) {
+            const currentQty = getSectionQuantity(sec);
+            if (currentQty < SECTION_QUANTITY_DEFAULT_MIN) {
+              setSectionQuantity(sec, SECTION_QUANTITY_DEFAULT_MIN);
+              refreshSectionQuantityControls();
+            }
+          }
           if (sec && !t.checked) {
             // Reset-button disables should preserve the item quantity at x1.
             const nextQty = isResetDisable ? SECTION_QUANTITY_DEFAULT_MIN : getQuantityMin();
@@ -3469,6 +3476,20 @@
           const sectionsContainer = document.createElement('div');
           sectionsContainer.className = 'summary-sections';
           const catalog = loadIngredientCatalogFromStorage();
+          const clampOrderItemQty = (value) => {
+            const n = parseInt(value, 10) || SECTION_QUANTITY_DEFAULT_MIN;
+            return Math.max(SECTION_QUANTITY_DEFAULT_MIN, Math.min(SECTION_QUANTITY_MAX, n));
+          };
+          const updateOrderItemQty = (itemId, nextQty) => {
+            const clamped = clampOrderItemQty(nextQty);
+            const nextItems = loadOrderItemsFromStorage().map((it) => {
+              if (!it || it.id !== itemId) return it;
+              return { ...it, sectionQty: clamped };
+            });
+            writeOrderItems(nextItems);
+            renderOrderSummary();
+            if (typeof updatePage3NavState === 'function') updatePage3NavState();
+          };
           orderItems.forEach((item, idx) => {
             if (!item || !item.section) return;
             const sectionWrap = document.createElement('div');
@@ -3503,6 +3524,42 @@
               renderOrderSummary();
             });
             actions.appendChild(remove);
+
+            const currentItemQty = clampOrderItemQty(item.sectionQty);
+            const qtyWrap = document.createElement('span');
+            qtyWrap.className = 'qty-controls summary-qty-controls';
+            ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach((evtName) => {
+              qtyWrap.addEventListener(evtName, (evt) => evt.stopPropagation());
+            });
+            const qtyCount = document.createElement('span');
+            qtyCount.className = 'qty-controls-value summary-qty-value';
+            qtyCount.textContent = `(x${currentItemQty})`;
+            const dec = document.createElement('button');
+            dec.type = 'button';
+            dec.className = 'qty-control-decrement summary-qty-decrement';
+            dec.textContent = '−';
+            dec.setAttribute('aria-label', `Decrease ${title.textContent} quantity`);
+            dec.disabled = currentItemQty <= SECTION_QUANTITY_DEFAULT_MIN;
+            const inc = document.createElement('button');
+            inc.type = 'button';
+            inc.className = 'qty-control-increment summary-qty-increment';
+            inc.textContent = '+';
+            inc.setAttribute('aria-label', `Increase ${title.textContent} quantity`);
+            inc.disabled = currentItemQty >= SECTION_QUANTITY_MAX;
+            dec.addEventListener('click', (evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              updateOrderItemQty(item.id, currentItemQty - 1);
+            });
+            inc.addEventListener('click', (evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              updateOrderItemQty(item.id, currentItemQty + 1);
+            });
+            qtyWrap.appendChild(qtyCount);
+            qtyWrap.appendChild(dec);
+            qtyWrap.appendChild(inc);
+            actions.appendChild(qtyWrap);
             sectionWrap.appendChild(header);
             sectionWrap.appendChild(actions);
 

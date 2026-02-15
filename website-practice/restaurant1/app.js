@@ -3181,6 +3181,8 @@
             sectionWrap.className = 'summary-section';
             const header = document.createElement('div');
             header.className = 'summary-section-header';
+            const actions = document.createElement('div');
+            actions.className = 'summary-section-actions';
             let sectionQtyRow = null;
             const listTitle = document.createElement('strong');
             listTitle.textContent = prettyGroup.charAt(0).toUpperCase() + prettyGroup.slice(1);
@@ -3197,7 +3199,7 @@
             // edit.textContent = 'Edit';
             // edit.className = 'summary-edit-btn';
 
-            header.appendChild(edit);
+            actions.appendChild(edit);
 
             const remove = document.createElement('button');
             remove.type = 'button';
@@ -3240,7 +3242,7 @@
                 selectionsBlock.appendChild(none);
               }
             });
-            header.appendChild(remove);
+            actions.appendChild(remove);
 
             // Section-level quantity controls
             if (SECTION_QTY_KEYS.includes(key)) {
@@ -3298,6 +3300,7 @@
             }
 
             sectionWrap.appendChild(header);
+            sectionWrap.appendChild(actions);
             if (sectionQtyRow) sectionWrap.appendChild(sectionQtyRow);
             const ul = document.createElement('ul');
             values.forEach((item) => {

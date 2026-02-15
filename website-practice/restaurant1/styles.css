@@ -1435,6 +1435,13 @@ body.page3 #order-summary .summary-section-header strong {
     margin: 0;
 }
 
+body.page3 #order-summary .summary-section-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
 body.page3 #order-summary .summary-section-qty-row {
     display: inline-flex;
     align-items: center;
