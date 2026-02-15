@@ -2378,23 +2378,38 @@ body.theme-dark .menu-actions .menu-launch.menu-launch-active {
     background: var(--box-bg);
 }
 
-.menu-actions .menu-launch:hover,
 .menu-actions .menu-launch:focus-visible {
     background: var(--color-stone);
     outline: 3px solid var(--color-black);
     outline-offset: 2px;
 }
 
-body.theme-dark .menu-actions .menu-launch:hover,
 body.theme-dark .menu-actions .menu-launch:focus-visible {
     background: var(--surface);
     outline-color: var(--focus-outline-dark);
 }
 
-.menu-actions .menu-launch.menu-launch-active:hover,
 .menu-actions .menu-launch.menu-launch-active:focus-visible {
     background: var(--color-mint);
     outline-color: var(--color-emerald);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .menu-actions .menu-launch:hover {
+        background: var(--color-stone);
+        outline: 3px solid var(--color-black);
+        outline-offset: 2px;
+    }
+
+    body.theme-dark .menu-actions .menu-launch:hover {
+        background: var(--surface);
+        outline-color: var(--focus-outline-dark);
+    }
+
+    .menu-actions .menu-launch.menu-launch-active:hover {
+        background: var(--color-mint);
+        outline-color: var(--color-emerald);
+    }
 }
 
 @media (min-width: 960px) {
