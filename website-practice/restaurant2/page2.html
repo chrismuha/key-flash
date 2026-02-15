@@ -36,6 +36,10 @@
                     role="listitem">Burger</button>
                 <button type="button" class="swiper-chip menu-launch" data-target="calzone"
                     role="listitem">Calzone</button>
+                <button type="button" class="swiper-chip menu-launch" data-target="chicken_wings"
+                    role="listitem">Chicken Wings</button>
+                <button type="button" class="swiper-chip menu-launch" data-target="salad"
+                    role="listitem">Salad</button>
                 <button type="button" class="swiper-chip menu-launch" data-target="sub" role="listitem">Sub</button>
                 <button type="button" class="swiper-chip menu-launch" data-target="wrap" role="listitem">Wrap</button>
                 <button type="button" class="swiper-chip menu-launch" data-target="sauces"
@@ -142,6 +146,18 @@
             <div class="menu-action-card" role="listitem">
                 <button type="button" class="menu-launch" data-target="calzone">
                     <span class="menu-launch-label">Calzone</span>
+                    <span class="menu-launch-price" aria-hidden="true">$0</span>
+                </button>
+            </div>
+            <div class="menu-action-card" role="listitem">
+                <button type="button" class="menu-launch" data-target="chicken_wings">
+                    <span class="menu-launch-label">Chicken Wings</span>
+                    <span class="menu-launch-price" aria-hidden="true">$0</span>
+                </button>
+            </div>
+            <div class="menu-action-card" role="listitem">
+                <button type="button" class="menu-launch" data-target="salad">
+                    <span class="menu-launch-label">Salad</span>
                     <span class="menu-launch-price" aria-hidden="true">$0</span>
                 </button>
             </div>
@@ -312,6 +328,22 @@
                             <label><input type="checkbox" name="calzone_ingredients[]" value="garlic_powder"> Garlic powder</label><br>
                             <label><input type="checkbox" name="calzone_ingredients[]" value="olive_oil"> Olive oil</label><br>
                             <label><input type="checkbox" name="calzone_ingredients[]" value="bacon_bits"> Bacon bits</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="meatballs"> Meatballs</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="broccoli"> Broccoli</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="onion"> Onion</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="steak"> Steak</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="hot_peppers"> Hot peppers</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="banana_peppers"> Banana peppers</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="eggplant"> Eggplant</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="cheddar_cheese"> Cheddar cheese</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="feta_cheese"> Feta cheese</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="greens"> Greens</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="jalapenos"> Jalapeño</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="roasted_red_peppers"> Roasted red peppers</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="pineapple"> Pineapple</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="spinach"> Spinach</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="swiss_cheese"> Swiss cheese</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="american_cheese"> American cheese</label><br>
                             <label><input type="checkbox" name="calzone_ingredients[]" value="tomatoes"> Tomatoes</label><br>
                             <label><input type="checkbox" name="calzone_ingredients[]" value="pepperoni"> Pepperoni</label><br>
                             <label><input type="checkbox" name="calzone_ingredients[]" value="salami"> Salami</label><br>
@@ -321,6 +353,84 @@
                     <div class="section-actions">
                         <button type="button" class="reset-group" data-group="calzone_ingredients[]">Reset Calzone</button>
                         <button type="button" class="section-done" data-section="calzone" aria-label="Done with Calzone ingredients">
+                            Done
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Item: Chicken Wings -->
+        <div class="menu-overlay" data-section="chicken_wings" hidden>
+            <div class="menu-overlay-card">
+                <div class="overlay-header">
+                    <h2>Chicken Wings</h2>
+                    <span class="overlay-header-price" aria-hidden="true">$0</span>
+                    <button type="button" class="close-overlay" aria-label="Close Chicken Wings options">✕</button>
+                </div>
+                <div class="menu-section" id="chicken_wings">
+                    <div class="menu-summary">
+                        <input type="checkbox" class="section-toggle" data-section="chicken_wings">
+                        <span class="menu-summary-label">Chicken Wings</span>
+                    </div>
+                    <form>
+                        <fieldset>
+                            <legend>Choose Ingredients</legend>
+                            <label><input type="checkbox" name="chicken_wings_ingredients[]" value="garlic"> Garlic</label><br>
+                            <label><input type="checkbox" name="chicken_wings_ingredients[]" value="butter_sauce"> Butter sauce</label><br>
+                            <label><input type="checkbox" name="chicken_wings_ingredients[]" value="hot_sauce"> Hot sauce</label><br>
+                            <label><input type="checkbox" name="chicken_wings_ingredients[]" value="medium_sauce"> Medium sauce</label><br>
+                            <label><input type="checkbox" name="chicken_wings_ingredients[]" value="plain_extra_hot_sauce"> Plain extra hot sauce</label><br>
+                            <label><input type="checkbox" name="chicken_wings_ingredients[]" value="honey"> Honey</label><br>
+                            <label><input type="checkbox" name="chicken_wings_ingredients[]" value="mustard"> Mustard</label><br>
+                            <label><input type="checkbox" name="chicken_wings_ingredients[]" value="hot_and_spicy_barbecue_sauce"> Hot and spicy barbecue sauce</label><br>
+                            <label><input type="checkbox" name="chicken_wings_ingredients[]" value="mild_sauce"> Mild sauce</label><br>
+                            <label><input type="checkbox" name="chicken_wings_ingredients[]" value="spicy_garlic_parm_sauce"> Spicy garlic Parm sauce</label><br>
+                        </fieldset>
+                    </form>
+                    <div class="section-actions">
+                        <button type="button" class="reset-group" data-group="chicken_wings_ingredients[]">Reset Chicken Wings</button>
+                        <button type="button" class="section-done" data-section="chicken_wings" aria-label="Done with Chicken Wings ingredients">
+                            Done
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Item: Salad -->
+        <div class="menu-overlay" data-section="salad" hidden>
+            <div class="menu-overlay-card">
+                <div class="overlay-header">
+                    <h2>Salad</h2>
+                    <span class="overlay-header-price" aria-hidden="true">$0</span>
+                    <button type="button" class="close-overlay" aria-label="Close Salad options">✕</button>
+                </div>
+                <div class="menu-section" id="salad">
+                    <div class="menu-summary">
+                        <input type="checkbox" class="section-toggle" data-section="salad">
+                        <span class="menu-summary-label">Salad</span>
+                    </div>
+                    <form>
+                        <fieldset>
+                            <legend>Choose Ingredients</legend>
+                            <label><input type="checkbox" name="salad_ingredients[]" value="cucumbers"> Cucumbers</label><br>
+                            <label><input type="checkbox" name="salad_ingredients[]" value="italian_dressing"> Italian dressing</label><br>
+                            <label><input type="checkbox" name="salad_ingredients[]" value="red_onion"> Red onion</label><br>
+                            <label><input type="checkbox" name="salad_ingredients[]" value="tomato"> Tomato</label><br>
+                            <label><input type="checkbox" name="salad_ingredients[]" value="ham"> Ham</label><br>
+                            <label><input type="checkbox" name="salad_ingredients[]" value="olives"> Olives</label><br>
+                            <label><input type="checkbox" name="salad_ingredients[]" value="provolone_cheese"> Provolone cheese</label><br>
+                            <label><input type="checkbox" name="salad_ingredients[]" value="right_onion"> Right onion</label><br>
+                            <label><input type="checkbox" name="salad_ingredients[]" value="salami"> Salami</label><br>
+                            <label><input type="checkbox" name="salad_ingredients[]" value="banana_peppers"> Banana peppers</label><br>
+                            <label><input type="checkbox" name="salad_ingredients[]" value="green_peppers"> Green peppers</label><br>
+                            <label><input type="checkbox" name="salad_ingredients[]" value="red_peppers"> Red peppers</label><br>
+                        </fieldset>
+                    </form>
+                    <div class="section-actions">
+                        <button type="button" class="reset-group" data-group="salad_ingredients[]">Reset Salad</button>
+                        <button type="button" class="section-done" data-section="salad" aria-label="Done with Salad ingredients">
                             Done
                         </button>
                     </div>

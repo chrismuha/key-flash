@@ -73,10 +73,50 @@
     'calzone_ingredients[]|garlic_powder': 'Garlic powder',
     'calzone_ingredients[]|olive_oil': 'Olive oil',
     'calzone_ingredients[]|bacon_bits': 'Bacon bits',
+    'calzone_ingredients[]|meatballs': 'Meatballs',
+    'calzone_ingredients[]|broccoli': 'Broccoli',
+    'calzone_ingredients[]|onion': 'Onion',
+    'calzone_ingredients[]|steak': 'Steak',
+    'calzone_ingredients[]|hot_peppers': 'Hot peppers',
+    'calzone_ingredients[]|banana_peppers': 'Banana peppers',
+    'calzone_ingredients[]|eggplant': 'Eggplant',
+    'calzone_ingredients[]|cheddar_cheese': 'Cheddar cheese',
+    'calzone_ingredients[]|feta_cheese': 'Feta cheese',
+    'calzone_ingredients[]|greens': 'Greens',
+    'calzone_ingredients[]|jalapenos': 'Jalapeño',
+    'calzone_ingredients[]|roasted_red_peppers': 'Roasted red peppers',
+    'calzone_ingredients[]|pineapple': 'Pineapple',
+    'calzone_ingredients[]|spinach': 'Spinach',
+    'calzone_ingredients[]|swiss_cheese': 'Swiss cheese',
+    'calzone_ingredients[]|american_cheese': 'American cheese',
     'calzone_ingredients[]|tomatoes': 'Tomatoes',
     'calzone_ingredients[]|pepperoni': 'Pepperoni',
     'calzone_ingredients[]|salami': 'Salami',
     'calzone_ingredients[]|ham': 'Ham',
+
+    'chicken_wings_ingredients[]|garlic': 'Garlic',
+    'chicken_wings_ingredients[]|butter_sauce': 'Butter sauce',
+    'chicken_wings_ingredients[]|hot_sauce': 'Hot sauce',
+    'chicken_wings_ingredients[]|medium_sauce': 'Medium sauce',
+    'chicken_wings_ingredients[]|plain_extra_hot_sauce': 'Plain extra hot sauce',
+    'chicken_wings_ingredients[]|honey': 'Honey',
+    'chicken_wings_ingredients[]|mustard': 'Mustard',
+    'chicken_wings_ingredients[]|hot_and_spicy_barbecue_sauce': 'Hot and spicy barbecue sauce',
+    'chicken_wings_ingredients[]|mild_sauce': 'Mild sauce',
+    'chicken_wings_ingredients[]|spicy_garlic_parm_sauce': 'Spicy garlic parm sauce',
+
+    'salad_ingredients[]|cucumbers': 'Cucumbers',
+    'salad_ingredients[]|italian_dressing': 'Italian dressing',
+    'salad_ingredients[]|red_onion': 'Red onion',
+    'salad_ingredients[]|tomato': 'Tomato',
+    'salad_ingredients[]|ham': 'Ham',
+    'salad_ingredients[]|olives': 'Olives',
+    'salad_ingredients[]|provolone_cheese': 'Provolone cheese',
+    'salad_ingredients[]|right_onion': 'Right onion',
+    'salad_ingredients[]|salami': 'Salami',
+    'salad_ingredients[]|banana_peppers': 'Banana peppers',
+    'salad_ingredients[]|green_peppers': 'Green peppers',
+    'salad_ingredients[]|red_peppers': 'Red peppers',
 
     'sub_ingredients[]|bacon': 'Bacon',
     'sub_ingredients[]|bologna': 'Bologna',
@@ -148,6 +188,8 @@
     'pizza_ingredients[]',
     'burger_ingredients[]',
     'calzone_ingredients[]',
+    'chicken_wings_ingredients[]',
+    'salad_ingredients[]',
     'sub_ingredients[]',
     'wrap_ingredients[]',
     'sauces_ingredients[]'
@@ -157,6 +199,8 @@
     pizza: ['pizza_ingredients[]'],
     burger: ['burger_ingredients[]'],
     calzone: ['calzone_ingredients[]'],
+    chicken_wings: ['chicken_wings_ingredients[]'],
+    salad: ['salad_ingredients[]'],
     sub: ['sub_ingredients[]'],
     wrap: ['wrap_ingredients[]'],
     sauces: ['sauces_ingredients[]']
@@ -166,6 +210,8 @@
     pizza: 'Pizza',
     burger: 'Burger',
     calzone: 'Calzone',
+    chicken_wings: 'Chicken Wings',
+    salad: 'Salad',
     sub: 'Sub',
     wrap: 'Wrap',
     sauces: 'Sauces',
@@ -174,7 +220,7 @@
 
   const SECTION_QUANTITY_DEFAULT_MIN = 1;
   const SECTION_QUANTITY_MAX = 12;
-  const SECTION_QUANTITY_SECTIONS = ['pizza', 'burger', 'calzone', 'sub', 'wrap', 'sauces'];
+  const SECTION_QUANTITY_SECTIONS = ['pizza', 'burger', 'calzone', 'chicken_wings', 'salad', 'sub', 'wrap', 'sauces'];
   const SECTION_QUANTITY_ALLOW_DISABLE_DEFAULT = true;
   let quantityCanDisable = SECTION_QUANTITY_ALLOW_DISABLE_DEFAULT;
   let sectionQuantities = {};
@@ -2009,6 +2055,8 @@
         if (group.startsWith('pizza_')) return 'pizza';
         if (group.startsWith('burger_')) return 'burger';
         if (group.startsWith('calzone_')) return 'calzone';
+        if (group.startsWith('chicken_wings_')) return 'chicken_wings';
+        if (group.startsWith('salad_')) return 'salad';
         if (group.startsWith('sauces_')) return 'sauces';
         if (group.startsWith('sub_')) return 'sub';
         if (group.startsWith('wrap_')) return 'wrap';

@@ -1908,7 +1908,7 @@
       try { qtyMap = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantities) || '{}'); } catch { qtyMap = {}; }
       const saveQtySections = () => { try { localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections)); } catch { } };
       const saveQtyMap = () => { try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { } };
-      const SECTION_QTY_KEYS = ['pizza', 'burger', 'calzone', 'sub', 'wrap'];
+      const SECTION_QTY_KEYS = ['pizza', 'burger', 'calzone', 'chicken_wings', 'salad', 'sub', 'wrap'];
       const syncSectionQtyControlVisibility = () => {
         SECTION_QTY_KEYS.forEach((sec) => {
           const sectionEl = document.getElementById(sec);
@@ -2672,6 +2672,8 @@
           if (group.startsWith('pizza_')) section = 'pizza';
           else if (group.startsWith('burger_')) section = 'burger';
           else if (group.startsWith('calzone_')) section = 'calzone';
+          else if (group.startsWith('chicken_wings_')) section = 'chicken_wings';
+          else if (group.startsWith('salad_')) section = 'salad';
           else if (group.startsWith('sauces_')) section = 'sauces';
           else if (group.startsWith('sub_')) section = 'sub';
           else if (group.startsWith('wrap_')) section = 'wrap';
@@ -2840,7 +2842,7 @@
         // Load per-section quantities
         let qtySections = {};
         try { qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}'); } catch { qtySections = {}; }
-        const SECTION_QTY_KEYS = ['pizza', 'burger', 'calzone', 'sub', 'wrap'];
+        const SECTION_QTY_KEYS = ['pizza', 'burger', 'calzone', 'chicken_wings', 'salad', 'sub', 'wrap'];
         const qtyLabelMap = { 1: 'Regular', 2: 'Light', 3: 'Extra', 4: 'x3' };
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
         if (entries.length === 0 || nonEmpty.length === 0) {
