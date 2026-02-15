@@ -563,14 +563,16 @@
     const delayOptions = options || {};
     if (!cartToast || !section || (!toastEnabled && !delayOptions.force)) return;
     const label = SECTION_LABELS[section] || section;
-    const defaultMessage = isActive ? `${label} added to cart` : `${label} removed from cart`;
+    const isPage2 = document.body && document.body.classList && document.body.classList.contains('page2');
+    const defaultMessage = isPage2
+      ? (isActive ? `${label} selected` : `${label} deselected`)
+      : (isActive ? `${label} added to cart` : `${label} removed from cart`);
     const message = overrideMessage || defaultMessage;
     cartToast.textContent = message;
     cartToast.classList.add('visible');
     if (cartToastTimer) clearTimeout(cartToastTimer);
     if (!delayOptions.persistUntilHide) {
       const explicitDuration = Number.isFinite(delayOptions.duration) ? delayOptions.duration : null;
-      const isPage2 = document.body && document.body.classList && document.body.classList.contains('page2');
       const page2Delay = toastPage2Long ? PAGE2_TOAST_LONG_DURATION : PAGE2_TOAST_SHORT_DURATION;
       const delay = explicitDuration ?? (isPage2 ? page2Delay : DEFAULT_TOAST_DURATION);
       cartToastTimer = setTimeout(() => hideCartToast(), delay);
@@ -2963,6 +2965,7 @@
           const orderItems = loadOrderItemsFromStorage();
           orderItems.push(item);
           saveOrderItemsToStorage(orderItems);
+          showCartToast(section, true, `${SECTION_LABELS[section] || section} added to cart`);
           clearSectionOnPage2AfterDone(section);
           closeOverlay(section);
         });
@@ -3099,8 +3102,6 @@
           if (sec) {
             if (suppressSectionToast === sec) {
               suppressSectionToast = '';
-            } else {
-              showCartToast(sec, !!t.checked);
             }
           }
         });
