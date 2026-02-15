@@ -24,6 +24,7 @@
     --box-bg: var(--accent);
     --box-border: var(--border-strong);
     --reset-button-bg: #2a231d;
+    --color-item-arrows-light: #000;
 
     /* Dark palette */
     --surface-dark: #13110d;
@@ -32,6 +33,7 @@
     --border-dark: #dba37f;
     --box-bg-dark: #2f7a5e;
     --box-border-dark: #4bb051;
+    --color-item-arrows-dark: #fff;
 
     /* Supporting neutrals */
     --color-black: #000;
@@ -58,7 +60,6 @@
     --color-emerald: #18833d;
     --color-forest: #2f8f49;
     --color-pistachio: #3cb371;
-    --color-item-arrows: #7b6f19;
     --color-danger-accent: #e53935;
 
     /* Shadow helpers */
