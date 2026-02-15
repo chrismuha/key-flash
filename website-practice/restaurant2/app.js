@@ -30,7 +30,8 @@
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantitiesSections',
     pizzaSize: 'restaurant.pizza.size',
-    ingredientCatalog: 'restaurant.ingredientCatalog'
+    ingredientCatalog: 'restaurant.ingredientCatalog',
+    orderItems: 'restaurant.orderItems'
   };
 
   // Pretty labels for summary display (keyed by `${name}|${value}`)
@@ -676,6 +677,19 @@
     } catch { return {}; }
   }
 
+  function loadOrderItemsFromStorage() {
+    try {
+      const stored = safeParseJSON(localStorage.getItem(STORAGE_KEYS.orderItems), []);
+      return Array.isArray(stored) ? stored : [];
+    } catch { return []; }
+  }
+
+  function saveOrderItemsToStorage(items) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.orderItems, JSON.stringify(Array.isArray(items) ? items : []));
+    } catch { /* ignore */ }
+  }
+
   // Delivery helpers
   function readDeliveryData() {
     const data = {
@@ -1101,6 +1115,8 @@
       try { return !!localStorage.getItem(STORAGE_KEYS.orderType); } catch { return false; }
     }
     function hasMenuSelection() {
+      const orderItems = loadOrderItemsFromStorage();
+      if (Array.isArray(orderItems) && orderItems.length > 0) return true;
       // Align with builder rules: at least one section active; if Sauces active, at least one sauce
       let activeSections = {};
       try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
@@ -2572,6 +2588,26 @@
       syncRequiredCheckboxes();
       attachIngredientQuantities();
 
+      // OLD SECTION (kept for reference): Page 2 lock-on-add flow
+      // const lockAddedItemOnPage2 = (cb) => {
+      //   if (!cb || !cb.checked) return;
+      //   cb.dataset.lockedAddedItem = 'true';
+      //   cb.disabled = true;
+      //   cb.setAttribute('aria-disabled', 'true');
+      //   const labelEl = cb.closest('label');
+      //   if (labelEl) labelEl.classList.add('added-locked-item');
+      //   const qtySelect = labelEl ? labelEl.querySelector('select.ingredient-qty') : null;
+      //   if (qtySelect) {
+      //     qtySelect.disabled = true;
+      //     qtySelect.setAttribute('aria-disabled', 'true');
+      //     qtySelect.dataset.lockedAddedItem = 'true';
+      //   }
+      // };
+      // const lockCurrentAddedItemsOnPage2 = () => {
+      //   document.querySelectorAll('input[type="checkbox"][name]:checked').forEach((cb) => lockAddedItemOnPage2(cb));
+      // };
+      // lockCurrentAddedItemsOnPage2();
+
       // Build lookup for pills by section
       const menuLaunchLookup = {};
       menuLaunchButtons.forEach((btn) => {
@@ -2755,6 +2791,12 @@
 
       const updateBuilderError = () => {
         if (!builderError) return;
+        const orderItems = loadOrderItemsFromStorage();
+        if (Array.isArray(orderItems) && orderItems.length > 0) {
+          builderError.hidden = true;
+          builderError.textContent = '';
+          return;
+        }
         const anyActive = sectionToggles.some((t) => t.checked);
         if (!anyActive) {
           builderError.hidden = false;
@@ -2811,6 +2853,7 @@
         blurMenuLaunchFocus();
         resetSectionQuantitiesToDefaults();
         resetSettingsToDefaults();
+        try { localStorage.removeItem(STORAGE_KEYS.orderItems); } catch { /* ignore */ }
         if (typeof closeAllOverlays === 'function') closeAllOverlays();
         clearMenuLaunchVisualState();
         INGREDIENT_GROUPS.forEach((group) => resetGroupByName(group, { skipConfirm: true }));
@@ -2893,12 +2936,82 @@
       });
 
       const sectionDoneButtons = Array.from(document.querySelectorAll('.section-done[data-section]'));
+      let suppressSectionToast = '';
+      const qtyLabelMapForDone = { '2': 'Light', '3': 'Extra', '4': 'x3' };
+      const resolveIngredientValue = (raw) => {
+        if (raw == null) return '';
+        if (typeof raw === 'string' || typeof raw === 'number' || typeof raw === 'boolean') return normalizeJalapenoValue(String(raw));
+        if (typeof raw === 'object') {
+          return normalizeJalapenoValue(String(raw.value ?? raw.key ?? raw.name ?? raw.label ?? raw.text ?? ''));
+        }
+        return '';
+      };
+      const buildOrderItemFromSection = (section) => {
+        const groups = Array.isArray(SECTION_INGREDIENT_GROUPS[section]) ? SECTION_INGREDIENT_GROUPS[section] : [];
+        if (!groups.length) return null;
+        const ingredientsState = loadIngredientsFromStorage();
+        const qtyMapLocal = safeParseJSON(localStorage.getItem(STORAGE_KEYS.quantities), {}) || {};
+        const ingredientRows = [];
+        groups.forEach((group) => {
+          const values = Array.isArray(ingredientsState[group]) ? ingredientsState[group] : [];
+          values.forEach((raw) => {
+            const value = resolveIngredientValue(raw);
+            if (!value) return;
+            const mapKey = `${group}|${value}`;
+            const label = normalizeJalapenoLabel(INGREDIENT_LABELS[mapKey] || titleCase(String(value).replace(/_/g, ' ')));
+            const qRaw = qtyMapLocal[mapKey];
+            const qStr = qRaw == null || qRaw === '' ? '1' : String(qRaw);
+            const qtyLabel = qStr === '1' ? 'Regular' : (qtyLabelMapForDone[qStr] || `x${qStr}`);
+            ingredientRows.push({ group, value, label, qtyLabel });
+          });
+        });
+        if (!ingredientRows.length) return null;
+        const sectionQty = Math.max(SECTION_QUANTITY_DEFAULT_MIN, clampSectionQuantity(getSectionQuantity(section)));
+        return {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+          section,
+          sectionLabel: SECTION_LABELS[section] || titleCase(String(section || '').replace(/_/g, ' ')),
+          sectionQty,
+          pizzaSize: section === 'pizza' ? loadPizzaSize() : '',
+          ingredients: ingredientRows
+        };
+      };
+      const clearSectionOnPage2AfterDone = (section) => {
+        if (!section) return;
+        suppressSectionToast = section;
+        const groups = Array.isArray(SECTION_INGREDIENT_GROUPS[section]) ? SECTION_INGREDIENT_GROUPS[section] : [];
+        try {
+          const ing = loadIngredientsFromStorage();
+          groups.forEach((group) => { ing[group] = []; });
+          saveIngredientsToStorage(ing);
+        } catch { /* ignore */ }
+        clearOptionalSelections(section);
+        const toggle = document.querySelector(`.section-toggle[data-section="${section}"]`);
+        if (toggle && toggle.checked) {
+          toggle.checked = false;
+          toggle.dispatchEvent(new Event('change', { bubbles: true }));
+        } else {
+          suppressSectionToast = '';
+          updateBuilderError();
+          updatePage3NavState();
+        }
+      };
       sectionDoneButtons.forEach((btn) => {
         btn.addEventListener('click', (evt) => {
           evt.stopPropagation();
           evt.preventDefault();
           const section = btn.dataset.section;
-          if (section) closeOverlay(section);
+          if (!section) return;
+          const item = buildOrderItemFromSection(section);
+          if (!item) {
+            closeOverlay(section);
+            return;
+          }
+          const orderItems = loadOrderItemsFromStorage();
+          orderItems.push(item);
+          saveOrderItemsToStorage(orderItems);
+          clearSectionOnPage2AfterDone(section);
+          closeOverlay(section);
         });
       });
 
@@ -3023,7 +3136,13 @@
           persistActiveSections();
           updateBuilderError();
           updatePage3NavState();
-          if (sec) showCartToast(sec, !!t.checked);
+          if (sec) {
+            if (suppressSectionToast === sec) {
+              suppressSectionToast = '';
+            } else {
+              showCartToast(sec, !!t.checked);
+            }
+          }
         });
       });
 
@@ -3182,6 +3301,8 @@
 
       function redirectIfNoActiveSections() {
         if (!document.body.classList.contains('page3')) return false;
+        const orderItems = loadOrderItemsFromStorage();
+        if (Array.isArray(orderItems) && orderItems.length > 0) return false;
         const active = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {});
         const hasActive = Object.values(active || {}).some((v) => !!v);
         if (hasActive) return false;
@@ -3268,6 +3389,8 @@
         const readJSON = (key, fallback) => {
           try { return safeParseJSON(localStorage.getItem(key), fallback); } catch { return fallback; }
         };
+        const writeOrderItems = (items) => saveOrderItemsToStorage(items);
+        const orderItems = loadOrderItemsFromStorage();
         const d = readDeliveryData();
         const orderType = (() => { try { return localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { return ''; } })();
         const ingredients = normalizeIngredientData(readJSON(STORAGE_KEYS.ingredients, {})) || {};
@@ -3357,10 +3480,168 @@
         h3.textContent = 'Selections';
         selectionsBlock.appendChild(h3);
 
+        const qtyLabelMap = { '2': 'Light', '3': 'Extra', '4': 'x3' };
+        if (Array.isArray(orderItems) && orderItems.length > 0) {
+          const sectionsContainer = document.createElement('div');
+          sectionsContainer.className = 'summary-sections';
+          const catalog = loadIngredientCatalogFromStorage();
+          orderItems.forEach((item, idx) => {
+            if (!item || !item.section) return;
+            const sectionWrap = document.createElement('div');
+            sectionWrap.className = 'summary-section';
+            const header = document.createElement('div');
+            header.className = 'summary-section-header';
+            const title = document.createElement('strong');
+            const sectionLabel = item.sectionLabel || SECTION_LABELS[item.section] || titleCase(String(item.section).replace(/_/g, ' '));
+            title.textContent = `${sectionLabel} #${idx + 1}`;
+            header.appendChild(title);
+
+            const actions = document.createElement('div');
+            actions.className = 'summary-section-actions';
+
+            const edit = document.createElement('button');
+            edit.type = 'button';
+            edit.textContent = 'Edit';
+            edit.className = 'summary-edit-btn';
+            actions.appendChild(edit);
+
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'summary-remove-btn';
+            remove.textContent = 'Remove';
+            remove.setAttribute('aria-label', `Remove ${title.textContent}`);
+            remove.addEventListener('click', (evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              const next = loadOrderItemsFromStorage().filter((it) => it && it.id !== item.id);
+              writeOrderItems(next);
+              if (!next.length) redirectIfNoActiveSections();
+              renderOrderSummary();
+            });
+            actions.appendChild(remove);
+            sectionWrap.appendChild(header);
+            sectionWrap.appendChild(actions);
+
+            if (item.section === 'pizza' && item.pizzaSize) {
+              const sizeLine = document.createElement('div');
+              sizeLine.className = 'summary-section-size';
+              const sizeLabel = PIZZA_SIZE_LABELS[item.pizzaSize] || item.pizzaSize;
+              sizeLine.textContent = `Size: ${sizeLabel}`;
+              sectionWrap.appendChild(sizeLine);
+            }
+
+            const ul = document.createElement('ul');
+            const itemIngredients = Array.isArray(item.ingredients) ? item.ingredients : [];
+            itemIngredients.forEach((row) => {
+              if (!row || !row.value) return;
+              const li = document.createElement('li');
+              const qtyLabel = row.qtyLabel || 'Regular';
+              li.textContent = `${normalizeJalapenoLabel(row.label || titleCase(String(row.value).replace(/_/g, ' ')))} (${qtyLabel})`;
+              ul.appendChild(li);
+            });
+            sectionWrap.appendChild(ul);
+
+            const optionsRaw = Array.isArray(catalog[item.section]) ? catalog[item.section] : [];
+            const options = optionsRaw.length
+              ? optionsRaw.map((opt) => ({
+                group: opt.group || `${item.section}_ingredients[]`,
+                value: normalizeJalapenoValue(opt.value),
+                label: normalizeJalapenoLabel(opt.label || titleCase(String(opt.value || '').replace(/_/g, ' '))),
+                required: !!opt.required
+              })).filter((opt) => !!opt.value)
+              : itemIngredients.map((row) => ({
+                group: row.group || `${item.section}_ingredients[]`,
+                value: normalizeJalapenoValue(row.value),
+                label: normalizeJalapenoLabel(row.label || titleCase(String(row.value || '').replace(/_/g, ' '))),
+                required: false
+              }));
+            const selectedValues = new Set(itemIngredients.map((row) => normalizeJalapenoValue(row.value)).filter(Boolean));
+            const editor = document.createElement('div');
+            editor.className = 'summary-inline-editor';
+            editor.hidden = true;
+            const editorList = document.createElement('div');
+            editorList.className = 'summary-inline-editor-list';
+            options.forEach((opt, optIdx) => {
+              if (!opt || !opt.value) return;
+              const id = `summary-item-edit-${idx}-${optIdx}`;
+              const row = document.createElement('label');
+              row.className = 'summary-inline-option';
+              row.setAttribute('for', id);
+              const cb = document.createElement('input');
+              cb.type = 'checkbox';
+              cb.id = id;
+              cb.value = opt.value;
+              cb.checked = !!opt.required || selectedValues.has(opt.value);
+              if (opt.required) cb.disabled = true;
+              const txt = document.createElement('span');
+              txt.textContent = opt.label || titleCase(String(opt.value).replace(/_/g, ' '));
+              row.appendChild(cb);
+              row.appendChild(txt);
+              editorList.appendChild(row);
+            });
+            editor.appendChild(editorList);
+            const editorActions = document.createElement('div');
+            editorActions.className = 'summary-inline-editor-actions';
+            const saveBtn = document.createElement('button');
+            saveBtn.type = 'button';
+            saveBtn.className = 'summary-inline-save-btn';
+            saveBtn.textContent = 'Save';
+            const cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'summary-inline-cancel-btn';
+            cancelBtn.textContent = 'Cancel';
+            editorActions.appendChild(saveBtn);
+            editorActions.appendChild(cancelBtn);
+            editor.appendChild(editorActions);
+            sectionWrap.appendChild(editor);
+
+            edit.addEventListener('click', () => {
+              editor.hidden = !editor.hidden;
+            });
+            cancelBtn.addEventListener('click', () => {
+              editor.hidden = true;
+            });
+            saveBtn.addEventListener('click', () => {
+              const checked = new Set(Array.from(editor.querySelectorAll('input[type="checkbox"]:checked')).map((el) => normalizeJalapenoValue(el.value)));
+              const updatedIngredients = options
+                .filter((opt) => checked.has(normalizeJalapenoValue(opt.value)))
+                .map((opt) => {
+                  const normalizedValue = normalizeJalapenoValue(opt.value);
+                  const rowKey = `${opt.group}|${normalizedValue}`;
+                  const qRaw = qtyMap[rowKey];
+                  const qStr = qRaw == null || qRaw === '' ? '1' : String(qRaw);
+                  const qtyText = qStr === '1' ? 'Regular' : (qtyLabelMap[qStr] || `x${qStr}`);
+                  return {
+                    group: opt.group,
+                    value: normalizedValue,
+                    label: normalizeJalapenoLabel(opt.label || titleCase(String(normalizedValue).replace(/_/g, ' '))),
+                    qtyLabel: qtyText
+                  };
+                });
+              const next = loadOrderItemsFromStorage().map((it) => {
+                if (!it || it.id !== item.id) return it;
+                return { ...it, ingredients: updatedIngredients };
+              });
+              writeOrderItems(next);
+              renderOrderSummary();
+            });
+            sectionsContainer.appendChild(sectionWrap);
+          });
+
+          if (sectionsContainer.childNodes.length) selectionsBlock.appendChild(sectionsContainer);
+          else {
+            const p = document.createElement('p');
+            p.textContent = 'No ingredients selected yet.';
+            selectionsBlock.appendChild(p);
+          }
+
+          frag.appendChild(selectionsBlock);
+          container.appendChild(frag);
+          return;
+        }
+
         const entries = Object.entries(ingredients || {});
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
-
-        const qtyLabelMap = { '2': 'Light', '3': 'Extra', '4': 'x3' };
         const resolveIngredientValueKey = (rawValue) => {
           if (rawValue == null) return '';
           if (typeof rawValue === 'string' || typeof rawValue === 'number' || typeof rawValue === 'boolean') {
