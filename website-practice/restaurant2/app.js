@@ -30,6 +30,7 @@
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantitiesSections',
     pizzaSize: 'restaurant.pizza.size',
+    // OLD (hidden line reference): ingredientCatalog was last key before orderItems.
     ingredientCatalog: 'restaurant.ingredientCatalog',
     orderItems: 'restaurant.orderItems'
   };
@@ -2588,26 +2589,6 @@
       syncRequiredCheckboxes();
       attachIngredientQuantities();
 
-      // OLD SECTION (kept for reference): Page 2 lock-on-add flow
-      // const lockAddedItemOnPage2 = (cb) => {
-      //   if (!cb || !cb.checked) return;
-      //   cb.dataset.lockedAddedItem = 'true';
-      //   cb.disabled = true;
-      //   cb.setAttribute('aria-disabled', 'true');
-      //   const labelEl = cb.closest('label');
-      //   if (labelEl) labelEl.classList.add('added-locked-item');
-      //   const qtySelect = labelEl ? labelEl.querySelector('select.ingredient-qty') : null;
-      //   if (qtySelect) {
-      //     qtySelect.disabled = true;
-      //     qtySelect.setAttribute('aria-disabled', 'true');
-      //     qtySelect.dataset.lockedAddedItem = 'true';
-      //   }
-      // };
-      // const lockCurrentAddedItemsOnPage2 = () => {
-      //   document.querySelectorAll('input[type="checkbox"][name]:checked').forEach((cb) => lockAddedItemOnPage2(cb));
-      // };
-      // lockCurrentAddedItemsOnPage2();
-
       // Build lookup for pills by section
       const menuLaunchLookup = {};
       menuLaunchButtons.forEach((btn) => {
@@ -2898,6 +2879,7 @@
       menuLaunchButtons.forEach((btn) => {
         const target = btn.dataset.target;
         if (!target) return;
+        // OLD (hidden line reference): const arrow = btn.querySelector('.menu-launch-arrow');
         const arrow = ensureMenuLaunchArrow(btn);
         const isArrowTarget = (el) => arrow && (el === arrow || arrow.contains(el));
         const guardNonArrow = (evt) => {
@@ -3359,6 +3341,8 @@
       const bindSummaryAdjustButton = (btn, section, delta) => {
         let lastPointerAdjustAt = 0;
         const triggerAdjust = (evt) => {
+          // OLD (hidden line reference): lastPointerAdjustAt = performance.now();
+          // OLD (hidden line reference): handleAdjustSectionQuantity(section, delta);
           evt.preventDefault();
           evt.stopPropagation();
           lastPointerAdjustAt = performance.now();
