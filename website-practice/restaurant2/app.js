@@ -64,6 +64,20 @@
     'burger_ingredients[]|rare': 'Rare',
     'burger_ingredients[]|tomato_sauce': 'Sauce',
 
+    'calzone_ingredients[]|ricotta_cheese': 'Ricotta cheese',
+    'calzone_ingredients[]|shredded_mozzarella': 'Shredded mozzarella',
+    'calzone_ingredients[]|grated_parmesan_or_pecorino': 'Grated parmesan or pecorino',
+    'calzone_ingredients[]|salt': 'Salt',
+    'calzone_ingredients[]|black_pepper': 'Black pepper',
+    'calzone_ingredients[]|italian_seasoning': 'Italian seasoning',
+    'calzone_ingredients[]|garlic_powder': 'Garlic powder',
+    'calzone_ingredients[]|olive_oil': 'Olive oil',
+    'calzone_ingredients[]|bacon_bits': 'Bacon bits',
+    'calzone_ingredients[]|tomatoes': 'Tomatoes',
+    'calzone_ingredients[]|pepperoni': 'Pepperoni',
+    'calzone_ingredients[]|salami': 'Salami',
+    'calzone_ingredients[]|ham': 'Ham',
+
     'sub_ingredients[]|bacon': 'Bacon',
     'sub_ingredients[]|bologna': 'Bologna',
     'sub_ingredients[]|cheese': 'Cheese',
@@ -133,6 +147,7 @@
   const INGREDIENT_GROUPS = [
     'pizza_ingredients[]',
     'burger_ingredients[]',
+    'calzone_ingredients[]',
     'sub_ingredients[]',
     'wrap_ingredients[]',
     'sauces_ingredients[]'
@@ -141,6 +156,7 @@
   const SECTION_INGREDIENT_GROUPS = {
     pizza: ['pizza_ingredients[]'],
     burger: ['burger_ingredients[]'],
+    calzone: ['calzone_ingredients[]'],
     sub: ['sub_ingredients[]'],
     wrap: ['wrap_ingredients[]'],
     sauces: ['sauces_ingredients[]']
@@ -149,6 +165,7 @@
   const SECTION_LABELS = {
     pizza: 'Pizza',
     burger: 'Burger',
+    calzone: 'Calzone',
     sub: 'Sub',
     wrap: 'Wrap',
     sauces: 'Sauces',
@@ -157,7 +174,7 @@
 
   const SECTION_QUANTITY_DEFAULT_MIN = 1;
   const SECTION_QUANTITY_MAX = 12;
-  const SECTION_QUANTITY_SECTIONS = ['pizza', 'burger', 'sub', 'wrap', 'sauces'];
+  const SECTION_QUANTITY_SECTIONS = ['pizza', 'burger', 'calzone', 'sub', 'wrap', 'sauces'];
   const SECTION_QUANTITY_ALLOW_DISABLE_DEFAULT = true;
   let quantityCanDisable = SECTION_QUANTITY_ALLOW_DISABLE_DEFAULT;
   let sectionQuantities = {};
@@ -1991,6 +2008,7 @@
         if (!group) return '';
         if (group.startsWith('pizza_')) return 'pizza';
         if (group.startsWith('burger_')) return 'burger';
+        if (group.startsWith('calzone_')) return 'calzone';
         if (group.startsWith('sauces_')) return 'sauces';
         if (group.startsWith('sub_')) return 'sub';
         if (group.startsWith('wrap_')) return 'wrap';
