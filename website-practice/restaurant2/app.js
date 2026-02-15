@@ -1588,19 +1588,37 @@
         visibleCount: 0,
         maxStart: 0,
       };
+      const SLIDER_EDGE_EPSILON = 6;
+
+      const syncSliderStateFromScroll = () => {
+        if (!sliderTrack || !sliderChips.length) return;
+        const sl = sliderTrack.scrollLeft || 0;
+        const maxScroll = Math.max(0, sliderTrack.scrollWidth - sliderTrack.clientWidth);
+        const trackStyle = getComputedStyle(sliderTrack);
+        const paddingLeft = parseFloat(trackStyle.paddingLeft) || 0;
+
+        let idx = 0;
+        for (let i = 0; i < sliderChips.length; i++) {
+          const chip = sliderChips[i];
+          const left = chip.offsetLeft - paddingLeft;
+          if (left <= sl + 1) idx = i;
+          else break;
+        }
+
+        const atLeftEdge = sl <= SLIDER_EDGE_EPSILON;
+        const atRightEdge = sl >= (maxScroll - SLIDER_EDGE_EPSILON);
+        if (atLeftEdge) idx = 0;
+        else if (atRightEdge) idx = sliderState.maxStart || 0;
+
+        sliderState.start = Math.min(Math.max(0, idx), sliderState.maxStart || 0);
+        if (sliderPrev) sliderPrev.disabled = maxScroll <= 1 || atLeftEdge;
+        if (sliderNext) sliderNext.disabled = maxScroll <= 1 || atRightEdge;
+      };
 
       const renderSliderWindow = () => {
         if (!sliderTrack || !sliderChips.length) return;
         const targetIndex = Math.min(sliderState.start, sliderChips.length - 1);
         const targetChip = sliderChips[targetIndex];
-        const syncSliderArrowDisabledState = () => {
-          if (!sliderTrack) return;
-          const sl = sliderTrack.scrollLeft || 0;
-          const maxScroll = Math.max(0, sliderTrack.scrollWidth - sliderTrack.clientWidth);
-          const canScroll = maxScroll > 1;
-          if (sliderPrev) sliderPrev.disabled = !canScroll || sl <= 1;
-          if (sliderNext) sliderNext.disabled = !canScroll || sl >= (maxScroll - 1);
-        };
         
         if (sliderState.start === 0) {
           sliderTrack.scrollLeft = 0;
@@ -1614,18 +1632,27 @@
           }
           sliderTrack.scrollLeft = Math.max(0, offset);
         }
-        syncSliderArrowDisabledState();
+        syncSliderStateFromScroll();
+        requestAnimationFrame(syncSliderStateFromScroll);
       };
 
       const moveSlider = (delta) => {
         if (!sliderTrack || !sliderChips.length) return;
-        const nextStart = Math.min(
-          Math.max(0, sliderState.start + delta),
-          sliderState.maxStart
-        );
-        if (nextStart === sliderState.start) return;
-        sliderState.start = nextStart;
-        renderSliderWindow();
+        const sl = sliderTrack.scrollLeft || 0;
+        const maxScroll = Math.max(0, sliderTrack.scrollWidth - sliderTrack.clientWidth);
+        if (maxScroll <= 1) {
+          syncSliderStateFromScroll();
+          return;
+        }
+        const step = Math.max(48, Math.floor(sliderTrack.clientWidth * 0.8));
+        let targetLeft = sl + (delta * step);
+        targetLeft = Math.min(Math.max(0, targetLeft), maxScroll);
+        if (Math.abs(targetLeft - sl) <= 1) {
+          syncSliderStateFromScroll();
+          return;
+        }
+        sliderTrack.scrollTo({ left: targetLeft, behavior: 'smooth' });
+        requestAnimationFrame(syncSliderStateFromScroll);
       };
 
       const getVisibleCount = () => {
@@ -1648,7 +1675,7 @@
       const ensureSliderAlignment = () => {
         if (!sliderTrack || !sliderChips.length) return;
         sliderState.visibleCount = getVisibleCount();
-        sliderState.maxStart = Math.max(0, sliderChips.length - sliderState.visibleCount);
+        sliderState.maxStart = Math.max(0, sliderChips.length - 1);
         sliderState.start = Math.min(sliderState.start, sliderState.maxStart);
         renderSliderWindow();
       };
@@ -1662,6 +1689,7 @@
             evt.stopPropagation();
           }
           ensureSliderAlignment();
+          syncSliderStateFromScroll();
           moveSlider(delta);
         };
         if (window.PointerEvent) {
@@ -1738,22 +1766,7 @@
 
         let sliderScrollRaf = null;
         const updateStartFromScroll = () => {
-          if (!sliderTrack || !sliderChips.length) return;
-          const sl = sliderTrack.scrollLeft || 0;
-          const maxScroll = Math.max(0, sliderTrack.scrollWidth - sliderTrack.clientWidth);
-          const trackStyle = getComputedStyle(sliderTrack);
-          const paddingLeft = parseFloat(trackStyle.paddingLeft) || 0;
-
-          let idx = 0;
-          for (let i = 0; i < sliderChips.length; i++) {
-            const chip = sliderChips[i];
-            const left = chip.offsetLeft - paddingLeft;
-            if (left <= sl + 1) idx = i;
-            else break;
-          }
-          sliderState.start = Math.min(Math.max(0, idx), sliderState.maxStart || 0);
-          if (sliderPrev) sliderPrev.disabled = maxScroll <= 1 || sl <= 1;
-          if (sliderNext) sliderNext.disabled = maxScroll <= 1 || sl >= (maxScroll - 1);
+          syncSliderStateFromScroll();
         };
         sliderTrack.addEventListener('scroll', () => {
           if (sliderScrollRaf) cancelAnimationFrame(sliderScrollRaf);
