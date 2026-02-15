@@ -14,8 +14,10 @@ body {
     font-family: ui-sans-serif, system-ui, sans-serif, Arial;
     background: #ffffff;
     color: #111827;
-    padding: 24px;
+    padding: clamp(10px, 2.5vw, 24px);
     line-height: 1.4;
+    margin: 0;
+    -webkit-text-size-adjust: 100%;
 }
 
 .wrap {
@@ -184,4 +186,74 @@ body {
     border-radius: 10px;
     font: inherit;
     background: #fff;
+}
+
+@media (max-width: 700px) {
+    .wrap {
+        padding: 14px 12px 18px;
+        border-radius: 12px;
+    }
+
+    .header {
+        align-items: center;
+    }
+
+    .title {
+        font-size: 12pt;
+    }
+
+    .tick-label {
+        font-size: 8pt;
+    }
+}
+
+@media (max-width: 460px) {
+    :root {
+        --thumb-size: 26px;
+    }
+
+    .hint {
+        font-size: 9pt;
+    }
+
+    #settings-wrap select {
+        max-width: 100%;
+    }
+}
+
+/* Mobile polish baseline */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+img,
+svg,
+canvas,
+video,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+select,
+a.btn {
+  min-height: 44px;
+}
+
+@media (max-width: 700px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
