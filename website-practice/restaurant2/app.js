@@ -2377,6 +2377,20 @@
       };
 
       function resetMenuSelections() {
+        const clearMenuLaunchVisualState = () => {
+          menuLaunchButtons.forEach((btn) => {
+            btn.classList.remove('menu-launch-active');
+            btn.setAttribute('aria-expanded', 'false');
+            if (typeof btn.blur === 'function') btn.blur();
+            const arrowBtn = btn.querySelector('.menu-launch-arrow');
+            if (arrowBtn) {
+              if (typeof arrowBtn.blur === 'function') arrowBtn.blur();
+              const icon = arrowBtn.querySelector('.icon');
+              if (icon) icon.textContent = '▸';
+            }
+          });
+        };
+
         const blurMenuLaunchFocus = () => {
           const activeEl = document.activeElement;
           if (
@@ -2392,16 +2406,12 @@
         };
 
         // Defensive focus clear: run now and next frame to catch delayed focus restore.
+        clearMenuLaunchVisualState();
         blurMenuLaunchFocus();
         resetSectionQuantitiesToDefaults();
         resetSettingsToDefaults();
         if (typeof closeAllOverlays === 'function') closeAllOverlays();
-        menuLaunchButtons.forEach((btn) => {
-          btn.classList.remove('menu-launch-active');
-          btn.setAttribute('aria-expanded', 'false');
-          const arrowIcon = btn.querySelector('.menu-launch-arrow .icon');
-          if (arrowIcon) arrowIcon.textContent = '▸';
-        });
+        clearMenuLaunchVisualState();
         INGREDIENT_GROUPS.forEach((group) => resetGroupByName(group, { skipConfirm: true }));
         pizzaSizeRadios.forEach((radio) => {
           radio.checked = radio.value === DEFAULT_PIZZA_SIZE;
@@ -2428,8 +2438,16 @@
         updateBuilderError();
         updatePage3NavState();
         refreshSectionQuantityControls();
+        clearMenuLaunchVisualState();
         blurMenuLaunchFocus();
-        requestAnimationFrame(() => blurMenuLaunchFocus());
+        requestAnimationFrame(() => {
+          clearMenuLaunchVisualState();
+          blurMenuLaunchFocus();
+        });
+        setTimeout(() => {
+          clearMenuLaunchVisualState();
+          blurMenuLaunchFocus();
+        }, 0);
       }
 
       // Attach pill/arrow handlers
