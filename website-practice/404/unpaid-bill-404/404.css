@@ -16,7 +16,7 @@ body {
     flex-direction: column;
     justify-content: space-between;
     font-family: Arial, Helvetica, sans-serif;
-    min-height: 100vh;
+    min-height: 100dvh;
     overflow-x: hidden;
 }
 
@@ -158,7 +158,10 @@ body {
     }
 
     body {
-        display: block;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 100dvh;
     }
 
     header,
@@ -280,7 +283,7 @@ body {
     }
 
     #rectangle4 {
-        height: 24px;
+        height: 36px;
         margin-bottom: 0;
     }
 }
