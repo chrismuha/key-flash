@@ -1584,6 +1584,42 @@ body.page3 #order-summary .summary-item-qty-controls button {
     flex: 0 0 auto;
 }
 
+body.page3 #order-summary .summary-section-qty-row button,
+body.page3 #order-summary .summary-item-qty-controls button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--danger);
+    background: var(--surface);
+    color: var(--color-black);
+    font-size: 18pt;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+body.page3 #order-summary .summary-section-qty-row button:disabled,
+body.page3 #order-summary .summary-item-qty-controls button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+body.page3 #order-summary .summary-section-qty-row button:not(:disabled):hover,
+body.page3 #order-summary .summary-item-qty-controls button:not(:disabled):hover {
+    transform: scale(1.05);
+}
+
+body.theme-dark.page3 #order-summary .summary-section-qty-row button,
+body.theme-dark.page3 #order-summary .summary-item-qty-controls button {
+    border-color: var(--surface);
+    background: var(--surface-dark);
+    color: var(--surface);
+}
+
 /* spacing under multi-line address block */
 body.page3 #order-summary .address-block {
     margin-bottom: 12px;
