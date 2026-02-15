@@ -1226,10 +1226,12 @@ body.page2 main {
     border: none;
     position: relative;
     margin-top: 0;
-    padding: max(calc(var(--nav-offset) - 4px), 1px) clamp(16px, 4vw, 40px) calc(180px);
+    padding: max(calc(var(--nav-offset) - 4px), 1px) clamp(16px, 4vw, 40px) calc(260px + var(--safe-area-bottom));
     width: 100%;
     max-width: none;
     min-height: calc(100vh - var(--nav-offset) - 220px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 
@@ -1239,7 +1241,7 @@ body.page2:not(.nav-enabled) main {
 
 @media (max-width: 640px) {
     body.page2 main {
-        padding: max(calc(var(--nav-offset) - 4px), 1px) clamp(16px, 6vw, 32px) calc(180px);
+        padding: max(calc(var(--nav-offset) - 4px), 1px) clamp(16px, 6vw, 32px) calc(260px + var(--safe-area-bottom));
         width: 100%;
         margin-inline: 0;
     }
