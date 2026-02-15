@@ -1099,20 +1099,7 @@
     }
     function hasMenuSelection() {
       const orderItems = loadOrderItemsFromStorage();
-      if (Array.isArray(orderItems) && orderItems.length > 0) return true;
-      // Align with builder rules: at least one section active; if Sauces active, at least one sauce
-      let activeSections = {};
-      try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
-      const anySectionActive = Object.values(activeSections).some(Boolean);
-      if (!anySectionActive) return false;
-      const saucesActive = !!activeSections.sauces;
-      if (!saucesActive) return true;
-      try {
-        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}');
-        const ing = normalizeIngredientData(stored) || {};
-        const sauces = Array.isArray(ing['sauces_ingredients[]']) ? ing['sauces_ingredients[]'] : [];
-        return sauces.length > 0;
-      } catch { return false; }
+      return Array.isArray(orderItems) && orderItems.length > 0;
     }
     const updateOrderTypeChip = () => {
       let type = '';
@@ -2734,7 +2721,9 @@
           //   );
           // }
 
-          if (sec && menuLaunchLookup[sec]) menuLaunchLookup[sec].forEach((btn) => btn.classList.remove('menu-launch-active'));
+          if (sec && menuLaunchLookup[sec]) {
+            menuLaunchLookup[sec].forEach((btn) => btn.classList.toggle('menu-launch-active', isActive));
+          }
         });
         try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(active)); } catch { }
         syncRequiredCheckboxes();
@@ -3274,9 +3263,6 @@
         if (!document.body.classList.contains('page3')) return false;
         const orderItems = loadOrderItemsFromStorage();
         if (Array.isArray(orderItems) && orderItems.length > 0) return false;
-        const active = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {});
-        const hasActive = Object.values(active || {}).some((v) => !!v);
-        if (hasActive) return false;
         const page2ReasonMessage = 'No more items were selected on Page 3, so you were rerouted back to the menu builder.';
         setRedirectReason(page2ReasonMessage);
         showCartToast('order', false, PAGE3_REDIRECT_TOAST_MESSAGE, { persistUntilHide: true, force: true });
@@ -3454,6 +3440,15 @@
         selectionsBlock.appendChild(h3);
 
         const qtyLabelMap = { '2': 'Light', '3': 'Extra', '4': 'x3' };
+        if (!Array.isArray(orderItems) || orderItems.length === 0) {
+          const p = document.createElement('p');
+          p.textContent = 'No ingredients selected yet.';
+          selectionsBlock.appendChild(p);
+          frag.appendChild(selectionsBlock);
+          container.appendChild(frag);
+          return;
+        }
+
         if (Array.isArray(orderItems) && orderItems.length > 0) {
           const sectionsContainer = document.createElement('div');
           sectionsContainer.className = 'summary-sections';

@@ -563,23 +563,7 @@
     }
     function hasMenuSelection() {
       const orderItems = loadOrderItemsFromStorage();
-      if (Array.isArray(orderItems) && orderItems.length > 0) return true;
-      let activeSections = {};
-      try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
-      const anySectionActive = Object.values(activeSections).some(Boolean);
-      if (!anySectionActive) return false;
-      try {
-        const ing = JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}');
-        const activeWithNoIngredients = Object.entries(activeSections)
-          .filter(([, isActive]) => !!isActive)
-          .map(([section]) => section)
-          .filter((section) => {
-            const group = `${section}_ingredients[]`;
-            const values = Array.isArray(ing[group]) ? ing[group] : [];
-            return values.length === 0;
-          });
-        return activeWithNoIngredients.length === 0;
-      } catch { return false; }
+      return Array.isArray(orderItems) && orderItems.length > 0;
     }
     function hasValidDeliveryDetails() {
       // Validate saved delivery details (used to unlock Page 2 for delivery)
@@ -3240,6 +3224,17 @@
         const qtyLabelMap = { 1: 'Regular', 2: 'Light', 3: 'Extra', 4: 'x3' };
         const nonEmpty = entries.filter(([, arr]) => Array.isArray(arr) && arr.length > 0);
         const orderItems = loadOrderItemsFromStorage();
+
+        if (!Array.isArray(orderItems) || orderItems.length === 0) {
+          const none = document.createElement('p');
+          none.textContent = 'No ingredients selected yet.';
+          selectionsBlock.appendChild(none);
+          frag.appendChild(selectionsBlock);
+          container.innerHTML = '';
+          container.appendChild(frag);
+          try { updateMovedControls(document.body.classList.contains('nav-enabled')); } catch (err) { /* ignore */ }
+          return;
+        }
 
         if (Array.isArray(orderItems) && orderItems.length > 0) {
           const sectionsContainer = document.createElement('div');
