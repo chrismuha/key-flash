@@ -871,10 +871,90 @@
     observer.observe(root, { childList: true, subtree: true, characterData: true });
   }
 
+  const CASE_EXCEPTION_WORDS = new Set(['and', 'or', 'of', 'the', 'a', 'an', 'in', 'on', 'for', 'to']);
+  const CASE_EXCEPTION_SELECTOR = 'main fieldset label, body.page3 #order-summary li, body.page3 #order-summary .summary-inline-option span';
+
+  function applyIngredientCaseExceptions(root = document) {
+    if (!root || !root.querySelectorAll) return;
+    const targets = Array.from(root.querySelectorAll(CASE_EXCEPTION_SELECTOR));
+    targets.forEach((target) => {
+      target.querySelectorAll('span.case-exception').forEach((span) => {
+        span.replaceWith(document.createTextNode(span.textContent || ''));
+      });
+      const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          if (!node || !node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          const parent = node.parentElement;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+          if (parent.closest('select, option, button, script, style, textarea')) return NodeFilter.FILTER_REJECT;
+          if (parent.classList && parent.classList.contains('case-exception')) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      const textNodes = [];
+      let current = walker.nextNode();
+      while (current) {
+        textNodes.push(current);
+        current = walker.nextNode();
+      }
+      textNodes.forEach((node) => {
+        const txt = node.nodeValue || '';
+        const re = /\b([A-Za-z]+)\b/g;
+        let match = re.exec(txt);
+        if (!match) return;
+        re.lastIndex = 0;
+        let lastIdx = 0;
+        let changed = false;
+        const frag = document.createDocumentFragment();
+        while ((match = re.exec(txt))) {
+          const word = match[1];
+          const lower = word.toLowerCase();
+          if (!CASE_EXCEPTION_WORDS.has(lower)) continue;
+          changed = true;
+          const start = match.index;
+          if (start > lastIdx) frag.appendChild(document.createTextNode(txt.slice(lastIdx, start)));
+          const span = document.createElement('span');
+          span.className = 'case-exception';
+          span.textContent = lower;
+          frag.appendChild(span);
+          lastIdx = start + word.length;
+        }
+        if (!changed) return;
+        if (lastIdx < txt.length) frag.appendChild(document.createTextNode(txt.slice(lastIdx)));
+        node.parentNode.replaceChild(frag, node);
+      });
+    });
+  }
+
+  function installIngredientCaseExceptionObserver() {
+    const root = document.body;
+    if (!root) return;
+    let queued = false;
+    const schedule = () => {
+      if (queued) return;
+      queued = true;
+      const run = () => {
+        queued = false;
+        applyIngredientCaseExceptions(document);
+      };
+      if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(run);
+      else setTimeout(run, 0);
+    };
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'characterData') { schedule(); return; }
+        if (mutation.type === 'childList' && (mutation.addedNodes.length || mutation.removedNodes.length)) { schedule(); return; }
+      }
+    });
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
+  }
+
   // Section: Page Initialization
   document.addEventListener('DOMContentLoaded', () => {
     applyAutomaticAlphabetizing();
     installAutomaticAlphabetizeObserver();
+    applyIngredientCaseExceptions(document);
+    installIngredientCaseExceptionObserver();
     let lastTouchEnd = 0;
     document.addEventListener('touchend', (event) => {
       const now = performance.now();
