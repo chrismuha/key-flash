@@ -2572,53 +2572,6 @@
       syncRequiredCheckboxes();
       attachIngredientQuantities();
 
-      const lockAddedItemOnPage2 = (cb) => {
-        if (!cb || !cb.checked) return;
-        cb.dataset.lockedAddedItem = 'true';
-        const labelEl = cb.closest('label');
-        const qtySelect = labelEl ? labelEl.querySelector('select.ingredient-qty') : null;
-        if (qtySelect) {
-          qtySelect.dataset.lockedAddedItem = 'true';
-          qtySelect.disabled = true;
-          qtySelect.setAttribute('aria-disabled', 'true');
-        }
-      };
-
-      const lockCurrentAddedItemsOnPage2 = () => {
-        document.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => {
-          if (cb.checked) lockAddedItemOnPage2(cb);
-        });
-      };
-
-      const blockLockedAddedItemEditsOnPage2 = (event) => {
-        const target = event.target;
-        if (!target) return;
-        let cb = null;
-        if (target.matches && target.matches('input[type="checkbox"][name]')) {
-          cb = target;
-        } else {
-          const labelEl = target.closest && target.closest('label');
-          if (labelEl) cb = labelEl.querySelector('input[type="checkbox"][name]');
-        }
-        if (cb && cb.checked && cb.dataset && cb.dataset.lockedAddedItem === 'true') {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          return;
-        }
-        const selectEl = target.matches && target.matches('select.ingredient-qty')
-          ? target
-          : (target.closest && target.closest('select.ingredient-qty'));
-        if (selectEl && selectEl.dataset && selectEl.dataset.lockedAddedItem === 'true') {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-        }
-      };
-
-      lockCurrentAddedItemsOnPage2();
-      ['pointerdown', 'mousedown', 'touchstart', 'click'].forEach((evtName) => {
-        document.addEventListener(evtName, blockLockedAddedItemEditsOnPage2, true);
-      });
-
       // Build lookup for pills by section
       const menuLaunchLookup = {};
       menuLaunchButtons.forEach((btn) => {
@@ -2976,7 +2929,6 @@
       // Persist ingredient selections
       ingredientCheckboxes.forEach((cb) => {
         cb.addEventListener('change', () => {
-          if (cb.checked) lockAddedItemOnPage2(cb);
           const secEl = cb.closest('.menu-section');
           const secId = secEl && secEl.id;
           if (!suppressEnsureActive && cb.checked && !(secId && resettingSections.has(secId))) {
