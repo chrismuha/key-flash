@@ -4,6 +4,17 @@
     box-sizing: border-box;
 }
 
+:root {
+    --gap-size: 16px;
+}
+
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 body {
     display: flex;
     flex-direction: column;
@@ -23,7 +34,7 @@ body {
     font-size: 16pt;
     font-weight: 300;
     margin: auto;
-    margin-bottom: 16px;
+    margin-bottom: var(--gap-size);
 }
 
 .header1-p {
@@ -35,7 +46,7 @@ body {
     font-size: 14pt;
     font-weight: 900;
     margin: auto;
-    margin-top: 16px;
+    margin-top: var(--gap-size);
     line-height: 1.3rem;
 }
 
@@ -54,8 +65,8 @@ body {
     line-height: 34.6px;
     font-weight: bold;
     margin: auto;
-    margin-top: 16px;
-    margin-bottom: 16px;
+    margin-top: var(--gap-size);
+    margin-bottom: var(--gap-size);
 }
 
 .header2-h2 b {
@@ -79,7 +90,7 @@ body {
     font-weight: 300;
     margin: auto;
     margin-top: 0;
-    margin-bottom: 16px;
+    margin-bottom: var(--gap-size);
     border-radius: 3px;
 }
 
@@ -92,7 +103,7 @@ body {
     font-size: 14pt;
     font-weight: 700;
     line-height: 1.35;
-    margin: 16px auto 0;
+    margin: var(--gap-size) auto 0;
 }
 
 .phone-nowrap {
@@ -164,23 +175,83 @@ body {
 
 /* MOBILE OPTIMIZATION */
 @media screen and (max-width: 712px) {
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box !important;
+    }
+
+    html,
     body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
         min-height: 100dvh;
         justify-content: flex-start;
     }
 
+    header,
+    footer,
+    #rectangle1,
+    #rectangle2,
+    #rectangle3,
+    #rectangle4 {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
     .content-wrapper {
         width: 95%;
+        max-width: 95vw;
         margin: 0 auto;
+        overflow-x: hidden;
+    }
+
+    .header2-h2,
+    .header1-p,
+    .contact-box {
+        width: 95%;
+        max-width: 95%;
+        margin: var(--gap-size) auto 0;
+        padding-left: 0;
+        padding-right: 0;
+        overflow-x: hidden;
+        overflow-wrap: break-word;
+        word-break: normal;
+        hyphens: none;
     }
 
     .header2-h2 {
-        width: 95%;
-        margin: initial auto;
+        line-height: 1.2;
+        border-radius: 0;
+    }
+
+    .header2-h2 b {
+        font-size: clamp(1.2rem, 7vw, 1.55rem);
+    }
+
+    .header2-h2 h2 {
+        font-size: inherit;
+        margin: 0;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    .header2-h2 b {
+        display: inline;
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    .contact-box {
+        margin-bottom: 0;
     }
 
     footer {
-        margin-top: auto;
+        margin-top: var(--gap-size);
     }
 }
 /* Section: 404 Normal Styles */
