@@ -418,29 +418,11 @@
       }
       textNodes.forEach((node) => {
         const txt = node.nodeValue || '';
-        const re = /\b([A-Za-z]+)\b/g;
-        let match = re.exec(txt);
-        if (!match) return;
-        re.lastIndex = 0;
-        let lastIdx = 0;
-        let changed = false;
-        const frag = document.createDocumentFragment();
-        while ((match = re.exec(txt))) {
-          const word = match[1];
-          const lower = word.toLowerCase();
-          if (!CASE_EXCEPTION_WORDS.has(lower)) continue;
-          changed = true;
-          const start = match.index;
-          if (start > lastIdx) frag.appendChild(document.createTextNode(txt.slice(lastIdx, start)));
-          const span = document.createElement('span');
-          span.className = 'case-exception';
-          span.textContent = lower;
-          frag.appendChild(span);
-          lastIdx = start + word.length;
-        }
-        if (!changed) return;
-        if (lastIdx < txt.length) frag.appendChild(document.createTextNode(txt.slice(lastIdx)));
-        node.parentNode.replaceChild(frag, node);
+        const next = txt.replace(/\b([A-Za-z]+)\b/g, (full, word) => {
+          const lower = String(word).toLowerCase();
+          return CASE_EXCEPTION_WORDS.has(lower) ? lower : full;
+        });
+        if (next !== txt) node.nodeValue = next;
       });
     });
   }

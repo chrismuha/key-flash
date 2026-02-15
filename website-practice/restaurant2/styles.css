@@ -1441,7 +1441,7 @@ main fieldset label {
     gap: 6px;
     line-height: 1.25;
     cursor: pointer;
-    text-transform: capitalize;
+    text-transform: none;
 }
 
 /* Section: Checkboxes (Unified Custom Style) */
@@ -1746,11 +1746,7 @@ body.page3 #order-summary ul {
 
 body.page3 #order-summary li,
 body.page3 #order-summary .summary-inline-option span {
-    text-transform: capitalize;
-}
-
-.case-exception {
-    text-transform: lowercase !important;
+    text-transform: none;
 }
 
 body.page3 .pos-section {
