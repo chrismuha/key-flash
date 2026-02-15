@@ -544,17 +544,21 @@
       try { return !!localStorage.getItem(STORAGE_KEYS.orderType); } catch { return false; }
     }
     function hasMenuSelection() {
-      // Align with builder rules: at least one section active; if Sauces active, at least one sauce selected
       let activeSections = {};
       try { activeSections = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeSections) || '{}'); } catch { activeSections = {}; }
       const anySectionActive = Object.values(activeSections).some(Boolean);
       if (!anySectionActive) return false;
-      const saucesActive = !!activeSections.sauces;
-      if (!saucesActive) return true;
       try {
         const ing = JSON.parse(localStorage.getItem(STORAGE_KEYS.ingredients) || '{}');
-        const sauces = Array.isArray(ing['sauces_ingredients[]']) ? ing['sauces_ingredients[]'] : [];
-        return sauces.length > 0;
+        const activeWithNoIngredients = Object.entries(activeSections)
+          .filter(([, isActive]) => !!isActive)
+          .map(([section]) => section)
+          .filter((section) => {
+            const group = `${section}_ingredients[]`;
+            const values = Array.isArray(ing[group]) ? ing[group] : [];
+            return values.length === 0;
+          });
+        return activeWithNoIngredients.length === 0;
       } catch { return false; }
     }
     function hasValidDeliveryDetails() {
@@ -2206,6 +2210,16 @@
       const saveQtySections = () => { try { localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections)); } catch { } };
       const saveQtyMap = () => { try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { } };
       const SECTION_QTY_KEYS = ['pizza', 'burger', 'calzone', 'chicken_wings', 'salad', 'sub', 'wrap'];
+      const SECTION_DEFAULT_QTY_BY_SECTION = { calzone: 1, salad: 1 };
+      const getSectionDefaultQty = (sec) => Object.prototype.hasOwnProperty.call(SECTION_DEFAULT_QTY_BY_SECTION, sec) ? SECTION_DEFAULT_QTY_BY_SECTION[sec] : 0;
+      // Normalize legacy saved value: salad used to initialize as 0; keep it at 1 by default.
+      try {
+        const saladQty = parseInt(qtySections.salad, 10) || 0;
+        if (!Object.prototype.hasOwnProperty.call(qtySections, 'salad') || saladQty <= 0) {
+          qtySections.salad = 1;
+          saveQtySections();
+        }
+      } catch { }
       const syncSectionQtyControlVisibility = () => {
         SECTION_QTY_KEYS.forEach((sec) => {
           const sectionEl = document.getElementById(sec);
@@ -2256,7 +2270,7 @@
         if (!summary) return;
         // Avoid duplicate controls
         if (summary.querySelector('.qty-controls')) return;
-        const sectionDefaultQty = sec === 'calzone' ? 1 : 0;
+        const sectionDefaultQty = getSectionDefaultQty(sec);
         const hasStoredSectionQty = Object.prototype.hasOwnProperty.call(qtySections, sec);
         // Keep stored values as-is; only apply a default when nothing has been stored yet.
         let current = hasStoredSectionQty
@@ -2528,6 +2542,9 @@
       const detailsBySection = {
         pizza: document.getElementById('pizza'),
         burger: document.getElementById('burger'),
+        calzone: document.getElementById('calzone'),
+        chicken_wings: document.getElementById('chicken_wings'),
+        salad: document.getElementById('salad'),
         sauces: document.getElementById('sauces'),
         sub: document.getElementById('sub'),
         wrap: document.getElementById('wrap')
@@ -2622,8 +2639,9 @@
                 let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                 const cur = parseInt(qtySections[section] || '0', 10) || 0;
                 if (cur <= 0) {
-                  const last = (!resetOnDeselect && t.dataset && t.dataset.lastQty) ? parseInt(t.dataset.lastQty, 10) || 1 : 1;
-                  qtySections[section] = Math.max(1, last);
+                  const defaultQty = Math.max(1, getSectionDefaultQty(section));
+                  const last = (!resetOnDeselect && t.dataset && t.dataset.lastQty) ? parseInt(t.dataset.lastQty, 10) || defaultQty : defaultQty;
+                  qtySections[section] = Math.max(defaultQty, last);
                   localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections));
                   const sum = d2.querySelector('.menu-summary .qty-controls span');
                   if (sum) sum.textContent = `(x${qtySections[section]})`;
@@ -2829,7 +2847,17 @@
 
       function updateNextButtonState() {
         if (!pageNextButton) return;
-        const okMenu = hasMenuSelection();
+        const togglesArr = Array.from(document.querySelectorAll('.section-toggle'));
+        const anySectionActive = togglesArr.some((t) => t.checked);
+        const missingSections = togglesArr
+          .filter((t) => t.checked)
+          .map((t) => t.dataset.section || '')
+          .filter(Boolean)
+          .filter((section) => {
+            const selectedCount = document.querySelectorAll(`input[type="checkbox"][name="${section}_ingredients[]"]:checked`).length;
+            return selectedCount === 0;
+          });
+        const okMenu = anySectionActive && missingSections.length === 0;
         if (okMenu) {
           pageNextButton.removeAttribute('aria-disabled');
           pageNextButton.removeAttribute('tabindex');
@@ -2845,22 +2873,32 @@
         if (!err) return;
         const togglesArr = Array.from(document.querySelectorAll('.section-toggle'));
         const anySectionActive = togglesArr.some((t) => t.checked);
-        const saucesActive = togglesArr.some((t) => t.dataset.section === 'sauces' && t.checked);
-        const saucesSelected = Array.from(document.querySelectorAll('input[type="checkbox"][name="sauces_ingredients[]"]:checked')).length > 0;
+        const missingSections = togglesArr
+          .filter((t) => t.checked)
+          .map((t) => t.dataset.section || '')
+          .filter(Boolean)
+          .filter((section) => {
+            const selectedCount = document.querySelectorAll(`input[type="checkbox"][name="${section}_ingredients[]"]:checked`).length;
+            return selectedCount === 0;
+          });
         let message = '';
         if (!anySectionActive) {
           message = 'Select at least one menu item.';
-        } else if (saucesActive && !saucesSelected) {
-          message = 'Select at least one sauce or uncheck Sauces.';
+        } else if (missingSections.length === 1) {
+          message = `Select at least one ingredient for ${titleCase(missingSections[0].replace(/_/g, ' '))}.`;
+        } else if (missingSections.length > 1) {
+          message = 'Select at least one ingredient for each selected menu item.';
         }
         // Clear previous invalid highlights
         document.querySelectorAll('.menu-summary').forEach((s) => s.classList.remove('invalid'));
         if (!anySectionActive) {
           // highlight all summaries when nothing is selected
           document.querySelectorAll('.menu-summary').forEach((s) => s.classList.add('invalid'));
-        } else if (saucesActive && !saucesSelected) {
-          const s = document.querySelector('#sauces .menu-summary');
-          if (s) s.classList.add('invalid');
+        } else if (missingSections.length > 0) {
+          missingSections.forEach((section) => {
+            const s = document.querySelector(`#${section} .menu-summary`);
+            if (s) s.classList.add('invalid');
+          });
         }
         if (message) {
           err.textContent = message;
@@ -2903,6 +2941,9 @@
           let section = '';
           if (name.startsWith('pizza_')) section = 'pizza';
           else if (name.startsWith('burger_')) section = 'burger';
+          else if (name.startsWith('calzone_')) section = 'calzone';
+          else if (name.startsWith('chicken_wings_')) section = 'chicken_wings';
+          else if (name.startsWith('salad_')) section = 'salad';
           else if (name.startsWith('sauces_')) section = 'sauces';
           else if (name.startsWith('sub_')) section = 'sub';
           else if (name.startsWith('wrap_')) section = 'wrap';
@@ -3024,20 +3065,28 @@
           resetGroupByName(btn.getAttribute('data-group'));
         });
       });
-      // Next: must have at least one menu section checked; if Sauces is active, require at least one sauce
+      // Next: must have at least one section checked and each active section must have >=1 ingredient selected
       if (pageNextButton) {
         pageNextButton.addEventListener('click', (e) => {
           saveIngredients();
           const err = document.getElementById('builder-error');
           const togglesArr = Array.from(document.querySelectorAll('.section-toggle'));
           const anySectionActive = togglesArr.some((t) => t.checked);
-          const saucesActive = togglesArr.some((t) => t.dataset.section === 'sauces' && t.checked);
-          const saucesSelected = Array.from(document.querySelectorAll('input[type="checkbox"][name="sauces_ingredients[]"]:checked')).length > 0;
+          const missingSections = togglesArr
+            .filter((t) => t.checked)
+            .map((t) => t.dataset.section || '')
+            .filter(Boolean)
+            .filter((section) => {
+              const selectedCount = document.querySelectorAll(`input[type="checkbox"][name="${section}_ingredients[]"]:checked`).length;
+              return selectedCount === 0;
+            });
           let message = '';
           if (!anySectionActive) {
             message = 'Select at least one menu item.';
-          } else if (saucesActive && !saucesSelected) {
-            message = 'Select at least one sauce or uncheck Sauces.';
+          } else if (missingSections.length === 1) {
+            message = `Select at least one ingredient for ${titleCase(missingSections[0].replace(/_/g, ' '))}.`;
+          } else if (missingSections.length > 1) {
+            message = 'Select at least one ingredient for each selected menu item.';
           }
           if (message) {
             if (err) {
