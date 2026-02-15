@@ -1465,6 +1465,11 @@ body.page3 #order-summary ul {
     margin: 0 0 8px 0;
 }
 
+body.page3 #order-summary li,
+body.page3 #order-summary .summary-inline-option span {
+    text-transform: none;
+}
+
 body.page3 #order-summary li.summary-item-with-qty {
     margin-bottom: 4px;
 }

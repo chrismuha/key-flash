@@ -1743,6 +1743,11 @@ body.page3 #order-summary ul {
     margin: 0 0 8px 0;
 }
 
+body.page3 #order-summary li,
+body.page3 #order-summary .summary-inline-option span {
+    text-transform: none;
+}
+
 body.page3 .pos-section {
     margin-top: 12px;
     padding-bottom: 24px;
