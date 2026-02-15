@@ -496,9 +496,10 @@ body.theme-dark main fieldset {
     width: max-content;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1100px),
+(max-height: 700px) {
     .theme-dropdown {
-margin-left: 33px;
+        right: 33px;
     }
 }
 
@@ -1229,7 +1230,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     }
 
     .moved-theme {
-        right: calc(var(--gap));
+        right: calc(var(--gap) + 20px);
         top: calc(var(--gap));
     }
 
