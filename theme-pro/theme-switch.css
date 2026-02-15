@@ -4,6 +4,21 @@
   --flash-ring-color: rgba(255, 255, 153, 1);
 }
 
+/* Section: Demo Layout */
+body {
+  margin: 0;
+  padding: 24px;
+  font: 400 16px/1.5 Arial, sans-serif;
+}
+
+/* Section: Switch Host */
+#theme-switch {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 99999;
+}
+
 /* Section: Switch Root */
 #theme-switch .ts-root {
   position: relative;
@@ -144,4 +159,40 @@ button.demo {
   border-radius: 8px;
   background: #f6f7f9;
   cursor: pointer;
+}
+
+/* Section: Mobile Layout */
+@media (max-width: 640px) {
+  body {
+    padding: 16px;
+    padding-bottom: 96px;
+  }
+
+  #theme-switch {
+    top: auto;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+  }
+
+  #theme-switch .ts-root {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+    padding: 4px;
+  }
+
+  #theme-switch .ts-track {
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+  }
+
+  #theme-switch .ts-option {
+    padding: 10px 4px;
+    font-size: 11px;
+    text-align: center;
+  }
 }

@@ -18,6 +18,8 @@
     document.dispatchEvent(new CustomEvent("themechange", { detail: { source, theme: resolved } }));
   }
 
+  function optionLabel(theme) { return theme[0].toUpperCase() + theme.slice(1); }
+
   // Section: Persistence Helpers
   function getSavedTheme() {
     try { return localStorage.getItem(THEME_KEY) || "system"; } catch { return "system"; }
@@ -70,7 +72,6 @@
   function buildSwitch(currentSource) {
     const wrap = document.createElement("div");
     wrap.id = "theme-switch";
-    Object.assign(wrap.style, { position: "fixed", top: "16px", right: "16px", zIndex: "99999" });
 
     const root = document.createElement("div");
     root.className = "ts-root";
@@ -98,7 +99,8 @@
       btn.setAttribute("aria-checked", String(i === currentIndex));
       btn.setAttribute("tabindex", i === currentIndex ? "0" : "-1");
       btn.dataset.index = String(i);
-      btn.textContent = t[0].toUpperCase() + t.slice(1);
+      btn.setAttribute("aria-label", t[0].toUpperCase() + t.slice(1));
+      btn.textContent = optionLabel(t);
       btn.addEventListener("click", (ev) => { if (!dragging) select(i); ev.stopPropagation(); });
       btn.addEventListener("keydown", (e) => {
         if (e.key === "ArrowRight") return select((i + 1) % THEMES.length, true);
