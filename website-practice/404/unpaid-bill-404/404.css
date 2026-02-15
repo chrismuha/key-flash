@@ -8,7 +8,7 @@ html,
 body {
     width: 100%;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 body {
@@ -17,7 +17,7 @@ body {
     justify-content: space-between;
     font-family: Arial, Helvetica, sans-serif;
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 /* HEADER CLASSES */
@@ -173,7 +173,7 @@ body {
         margin: 0;
         padding-left: 0;
         padding-right: 0;
-        overflow-x: hidden;
+        overflow: hidden;
     }
 
     img,
@@ -206,7 +206,7 @@ body {
         margin: 8px auto 0;
         padding-left: 0;
         padding-right: 0;
-        overflow-x: hidden;
+        overflow: hidden;
         overflow-wrap: break-word;
         word-break: normal;
         hyphens: none;
@@ -312,7 +312,7 @@ a.btn {
 
 @media (max-width: 700px) {
   body {
-    overflow-x: hidden;
+    overflow: hidden;
   }
 
   table {
