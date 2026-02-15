@@ -2608,9 +2608,9 @@ body.theme-dark .size-pill input:checked+span {
 
 body.theme-dark .menu-launch-arrow {
     background: var(--surface);
-    color: var(--color-white);
+    color: var(--color-item-arrows);
     border-color: var(--border-strong);
-    -webkit-text-fill-color: var(--color-white);
+    -webkit-text-fill-color: var(--color-item-arrows);
 }
 
 
@@ -2647,9 +2647,9 @@ body.theme-dark .menu-launch-arrow {
 
     body.theme-dark .menu-launch-arrow {
         background: var(--surface);
-        color: var(--color-white);
+        color: var(--color-item-arrows);
         border-color: var(--border-strong);
-        -webkit-text-fill-color: var(--color-white);
+        -webkit-text-fill-color: var(--color-item-arrows);
     }
 
     body.page3 #order-summary .summary-section+.summary-section {
