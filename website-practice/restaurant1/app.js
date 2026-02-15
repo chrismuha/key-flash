@@ -1836,6 +1836,53 @@
         });
       })();
 
+      const lockAddedItemOnPage2 = (cb) => {
+        if (!cb || !cb.checked) return;
+        cb.dataset.lockedAddedItem = 'true';
+        const labelEl = cb.closest('label');
+        const qtySelect = labelEl ? labelEl.querySelector('select.ingredient-qty') : null;
+        if (qtySelect) {
+          qtySelect.dataset.lockedAddedItem = 'true';
+          qtySelect.disabled = true;
+          qtySelect.setAttribute('aria-disabled', 'true');
+        }
+      };
+
+      const lockCurrentAddedItemsOnPage2 = () => {
+        document.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => {
+          if (cb.checked) lockAddedItemOnPage2(cb);
+        });
+      };
+
+      const blockLockedAddedItemEditsOnPage2 = (event) => {
+        const target = event.target;
+        if (!target) return;
+        let cb = null;
+        if (target.matches && target.matches('input[type="checkbox"][name]')) {
+          cb = target;
+        } else {
+          const labelEl = target.closest && target.closest('label');
+          if (labelEl) cb = labelEl.querySelector('input[type="checkbox"][name]');
+        }
+        if (cb && cb.checked && cb.dataset && cb.dataset.lockedAddedItem === 'true') {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          return;
+        }
+        const selectEl = target.matches && target.matches('select.ingredient-qty')
+          ? target
+          : (target.closest && target.closest('select.ingredient-qty'));
+        if (selectEl && selectEl.dataset && selectEl.dataset.lockedAddedItem === 'true') {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      };
+
+      lockCurrentAddedItemsOnPage2();
+      ['pointerdown', 'mousedown', 'touchstart', 'click'].forEach((evtName) => {
+        document.addEventListener(evtName, blockLockedAddedItemEditsOnPage2, true);
+      });
+
       // Menu overlay helpers
       const overlays = Array.from(document.querySelectorAll('.menu-overlay'));
       const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
@@ -2129,8 +2176,16 @@
         if (!summary) return;
         // Avoid duplicate controls
         if (summary.querySelector('.qty-controls')) return;
-        // Allow zero so an unselected section shows (x0)
-        let current = Math.max(0, Math.min(12, parseInt(qtySections[sec] || '0', 10) || 0));
+        const sectionDefaultQty = sec === 'calzone' ? 1 : 0;
+        const hasStoredSectionQty = Object.prototype.hasOwnProperty.call(qtySections, sec);
+        // Keep stored values as-is; only apply a default when nothing has been stored yet.
+        let current = hasStoredSectionQty
+          ? Math.max(0, Math.min(12, parseInt(qtySections[sec], 10) || 0))
+          : sectionDefaultQty;
+        if (!hasStoredSectionQty) {
+          qtySections[sec] = current;
+          saveQtySections();
+        }
         const wrap = document.createElement('span');
         wrap.className = 'qty-controls';
         wrap.style.marginLeft = '12px';
@@ -2150,13 +2205,17 @@
           wrap.style.display = active ? 'inline-flex' : 'none';
         };
         const getStoredQty = () => {
-          let stored = 0;
+          let stored = sectionDefaultQty;
           try {
             const qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
-            stored = parseInt(qs[sec] || '0', 10) || 0;
-          } catch { stored = parseInt(qtySections[sec] || '0', 10) || 0; }
+            const hasStored = Object.prototype.hasOwnProperty.call(qs, sec);
+            stored = hasStored ? (parseInt(qs[sec], 10) || 0) : sectionDefaultQty;
+          } catch {
+            const hasStored = Object.prototype.hasOwnProperty.call(qtySections, sec);
+            stored = hasStored ? (parseInt(qtySections[sec], 10) || 0) : sectionDefaultQty;
+          }
           // fall back to visible label if storage is stale
-          if (!stored) {
+          if (!stored && sectionDefaultQty === 0) {
             const labelNum = parseInt((label.textContent || '').replace(/\D+/g, ''), 10);
             if (!Number.isNaN(labelNum)) stored = labelNum;
           }
@@ -2758,6 +2817,7 @@
       document.addEventListener('change', (e) => {
         const t = e.target;
         if (t && t.matches && t.matches('input[type="checkbox"][name]')) {
+          if (t.checked) lockAddedItemOnPage2(t);
           // If a non-required ingredient inside a section is checked, ensure the section is activated
           const name = t.getAttribute('name') || '';
           let section = '';
