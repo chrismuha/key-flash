@@ -248,7 +248,8 @@
       cancelBtn,
       confirmBtn,
       onDecision: null,
-      lastFocused: null
+      lastFocused: null,
+      restoreFocus: true
     };
 
     const closeDialog = (approved) => {
@@ -259,10 +260,11 @@
       document.body.classList.remove('custom-confirm-open');
       const decisionHandler = state.onDecision;
       state.onDecision = null;
-      if (state.lastFocused && typeof state.lastFocused.focus === 'function') {
+      if (state.restoreFocus && state.lastFocused && typeof state.lastFocused.focus === 'function') {
         state.lastFocused.focus();
       }
       state.lastFocused = null;
+      state.restoreFocus = true;
       if (typeof decisionHandler === 'function') {
         decisionHandler(!!approved);
       }
@@ -283,11 +285,12 @@
     return confirmDialogInstance;
   }
 
-  function openCustomConfirm(messageText, onDecision) {
+  function openCustomConfirm(messageText, onDecision, options = {}) {
     const dialog = ensureCustomConfirmDialog();
     dialog.message.textContent = String(messageText || 'Are you sure?');
     dialog.onDecision = onDecision;
     dialog.lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    dialog.restoreFocus = options.restoreFocus !== false;
     dialog.overlay.hidden = false;
     dialog.overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('custom-confirm-open');
@@ -1617,7 +1620,10 @@
           openCustomConfirm('Reset all selections and settings?', (confirmed) => {
             if (!confirmed) return;
             resetMenuSelections();
-          });
+            if (typeof footerResetBtn.focus === 'function') {
+              footerResetBtn.focus({ preventScroll: true });
+            }
+          }, { restoreFocus: false });
         });
       }
       if (sliderTrack) {
@@ -2371,6 +2377,22 @@
       };
 
       function resetMenuSelections() {
+        const blurMenuLaunchFocus = () => {
+          const activeEl = document.activeElement;
+          if (
+            activeEl instanceof HTMLElement
+            && (
+              activeEl.classList.contains('menu-launch')
+              || activeEl.classList.contains('menu-launch-arrow')
+              || activeEl.closest('.menu-launch')
+            )
+          ) {
+            activeEl.blur();
+          }
+        };
+
+        // Defensive focus clear: run now and next frame to catch delayed focus restore.
+        blurMenuLaunchFocus();
         resetSectionQuantitiesToDefaults();
         resetSettingsToDefaults();
         if (typeof closeAllOverlays === 'function') closeAllOverlays();
@@ -2406,17 +2428,8 @@
         updateBuilderError();
         updatePage3NavState();
         refreshSectionQuantityControls();
-        const activeEl = document.activeElement;
-        if (
-          activeEl instanceof HTMLElement
-          && (
-            activeEl.classList.contains('menu-launch')
-            || activeEl.classList.contains('menu-launch-arrow')
-            || activeEl.closest('.menu-launch')
-          )
-        ) {
-          activeEl.blur();
-        }
+        blurMenuLaunchFocus();
+        requestAnimationFrame(() => blurMenuLaunchFocus());
       }
 
       // Attach pill/arrow handlers
