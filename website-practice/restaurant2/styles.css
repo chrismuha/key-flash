@@ -1880,6 +1880,13 @@ body.page3 #order-summary .summary-inline-option {
     display: flex;
     align-items: center;
     gap: 8px;
+    color: inherit;
+    -webkit-text-fill-color: currentColor;
+}
+
+body.page3 #order-summary .summary-inline-option span {
+    color: inherit;
+    -webkit-text-fill-color: currentColor;
 }
 
 body.page3 #order-summary .summary-inline-editor-actions {
@@ -1895,6 +1902,12 @@ body.page3 #order-summary .summary-inline-cancel-btn {
     padding: 6px 10px;
     font: inherit;
     font-weight: 700;
+}
+
+body.theme-dark.page3 #order-summary .summary-inline-editor {
+    background: var(--surface-strong);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
 }
 
 /* Section: Page 1 Order Type */

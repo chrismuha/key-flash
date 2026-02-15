@@ -101,7 +101,8 @@
     'chicken_wings_ingredients[]|butter_sauce': 'Butter sauce',
     'chicken_wings_ingredients[]|hot_sauce': 'Hot sauce',
     'chicken_wings_ingredients[]|medium_sauce': 'Medium sauce',
-    'chicken_wings_ingredients[]|plain_extra_hot_sauce': 'Plain extra hot sauce',
+    'chicken_wings_ingredients[]|plain': 'Plain',
+    'chicken_wings_ingredients[]|extra_hot_sauce': 'Extra hot sauce',
     'chicken_wings_ingredients[]|honey': 'Honey',
     'chicken_wings_ingredients[]|mustard': 'Mustard',
     'chicken_wings_ingredients[]|hot_and_spicy_barbecue_sauce': 'Hot and spicy barbecue sauce',
@@ -264,7 +265,12 @@
         normalized[group] = values;
         return;
       }
-      normalized[group] = values.map((value) => normalizeJalapenoValue(value));
+      normalized[group] = values.map((value) => {
+        if (group === 'chicken_wings_ingredients[]' && value === 'plain_extra_hot_sauce') {
+          return 'extra_hot_sauce';
+        }
+        return normalizeJalapenoValue(value);
+      });
     });
     return normalized;
   }
@@ -2282,10 +2288,21 @@
         const secId = sectionEl && sectionEl.id;
         if (!secId) return;
         const toggle = document.querySelector(`.section-toggle[data-section="${secId}"]`);
-        if (!toggle || toggle.disabled) return;
+        if (!toggle) return;
+        if (toggle.disabled && toggle.dataset && toggle.dataset.manualDisabled === 'true') {
+          unlockManualDisable(secId);
+        }
+        if (toggle.disabled) return;
         if (!toggle.checked) {
           toggle.checked = true;
           toggle.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        if (SECTION_QUANTITY_SECTIONS.includes(secId)) {
+          const currentQty = getSectionQuantity(secId);
+          if (currentQty < SECTION_QUANTITY_DEFAULT_MIN) {
+            setSectionQuantity(secId, SECTION_QUANTITY_DEFAULT_MIN);
+            refreshSectionQuantityControls();
+          }
         }
         // After enabling section, allow the checkbox to be toggled
         cb.disabled = false;
@@ -2297,10 +2314,21 @@
         const secId = sectionEl && sectionEl.id;
         if (!secId) return;
         const toggle = document.querySelector(`.section-toggle[data-section="${secId}"]`);
-        if (!toggle || toggle.disabled) return;
+        if (!toggle) return;
+        if (toggle.disabled && toggle.dataset && toggle.dataset.manualDisabled === 'true') {
+          unlockManualDisable(secId);
+        }
+        if (toggle.disabled) return;
         if (!toggle.checked) {
           toggle.checked = true;
           toggle.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        if (SECTION_QUANTITY_SECTIONS.includes(secId)) {
+          const currentQty = getSectionQuantity(secId);
+          if (currentQty < SECTION_QUANTITY_DEFAULT_MIN) {
+            setSectionQuantity(secId, SECTION_QUANTITY_DEFAULT_MIN);
+            refreshSectionQuantityControls();
+          }
         }
       };
 
@@ -3012,6 +3040,12 @@
           updateBuilderError();
           updatePage3NavState();
         });
+      });
+
+      // Repair stale state: checked optionals must imply active section + quantity >= 1.
+      document.querySelectorAll('.menu-section[id]').forEach((sectionEl) => {
+        const optionalChecked = sectionEl.querySelector('input[type="checkbox"][name]:checked:not([data-required="true"])');
+        if (optionalChecked) ensureSectionActiveForCheckbox(optionalChecked);
       });
 
       // If a disabled ingredient is clicked, enable its section toggle first, then check it

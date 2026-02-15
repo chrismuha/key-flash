@@ -85,6 +85,12 @@
 
   function normalizeStoredIngredients(data) {
     if (!data || typeof data !== 'object') return data;
+    const normalizeLegacyChickenWingValue = (group, value) => {
+      if (group === 'chicken_wings_ingredients[]' && value === 'plain_extra_hot_sauce') {
+        return 'extra_hot_sauce';
+      }
+      return normalizeJalapenoValue(value);
+    };
     const normalized = {};
     Object.entries(data).forEach(([group, items]) => {
       if (!Array.isArray(items)) {
@@ -94,11 +100,14 @@
       normalized[group] = items.map((entry) => {
         if (!entry) return entry;
         if (typeof entry === 'string') {
-          return normalizeJalapenoValue(entry);
+          return normalizeLegacyChickenWingValue(group, entry);
         }
         if (typeof entry === 'object') {
           const next = { ...entry };
-          if (next.value) next.value = normalizeJalapenoValue(next.value);
+          if (next.value) next.value = normalizeLegacyChickenWingValue(group, next.value);
+          if (group === 'chicken_wings_ingredients[]' && next.label && String(next.label).toLowerCase() === 'plain extra hot sauce') {
+            next.label = 'Extra Hot Sauce';
+          }
           if (next.label) next.label = normalizeJalapenoLabel(next.label);
           return next;
         }
@@ -2887,6 +2896,27 @@
           if (d && d.tagName && d.tagName.toLowerCase() === 'details') d.open = false;
         }
       };
+      const ensureSectionActiveWithMinimumQty = (section) => {
+        if (!section) return;
+        const d = detailsBySection[section];
+        if (!d) return;
+        const toggle = d.querySelector('.section-toggle');
+        if (toggle && !toggle.checked) {
+          toggle.checked = true;
+          toggle.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        if (SECTION_QTY_KEYS.includes(section)) {
+          const currentQty = Math.max(0, parseInt(qtySections[section] || '0', 10) || 0);
+          if (currentQty < 1) {
+            const nextQty = Math.max(1, getSectionDefaultQty(section));
+            qtySections[section] = nextQty;
+            saveQtySections();
+            const sum = d.querySelector('.menu-summary .qty-controls span');
+            if (sum) sum.textContent = `(x${nextQty})`;
+          }
+        }
+        openSectionDetails(section);
+      };
       // Hook into changes for live validation
       document.querySelectorAll('.section-toggle, input[type="checkbox"][name^="sauces_ingredients"]').forEach((el) => {
         el.addEventListener('change', updateBuilderError);
@@ -2908,17 +2938,7 @@
           else if (name.startsWith('wrap_')) section = 'wrap';
           const isRequired = t.dataset && t.dataset.required === 'true';
           if (!isRequired && t.checked) {
-            if (section) {
-              const d = detailsBySection[section];
-              const toggle = d ? d.querySelector('.section-toggle') : null;
-              if (toggle && !toggle.checked) {
-                toggle.checked = true;
-                toggle.dispatchEvent(new Event('change', { bubbles: true }));
-              } else {
-                // If already active, ensure section expands when selecting an ingredient
-                openSectionDetails(section);
-              }
-            }
+            ensureSectionActiveWithMinimumQty(section);
           }
           if (section) {
             autoDisableIfEmpty(section);
@@ -2928,6 +2948,12 @@
           updateBuilderError();
           updatePageNavLocks();
         }
+      });
+      // Repair stale state: checked optionals must imply active section + quantity >= 1.
+      Object.entries(detailsBySection).forEach(([section, detailsEl]) => {
+        if (!detailsEl) return;
+        const optionalChecked = detailsEl.querySelector('input[type="checkbox"][name]:checked:not([data-required="true"])');
+        if (optionalChecked) ensureSectionActiveWithMinimumQty(section);
       });
       // Ensure builder validation state is accurate after initial render/restore
       updateBuilderError();
