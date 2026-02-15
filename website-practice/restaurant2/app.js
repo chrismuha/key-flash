@@ -678,8 +678,141 @@
     else target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  // Section: Menu + Ingredient Alphabetizing
+  const ALPHABET_COLLATOR = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
+
+  function getMenuText(node) {
+    if (!node) return '';
+    const txt = node.textContent || '';
+    return txt.replace(/\s+/g, ' ').trim();
+  }
+
+  function getIngredientLabelText(label) {
+    if (!label) return '';
+    const clone = label.cloneNode(true);
+    clone.querySelectorAll('input, select, textarea, button, .sauce-qty, .qty-controls').forEach((el) => el.remove());
+    return (clone.textContent || '')
+      .replace(/\(required\)/ig, '')
+      .replace(/\(x\d+\)/ig, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function sortDirectChildren(parent, items, getText) {
+    if (!parent || !Array.isArray(items) || items.length < 2) return false;
+    const mapped = items.map((node, idx) => ({ node, idx, text: getText(node) }));
+    const sorted = [...mapped].sort((a, b) => {
+      const cmp = ALPHABET_COLLATOR.compare(a.text, b.text);
+      return cmp || (a.idx - b.idx);
+    });
+    const changed = sorted.some((entry, idx) => entry.node !== items[idx]);
+    if (!changed) return false;
+    sorted.forEach((entry) => parent.appendChild(entry.node));
+    return true;
+  }
+
+  function sortIngredientFieldset(fieldset) {
+    if (!fieldset) return false;
+    const children = Array.from(fieldset.children);
+    const pairs = [];
+    for (let i = 0; i < children.length; i += 1) {
+      const node = children[i];
+      if (!node || node.tagName !== 'LABEL') continue;
+      const hasIngredient = !!node.querySelector('input[type="checkbox"][name$="_ingredients[]"]');
+      if (!hasIngredient) continue;
+      const next = children[i + 1];
+      const br = next && next.tagName === 'BR' ? next : null;
+      pairs.push({ label: node, br });
+      if (br) i += 1;
+    }
+    if (pairs.length < 2) return false;
+    const sorted = [...pairs].sort((a, b) => {
+      const cmp = ALPHABET_COLLATOR.compare(getIngredientLabelText(a.label), getIngredientLabelText(b.label));
+      return cmp;
+    });
+    const changed = sorted.some((entry, idx) => entry.label !== pairs[idx].label);
+    if (!changed) return false;
+    const tailNode = (pairs[pairs.length - 1].br || pairs[pairs.length - 1].label).nextSibling;
+    sorted.forEach((entry) => {
+      fieldset.insertBefore(entry.label, tailNode);
+      if (entry.br) fieldset.insertBefore(entry.br, tailNode);
+    });
+    return true;
+  }
+
+  function applyAutomaticAlphabetizing() {
+    let changed = false;
+
+    const menuActions = document.querySelector('.menu-actions');
+    if (menuActions) {
+      const cards = Array.from(menuActions.querySelectorAll(':scope > .menu-action-card'));
+      changed = sortDirectChildren(
+        menuActions,
+        cards,
+        (card) => getMenuText(card.querySelector('.menu-launch-label') || card.querySelector('.menu-launch'))
+      ) || changed;
+    }
+
+    const swiperTrack = document.querySelector('.mobile-menu-swiper .swiper-track');
+    if (swiperTrack) {
+      const chips = Array.from(swiperTrack.querySelectorAll(':scope > .menu-launch[data-target]'));
+      changed = sortDirectChildren(
+        swiperTrack,
+        chips,
+        (chip) => getMenuText(chip.querySelector('.menu-launch-label') || chip)
+      ) || changed;
+    }
+
+    const main = document.querySelector('main');
+    if (main) {
+      const overlays = Array.from(main.querySelectorAll(':scope > .menu-overlay[data-section]'));
+      changed = sortDirectChildren(
+        main,
+        overlays,
+        (overlay) => getMenuText(overlay.querySelector('.overlay-header h2') || overlay.querySelector('.menu-summary-label'))
+      ) || changed;
+    }
+
+    document.querySelectorAll('fieldset').forEach((fieldset) => {
+      changed = sortIngredientFieldset(fieldset) || changed;
+    });
+
+    return changed;
+  }
+
+  function installAutomaticAlphabetizeObserver() {
+    const root = document.querySelector('main') || document.body;
+    if (!root) return;
+    let queued = false;
+    const schedule = () => {
+      if (queued) return;
+      queued = true;
+      const run = () => {
+        queued = false;
+        applyAutomaticAlphabetizing();
+      };
+      if (typeof window.requestAnimationFrame === 'function') window.requestAnimationFrame(run);
+      else setTimeout(run, 0);
+    };
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === 'characterData') {
+          schedule();
+          return;
+        }
+        if (mutation.type === 'childList' && (mutation.addedNodes.length || mutation.removedNodes.length)) {
+          schedule();
+          return;
+        }
+      }
+    });
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
+  }
+
   // Section: Page Initialization
   document.addEventListener('DOMContentLoaded', () => {
+    applyAutomaticAlphabetizing();
+    installAutomaticAlphabetizeObserver();
     let lastTouchEnd = 0;
     document.addEventListener('touchend', (event) => {
       const now = performance.now();
