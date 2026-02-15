@@ -1920,53 +1920,6 @@
         });
       })();
 
-      const lockAddedItemOnPage2 = (cb) => {
-        if (!cb || !cb.checked) return;
-        cb.dataset.lockedAddedItem = 'true';
-        const labelEl = cb.closest('label');
-        const qtySelect = labelEl ? labelEl.querySelector('select.ingredient-qty') : null;
-        if (qtySelect) {
-          qtySelect.dataset.lockedAddedItem = 'true';
-          qtySelect.disabled = true;
-          qtySelect.setAttribute('aria-disabled', 'true');
-        }
-      };
-
-      const lockCurrentAddedItemsOnPage2 = () => {
-        document.querySelectorAll('input[type="checkbox"][name]').forEach((cb) => {
-          if (cb.checked) lockAddedItemOnPage2(cb);
-        });
-      };
-
-      const blockLockedAddedItemEditsOnPage2 = (event) => {
-        const target = event.target;
-        if (!target) return;
-        let cb = null;
-        if (target.matches && target.matches('input[type="checkbox"][name]')) {
-          cb = target;
-        } else {
-          const labelEl = target.closest && target.closest('label');
-          if (labelEl) cb = labelEl.querySelector('input[type="checkbox"][name]');
-        }
-        if (cb && cb.checked && cb.dataset && cb.dataset.lockedAddedItem === 'true') {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          return;
-        }
-        const selectEl = target.matches && target.matches('select.ingredient-qty')
-          ? target
-          : (target.closest && target.closest('select.ingredient-qty'));
-        if (selectEl && selectEl.dataset && selectEl.dataset.lockedAddedItem === 'true') {
-          event.preventDefault();
-          event.stopImmediatePropagation();
-        }
-      };
-
-      lockCurrentAddedItemsOnPage2();
-      ['pointerdown', 'mousedown', 'touchstart', 'click'].forEach((evtName) => {
-        document.addEventListener(evtName, blockLockedAddedItemEditsOnPage2, true);
-      });
-
       // Menu overlay helpers
       const overlays = Array.from(document.querySelectorAll('.menu-overlay'));
       const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
@@ -2935,7 +2888,6 @@
       document.addEventListener('change', (e) => {
         const t = e.target;
         if (t && t.matches && t.matches('input[type="checkbox"][name]')) {
-          if (t.checked) lockAddedItemOnPage2(t);
           // If a non-required ingredient inside a section is checked, ensure the section is activated
           const name = t.getAttribute('name') || '';
           let section = '';
