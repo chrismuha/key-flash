@@ -757,6 +757,67 @@ body.theme-dark .ingredient-qty {
     color: var(--surface);
 }
 
+main .qty-controls,
+main .sauce-qty,
+main .patty-qty,
+main .burger-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+main .qty-controls button,
+main .sauce-qty button,
+main .patty-qty button,
+main .burger-qty button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--danger);
+    background: var(--surface);
+    color: var(--color-black);
+    font-size: 18pt;
+    padding: 0;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+main .qty-controls button:disabled,
+main .sauce-qty button:disabled,
+main .patty-qty button:disabled,
+main .burger-qty button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+main .qty-controls button:not(:disabled):hover,
+main .sauce-qty button:not(:disabled):hover,
+main .patty-qty button:not(:disabled):hover,
+main .burger-qty button:not(:disabled):hover {
+    transform: scale(1.05);
+}
+
+main .menu-summary .qty-controls button {
+    width: 36px;
+    height: 36px;
+    font-size: 21pt;
+}
+
+body.theme-dark main .qty-controls button,
+body.theme-dark main .sauce-qty button,
+body.theme-dark main .patty-qty button,
+body.theme-dark main .burger-qty button {
+    border-color: var(--surface);
+    background: var(--surface-dark);
+    color: var(--surface);
+}
+
 /* Align ingredient labels when qty dropdown is on the right */
 body.qty-right .menu-section label {
     display: grid;
@@ -1033,7 +1094,7 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     }
 
     main summary.menu-summary {
-        font-size: 15pt;
+        font-size: 13pt;
         line-height: 28px;
     }
 
