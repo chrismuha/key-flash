@@ -2647,6 +2647,14 @@
           const sec = t.dataset.section;
           const isActive = !!t.checked;
           if (sec) active[sec] = isActive;
+
+          // OLD SECTION (kept for reference): menu launch active-state toggle
+          // if (sec && menuLaunchLookup[sec]) {
+          //   menuLaunchLookup[sec].forEach((btn) =>
+          //     btn.classList.toggle('menu-launch-active', isActive)
+          //   );
+          // }
+
           if (sec && menuLaunchLookup[sec]) menuLaunchLookup[sec].forEach((btn) => btn.classList.remove('menu-launch-active'));
         });
         try { localStorage.setItem(STORAGE_KEYS.activeSections, JSON.stringify(active)); } catch { }
@@ -3329,6 +3337,13 @@
             edit.type = 'button';
             edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
+
+            // OLD SECTION (kept for reference): summary edit link behavior
+            // const edit = document.createElement('a');
+            // edit.href = `page2.html#${sec}`;
+            // edit.textContent = 'Edit';
+            // edit.className = 'summary-edit-btn';
+
             actions.appendChild(edit);
 
             const remove = document.createElement('button');
