@@ -4,41 +4,13 @@
     box-sizing: border-box;
 }
 
-html,
-body {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-}
-
 body {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: space-between;
     font-family: Arial, Helvetica, sans-serif;
-    min-height: 100dvh;
+    min-height: 100vh;
     overflow-x: hidden;
-}
-
-header,
-footer {
-    flex-shrink: 0;
-}
-
-.content-wrapper {
-    width: min(684px, 95vw);
-    margin: 10px auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.content-wrapper > * {
-    margin: 0 !important;
-}
-
-footer {
-    margin-top: auto;
 }
 
 /* HEADER CLASSES */
@@ -46,22 +18,24 @@ footer {
     color: white;
     background-color: black;
     max-width: 684px;
-    padding: 12px;
+    padding: 16px 16px 16px;
     border-radius: 3px;
     font-size: 16pt;
     font-weight: 300;
     margin: auto;
+    margin-bottom: 16px;
 }
 
 .header1-p {
     color: black;
     background-color: red;
     max-width: 684px;
-    padding: 12px;
+    padding: 16px 16px 16px;
     border-radius: 3px;
     font-size: 14pt;
     font-weight: 900;
     margin: auto;
+    margin-top: 16px;
     line-height: 1.3rem;
 }
 
@@ -73,13 +47,15 @@ footer {
     color: white;
     background-color: red;
     max-width: 684px;
-    padding: 12px;
+    padding: 16px 16px 16px;
     border-radius: 34.6px;
     border-style: solid;
     border-width: 2px;
-    line-height: 1.15;
+    line-height: 34.6px;
     font-weight: bold;
     margin: auto;
+    margin-top: 16px;
+    margin-bottom: 16px;
 }
 
 .header2-h2 b {
@@ -90,7 +66,7 @@ footer {
     color: #48a740;
     font-size: 16pt;
     font-weight: normal;
-    padding: 10px 10px 0;
+    padding: 16px 16px 0px;
     margin: auto;
 }
 
@@ -98,10 +74,12 @@ footer {
     color: red;
     background-color: black;
     max-width: 684px;
-    padding: 12px;
+    padding: 16px 16px 16px;
     font-size: 14pt;
     font-weight: 300;
     margin: auto;
+    margin-top: 0;
+    margin-bottom: 16px;
     border-radius: 3px;
 }
 
@@ -109,12 +87,12 @@ footer {
     color: black;
     background-color: red;
     max-width: 684px;
-    padding: 12px;
+    padding: 16px;
     border-radius: 3px;
     font-size: 14pt;
     font-weight: 700;
     line-height: 1.35;
-    margin: 0 auto;
+    margin: 16px auto 0;
 }
 
 .phone-nowrap {
@@ -160,14 +138,14 @@ footer {
 .logo-container {
     width: min(302px, 90vw);
     margin: auto;
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding-top: 16px;
+    padding-bottom: 16px;
 }
 
 #rectangle3 {
     background: black;
     width: 100%;
-    height: 14px;
+    height: 12px;
     margin-top: 8px;
 }
 
@@ -175,32 +153,6 @@ footer {
     background-color: red;
     width: 100%;
     height: 40px;
-}
-
-@media screen and (max-height: 820px) {
-    #rectangle1,
-    #rectangle4 {
-        height: 28px;
-    }
-
-    #rectangle3 {
-        height: 10px;
-        margin-top: 6px;
-    }
-
-    .logo-container {
-        padding-top: 4px;
-        padding-bottom: 4px;
-    }
-
-    .header2-h2 b {
-        font-size: clamp(1.25rem, 3.5vw, 1.5rem);
-    }
-
-    .header1-p,
-    .contact-box {
-        font-size: clamp(0.95rem, 2vw, 1.05rem);
-    }
 }
 
 /* PAGE HEADER ID SHAPE IMAGES */
@@ -224,40 +176,3 @@ footer {
     }
 }
 /* Section: 404 Normal Styles */
-
-/* Mobile polish baseline */
-html {
-  -webkit-text-size-adjust: 100%;
-}
-
-img,
-svg,
-canvas,
-video,
-iframe {
-  max-width: 100%;
-  height: auto;
-}
-
-button,
-[role="button"],
-input[type="button"],
-input[type="submit"],
-input[type="reset"],
-select,
-a.btn {
-  min-height: 44px;
-}
-
-@media (max-width: 700px) {
-  body {
-    overflow-x: hidden;
-  }
-
-  table {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}

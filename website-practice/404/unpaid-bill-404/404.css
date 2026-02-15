@@ -14,31 +14,10 @@ body {
 body {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: space-between;
     font-family: Arial, Helvetica, sans-serif;
-    min-height: 100dvh;
+    min-height: 100vh;
     overflow-x: hidden;
-}
-
-header,
-footer {
-    flex-shrink: 0;
-}
-
-.content-wrapper {
-    width: min(684px, 95vw);
-    margin: 10px auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.content-wrapper > * {
-    margin: 0 !important;
-}
-
-footer {
-    margin-top: auto;
 }
 
 /* HEADER CLASSES */
@@ -46,22 +25,24 @@ footer {
     color: white;
     background-color: black;
     max-width: 684px;
-    padding: 12px;
+    padding: 16px 16px 16px;
     border-radius: 3px;
     font-size: 16pt;
     font-weight: 300;
     margin: auto;
+    margin-bottom: 16px;
 }
 
 .header1-p {
     color: black;
     background-color: red;
     max-width: 684px;
-    padding: 12px;
+    padding: 16px 16px 16px;
     border-radius: 3px;
     font-size: 14pt;
     font-weight: 900;
     margin: auto;
+    margin-top: 16px;
     line-height: 1.3rem;
     /* text-shadow:
         -1px -1px 0 white,
@@ -74,21 +55,23 @@ footer {
     color: white;
     background-color: red;
     max-width: 684px;
-    padding: 12px;
+    padding: 16px 16px 16px;
     border-radius: 34.6px;
     border-style: solid;
     border-width: 2px;
-    line-height: 1.15;
+    line-height: 34.6px;
     font-size: 16pt;
     font-weight: bold;
     margin: auto;
+    margin-top: 16px;
+    margin-bottom: 16px;
 }
 
 .header3-h3 {
     color: #48a740;
     font-size: 16pt;
     font-weight: normal;
-    padding: 10px 10px 0;
+    padding: 16px 16px 0px;
     margin: auto;
 }
 
@@ -96,10 +79,12 @@ footer {
     color: red;
     background-color: black;
     max-width: 684px;
-    padding: 12px;
+    padding: 16px 16px 16px;
     font-size: 14pt;
     font-weight: 300;
     margin: auto;
+    margin-top: 0;
+    margin-bottom: 16px;
     border-radius: 3px;
 }
 
@@ -127,47 +112,20 @@ footer {
 .logo-container {
     width: min(302px, 90vw);
     margin: auto;
-    padding-top: 8px;
-    padding-bottom: 8px;
+    padding-top: 16px;
+    padding-bottom: 16px;
 }
 
 #rectangle3 {
     background: red;
     width: 100%;
-    height: 14px;
+    height: 12px;
 }
 
 #rectangle4 {
     background-color: black;
     width: 100%;
     height: 40px;
-}
-
-@media screen and (max-height: 900px) {
-    #rectangle1,
-    #rectangle4 {
-        height: 28px;
-    }
-
-    #rectangle3 {
-        height: 10px;
-    }
-
-    .logo-container {
-        padding-top: 4px;
-        padding-bottom: 4px;
-    }
-
-    .header2-h2 b,
-    .header1-h1 {
-        font-size: clamp(1.2rem, 3.5vw, 1.5rem);
-    }
-
-    .header1-p,
-    .header3-p {
-        font-size: clamp(0.92rem, 2vw, 1.02rem);
-        line-height: 1.15;
-    }
 }
 
 /* PAGE HEADER ID SHAPE IMAGES */
@@ -313,54 +271,17 @@ footer {
     }
 
     #rectangle1 {
-        height: 30px;
+        height: 24px;
     }
 
     #rectangle3 {
-        height: 30px;
-        margin-top: 12px;
+        height: 12px;
+        margin-top: 6px;
     }
 
     #rectangle4 {
-        height: calc((var(--mobile-logo-width) * 100 / 302) + 12px);
+        height: 24px;
         margin-bottom: 0;
     }
 }
 /* Section: 404 Unpaid Bill Styles */
-
-/* Mobile polish baseline */
-html {
-  -webkit-text-size-adjust: 100%;
-}
-
-img,
-svg,
-canvas,
-video,
-iframe {
-  max-width: 100%;
-  height: auto;
-}
-
-button,
-[role="button"],
-input[type="button"],
-input[type="submit"],
-input[type="reset"],
-select,
-a.btn {
-  min-height: 44px;
-}
-
-@media (max-width: 700px) {
-  body {
-    overflow-x: hidden;
-  }
-
-  table {
-    display: block;
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
