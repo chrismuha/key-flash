@@ -1,7 +1,7 @@
 {
   "name": "boxify",
   "version": "1.0.0",
-  "main": "boxify/main.js",
+  "main": "public/main.js",
   "scripts": {
     "test": "find . -name '*.js' -not -path './node_modules/*' -exec node --check {} \\;"
   },
