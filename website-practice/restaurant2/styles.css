@@ -2876,7 +2876,7 @@ body.theme-dark .close-overlay:focus-visible {
 /* outline only for the active page link */
 .left-rail .box.active,
 .left-rail .box[aria-current="page"] {
-    border: 2px solid var(--box-border);
+    border: 4px solid var(--box-border);
 }
 
 .box,
