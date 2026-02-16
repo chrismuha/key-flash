@@ -253,15 +253,6 @@ body.settings-open .settings-panel {
         width: auto;
     }
 
-    /* Desktop/laptop at narrow widths: keep settings panel compact */
-    @media (hover: hover) and (pointer: fine) {
-        body.mobile-ui.settings-open .settings-panel {
-            right: auto !important;
-            width: min(560px, calc(100vw - (var(--gap) * 2)));
-            max-width: calc(100vw - (var(--gap) * 2));
-        }
-    }
-
     body.nav-enabled:not(.mobile-ui).page2 .page-actions {
         left: var(--rail-width);
         right: 0;
@@ -1141,8 +1132,7 @@ body.page2 .next-button[aria-disabled="true"]:active {
     }
 
     /* Narrow desktop (not mobile-ui): keep footer touching nav edge */
-    body.nav-enabled:not(.mobile-ui).page2 .page-actions,
-    body.nav-enabled:not(.mobile-ui).page2.settings-open .page-actions {
+    body.nav-enabled:not(.mobile-ui).page2 .page-actions {
         left: var(--rail-width);
         right: 0;
         width: auto;
@@ -2233,14 +2223,6 @@ body.settings-open .left-rail .box,
 body.settings-open .left-rail a,
 body.settings-open .left-rail .nav-logo {
     pointer-events: auto;
-}
-
-/* Blur reinforcement for settings overlay (no footer/layout changes) */
-@media (min-width: 769px) {
-    body.settings-open::before {
-        backdrop-filter: blur(2px);
-        -webkit-backdrop-filter: blur(2px);
-    }
 }
 
 /* Keep desktop controls outside the left rail under the settings overlay */
