@@ -834,7 +834,7 @@
       const mobile = isMobileView();
       const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
       themeModeBtns.forEach((btn) => {
-        btn.textContent = mobile ? (isDark ? '☀️' : '🌙') : (isDark ? 'Light Mode' : 'Dark Mode');
+        btn.textContent = mobile ? (isDark ? '☀' : '☾') : (isDark ? 'Light Mode' : 'Dark Mode');
         btn.setAttribute('aria-label', label);
       });
     };
