@@ -280,15 +280,15 @@ body.theme-dark .settings-panel {
 
 .settings-close {
     position: relative;
-    align-self: flex-end;
-    margin: 0;
+    align-self: flex-start;
+    margin: -2px 0 6px -2px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
     background: var(--surface-strong);
     border: 1px solid var(--danger-highlight);
     border-radius: 50%;
@@ -311,7 +311,7 @@ body.theme-dark .settings-panel {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 20px;
+    width: 16px;
     height: 2px;
     border-radius: 999px;
     background: currentColor;
@@ -335,10 +335,10 @@ body.theme-dark .settings-panel {
 @media (max-width: 768px) {
 
     .settings-close {
-        width: 48px;
-        height: 48px;
-        min-width: 48px;
-        min-height: 48px;
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        min-height: 42px;
     }
 }
 
