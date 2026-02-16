@@ -248,40 +248,73 @@ screen and (max-height: 500px) {
 }
 
 .settings-close {
-    border: none;
-    background: transparent;
-    font-size: 18pt;
-    padding: 6px 10px;
-    cursor: pointer;
+    position: relative;
     align-self: flex-end;
-    color: inherit;
-    -webkit-appearance: none;
-    appearance: none;
-    min-width: 36px;
-    min-height: 36px;
-    line-height: 1;
+    margin: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    background: var(--surface-strong);
+    border: 1px solid var(--danger-highlight);
+    border-radius: 50%;
+    padding: 0;
+    font-size: 0;
+    font-weight: 400;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--color-black);
+    transition: transform 0.1s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.settings-close::before,
+.settings-close::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    transform-origin: center;
+}
+
+.settings-close::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.settings-close::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 .settings-close:hover,
 .settings-close:focus-visible {
-    text-decoration: underline;
+    transform: scale(1.05);
+    outline: none;
 }
 
 @media (max-width: 768px) {
 
-    /* Increase close button tap target on smaller screens */
     .settings-close {
-        font-size: 20pt;
-        padding: 8px 12px;
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        min-height: 48px;
     }
 }
 
-/* Ensure close button is visible in dark mode */
 .theme-dark .settings-close {
     color: var(--surface);
+    border-color: var(--surface);
+    background: var(--surface-dark);
 }
 
 .custom-confirm-overlay {
@@ -380,6 +413,7 @@ body.theme-dark .custom-confirm-modal {
     border: 1px solid var(--color-black);
     background: var(--surface-strong);
     color: var(--color-black);
+    font-weight: 700;
     border-radius: 4px;
     cursor: pointer;
 }
@@ -2110,7 +2144,7 @@ body.settings-open::before {
     /* start after the left rail */
     left: var(--rail-width);
     right: 0;
-    /* background: rgba(0, 0, 0, 0.08); */
+    background: rgba(0, 0, 0, 0.12);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     z-index: 1500;
@@ -2151,11 +2185,11 @@ body.settings-open .left-rail .nav-logo {
     pointer-events: auto;
 }
 
-/* Desktop: keep background sharp while settings is open (matches JS mobile breakpoint 768px) */
+/* Desktop: dim content area outside the left rail while settings is open */
 @media (min-width: 769px) {
     body.settings-open::before {
         backdrop-filter: none;
-        background: transparent;
+        background: rgba(0, 0, 0, 0.12);
     }
 }
 
