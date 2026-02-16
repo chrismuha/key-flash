@@ -3532,7 +3532,7 @@
             const remove = document.createElement('button');
             remove.type = 'button';
             remove.className = 'summary-remove-btn';
-            remove.textContent = 'Remove';
+            remove.textContent = '✕';
             remove.setAttribute('aria-label', `Remove ${title.textContent}`);
             remove.addEventListener('click', (evt) => {
               evt.preventDefault();
@@ -3772,7 +3772,7 @@
             const remove = document.createElement('button');
             remove.type = 'button';
             remove.className = 'summary-remove-btn';
-            remove.textContent = 'Remove';
+            remove.textContent = '✕';
             remove.setAttribute('aria-label', `Remove ${title.textContent}`);
             remove.addEventListener('click', (evt) => {
               evt.preventDefault();
