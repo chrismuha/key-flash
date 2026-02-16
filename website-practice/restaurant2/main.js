@@ -101,7 +101,7 @@
     'chicken_wings_ingredients[]|butter_sauce': 'Butter sauce',
     'chicken_wings_ingredients[]|hot_sauce': 'Hot sauce',
     'chicken_wings_ingredients[]|medium_sauce': 'Medium sauce',
-    'chicken_wings_ingredients[]|plain': 'Plain',
+    'chicken_wings_ingredients[]|plain': 'Plain (Required)',
     'chicken_wings_ingredients[]|extra_hot_sauce': 'Extra hot sauce',
     'chicken_wings_ingredients[]|honey': 'Honey',
     'chicken_wings_ingredients[]|mustard': 'Mustard',

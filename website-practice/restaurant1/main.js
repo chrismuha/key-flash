@@ -2819,20 +2819,43 @@
         }
       });
 
-      function updateNextButtonState() {
-        if (!pageNextButton) return;
+      const computePage2NextEligibility = () => {
         const togglesArr = Array.from(document.querySelectorAll('.section-toggle'));
-        const anySectionActive = togglesArr.some((t) => t.checked);
-        const hasDoneItems = loadOrderItemsFromStorage().length > 0;
-        const missingSections = togglesArr
+        const activeSections = togglesArr
           .filter((t) => t.checked)
           .map((t) => t.dataset.section || '')
-          .filter(Boolean)
-          .filter((section) => {
-            const selectedCount = document.querySelectorAll(`input[type="checkbox"][name="${section}_ingredients[]"]:checked`).length;
-            return selectedCount === 0;
+          .filter(Boolean);
+        const anySectionActive = activeSections.length > 0;
+        const hasDoneItems = loadOrderItemsFromStorage().length > 0;
+        const missingRequiredSections = activeSections.filter((section) => {
+          const list = requiredBySection[section] || [];
+          return list.some((cb) => !cb.checked);
+        });
+        const hasAtLeastOneOptionalActive = activeSections.some((section) => {
+          const details = detailsBySection[section];
+          if (!details) return false;
+          return Array.from(details.querySelectorAll('input[type="checkbox"][name]')).some((cb) => {
+            return cb.dataset.required !== 'true' && cb.checked;
           });
-        const okMenu = hasDoneItems || (anySectionActive && missingSections.length === 0);
+        });
+        const allRequiredActive = activeSections.some((section) => {
+          const list = requiredBySection[section] || [];
+          return list.length > 0 && list.every((cb) => cb.checked);
+        }) && missingRequiredSections.length === 0;
+        const hasValidMenuSelection = hasAtLeastOneOptionalActive || allRequiredActive;
+        const okMenu = hasDoneItems || (anySectionActive && hasValidMenuSelection);
+        return {
+          anySectionActive,
+          hasDoneItems,
+          hasAtLeastOneOptionalActive,
+          missingRequiredSections,
+          okMenu
+        };
+      };
+
+      function updateNextButtonState() {
+        if (!pageNextButton) return;
+        const { okMenu } = computePage2NextEligibility();
         if (okMenu) {
           pageNextButton.removeAttribute('aria-disabled');
           pageNextButton.removeAttribute('tabindex');
@@ -2846,32 +2869,29 @@
       const updateBuilderError = () => {
         const err = document.getElementById('builder-error');
         if (!err) return;
-        const togglesArr = Array.from(document.querySelectorAll('.section-toggle'));
-        const anySectionActive = togglesArr.some((t) => t.checked);
-        const hasDoneItems = loadOrderItemsFromStorage().length > 0;
-        const missingSections = togglesArr
-          .filter((t) => t.checked)
-          .map((t) => t.dataset.section || '')
-          .filter(Boolean)
-          .filter((section) => {
-            const selectedCount = document.querySelectorAll(`input[type="checkbox"][name="${section}_ingredients[]"]:checked`).length;
-            return selectedCount === 0;
-          });
+        const {
+          anySectionActive,
+          hasDoneItems,
+          hasAtLeastOneOptionalActive,
+          missingRequiredSections
+        } = computePage2NextEligibility();
         let message = '';
         if (!anySectionActive && !hasDoneItems) {
           message = 'Select at least one menu item.';
-        } else if (!hasDoneItems && missingSections.length === 1) {
-          message = `Select at least one ingredient for ${titleCase(missingSections[0].replace(/_/g, ' '))}.`;
-        } else if (!hasDoneItems && missingSections.length > 1) {
-          message = 'Select at least one ingredient for each selected menu item.';
+        } else if (!hasDoneItems && !hasAtLeastOneOptionalActive && missingRequiredSections.length === 0) {
+          message = 'Select at least one optional ingredient, or choose a menu item with required ingredients.';
+        } else if (missingRequiredSections.length === 1) {
+          message = `Select required ingredients for ${titleCase(missingRequiredSections[0].replace(/_/g, ' '))}.`;
+        } else if (missingRequiredSections.length > 1) {
+          message = 'Select required ingredients for each selected menu item.';
         }
         // Clear previous invalid highlights
         document.querySelectorAll('.menu-summary').forEach((s) => s.classList.remove('invalid'));
         if (!anySectionActive && !hasDoneItems) {
           // highlight all summaries when nothing is selected
           document.querySelectorAll('.menu-summary').forEach((s) => s.classList.add('invalid'));
-        } else if (missingSections.length > 0) {
-          missingSections.forEach((section) => {
+        } else if (missingRequiredSections.length > 0) {
+          missingRequiredSections.forEach((section) => {
             const s = document.querySelector(`#${section} .menu-summary`);
             if (s) s.classList.add('invalid');
           });
@@ -3113,29 +3133,26 @@
           clearSectionOnPage2AfterDone(section);
         });
       });
-      // Next: must have at least one section checked and each active section must have >=1 ingredient selected
+      // Next: must have at least one section checked (or at least one saved Done item)
       if (pageNextButton) {
         pageNextButton.addEventListener('click', (e) => {
           saveIngredients();
           const err = document.getElementById('builder-error');
-          const togglesArr = Array.from(document.querySelectorAll('.section-toggle'));
-          const anySectionActive = togglesArr.some((t) => t.checked);
-          const hasDoneItems = loadOrderItemsFromStorage().length > 0;
-          const missingSections = togglesArr
-            .filter((t) => t.checked)
-            .map((t) => t.dataset.section || '')
-            .filter(Boolean)
-            .filter((section) => {
-              const selectedCount = document.querySelectorAll(`input[type="checkbox"][name="${section}_ingredients[]"]:checked`).length;
-              return selectedCount === 0;
-            });
+          const {
+            anySectionActive,
+            hasDoneItems,
+            hasAtLeastOneOptionalActive,
+            missingRequiredSections
+          } = computePage2NextEligibility();
           let message = '';
           if (!anySectionActive && !hasDoneItems) {
             message = 'Select at least one menu item.';
-          } else if (!hasDoneItems && missingSections.length === 1) {
-            message = `Select at least one ingredient for ${titleCase(missingSections[0].replace(/_/g, ' '))}.`;
-          } else if (!hasDoneItems && missingSections.length > 1) {
-            message = 'Select at least one ingredient for each selected menu item.';
+          } else if (!hasDoneItems && !hasAtLeastOneOptionalActive && missingRequiredSections.length === 0) {
+            message = 'Select at least one optional ingredient, or choose a menu item with required ingredients.';
+          } else if (missingRequiredSections.length === 1) {
+            message = `Select required ingredients for ${titleCase(missingRequiredSections[0].replace(/_/g, ' '))}.`;
+          } else if (missingRequiredSections.length > 1) {
+            message = 'Select required ingredients for each selected menu item.';
           }
           if (message) {
             if (err) {

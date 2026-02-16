@@ -780,8 +780,11 @@ main .burger-qty button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex: 0 0 28px;
     width: 28px;
+    min-width: 28px;
     height: 28px;
+    min-height: 28px;
     border-radius: 50%;
     border: 1px solid var(--danger);
     background: var(--surface);
@@ -811,8 +814,11 @@ main .burger-qty button:not(:disabled):hover {
 }
 
 main .menu-summary .qty-controls button {
+    flex-basis: 36px;
     width: 36px;
+    min-width: 36px;
     height: 36px;
+    min-height: 36px;
     font-size: 21pt;
 }
 
@@ -1611,8 +1617,11 @@ body.page3 #order-summary .summary-item-qty-controls button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex: 0 0 28px;
     width: 28px;
+    min-width: 28px;
     height: 28px;
+    min-height: 28px;
     border-radius: 50%;
     border: 1px solid var(--danger);
     background: var(--surface);
