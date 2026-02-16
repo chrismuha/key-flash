@@ -2074,6 +2074,24 @@ body.order-type.delivery-open .order-options {
     display: none;
 }
 
+body.order-type.delivery-open main {
+    align-items: stretch;
+    justify-content: flex-start;
+    text-align: left;
+}
+
+body.order-type.delivery-open .delivery-details {
+    margin-top: 0;
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    border: none;
+    background: transparent;
+    max-height: none;
+    overflow: visible;
+    align-self: stretch;
+}
+
 @media (min-width: 1024px) {
     body.order-type .delivery-details {
         padding: 20px;

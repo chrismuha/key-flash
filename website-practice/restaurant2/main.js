@@ -1243,7 +1243,7 @@
       orderTypeEditButtons.forEach((btn) => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
-          window.location.href = 'page2.html';
+          window.location.href = 'index.html';
         });
       });
     }
