@@ -2643,7 +2643,9 @@
           icon.className = 'icon';
           icon.textContent = '▸';
           arrow.appendChild(icon);
-          btn.appendChild(arrow);
+          const meta = btn.querySelector('.menu-launch-meta');
+          if (meta) meta.appendChild(arrow);
+          else btn.appendChild(arrow);
         }
         const iconEl = arrow.querySelector('.icon') || arrow;
         if (!iconEl.textContent || !iconEl.textContent.trim()) {

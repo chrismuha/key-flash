@@ -2415,15 +2415,15 @@ body.theme-dark .overlay-header-price {
     font-size: 13.5pt;
     font-weight: 700;
     border: 2px solid var(--color-black);
-    border-radius: 999px;
+    border-radius: 2rem;
     background: var(--color-smoke);
     cursor: pointer;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: flex-start;
-    flex-direction: row;
-    text-align: center;
-    gap: 8px;
+    flex-direction: column;
+    text-align: left;
+    gap: 6px;
     color: var(--color-black);
     font-family: inherit;
     -webkit-appearance: none;
@@ -2432,6 +2432,15 @@ body.theme-dark .overlay-header-price {
     touch-action: manipulation;
     white-space: nowrap;
     overflow: hidden;
+}
+
+.menu-launch-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    width: 100%;
+    justify-content: space-between;
 }
 
 @media (max-width: 600px) {
