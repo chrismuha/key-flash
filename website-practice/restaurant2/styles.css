@@ -63,6 +63,7 @@
     --color-emerald: #18833d;
     --color-forest: #2f8f49;
     --color-pistachio: #3cb371;
+    --footer-button-border:transparent;
     --color-danger-accent: #e53935;
 
     /* Shadow helpers */
@@ -1307,7 +1308,7 @@ body.page2 .page-footer .action-button {
     padding: 8px 14px;
     border-radius: 999px;
     font-weight: 700;
-    border: none;
+    border: 4px solid var(--footer-button-border);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -1340,13 +1341,11 @@ body.page2 .page-footer .action-button[aria-disabled="true"] {
 body.page2 .page-footer .footer-back-button {
     background: var(--danger);
     color: var(--color-white);
-    border-color: var(--border-strong);
 }
 
 body.page2 .page-footer .footer-reset {
     background: var(--reset-button-bg);
     color: var(--color-white);
-    border-color: var(--border-strong);
     min-width: 110px;
     min-height: 48px;
 }
@@ -1354,7 +1353,6 @@ body.page2 .page-footer .footer-reset {
 body.theme-dark .page-footer .footer-reset {
     background: var(--color-porcelain);
     color: var(--color-black);
-    border-color: var(--color-black);
 }
 
 body.order-type .page-footer {
