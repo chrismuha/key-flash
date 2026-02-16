@@ -1355,6 +1355,26 @@ body.theme-dark .page-footer .footer-reset {
     color: var(--color-black);
 }
 
+@media (max-width: 640px) {
+    body.page2 .page-footer {
+        padding: 10px 8px;
+        gap: 6px;
+    }
+
+    body.page2 .page-footer .action-button {
+        flex: 1 1 0;
+        min-width: 0;
+        box-sizing: border-box;
+        padding: 8px 6px;
+        font-size: 10.5pt;
+        line-height: 1.1;
+    }
+
+    body.page2 .page-footer .footer-reset {
+        min-width: 0;
+    }
+}
+
 body.order-type .page-footer {
     position: fixed;
     inset: auto 0 0 0;
