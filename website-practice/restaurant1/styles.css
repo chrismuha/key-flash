@@ -82,7 +82,6 @@ main {
 html,
 body {
     margin: 0;
-    height: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-family: system-ui, sans-serif;
@@ -961,20 +960,17 @@ body.page2 .collapse-footer {
 }
 
 body.page2 .reset-all {
-    background: var(--surface-strong);
     border-color: var(--color-black);
 }
 
 body.page2 .collapse-all,
 body.page2 .collapse-footer {
-    background: var(--surface-strong);
     border-color: var(--color-black);
 }
 
 body.page2 .next-button {
     background: var(--box-bg);
     border-color: var(--box-border);
-    color: var(--color-black);
 }
 
 body.theme-dark.page2 .reset-all {
@@ -1053,7 +1049,6 @@ body.page2 .next-button[aria-disabled="true"]:active {
     }
 
     body.nav-enabled.page2 .page-actions {
-        left: var(--rail-width);
         right: 0;
     }
 
@@ -1073,9 +1068,6 @@ body.page2 .next-button[aria-disabled="true"]:active {
         padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance));
     }
 
-    body.nav-enabled.page2 main {
-        padding-top: calc(var(--gap) * 4 + var(--theme-overlay-clearance) + var(--nav-expanded-clearance));
-    }
 }
 
 /* Mobile tightening for builder page */
@@ -1123,9 +1115,6 @@ body.page2 .next-button[aria-disabled="true"]:active {
     }
 
     body.page2 .page-actions {
-        left: 0;
-        right: 0;
-        justify-content: space-between;
         gap: 6px;
         padding: 8px 10px;
         flex-direction: column;
@@ -1137,10 +1126,6 @@ body.page2 .next-button[aria-disabled="true"]:active {
     body.page2 .collapse-all,
     body.page2 .collapse-footer {
         padding: 6px 8px;
-        line-height: 20px;
-        min-width: 0;
-        flex: 1 1 0;
-        white-space: normal;
         font-size: 12pt;
         width: 100%;
         max-width: none;
@@ -1376,32 +1361,11 @@ body.page2 label.required * {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Prevent any hover color changes on restricted items */
-body.page2 label.required:hover,
-body.page2 label.required:active,
-body.page2 label.required:focus {
-    color: inherit !important;
-    background: transparent !important;
-}
-
-/* block any accent/hover styling overrides for required */
-
 /* Custom-render the restricted, disabled checkbox to keep green box + black check */
 body.page2 input[type="checkbox"][data-required="true"][disabled] {
     opacity: 1;
     cursor: not-allowed;
     transform: translateY(1px);
-}
-
-/* deactivate required labels' hover completely */
-body.page2 label.required {
-    pointer-events: none !important;
-}
-
-/* Re-enable interaction for required labels so embedded controls (e.g., Patty qty) are clickable */
-/* This overrides the earlier block and should appear later in the file */
-body.page2 label.required {
-    pointer-events: auto !important;
 }
 
 /* Dim any ingredient text until its checkbox is checked */
@@ -2173,7 +2137,6 @@ body.settings-open .left-rail .nav-logo {
 @media (min-width: 769px) {
     body.settings-open::before {
         backdrop-filter: none;
-        -webkit-backdrop-filter: none;
         background: transparent;
     }
 }

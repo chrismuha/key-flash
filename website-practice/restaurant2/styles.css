@@ -1511,32 +1511,11 @@ body.page2 label.required * {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Prevent any hover color changes on restricted items */
-body.page2 label.required:hover,
-body.page2 label.required:active,
-body.page2 label.required:focus {
-    color: inherit !important;
-    background: transparent !important;
-}
-
-/* block any accent/hover styling overrides for required */
-
 /* Keep required checkboxes dimmed but visually consistent when disabled */
 body.page2 input[type="checkbox"][data-required="true"][disabled] {
     opacity: var(--checkbox-disabled-opacity);
     cursor: not-allowed;
     transform: translateY(1px);
-}
-
-/* deactivate required labels' hover completely */
-body.page2 label.required {
-    pointer-events: none !important;
-}
-
-/* Re-enable interaction for required labels so embedded controls (e.g., Patty qty) are clickable */
-/* This overrides the earlier block and should appear later in the file */
-body.page2 label.required {
-    pointer-events: auto !important;
 }
 
 /* Visually gray required items when their section is inactive */
@@ -2201,8 +2180,6 @@ body.order-type .order-powered a {
 @media (max-width: 600px) {
     body.order-type .order-options {
         gap: 12px;
-        flex-wrap: nowrap;
-        justify-content: center;
         overflow: hidden;
     }
 
