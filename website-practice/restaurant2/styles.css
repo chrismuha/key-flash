@@ -1974,6 +1974,8 @@ body.order-type main {
     max-width: none;
     margin-inline: 0;
     padding-bottom: calc(220px + var(--safe-area-bottom));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 768px) {
@@ -2056,6 +2058,8 @@ body.order-type .delivery-close-button {
     -webkit-appearance: none;
     appearance: none;
     color: var(--color-black);
+    margin-top: 4px;
+    margin-right: 4px;
 }
 
 body.theme-dark.order-type .delivery-close-button {
@@ -2084,12 +2088,20 @@ body.order-type.delivery-open .delivery-details {
     margin-top: 0;
     width: 100%;
     max-width: none;
-    padding: 0;
+    padding: 0 0 calc(220px + var(--safe-area-bottom));
     border: none;
     background: transparent;
     max-height: none;
     overflow: visible;
     align-self: stretch;
+}
+
+@media (max-width: 768px) {
+    body.order-type.delivery-open main {
+        height: auto;
+        min-height: 0;
+        overflow-y: visible;
+    }
 }
 
 @media (min-width: 1024px) {
