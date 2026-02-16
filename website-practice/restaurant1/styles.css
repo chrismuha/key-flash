@@ -53,7 +53,6 @@
 /* Ensure the main content scrolls vertically */
 html,
 body,
-.main-content,
 main {
     height: 100%;
     overflow-y: auto;
@@ -65,7 +64,6 @@ body.with-control-box {
     padding-bottom: var(--control-height, 0px);
 }
 
-.main-content,
 .content,
 main {
     scroll-padding-bottom: calc(var(--control-height, 0px) + 12px);
@@ -831,32 +829,6 @@ body.theme-dark main .burger-qty button {
     color: var(--surface);
 }
 
-/* Align ingredient labels when qty dropdown is on the right */
-body.qty-right .menu-section label {
-    display: grid;
-    grid-template-columns: auto minmax(260px, 1fr) minmax(120px, max-content) auto;
-    align-items: center;
-    column-gap: 6px;
-    width: calc(100% - 24px);
-    margin: 0 auto 6px;
-}
-
-body.qty-right .menu-section label .ingredient-qty {
-    margin-left: 0;
-    min-width: 120px;
-    justify-self: start;
-    grid-column: 3;
-}
-
-body.qty-right .menu-section label .patty-qty,
-body.qty-right .menu-section label .sauce-qty {
-    grid-column: 4;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin-left: 0;
-}
-
 body.theme-dark.page3 #order-summary {
     border-color: var(--surface);
     background: var(--color-black);
@@ -1070,14 +1042,6 @@ body.page2 .next-button[aria-disabled="true"]:active {
     transform: none;
 }
 
-body.mobile-ui.page2 .page-actions .collapse-mobile {
-    flex: 0 0 auto;
-    min-width: 100px;
-    max-width: 110px;
-    justify-content: center;
-    margin-top: 0;
-}
-
 /* Medium screens: tighten footer buttons */
 @media (max-width: 768px) {
     body.page2 .page-actions {
@@ -1119,11 +1083,6 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
     body.page2 main {
         padding: calc(var(--gap) * 2 + var(--theme-overlay-clearance)) var(--gap) 180px var(--gap);
         max-width: 100%;
-    }
-
-    main summary.menu-summary {
-        font-size: 13pt;
-        line-height: 28px;
     }
 
     main input[type="checkbox"] {
@@ -1184,11 +1143,6 @@ body.mobile-ui.page2 .page-actions .collapse-mobile {
         white-space: normal;
         font-size: 12pt;
         width: 100%;
-        max-width: none;
-    }
-
-    body.mobile-ui.page2 .page-actions .collapse-mobile {
-        min-width: 0;
         max-width: none;
     }
 
@@ -1608,10 +1562,6 @@ body.page3 #order-summary .summary-item-qty-controls {
     white-space: nowrap;
 }
 
-body.page3 #order-summary .summary-item-qty-controls button {
-    flex: 0 0 auto;
-}
-
 body.page3 #order-summary .summary-section-qty-row button,
 body.page3 #order-summary .summary-item-qty-controls button {
     display: inline-flex;
@@ -1815,7 +1765,6 @@ body.order-type main h1 {
 
 @media (max-width: 430px) {
     body.order-type main h1 {
-        font-size: 22.5pt !important;
         line-height: 1.2;
         white-space: nowrap;
         overflow-wrap: normal;

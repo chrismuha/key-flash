@@ -550,10 +550,6 @@ body.theme-dark .settings-modal {
     border-color: var(--border-strong);
 }
 
-body.settings-open {
-    overflow: hidden;
-}
-
 html.settings-open,
 body.settings-open,
 body.settings-open.menu-overlay-open {
@@ -711,35 +707,8 @@ body.theme-dark .ingredient-qty {
     max-width: 120px;
 }
 
-/* Align ingredient labels when qty dropdown is on the right */
-body.qty-right .menu-section label {
-    display: grid;
-    grid-template-columns: auto minmax(260px, 1fr) minmax(120px, max-content) auto;
-    align-items: center;
-    column-gap: 6px;
-    width: calc(100% - 24px);
-    margin: 0 auto 6px;
-}
-
-body.qty-right .menu-section label .ingredient-qty {
-    margin-left: 0;
-    min-width: 120px;
-    justify-self: start;
-    grid-column: 3;
-}
-
-body.qty-right .menu-section label .patty-qty,
-body.qty-right .menu-section label .sauce-qty {
-    grid-column: 4;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin-left: 0;
-}
-
 @media (max-width: 540px) {
 
-    body.qty-right .menu-section form label,
     .menu-section form label {
         display: inline-flex;
         align-items: center;
@@ -749,13 +718,7 @@ body.qty-right .menu-section label .sauce-qty {
         margin: 0 auto 6px;
     }
 
-    body.qty-right .menu-section form label .ingredient-qty,
     .menu-section form label .ingredient-qty,
-    body.qty-right .menu-section form label .patty-qty,
-    .menu-section form label .patty-qty,
-    body.qty-right .menu-section form label .sauce-qty,
-    .menu-section form label .sauce-qty,
-    body.qty-right .menu-section form label .bread-select select,
     .menu-section form label .bread-select select {
         /* flex-basis: 100%; */
         order: 2;
@@ -1685,11 +1648,6 @@ body.page3 #order-summary .summary-section-actions .summary-qty-controls {
     margin-bottom: 8px;
 }
 
-body.page3 #order-summary .summary-section-qty {
-    font-size: 11pt;
-    color: var(--color-muted);
-}
-
 body.page3 #order-summary .summary-section+.summary-section {
     border-top: 1px dashed var(--shadow-layer);
     padding-top: 12px;
@@ -2114,13 +2072,6 @@ body.order-type .delivery-details .form-error {
     margin: 8px 0;
 }
 
-/* Live invalid highlighting for delivery details */
-body.order-type .delivery-details .field.invalid input,
-body.order-type .delivery-details .field.invalid select {
-    outline: 2px solid var(--color-error);
-    outline-offset: 2px;
-}
-
 /* Generic inline form error styling */
 .form-error {
     color: var(--color-error);
@@ -2309,14 +2260,6 @@ main .section-actions .section-done:focus-visible {
 body.theme-dark main .section-actions .section-done:hover,
 body.theme-dark main .section-actions .section-done:focus-visible {
     background: rgba(255, 255, 255, 0.12);
-}
-
-/* Visual cue for invalid/attention-needed sections */
-main .menu-summary.invalid {
-    outline: 2px solid var(--color-error);
-    outline-offset: 4px;
-    border-radius: 6px;
-    margin-bottom: 8px;
 }
 
 main .menu-summary-label {
@@ -2760,10 +2703,6 @@ body.theme-dark.page3 #order-summary .summary-section+.summary-section {
 body.theme-dark.page3 .summary-divider {
     border-color: var(--border-strong);
     opacity: 1;
-}
-
-body.theme-dark.page3 #order-summary .summary-section-qty {
-    color: var(--color-muted-strong);
 }
 
 .menu-overlay {
