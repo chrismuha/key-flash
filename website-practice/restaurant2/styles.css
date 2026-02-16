@@ -2309,6 +2309,10 @@ main .qty-control-increment {
     transition: transform 0.1s ease;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
+    min-width: 28px;
+    min-height: 28px;
+    flex: 0 0 auto;
+    aspect-ratio: 1 / 1;
 }
 
 main .qty-control-decrement:disabled,
@@ -2328,6 +2332,8 @@ main .menu-summary .qty-control-increment {
     width: 36px;
     height: 36px;
     font-size: 21pt;
+    min-width: 36px;
+    min-height: 36px;
 }
 
 body.theme-dark main .qty-controls {
