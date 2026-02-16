@@ -1131,6 +1131,7 @@ body.page3 .go-back {
     padding: 5px 10px;
     font-weight: 600;
     font-size: 11pt;
+    line-height: 1.2;
     border: 1px solid var(--color-black);
     background: var(--color-porcelain);
     color: var(--color-black);
@@ -1138,6 +1139,10 @@ body.page3 .go-back {
     cursor: pointer;
     margin: 0 auto 12px;
     width: fit-content;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 body.menu-overlay-open .back-to-menu {

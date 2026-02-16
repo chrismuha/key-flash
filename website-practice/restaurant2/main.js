@@ -2125,11 +2125,11 @@
             wrap.addEventListener(evt, (event) => event.stopPropagation());
           });
           const bindAdjustButton = (btn, delta) => {
-            let lastPointerAdjustAt = 0;
+            let ignoreNextClick = false;
             const triggerAdjust = (evt) => {
               evt.preventDefault();
               evt.stopPropagation();
-              lastPointerAdjustAt = performance.now();
+              ignoreNextClick = true;
               adjust(delta);
             };
             if (window.PointerEvent) {
@@ -2147,8 +2147,11 @@
             btn.addEventListener('click', (evt) => {
               evt.preventDefault();
               evt.stopPropagation();
-              // Ignore synthetic click that follows pointer/touch/mouse press.
-              if (performance.now() - lastPointerAdjustAt < 450) return;
+              // Ignore the synthetic click paired with pointer/touch press.
+              if (ignoreNextClick) {
+                ignoreNextClick = false;
+                return;
+              }
               adjust(delta);
             });
           };
@@ -3351,13 +3354,11 @@
         if (typeof updatePage3NavState === 'function') updatePage3NavState();
       }
       const bindSummaryAdjustButton = (btn, section, delta) => {
-        let lastPointerAdjustAt = 0;
+        let ignoreNextClick = false;
         const triggerAdjust = (evt) => {
-          // OLD (hidden line reference): lastPointerAdjustAt = performance.now();
-          // OLD (hidden line reference): handleAdjustSectionQuantity(section, delta);
           evt.preventDefault();
           evt.stopPropagation();
-          lastPointerAdjustAt = performance.now();
+          ignoreNextClick = true;
           handleAdjustSectionQuantity(section, delta);
         };
         if (window.PointerEvent) {
@@ -3375,8 +3376,11 @@
         btn.addEventListener('click', (evt) => {
           evt.preventDefault();
           evt.stopPropagation();
-          // Ignore synthetic click that follows pointer/touch/mouse press.
-          if (performance.now() - lastPointerAdjustAt < 450) return;
+          // Ignore the synthetic click paired with pointer/touch press.
+          if (ignoreNextClick) {
+            ignoreNextClick = false;
+            return;
+          }
           handleAdjustSectionQuantity(section, delta);
         });
       };
