@@ -704,9 +704,10 @@ body.theme-dark .go-back {
     color: var(--surface);
 }
 
-/* Hide Go Back when navigation is enabled */
+/* Keep Go Back visible when navigation is enabled and place it to the right of the rail */
 body.nav-enabled .go-back {
-    display: none !important;
+    left: calc(var(--rail-width) + var(--gap));
+    z-index: 1501;
 }
 
 /* Dark theme: make all key outlines/borders white for contrast */
@@ -1073,7 +1074,6 @@ body.page2 .next-button[aria-disabled="true"]:active {
         font-size: 11.25pt;
         line-height: 20px;
         min-width: 0;
-        flex: 1 1 0;
         white-space: normal;
     }
 
@@ -1202,6 +1202,11 @@ body.page2 .next-button[aria-disabled="true"]:active {
     .moved-go-back {
         left: calc(var(--gap));
         top: calc(var(--gap));
+        z-index: 1501 !important;
+    }
+
+    body.nav-enabled .moved-go-back {
+        left: calc(var(--rail-width) + var(--gap));
     }
 
     main summary.menu-summary {
