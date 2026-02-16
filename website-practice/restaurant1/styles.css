@@ -2225,6 +2225,11 @@ body.settings-open .left-rail .nav-logo {
     pointer-events: auto;
 }
 
+/* Keep the settings panel above the blur overlay */
+body.settings-open .left-rail {
+    z-index: 2201;
+}
+
 /* Keep desktop controls outside the left rail under the settings overlay */
 body.settings-open .go-back,
 body.settings-open .theme-dropdown,
