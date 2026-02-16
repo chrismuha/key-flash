@@ -513,9 +513,14 @@ body.theme-dark main fieldset {
 
 /* Compact theme toggle on mobile */
 body.mobile-ui .theme-toggle {
+    flex: 0 0 36px;
     width: 36px;
     min-width: 36px;
+    max-width: 36px;
     height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+    line-height: 1;
     padding: 0;
     border-radius: 8px;
     font-size: 13.5pt;
@@ -569,12 +574,17 @@ body.mobile-ui .theme-menu {
 }
 
 body.mobile-ui .theme-option {
-    min-width: 32px;
-    width: 32px;
-    height: 32px;
-    padding: 0 6px;
+    flex: 0 0 36px;
+    min-width: 36px;
+    width: 36px;
+    max-width: 36px;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+    line-height: 1;
+    padding: 0;
     text-align: center;
-    font-size: 12pt;
+    font-size: 13.5pt;
     display: inline-flex;
     align-items: center;
     justify-content: center;
