@@ -1,6 +1,8 @@
 /* Section: CSS Variables */
 :root {
     --gap: 12px;
+    --page-button-gap: calc(var(--gap) - 2px);
+    --page-button-row-offset: 12px;
     --logo-w: 120px;
     --logo-h: 80px;
     --swiper-arrow-size: 36px;
@@ -140,7 +142,7 @@ body.page2 {
     align-items: center;
     justify-content: flex-start;
     flex-wrap: wrap;
-    gap: calc(var(--gap) - 2px);
+    gap: var(--page-button-gap);
     padding: calc(var(--gap) * 3) var(--gap) 0 calc(var(--gap) / 2);
     width: 100%;
     position: fixed;
@@ -156,6 +158,11 @@ body.page2 {
 
 .has-go-back .left-rail {
     padding-top: calc(var(--gap) * 3);
+}
+
+/* When nav is expanded, push page buttons farther below the fixed Go Back button */
+.has-go-back.nav-enabled .left-rail {
+    padding-top: calc(var(--gap) * 3 + var(--page-button-row-offset));
 }
 
 /* Left-rail logo occupies the padded space above links */
@@ -926,6 +933,10 @@ body:not(.nav-enabled) main {
         padding-top: calc(var(--gap) * 3);
     }
 
+    .has-go-back.nav-enabled .left-rail {
+        padding-top: calc(var(--gap) * 3 + var(--page-button-row-offset));
+    }
+
     body.mobile-ui.nav-enabled .left-rail {
         display: flex !important;
     }
@@ -1103,7 +1114,7 @@ body.theme-dark main fieldset {
     top: 3px;
     left: 12px;
     padding: 5px 10px;
-    font-weight: 400;
+    font-weight: 700;
     font-size: 11pt;
     border: 1px solid var(--color-black);
     background: var(--color-porcelain);
@@ -1129,7 +1140,7 @@ body.page3 .go-back {
 .back-to-menu {
     display: none;
     padding: 5px 10px;
-    font-weight: 400;
+    font-weight: 700;
     font-size: 11pt;
     line-height: 1.2;
     border: 1px solid var(--color-black);
