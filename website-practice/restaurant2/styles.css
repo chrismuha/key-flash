@@ -1165,6 +1165,12 @@ body.theme-dark .back-to-menu {
     color: var(--text-primary);
 }
 
+.back-to-menu:focus,
+.back-to-menu:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
 /* Hide Go Back when navigation is enabled */
 /* Dark theme: make all key outlines/borders white for contrast */
 body.theme-dark :focus-visible {
@@ -1301,7 +1307,7 @@ body.page2 .page-footer .action-button {
     padding: 8px 14px;
     border-radius: 999px;
     font-weight: 700;
-    border: 2px solid var(--box-border);
+    border: none;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -1368,7 +1374,7 @@ body.order-type .page-footer .action-button {
     padding: 8px 14px;
     border-radius: 999px;
     font-weight: 700;
-    border: 2px solid var(--box-border);
+    border: none;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
