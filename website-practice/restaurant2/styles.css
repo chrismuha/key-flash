@@ -5,7 +5,7 @@
     --page-button-row-offset: 12px;
     --logo-w: 120px;
     --logo-h: 80px;
-    --swiper-arrow-size: 36px;
+    --swiper-arrow-size: 44px;
     --nav-height: calc(var(--logo-h) + var(--gap) * 2);
     --nav-offset: var(--nav-height);
     --rail-side-gap: calc(var(--gap) - 6px);
@@ -252,7 +252,7 @@ body.page2 {
     align-items: flex-end;
     justify-content: center;
     font-weight: 700;
-    font-size: 13pt;
+    font-size: 12pt;
     flex-shrink: 0;
     cursor: pointer;
     scroll-snap-align: start;
@@ -321,6 +321,8 @@ body.theme-dark .mobile-menu-swiper .swiper-chip.menu-launch-active {
     -webkit-text-fill-color: var(--color-black);
     -webkit-appearance: none;
     appearance: none;
+    font-size: 18pt;
+    line-height: 1;
 }
 
 body.theme-dark .mobile-menu-swiper .swiper-arrow {
@@ -431,21 +433,21 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     }
 
     .order-type-chip__edit {
-        font-size: 26pt;
+        font-size: 31pt;
     }
 }
 
 @media (max-width: 480px) {
     .order-type-chip__edit {
-        font-size: 24pt;
+        font-size: 29pt;
     }
 }
 
 @media screen and (max-width: 812px) and (-webkit-min-device-pixel-ratio: 2) {
     .order-type-chip__edit {
-        font-size: 30pt;
-        width: 52px;
-        height: 52px;
+        font-size: 34pt;
+        width: 56px;
+        height: 56px;
     }
 }
 
@@ -457,10 +459,10 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     font-weight: 700;
     cursor: pointer;
     padding: 0;
-    font-size: 19.5pt;
+    font-size: 21pt;
     line-height: 1;
-    width: 46px;
-    height: 46px;
+    width: 48px;
+    height: 48px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -775,11 +777,12 @@ body.theme-dark .ingredient-qty {
 
 .settings-panel .settings-reset {
     margin-top: 8px;
-    padding: 6px 10px;
+    padding: 8px 14px;
     border: 1px solid var(--color-black);
     background: var(--color-porcelain);
     color: var(--color-black);
     font-weight: 700;
+    font-size: 12pt;
     border-radius: 999px;
     cursor: pointer;
 }
@@ -1024,6 +1027,9 @@ body:not(.nav-enabled) main {
 
 .nav-theme-controls .theme-option .theme-icon {
     font-size: 14.4pt;
+    color: inherit;
+    -webkit-text-fill-color: currentColor;
+    font-variant-emoji: text;
 }
 
 body.theme-dark .nav-theme-controls .theme-option {
@@ -1037,12 +1043,11 @@ body.theme-dark .nav-theme-controls .nav-toggle .theme-icon {
     -webkit-text-fill-color: var(--color-white);
 }
 
-@media (min-width: 769px) {
-    body.theme-dark .nav-theme-controls .theme-option,
-    body.theme-dark .nav-theme-controls .theme-option .theme-label {
-        color: var(--color-white);
-        -webkit-text-fill-color: var(--color-white);
-    }
+body.theme-dark .nav-theme-controls .theme-option,
+body.theme-dark .nav-theme-controls .theme-option .theme-label,
+body.theme-dark .nav-theme-controls .theme-option .theme-icon {
+    color: var(--color-white);
+    -webkit-text-fill-color: var(--color-white);
 }
 
 .nav-toggle {
@@ -1053,6 +1058,10 @@ body.theme-dark .nav-theme-controls .nav-toggle .theme-icon {
 
 
 @media (max-width: 768px) {
+    .mobile-menu-swiper {
+        --slider-visible-count: 3;
+    }
+
     .nav-theme-controls {
         top: 3px;
         right: 18px;
@@ -1072,6 +1081,18 @@ body.theme-dark .nav-theme-controls .nav-toggle .theme-icon {
 
     .nav-theme-controls .theme-icon {
         font-size: 19.2pt;
+    }
+
+    .mobile-menu-swiper .swiper-arrow {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        font-size: 20pt;
+    }
+
+    .mobile-menu-swiper .swiper-chip {
+        font-size: 11pt;
+        padding: 0 8px 10px;
     }
 
 }
@@ -1837,10 +1858,10 @@ body.page3 #order-summary .summary-edit-btn {
     font-weight: 700;
     text-decoration: none;
     border: 1px solid var(--accent-strong);
-    width: 90px;
-    height: 34px;
+    min-width: 102px;
+    height: 38px;
     line-height: 1;
-    font-size: 10.8pt;
+    font-size: 12pt;
     font-family: inherit;
 }
 

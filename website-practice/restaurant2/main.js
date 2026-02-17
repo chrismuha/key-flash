@@ -1204,7 +1204,7 @@
       const isDark = body.classList.contains('theme-dark');
       const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
       const modeText = isDark ? 'Light Mode' : 'Dark Mode';
-      const iconText = isDark ? '☀️' : '🌙';
+      const iconText = isDark ? '☀' : '☾';
       themeModeBtns.forEach((btn) => {
         const iconEl = btn.querySelector('.theme-icon');
         const labelEl = btn.querySelector('.theme-label');
@@ -3265,14 +3265,74 @@
         setNavEnabled(!body.classList.contains('nav-enabled'));
       });
     }
-    if (themeModeBtns.length) {
-      themeModeBtns.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          body.classList.toggle('theme-dark');
-          persistThemeState();
-          updateThemeModeLabel();
+    const toggleThemeMode = () => {
+      body.classList.toggle('theme-dark');
+      persistThemeState();
+      updateThemeModeLabel();
+    };
+
+    const bindThemeToggleButton = (btn) => {
+      let holdDelayTimer = null;
+      let holdRepeatTimer = null;
+      let suppressNextClick = false;
+
+      const clearRepeatTimers = () => {
+        if (holdDelayTimer) {
+          clearTimeout(holdDelayTimer);
+          holdDelayTimer = null;
+        }
+        if (holdRepeatTimer) {
+          clearInterval(holdRepeatTimer);
+          holdRepeatTimer = null;
+        }
+      };
+
+      const startTouchHoldRepeat = (event) => {
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        suppressNextClick = true;
+        toggleThemeMode();
+        clearRepeatTimers();
+        holdDelayTimer = setTimeout(() => {
+          holdRepeatTimer = setInterval(toggleThemeMode, 140);
+        }, 260);
+      };
+
+      if (typeof window !== 'undefined' && 'PointerEvent' in window) {
+        btn.addEventListener('pointerdown', (event) => {
+          if (event.pointerType === 'mouse') return;
+          startTouchHoldRepeat(event);
         });
+        btn.addEventListener('pointerup', clearRepeatTimers);
+        btn.addEventListener('pointercancel', () => {
+          clearRepeatTimers();
+          suppressNextClick = false;
+        });
+        btn.addEventListener('pointerleave', clearRepeatTimers);
+      } else {
+        btn.addEventListener('touchstart', startTouchHoldRepeat, { passive: false });
+        btn.addEventListener('touchend', clearRepeatTimers);
+        btn.addEventListener('touchcancel', () => {
+          clearRepeatTimers();
+          suppressNextClick = false;
+        });
+      }
+
+      btn.addEventListener('click', (event) => {
+        if (suppressNextClick) {
+          suppressNextClick = false;
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+        toggleThemeMode();
       });
+    };
+
+    if (themeModeBtns.length) {
+      themeModeBtns.forEach((btn) => bindThemeToggleButton(btn));
     }
     if (settingsCloseBtn) {
       settingsCloseBtn.addEventListener('click', closeSettings);
@@ -3526,8 +3586,9 @@
 
             const edit = document.createElement('button');
             edit.type = 'button';
-            edit.textContent = 'Edit';
+            edit.textContent = '✎ Edit';
             edit.className = 'summary-edit-btn';
+            edit.setAttribute('aria-label', `Edit ${title.textContent}`);
             // OLD SECTION (hidden old behavior): header.appendChild(edit);
             actions.appendChild(edit);
 
@@ -3759,8 +3820,9 @@
             actions.className = 'summary-section-actions';
             const edit = document.createElement('button');
             edit.type = 'button';
-            edit.textContent = 'Edit';
+            edit.textContent = '✎ Edit';
             edit.className = 'summary-edit-btn';
+            edit.setAttribute('aria-label', `Edit ${title.textContent}`);
 
             // OLD SECTION (kept for reference): summary edit link behavior
             // const edit = document.createElement('a');
