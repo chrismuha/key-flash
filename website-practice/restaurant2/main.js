@@ -403,7 +403,9 @@
     };
 
     overlay.addEventListener('click', (evt) => {
-      if (evt.target === overlay) closeDialog(false);
+      if (evt.target !== overlay) return;
+      evt.preventDefault();
+      evt.stopPropagation();
     });
     cancelBtn.addEventListener('click', () => closeDialog(false));
     confirmBtn.addEventListener('click', () => closeDialog(true));
@@ -1844,6 +1846,7 @@
       const overlays = Array.from(document.querySelectorAll('.menu-overlay[data-section]'));
       const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
       const backToMenuBtn = document.querySelector('.back-to-menu');
+      const footerBackBtn = document.querySelector('.footer-back-button');
       const backToMenuOriginalParent = backToMenuBtn ? backToMenuBtn.parentElement : null;
       const backToMenuOriginalNext = backToMenuBtn ? backToMenuBtn.nextElementSibling : null;
       const sliderTrack = document.querySelector('.mobile-menu-swiper .swiper-track');
@@ -1995,6 +1998,13 @@
         };
 
         footerNext.addEventListener('click', (event) => {
+          const nextDisabled = footerNext.getAttribute('aria-disabled') === 'true'
+            || footerNext.classList.contains('next-disabled')
+            || footerNext.matches(':disabled');
+          if (nextDisabled) {
+            event.preventDefault();
+            return;
+          }
           if (typeof anyOverlayOpen === 'function' && anyOverlayOpen()) {
             event.preventDefault();
             const activeOverlay = overlays.find((overlay) => !overlay.hidden) || null;
@@ -2064,6 +2074,21 @@
           backToMenuOriginalParent.appendChild(backToMenuBtn);
         }
       };
+      const updateFooterBackState = () => {
+        if (!footerBackBtn || !body.classList.contains('page2')) return;
+        const enabled = anyOverlayOpen();
+        if (enabled) {
+          footerBackBtn.removeAttribute('aria-disabled');
+          footerBackBtn.removeAttribute('tabindex');
+          footerBackBtn.removeAttribute('title');
+          footerBackBtn.removeEventListener('click', preventNavClick);
+          return;
+        }
+        footerBackBtn.setAttribute('aria-disabled', 'true');
+        footerBackBtn.setAttribute('tabindex', '-1');
+        footerBackBtn.setAttribute('title', 'Open an item overlay to use Back to menu');
+        footerBackBtn.addEventListener('click', preventNavClick);
+      };
       const sectionToggles = Array.from(document.querySelectorAll('.section-toggle[data-section]'));
       const pizzaSizeRadios = Array.from(document.querySelectorAll('input[name="pizza_size"]'));
       const sectionTitles = Array.from(document.querySelectorAll('.menu-summary .menu-summary-label'));
@@ -2123,6 +2148,7 @@
               }
             }
             updateSectionQuantityControl(wrap, sec);
+            updateSectionDoneState(sec);
             markOverlayDirtyForSection(sec);
           };
           ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach((evt) => {
@@ -2465,6 +2491,7 @@
 
         if (groupingSection) {
           refreshSectionQuantityControls();
+          updateSectionDoneState(groupingSection);
         }
 
         if (resetDisables) {
@@ -2739,6 +2766,81 @@
         const declineText = declineAction === 'close'
           ? 'Select "No" to discard and close.'
           : 'Select "No" to keep editing.';
+        const discardOverlayChanges = () => {
+          if (!overlaySession.snapshot || overlaySession.section !== section) return;
+          const snapshot = overlaySession.snapshot;
+          const groups = getIngredientGroupsForSection(section);
+          if (!groups.length) return;
+
+          const ingredientsState = loadIngredientsFromStorage();
+          groups.forEach((group) => {
+            const values = snapshot.ingredients && Array.isArray(snapshot.ingredients[group])
+              ? snapshot.ingredients[group].map((value) => normalizeJalapenoValue(String(value)))
+              : [];
+            ingredientsState[group] = values;
+          });
+          saveIngredientsToStorage(ingredientsState);
+          updateIngredientInputsFromData(ingredientsState);
+
+          let qtyMap = safeParseJSON(localStorage.getItem(STORAGE_KEYS.quantities), {}) || {};
+          if (!qtyMap || typeof qtyMap !== 'object') qtyMap = {};
+          const groupPrefixes = groups.map((group) => `${group}|`);
+          Object.keys(qtyMap).forEach((key) => {
+            if (groupPrefixes.some((prefix) => key.startsWith(prefix))) delete qtyMap[key];
+          });
+          const snapshotQuantities = snapshot.quantities && typeof snapshot.quantities === 'object'
+            ? snapshot.quantities
+            : {};
+          Object.entries(snapshotQuantities).forEach(([key, value]) => {
+            if (!groupPrefixes.some((prefix) => String(key).startsWith(prefix))) return;
+            qtyMap[key] = String(value);
+          });
+          try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { /* ignore */ }
+
+          const sectionEl = document.getElementById(section);
+          if (sectionEl) {
+            const validQtyOptions = new Set(['1', '2', '3', '4']);
+            sectionEl.querySelectorAll('input[type="checkbox"][name$="_ingredients[]"]').forEach((cb) => {
+              const labelEl = cb.closest('label');
+              if (!labelEl) return;
+              const qtySel = labelEl.querySelector('select.ingredient-qty');
+              if (!qtySel) return;
+              if (cb.dataset && cb.dataset.noQty === 'true') {
+                qtySel.disabled = !cb.checked;
+                qtySel.hidden = !cb.checked;
+                return;
+              }
+              const key = `${cb.name}|${cb.value}`;
+              const qty = validQtyOptions.has(String(qtyMap[key])) ? String(qtyMap[key]) : '1';
+              qtySel.value = qty;
+              qtySel.disabled = !cb.checked;
+              qtySel.hidden = !cb.checked;
+            });
+          }
+
+          if (SECTION_QUANTITY_SECTIONS.includes(section)) {
+            setSectionQuantity(section, snapshot.sectionQty);
+            refreshSectionQuantityControls();
+          }
+
+          const sectionToggle = document.querySelector(`.section-toggle[data-section="${section}"]`);
+          if (sectionToggle && !sectionToggle.disabled) {
+            sectionToggle.checked = !!snapshot.sectionEnabled;
+          }
+          persistActiveSections();
+          syncRequiredCheckboxes();
+
+          if (section === 'pizza' && snapshot.pizzaSize) {
+            pizzaSizeRadios.forEach((radio) => {
+              radio.checked = radio.value === snapshot.pizzaSize;
+            });
+            savePizzaSize(snapshot.pizzaSize);
+          }
+
+          updateSectionDoneState(section);
+          updateBuilderError();
+          updatePage3NavState();
+        };
         openCustomConfirm(
           `Save your changes to ${sectionLabel}? ${declineText}`,
           (approved) => {
@@ -2750,6 +2852,7 @@
               return;
             }
             if (declineAction === 'close') {
+              discardOverlayChanges();
               closeOverlay(overlay);
               if (typeof options.onAfterClose === 'function') options.onAfterClose();
               return;
@@ -2785,6 +2888,7 @@
         clearOverlaySession();
         body.classList.remove('menu-overlay-open');
         restoreBackButton();
+        updateFooterBackState();
       };
 
       const closeOverlay = (overlayOrSection) => {
@@ -2800,6 +2904,7 @@
           body.classList.remove('menu-overlay-open');
           restoreBackButton();
         }
+        updateFooterBackState();
       };
 
       const openOverlay = (section) => {
@@ -2814,6 +2919,8 @@
         body.classList.add('menu-overlay-open');
         moveBackButtonToOverlay(overlay);
         setOverlaySessionForSection(section);
+        updateSectionDoneState(section);
+        updateFooterBackState();
         const focusable = overlay.querySelector('input, button, select, [tabindex]:not([tabindex="-1"])');
         if (focusable && focusable.focus) focusable.focus({ preventScroll: true });
       };
@@ -2931,6 +3038,33 @@
         builderError.hidden = true;
         builderError.textContent = '';
       };
+      const getSectionSelectedIngredientCount = (section) => {
+        const groups = getIngredientGroupsForSection(section);
+        if (!groups.length) return 0;
+        const ing = loadIngredientsFromStorage();
+        return groups.reduce((total, group) => {
+          const selected = Array.isArray(ing[group]) ? ing[group].length : 0;
+          return total + selected;
+        }, 0);
+      };
+      const isSectionActive = (section) => {
+        const toggle = document.querySelector(`.section-toggle[data-section="${section}"]`);
+        return !!(toggle && toggle.checked && !toggle.disabled);
+      };
+      const updateSectionDoneState = (section) => {
+        if (!section) return;
+        const doneBtn = document.querySelector(`.section-done[data-section="${section}"]`);
+        if (!doneBtn) return;
+        const canUseDone = isSectionActive(section) && getSectionSelectedIngredientCount(section) > 0;
+        doneBtn.disabled = !canUseDone;
+        if (canUseDone) doneBtn.removeAttribute('aria-disabled');
+        else doneBtn.setAttribute('aria-disabled', 'true');
+      };
+      const updateAllSectionDoneStates = () => {
+        document.querySelectorAll('.section-done[data-section]').forEach((btn) => {
+          updateSectionDoneState(btn.dataset.section || '');
+        });
+      };
 
       function resetMenuSelections() {
         const clearMenuLaunchVisualState = () => {
@@ -2995,6 +3129,7 @@
         updateBuilderError();
         updatePage3NavState();
         refreshSectionQuantityControls();
+        updateAllSectionDoneStates();
         clearMenuLaunchVisualState();
         blurMenuLaunchFocus();
         requestAnimationFrame(() => {
@@ -3119,6 +3254,7 @@
           suppressSectionToast = '';
           updateBuilderError();
           updatePage3NavState();
+          updateSectionDoneState(section);
         }
       };
       sectionDoneButtons.forEach((btn) => {
@@ -3130,6 +3266,7 @@
           if (overlaySession.section === section) overlaySession.dirty = false;
           const item = buildOrderItemFromSection(section);
           if (!item) {
+            updateSectionDoneState(section);
             closeOverlay(section);
             return;
           }
@@ -3139,6 +3276,7 @@
           showCartToast(section, true, `${SECTION_LABELS[section] || section} added to cart`);
           clearSectionOnPage2AfterDone(section);
           closeOverlay(section);
+          updateSectionDoneState(section);
         });
       });
 
@@ -3151,6 +3289,14 @@
             return;
           }
           closeAllOverlays();
+        });
+      }
+      if (footerBackBtn) {
+        footerBackBtn.addEventListener('click', (evt) => {
+          evt.preventDefault();
+          const activeOverlay = overlays.find((overlay) => !overlay.hidden) || null;
+          if (!activeOverlay) return;
+          requestOverlayClose(activeOverlay, { declineAction: 'close' });
         });
       }
 
@@ -3192,6 +3338,7 @@
           saveAllIngredientSelections();
           updateBuilderError();
           updatePage3NavState();
+          if (secId) updateSectionDoneState(secId);
           if (secId) markOverlayDirtyForSection(secId);
         });
       });
@@ -3288,6 +3435,7 @@
           persistActiveSections();
           updateBuilderError();
           updatePage3NavState();
+          if (sec) updateSectionDoneState(sec);
           if (sec) markOverlayDirtyForSection(sec);
           if (sec) {
             if (suppressSectionToast === sec) {
@@ -3302,6 +3450,8 @@
       persistActiveSections();
       updateBuilderError();
       updatePage3NavState();
+      updateAllSectionDoneStates();
+      updateFooterBackState();
       openHashTarget();
       window.addEventListener('hashchange', openHashTarget);
     }
