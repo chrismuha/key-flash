@@ -1200,7 +1200,7 @@
       const isDark = body.classList.contains('theme-dark');
       const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
       const modeText = isDark ? 'Light Mode' : 'Dark Mode';
-      const iconText = isDark ? '☼' : '◐';
+      const iconText = isDark ? '☀' : '◐';
       themeModeBtns.forEach((btn) => {
         const iconEl = btn.querySelector('.theme-icon');
         const labelEl = btn.querySelector('.theme-label');
@@ -3107,7 +3107,10 @@
       overlays.forEach((overlay) => {
         overlay.setAttribute('aria-hidden', overlay.hidden ? 'true' : 'false');
         overlay.addEventListener('click', (e) => {
-          if (e.target === overlay) requestOverlayClose(overlay);
+          if (e.target === overlay) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
         });
         const closeBtn = overlay.querySelector('.close-overlay');
         if (closeBtn) closeBtn.addEventListener('click', () => requestOverlayClose(overlay));
