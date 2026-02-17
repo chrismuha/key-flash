@@ -734,6 +734,17 @@ body.theme-dark .custom-confirm-modal {
     outline: 2px solid var(--color-oxblood);
 }
 
+.custom-confirm-accept.custom-confirm-accept-success {
+    background: var(--accent);
+    border-color: var(--accent-strong);
+}
+
+.custom-confirm-accept.custom-confirm-accept-success:hover,
+.custom-confirm-accept.custom-confirm-accept-success:focus-visible {
+    background: var(--accent-strong);
+    outline: 2px solid var(--accent-strong);
+}
+
 
 .ingredient-qty {
     margin-left: 8px;
@@ -2370,12 +2381,17 @@ main .qty-controls {
     align-items: center;
     gap: 6px;
     margin-left: 12px;
-    font-size: 10.5pt;
+    font-size: 12.5pt;
     letter-spacing: 0.02em;
 }
 
 main .qty-controls-value {
     font-weight: 600;
+}
+
+body.page3 #order-summary .summary-qty-value {
+    font-size: 12.5pt;
+    font-weight: 700;
 }
 
 main .qty-control-decrement,

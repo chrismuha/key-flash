@@ -423,6 +423,10 @@
     dialog.onDecision = onDecision;
     dialog.lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     dialog.restoreFocus = options.restoreFocus !== false;
+    dialog.confirmBtn.classList.remove('custom-confirm-accept-success');
+    if (options.confirmVariant === 'success') {
+      dialog.confirmBtn.classList.add('custom-confirm-accept-success');
+    }
     dialog.overlay.hidden = false;
     dialog.overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('custom-confirm-open');
@@ -1992,10 +1996,39 @@
       bindSliderArrow(sliderPrev, -1);
       bindSliderArrow(sliderNext, 1);
       if (footerNext) {
+        const proceedToNextPage = () => {
+          const href = footerNext.getAttribute('href');
+          if (!href) return;
+          window.location.href = href;
+        };
+
         footerNext.addEventListener('click', (event) => {
-          if (nextClosesOverlay && typeof anyOverlayOpen === 'function' && anyOverlayOpen()) {
+          if (typeof anyOverlayOpen === 'function' && anyOverlayOpen()) {
             event.preventDefault();
-            if (typeof closeAllOverlays === 'function') closeAllOverlays();
+            const activeOverlay = overlays.find((overlay) => !overlay.hidden) || null;
+            const section = activeOverlay ? String(activeOverlay.dataset.section || '') : '';
+            const sectionLabel = section
+              ? (SECTION_LABELS[section] || titleCase(section.replace(/_/g, ' ')))
+              : 'this menu item';
+            openCustomConfirm(
+              `Save your changes to ${sectionLabel} before continuing?`,
+              (approved) => {
+                if (approved) {
+                  const doneBtn = section
+                    ? document.querySelector(`.section-done[data-section="${section}"]`)
+                    : null;
+                  if (doneBtn) {
+                    doneBtn.click();
+                  } else if (activeOverlay) {
+                    closeOverlay(activeOverlay);
+                  }
+                } else if (activeOverlay) {
+                  closeOverlay(activeOverlay);
+                }
+                proceedToNextPage();
+              },
+              { restoreFocus: false, confirmVariant: 'success' }
+            );
             return;
           }
           const state = evaluatePage3Requirements();
