@@ -2725,6 +2725,7 @@
           if (typeof options.onAfterClose === 'function') options.onAfterClose();
           return;
         }
+        const declineAction = options.declineAction === 'close' ? 'close' : 'keep';
         const section = String(overlay.dataset.section || '').toLowerCase();
         const finishClose = () => {
           closeOverlay(overlay);
@@ -2735,7 +2736,9 @@
           return;
         }
         const sectionLabel = SECTION_LABELS[section] || titleCase(section.replace(/_/g, ' '));
-        const declineText = 'Select "No" to keep editing.';
+        const declineText = declineAction === 'close'
+          ? 'Select "No" to discard and close.'
+          : 'Select "No" to keep editing.';
         openCustomConfirm(
           `Save your changes to ${sectionLabel}? ${declineText}`,
           (approved) => {
@@ -2743,6 +2746,11 @@
               const doneBtn = document.querySelector(`.section-done[data-section="${section}"]`);
               if (doneBtn) doneBtn.click();
               else closeOverlay(overlay);
+              if (typeof options.onAfterClose === 'function') options.onAfterClose();
+              return;
+            }
+            if (declineAction === 'close') {
+              closeOverlay(overlay);
               if (typeof options.onAfterClose === 'function') options.onAfterClose();
               return;
             }
@@ -3139,7 +3147,7 @@
           evt.preventDefault();
           const activeOverlay = overlays.find((overlay) => !overlay.hidden) || null;
           if (activeOverlay) {
-            requestOverlayClose(activeOverlay);
+            requestOverlayClose(activeOverlay, { declineAction: 'close' });
             return;
           }
           closeAllOverlays();
