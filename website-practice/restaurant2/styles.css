@@ -442,10 +442,10 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     font-weight: 700;
     cursor: pointer;
     padding: 0;
-    font-size: 21pt;
+    font-size: 0;
     line-height: 1;
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -455,6 +455,17 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     -webkit-text-fill-color: currentColor;
     -webkit-text-size-adjust: none;
     text-size-adjust: none;
+    position: relative;
+}
+
+.order-type-chip__edit::before {
+    content: "";
+    width: 62%;
+    height: 62%;
+    background-color: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25zm17.7-10.46a1 1 0 000-1.41l-2.54-2.54a1 1 0 00-1.41 0l-1.99 1.99 3.75 3.75 2.19-2.19z'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25zm17.7-10.46a1 1 0 000-1.41l-2.54-2.54a1 1 0 00-1.41 0l-1.99 1.99 3.75 3.75 2.19-2.19z'/%3E%3C/svg%3E") center / contain no-repeat;
+    pointer-events: none;
 }
 
 .order-type-chip__edit:hover,
@@ -470,25 +481,22 @@ body.theme-dark .order-type-chip__edit {
 
 @media (max-width: 768px) {
     .order-type-chip__edit {
-        font-size: 35pt;
-        width: 60px;
-        height: 60px;
+        width: 52px;
+        height: 52px;
     }
 }
 
 @media (max-width: 480px) {
     .order-type-chip__edit {
-        font-size: 36pt;
-        width: 62px;
-        height: 62px;
+        width: 52px;
+        height: 52px;
     }
 }
 
 @media screen and (max-width: 812px) and (-webkit-min-device-pixel-ratio: 2) {
     .order-type-chip__edit {
-        font-size: 38pt;
-        width: 64px;
-        height: 64px;
+        width: 52px;
+        height: 52px;
     }
 }
 
@@ -1018,14 +1026,18 @@ body:not(.nav-enabled) main {
 .nav-theme-controls .theme-option {
     background: var(--color-white);
     border: 1px solid var(--color-black);
-    border-radius: 999px;
-    padding: 4px 10px;
+    border-radius: 50%;
+    padding: 0;
     font-weight: 700;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
     justify-content: center;
-    min-width: 48px;
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    min-height: 46px;
+    max-width: 46px;
+    max-height: 46px;
     -webkit-appearance: none;
     appearance: none;
     color: var(--color-black);
@@ -1033,14 +1045,15 @@ body:not(.nav-enabled) main {
 }
 
 .nav-theme-controls .theme-option .theme-icon {
-    font-size: 14.4pt;
+    font-size: 17pt;
+    line-height: 1;
     color: inherit;
     -webkit-text-fill-color: currentColor;
     font-variant-emoji: text;
 }
 
-.nav-theme-controls .theme-mode-toggle .theme-icon {
-    font-size: 17pt;
+.nav-theme-controls .theme-option .theme-label {
+    display: none;
 }
 
 body.theme-dark .nav-theme-controls .theme-option {
@@ -1076,21 +1089,16 @@ body.theme-dark .nav-theme-controls .theme-option .theme-icon {
         gap: 2px;
     }
 
-    .nav-theme-controls .theme-label {
-        display: none;
-    }
-
     .nav-theme-controls .theme-option {
-        padding: 6px;
-        min-width: 44px;
-        font-size: 10.8pt;
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+        min-height: 46px;
+        max-width: 46px;
+        max-height: 46px;
     }
 
     .nav-theme-controls .theme-icon {
-        font-size: 19.2pt;
-    }
-
-    .nav-theme-controls .theme-mode-toggle .theme-icon {
         font-size: 17pt;
     }
 
@@ -1898,13 +1906,21 @@ body.page3 #order-summary .summary-remove-btn {
     font-weight: 700;
     cursor: pointer;
     transition: transform 0.1s ease, background 0.2s, color 0.2s;
-    min-width: 92px;
+    min-width: 102px;
     height: 38px;
     line-height: 1;
-    font-size: 11pt;
+    font-size: 12pt;
     font-family: inherit;
     min-height: 38px;
     flex: 0 0 auto;
+}
+
+@media (max-width: 768px) {
+    body.page3 #order-summary .summary-remove-btn {
+        min-width: 112px;
+        height: 42px;
+        font-size: 13.5pt;
+    }
 }
 
 body.page3 #order-summary .summary-remove-btn:hover,
