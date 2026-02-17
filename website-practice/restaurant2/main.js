@@ -3582,6 +3582,40 @@
         selectionsBlock.appendChild(h3);
 
         const qtyLabelMap = { '2': 'Light', '3': 'Extra', '4': 'x3' };
+        const qtyValueToLabel = (value) => {
+          const normalized = String(value || '1');
+          if (normalized === '1') return 'Regular';
+          return qtyLabelMap[normalized] || `x${normalized}`;
+        };
+        const qtyLabelToValue = (label) => {
+          const txt = String(label || '').trim().toLowerCase();
+          if (!txt || txt === 'regular') return '1';
+          if (txt === 'light') return '2';
+          if (txt === 'extra') return '3';
+          if (txt === 'x3') return '4';
+          const match = txt.match(/^x(\d+)$/);
+          return match ? String(Math.max(1, parseInt(match[1], 10) || 1)) : '1';
+        };
+        const createSummaryQtySelect = (id, initialValue) => {
+          const select = document.createElement('select');
+          select.id = id;
+          select.className = 'summary-inline-qty';
+          [
+            ['1', 'Regular'],
+            ['2', 'Light'],
+            ['3', 'Extra'],
+            ['4', 'x3']
+          ].forEach(([value, label]) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = label;
+            select.appendChild(option);
+          });
+          select.value = ['1', '2', '3', '4'].includes(String(initialValue || '1'))
+            ? String(initialValue)
+            : '1';
+          return select;
+        };
         if (!Array.isArray(orderItems) || orderItems.length === 0) {
           const p = document.createElement('p');
           p.textContent = 'No ingredients selected yet.';
@@ -3719,6 +3753,12 @@
                 required: false
               }));
             const selectedValues = new Set(itemIngredients.map((row) => normalizeJalapenoValue(row.value)).filter(Boolean));
+            const selectedQtyByValue = {};
+            itemIngredients.forEach((row) => {
+              const value = normalizeJalapenoValue(row && row.value);
+              if (!value) return;
+              selectedQtyByValue[value] = qtyLabelToValue(row.qtyLabel);
+            });
             const editor = document.createElement('div');
             editor.className = 'summary-inline-editor';
             editor.hidden = true;
@@ -3737,9 +3777,11 @@
             editorPanel.appendChild(editorHeader);
             const editorList = document.createElement('div');
             editorList.className = 'summary-inline-editor-list';
+            const optionFieldRefs = [];
             options.forEach((opt, optIdx) => {
               if (!opt || !opt.value) return;
               const id = `summary-item-edit-${idx}-${optIdx}`;
+              const qtyId = `${id}-qty`;
               const row = document.createElement('label');
               row.className = 'summary-inline-option';
               row.setAttribute('for', id);
@@ -3751,9 +3793,25 @@
               if (opt.required) cb.disabled = true;
               const txt = document.createElement('span');
               txt.textContent = opt.label || titleCase(String(opt.value).replace(/_/g, ' '));
+              const mapKey = `${opt.group}|${normalizeJalapenoValue(opt.value)}`;
+              const initialQty = selectedQtyByValue[normalizeJalapenoValue(opt.value)]
+                || (qtyMap[mapKey] == null || qtyMap[mapKey] === '' ? '1' : String(qtyMap[mapKey]));
+              const qtySelect = createSummaryQtySelect(qtyId, initialQty);
+              qtySelect.disabled = !cb.checked;
+              cb.addEventListener('change', () => {
+                qtySelect.disabled = !cb.checked;
+              });
               row.appendChild(cb);
               row.appendChild(txt);
+              row.appendChild(qtySelect);
               editorList.appendChild(row);
+              optionFieldRefs.push({
+                opt,
+                id,
+                qtyId,
+                initialChecked: cb.checked,
+                initialQty: qtySelect.value
+              });
             });
             editorPanel.appendChild(editorList);
             const editorActions = document.createElement('div');
@@ -3771,7 +3829,15 @@
             editorPanel.appendChild(editorActions);
             editor.appendChild(editorPanel);
             sectionWrap.appendChild(editor);
+            editorPanel.addEventListener('click', (evt) => {
+              evt.stopPropagation();
+            });
 
+            const closeEditor = ({ reset = false } = {}) => {
+              if (reset) resetEditorFields();
+              editor.hidden = true;
+              editor.setAttribute('aria-hidden', 'true');
+            };
             edit.addEventListener('click', () => {
               document.querySelectorAll('.summary-inline-editor').forEach((el) => {
                 if (el !== editor) {
@@ -3782,35 +3848,53 @@
               editor.hidden = false;
               editor.setAttribute('aria-hidden', 'false');
             });
-            cancelBtn.addEventListener('click', () => {
-              editor.hidden = true;
-              editor.setAttribute('aria-hidden', 'true');
+            const resetEditorFields = () => {
+              optionFieldRefs.forEach(({ id, qtyId, initialChecked, initialQty }) => {
+                const cb = editor.querySelector(`#${id}`);
+                const qtySelect = editor.querySelector(`#${qtyId}`);
+                if (cb) cb.checked = !!initialChecked;
+                if (qtySelect) {
+                  qtySelect.value = String(initialQty || '1');
+                  qtySelect.disabled = !cb || !cb.checked;
+                }
+              });
+            };
+            cancelBtn.addEventListener('click', (evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              closeEditor({ reset: true });
             });
             editor.addEventListener('click', (evt) => {
               if (evt.target === editor) {
-                editor.hidden = true;
-                editor.setAttribute('aria-hidden', 'true');
+                closeEditor({ reset: true });
               }
             });
-            saveBtn.addEventListener('click', () => {
-              editor.hidden = true;
-              editor.setAttribute('aria-hidden', 'true');
-              const checked = new Set(Array.from(editor.querySelectorAll('input[type="checkbox"]:checked')).map((el) => normalizeJalapenoValue(el.value)));
-              const updatedIngredients = options
-                .filter((opt) => checked.has(normalizeJalapenoValue(opt.value)))
-                .map((opt) => {
-                  const normalizedValue = normalizeJalapenoValue(opt.value);
-                  const rowKey = `${opt.group}|${normalizedValue}`;
-                  const qRaw = qtyMap[rowKey];
-                  const qStr = qRaw == null || qRaw === '' ? '1' : String(qRaw);
-                  const qtyText = qStr === '1' ? 'Regular' : (qtyLabelMap[qStr] || `x${qStr}`);
-                  return {
-                    group: opt.group,
-                    value: normalizedValue,
-                    label: normalizeJalapenoLabel(opt.label || titleCase(String(normalizedValue).replace(/_/g, ' '))),
-                    qtyLabel: qtyText
-                  };
+            saveBtn.addEventListener('click', (evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              closeEditor({ reset: false });
+              const qtyMapNext = readJSON(STORAGE_KEYS.quantities, {}) || {};
+              const updatedIngredients = [];
+              optionFieldRefs.forEach(({ opt, id, qtyId }) => {
+                const cb = editor.querySelector(`#${id}`);
+                const qtySelect = editor.querySelector(`#${qtyId}`);
+                if (!cb) return;
+                const normalizedValue = normalizeJalapenoValue(opt.value);
+                const rowKey = `${opt.group}|${normalizedValue}`;
+                if (!cb.checked) {
+                  delete qtyMapNext[rowKey];
+                  return;
+                }
+                const qStr = qtySelect ? String(qtySelect.value || '1') : '1';
+                qtyMapNext[rowKey] = qStr;
+                updatedIngredients.push({
+                  group: opt.group,
+                  value: normalizedValue,
+                  label: normalizeJalapenoLabel(opt.label || titleCase(String(normalizedValue).replace(/_/g, ' '))),
+                  qtyLabel: qtyValueToLabel(qStr)
                 });
+              });
+              try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMapNext)); } catch { /* ignore */ }
               const next = loadOrderItemsFromStorage().map((it) => {
                 if (!it || it.id !== item.id) return it;
                 return { ...it, ingredients: updatedIngredients };
@@ -4009,9 +4093,11 @@
             editorPanel.appendChild(editorHeader);
             const editorList = document.createElement('div');
             editorList.className = 'summary-inline-editor-list';
+            const optionFieldRefs = [];
             options.forEach((opt, idx) => {
               if (!opt || !opt.value) return;
               const id = `summary-edit-${sec}-${idx}`;
+              const qtyId = `${id}-qty`;
               const row = document.createElement('label');
               row.className = 'summary-inline-option';
               row.setAttribute('for', id);
@@ -4023,9 +4109,25 @@
               if (opt.required) cb.disabled = true;
               const txt = document.createElement('span');
               txt.textContent = opt.label || String(opt.value).replace(/_/g, ' ');
+              const normalizedValue = normalizeJalapenoValue(opt.value);
+              const rowKey = `${opt.group || group}|${normalizedValue}`;
+              const initialQty = qtyMap[rowKey] == null || qtyMap[rowKey] === '' ? '1' : String(qtyMap[rowKey]);
+              const qtySelect = createSummaryQtySelect(qtyId, initialQty);
+              qtySelect.disabled = !cb.checked;
+              cb.addEventListener('change', () => {
+                qtySelect.disabled = !cb.checked;
+              });
               row.appendChild(cb);
               row.appendChild(txt);
+              row.appendChild(qtySelect);
               editorList.appendChild(row);
+              optionFieldRefs.push({
+                opt,
+                id,
+                qtyId,
+                initialChecked: cb.checked,
+                initialQty: qtySelect.value
+              });
             });
             editorPanel.appendChild(editorList);
             const editorActions = document.createElement('div');
@@ -4043,7 +4145,15 @@
             editorPanel.appendChild(editorActions);
             editor.appendChild(editorPanel);
             sectionWrap.appendChild(editor);
+            editorPanel.addEventListener('click', (evt) => {
+              evt.stopPropagation();
+            });
 
+            const closeEditor = ({ reset = false } = {}) => {
+              if (reset) resetEditorFields();
+              editor.hidden = true;
+              editor.setAttribute('aria-hidden', 'true');
+            };
             edit.addEventListener('click', () => {
               document.querySelectorAll('.summary-inline-editor').forEach((el) => {
                 if (el !== editor) {
@@ -4054,30 +4164,53 @@
               editor.hidden = false;
               editor.setAttribute('aria-hidden', 'false');
             });
-            cancelBtn.addEventListener('click', () => {
-              editor.hidden = true;
-              editor.setAttribute('aria-hidden', 'true');
+            const resetEditorFields = () => {
+              optionFieldRefs.forEach(({ id, qtyId, initialChecked, initialQty }) => {
+                const cb = editor.querySelector(`#${id}`);
+                const qtySelect = editor.querySelector(`#${qtyId}`);
+                if (cb) cb.checked = !!initialChecked;
+                if (qtySelect) {
+                  qtySelect.value = String(initialQty || '1');
+                  qtySelect.disabled = !cb || !cb.checked;
+                }
+              });
+            };
+            cancelBtn.addEventListener('click', (evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              closeEditor({ reset: true });
             });
             editor.addEventListener('click', (evt) => {
               if (evt.target === editor) {
-                editor.hidden = true;
-                editor.setAttribute('aria-hidden', 'true');
+                closeEditor({ reset: true });
               }
             });
-            saveBtn.addEventListener('click', () => {
-              editor.hidden = true;
-              editor.setAttribute('aria-hidden', 'true');
-              const checked = new Set(
-                Array.from(editor.querySelectorAll('input[type="checkbox"]:checked')).map((i) => normalizeJalapenoValue(i.value))
-              );
-              const next = options
-                .map((opt) => normalizeJalapenoValue(opt && opt.value))
-                .filter((value) => value && checked.has(value));
+            saveBtn.addEventListener('click', (evt) => {
+              evt.preventDefault();
+              evt.stopPropagation();
+              closeEditor({ reset: false });
+              const qtyMapNext = readJSON(STORAGE_KEYS.quantities, {}) || {};
+              const next = [];
+              optionFieldRefs.forEach(({ opt, id, qtyId }) => {
+                const cb = editor.querySelector(`#${id}`);
+                const qtySelect = editor.querySelector(`#${qtyId}`);
+                const value = normalizeJalapenoValue(opt && opt.value);
+                const rowKey = `${opt.group || group}|${value}`;
+                if (!cb || !value) return;
+                if (!cb.checked) {
+                  delete qtyMapNext[rowKey];
+                  return;
+                }
+                const qStr = qtySelect ? String(qtySelect.value || '1') : '1';
+                qtyMapNext[rowKey] = qStr;
+                next.push(value);
+              });
               try {
                 const ing = normalizeIngredientData(readJSON(STORAGE_KEYS.ingredients, {})) || {};
                 ing[group] = next;
                 localStorage.setItem(STORAGE_KEYS.ingredients, JSON.stringify(ing));
               } catch { /* ignore */ }
+              try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMapNext)); } catch { /* ignore */ }
               try {
                 const act = readJSON(STORAGE_KEYS.activeSections, {}) || {};
                 act[sec] = next.length > 0;
