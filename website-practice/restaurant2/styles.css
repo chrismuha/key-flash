@@ -1774,13 +1774,13 @@ body:not(.page2) .redirect-notice {
 
 body.page3 #order-summary {
     width: 100%;
-    max-width: 880px;
-    margin-inline: auto;
+    max-width: none;
+    margin-inline: 0;
 }
 
 body.page3 #order-summary .summary-block {
-    max-width: 880px;
-    margin: 0 auto 24px;
+    max-width: none;
+    margin: 0 0 24px;
     width: 100%;
 }
 
@@ -1870,10 +1870,16 @@ body.page3 #order-summary .summary-edit-btn {
     }
 }
 
-body.page3 #order-summary .summary-edit-btn:hover,
 body.page3 #order-summary .summary-edit-btn:focus-visible {
     background: var(--accent-strong);
     outline: 2px solid var(--border-strong);
+}
+
+@media (hover: hover) {
+    body.page3 #order-summary .summary-edit-btn:hover {
+        background: var(--accent-strong);
+        outline: 2px solid var(--border-strong);
+    }
 }
 
 body.page3 #order-summary .summary-remove-btn {
@@ -1909,10 +1915,16 @@ body.page3 #order-summary .summary-remove-btn {
     }
 }
 
-body.page3 #order-summary .summary-remove-btn:hover,
 body.page3 #order-summary .summary-remove-btn:focus-visible {
     background: var(--danger-strong);
     outline: 2px solid var(--border-strong);
+}
+
+@media (hover: hover) {
+    body.page3 #order-summary .summary-remove-btn:hover {
+        background: var(--danger-strong);
+        outline: 2px solid var(--border-strong);
+    }
 }
 
 body.page3 #order-summary .summary-remove-btn:focus-visible {

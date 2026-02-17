@@ -964,14 +964,6 @@
     installAutomaticAlphabetizeObserver();
     applyIngredientCaseExceptions(document);
     installIngredientCaseExceptionObserver();
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', (event) => {
-      const now = performance.now();
-      if (now - lastTouchEnd < 300) {
-        event.preventDefault();
-      }
-      lastTouchEnd = now;
-    }, { passive: false });
     const body = document.body;
     const mobileQuery = window.matchMedia('(max-width: 768px)');
     const isMobileView = () => mobileQuery.matches;
@@ -1208,7 +1200,7 @@
       const isDark = body.classList.contains('theme-dark');
       const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
       const modeText = isDark ? 'Light Mode' : 'Dark Mode';
-      const iconText = isDark ? '☀' : '◐';
+      const iconText = isDark ? '☼' : '◐';
       themeModeBtns.forEach((btn) => {
         const iconEl = btn.querySelector('.theme-icon');
         const labelEl = btn.querySelector('.theme-label');
@@ -2006,32 +1998,7 @@
           if (typeof anyOverlayOpen === 'function' && anyOverlayOpen()) {
             event.preventDefault();
             const activeOverlay = overlays.find((overlay) => !overlay.hidden) || null;
-            const section = activeOverlay ? String(activeOverlay.dataset.section || '') : '';
-            const sectionLabel = section
-              ? (SECTION_LABELS[section] || titleCase(section.replace(/_/g, ' ')))
-              : 'this menu item';
-            openCustomConfirm(
-              `Save your changes to ${sectionLabel} before continuing?`,
-              (approved) => {
-                if (approved) {
-                  const doneBtn = section
-                    ? document.querySelector(`.section-done[data-section="${section}"]`)
-                    : null;
-                  if (doneBtn) {
-                    doneBtn.click();
-                  } else if (activeOverlay) {
-                    closeOverlay(activeOverlay);
-                  }
-                  proceedToNextPage();
-                } else if (activeOverlay) {
-                  const closeBtn = activeOverlay.querySelector('.close-overlay');
-                  if (closeBtn && typeof closeBtn.focus === 'function') {
-                    closeBtn.focus({ preventScroll: true });
-                  }
-                }
-              },
-              { restoreFocus: false, confirmVariant: 'success' }
-            );
+            requestOverlayClose(activeOverlay, { onAfterClose: proceedToNextPage });
             return;
           }
           const state = evaluatePage3Requirements();
@@ -2156,6 +2123,7 @@
               }
             }
             updateSectionQuantityControl(wrap, sec);
+            markOverlayDirtyForSection(sec);
           };
           ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach((evt) => {
             wrap.addEventListener(evt, (event) => event.stopPropagation());
@@ -2255,6 +2223,7 @@
           if (!radio.checked) return;
           savePizzaSize(radio.value);
           ensurePizzaToggleActive();
+          markOverlayDirtyForSection('pizza');
         });
       });
 
@@ -2571,6 +2540,7 @@
                   saveAllIngredientSelections();
                   updateBuilderError();
                   updatePage3NavState();
+                  markOverlayDirtyForSection(getSectionForGroup(cb.name));
                 }
               };
               ownSelect.addEventListener('change', () => syncSelect(true));
@@ -2603,6 +2573,7 @@
             sel.value = next;
             qtyMap[key] = next;
             persistQty();
+            markOverlayDirtyForSection(getSectionForGroup(cb.name));
           });
 
           cb.addEventListener('change', () => {
@@ -2619,6 +2590,7 @@
               qtyMap[key] = '1';
               persistQty();
             }
+            markOverlayDirtyForSection(getSectionForGroup(cb.name));
           });
         });
       };
@@ -2692,6 +2664,174 @@
 
       const anyOverlayOpen = () => overlays.some((o) => !o.hidden);
       const getOverlay = (section) => overlays.find((o) => o.dataset.section === section) || null;
+      let suppressOverlayDirtyTracking = false;
+      let overlaySession = {
+        section: '',
+        snapshot: null,
+        dirty: false
+      };
+
+      const clearOverlaySession = () => {
+        overlaySession = { section: '', snapshot: null, dirty: false };
+      };
+
+      const getSectionStateSnapshot = (section) => {
+        const normalized = String(section || '').toLowerCase();
+        if (!normalized) return null;
+        const groups = getIngredientGroupsForSection(normalized);
+        const ingredientsState = loadIngredientsFromStorage();
+        const quantitiesRaw = safeParseJSON(localStorage.getItem(STORAGE_KEYS.quantities), {}) || {};
+        const ingredientsSubset = {};
+        const quantitySubset = {};
+        groups.forEach((group) => {
+          ingredientsSubset[group] = Array.isArray(ingredientsState[group]) ? [...ingredientsState[group]] : [];
+          const prefix = `${group}|`;
+          Object.keys(quantitiesRaw).forEach((key) => {
+            if (key.startsWith(prefix)) {
+              quantitySubset[key] = String(quantitiesRaw[key]);
+            }
+          });
+        });
+        const toggle = document.querySelector(`.section-toggle[data-section="${normalized}"]`);
+        return {
+          section: normalized,
+          ingredients: ingredientsSubset,
+          quantities: quantitySubset,
+          sectionQty: getSectionQuantity(normalized),
+          sectionEnabled: !!(toggle && toggle.checked),
+          pizzaSize: normalized === 'pizza' ? loadPizzaSize() : ''
+        };
+      };
+
+      const setOverlaySessionForSection = (section) => {
+        const snapshot = getSectionStateSnapshot(section);
+        overlaySession = {
+          section: String(section || '').toLowerCase(),
+          snapshot,
+          dirty: false
+        };
+      };
+
+      const markOverlayDirtyForSection = (section) => {
+        if (suppressOverlayDirtyTracking) return;
+        const normalized = String(section || '').toLowerCase();
+        if (!normalized) return;
+        if (!overlaySession.snapshot || overlaySession.section !== normalized) return;
+        const current = getSectionStateSnapshot(normalized);
+        overlaySession.dirty = JSON.stringify(current) !== JSON.stringify(overlaySession.snapshot);
+      };
+
+      const restoreSectionStateSnapshot = (snapshot) => {
+        if (!snapshot || !snapshot.section) return;
+        const section = String(snapshot.section).toLowerCase();
+        const groups = getIngredientGroupsForSection(section);
+        if (!groups.length) return;
+        suppressOverlayDirtyTracking = true;
+        try {
+          const ingredientsState = loadIngredientsFromStorage();
+          groups.forEach((group) => {
+            ingredientsState[group] = Array.isArray(snapshot.ingredients[group]) ? [...snapshot.ingredients[group]] : [];
+          });
+          saveIngredientsToStorage(ingredientsState);
+
+          const qtyMap = safeParseJSON(localStorage.getItem(STORAGE_KEYS.quantities), {}) || {};
+          groups.forEach((group) => {
+            const prefix = `${group}|`;
+            Object.keys(qtyMap).forEach((key) => {
+              if (key.startsWith(prefix)) delete qtyMap[key];
+            });
+          });
+          Object.entries(snapshot.quantities || {}).forEach(([key, value]) => {
+            qtyMap[key] = String(value);
+          });
+          try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { /* ignore */ }
+
+          setSectionQuantity(section, snapshot.sectionQty);
+          refreshSectionQuantityControls();
+
+          if (section === 'pizza' && snapshot.pizzaSize) {
+            savePizzaSize(snapshot.pizzaSize);
+            pizzaSizeRadios.forEach((radio) => {
+              radio.checked = radio.value === snapshot.pizzaSize;
+            });
+          }
+
+          const toggle = document.querySelector(`.section-toggle[data-section="${section}"]`);
+          if (toggle && !toggle.disabled && toggle.checked !== !!snapshot.sectionEnabled) {
+            toggle.checked = !!snapshot.sectionEnabled;
+            toggle.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+
+          groups.forEach((group) => {
+            const selected = new Set((ingredientsState[group] || []).map((val) => normalizeJalapenoValue(val)));
+            const groupInputs = Array.from(document.querySelectorAll(`input[type="checkbox"][name="${group}"]`));
+            groupInputs.forEach((cb) => {
+              const isRequired = cb.dataset && cb.dataset.required === 'true';
+              const cbValue = normalizeJalapenoValue(cb.value);
+              cb.checked = isRequired || selected.has(cbValue);
+              const label = cb.closest('label');
+              if (!label) return;
+              if (cb.dataset && cb.dataset.noQty === 'true') {
+                const ownSelect = label.querySelector('select.ingredient-qty');
+                if (ownSelect) {
+                  const selectedValue = (ingredientsState[group] || [])[0];
+                  if (selectedValue) ownSelect.value = String(selectedValue);
+                  ownSelect.disabled = !cb.checked;
+                  ownSelect.hidden = !cb.checked;
+                }
+                return;
+              }
+              const qtySelect = label.querySelector('select.ingredient-qty');
+              if (!qtySelect) return;
+              const key = `${group}|${cbValue}`;
+              const nextQty = snapshot.quantities && snapshot.quantities[key] != null
+                ? String(snapshot.quantities[key])
+                : '1';
+              qtySelect.value = nextQty;
+              qtySelect.disabled = !cb.checked;
+              qtySelect.hidden = !cb.checked;
+            });
+          });
+        } finally {
+          suppressOverlayDirtyTracking = false;
+        }
+        updateBuilderError();
+        updatePage3NavState();
+      };
+
+      const requestOverlayClose = (overlayOrSection, options = {}) => {
+        const overlay = typeof overlayOrSection === 'string' ? getOverlay(overlayOrSection) : overlayOrSection;
+        if (!overlay) {
+          if (typeof options.onAfterClose === 'function') options.onAfterClose();
+          return;
+        }
+        const section = String(overlay.dataset.section || '').toLowerCase();
+        const finishClose = () => {
+          closeOverlay(overlay);
+          if (typeof options.onAfterClose === 'function') options.onAfterClose();
+        };
+        if (overlaySession.section !== section || !overlaySession.snapshot || !overlaySession.dirty) {
+          finishClose();
+          return;
+        }
+        const sectionLabel = SECTION_LABELS[section] || titleCase(section.replace(/_/g, ' '));
+        openCustomConfirm(
+          `Save your changes to ${sectionLabel}? Select "No" to discard.`,
+          (approved) => {
+            if (approved) {
+              const doneBtn = document.querySelector(`.section-done[data-section="${section}"]`);
+              if (doneBtn) doneBtn.click();
+              else closeOverlay(overlay);
+              if (typeof options.onAfterClose === 'function') options.onAfterClose();
+              return;
+            }
+            restoreSectionStateSnapshot(overlaySession.snapshot);
+            closeOverlay(overlay);
+            if (typeof options.onAfterClose === 'function') options.onAfterClose();
+          },
+          { restoreFocus: false, confirmVariant: 'success' }
+        );
+      };
 
       const closeAllOverlays = () => {
         overlays.forEach((o) => {
@@ -2699,6 +2839,7 @@
           o.setAttribute('aria-hidden', 'true');
           updateArrowState(o.dataset.section, false);
         });
+        clearOverlaySession();
         body.classList.remove('menu-overlay-open');
         restoreBackButton();
       };
@@ -2706,9 +2847,11 @@
       const closeOverlay = (overlayOrSection) => {
         const overlay = typeof overlayOrSection === 'string' ? getOverlay(overlayOrSection) : overlayOrSection;
         if (!overlay) return;
+        const section = String(overlay.dataset.section || '').toLowerCase();
         overlay.hidden = true;
         overlay.setAttribute('aria-hidden', 'true');
         updateArrowState(overlay.dataset.section, false);
+        if (overlaySession.section === section) clearOverlaySession();
         if (!anyOverlayOpen()) {
           body.classList.remove('menu-overlay-open');
           restoreBackButton();
@@ -2725,6 +2868,7 @@
         updateArrowState(section, true);
         body.classList.add('menu-overlay-open');
         moveBackButtonToOverlay(overlay);
+        setOverlaySessionForSection(section);
         const focusable = overlay.querySelector('input, button, select, [tabindex]:not([tabindex="-1"])');
         if (focusable && focusable.focus) focusable.focus({ preventScroll: true });
       };
@@ -2734,7 +2878,7 @@
         const overlay = getOverlay(section);
         if (!overlay) return;
         if (overlay.hidden) openOverlay(section);
-        else closeOverlay(overlay);
+        else requestOverlayClose(overlay);
       };
 
       const focusSectionFromHash = (section) => {
@@ -2954,10 +3098,10 @@
       overlays.forEach((overlay) => {
         overlay.setAttribute('aria-hidden', overlay.hidden ? 'true' : 'false');
         overlay.addEventListener('click', (e) => {
-          if (e.target === overlay) closeOverlay(overlay);
+          if (e.target === overlay) requestOverlayClose(overlay);
         });
         const closeBtn = overlay.querySelector('.close-overlay');
-        if (closeBtn) closeBtn.addEventListener('click', () => closeOverlay(overlay));
+        if (closeBtn) closeBtn.addEventListener('click', () => requestOverlayClose(overlay));
       });
 
       const sectionDoneButtons = Array.from(document.querySelectorAll('.section-done[data-section]'));
@@ -3027,6 +3171,7 @@
           evt.preventDefault();
           const section = btn.dataset.section;
           if (!section) return;
+          if (overlaySession.section === section) overlaySession.dirty = false;
           const item = buildOrderItemFromSection(section);
           if (!item) {
             closeOverlay(section);
@@ -3044,12 +3189,22 @@
       if (backToMenuBtn) {
         backToMenuBtn.addEventListener('click', (evt) => {
           evt.preventDefault();
+          const activeOverlay = overlays.find((overlay) => !overlay.hidden) || null;
+          if (activeOverlay) {
+            requestOverlayClose(activeOverlay);
+            return;
+          }
           closeAllOverlays();
         });
       }
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+          const activeOverlay = overlays.find((overlay) => !overlay.hidden) || null;
+          if (activeOverlay) {
+            requestOverlayClose(activeOverlay);
+            return;
+          }
           closeAllOverlays();
         }
       });
@@ -3081,6 +3236,7 @@
           saveAllIngredientSelections();
           updateBuilderError();
           updatePage3NavState();
+          if (secId) markOverlayDirtyForSection(secId);
         });
       });
 
@@ -3176,6 +3332,7 @@
           persistActiveSections();
           updateBuilderError();
           updatePage3NavState();
+          if (sec) markOverlayDirtyForSection(sec);
           if (sec) {
             if (suppressSectionToast === sec) {
               suppressSectionToast = '';
@@ -3673,6 +3830,9 @@
             remove.addEventListener('click', (evt) => {
               evt.preventDefault();
               evt.stopPropagation();
+              if (document.activeElement instanceof HTMLElement) {
+                document.activeElement.blur();
+              }
               const next = loadOrderItemsFromStorage().filter((it) => it && it.id !== item.id);
               writeOrderItems(next);
               if (!next.length) redirectIfNoActiveSections();
@@ -3994,6 +4154,9 @@
             remove.addEventListener('click', (evt) => {
               evt.preventDefault();
               evt.stopPropagation();
+              if (document.activeElement instanceof HTMLElement) {
+                document.activeElement.blur();
+              }
               handleRemoveSection(sec);
             });
             // OLD SECTION (hidden old behavior): header.appendChild(remove);
