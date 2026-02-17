@@ -1204,7 +1204,7 @@
       const isDark = body.classList.contains('theme-dark');
       const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
       const modeText = isDark ? 'Light Mode' : 'Dark Mode';
-      const iconText = isDark ? '☼' : '☾';
+      const iconText = isDark ? '☀︎' : '☾';
       themeModeBtns.forEach((btn) => {
         const iconEl = btn.querySelector('.theme-icon');
         const labelEl = btn.querySelector('.theme-label');
@@ -3589,7 +3589,7 @@
 
             const edit = document.createElement('button');
             edit.type = 'button';
-            edit.textContent = '✎ Edit';
+            edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
             edit.setAttribute('aria-label', `Edit ${title.textContent}`);
             // OLD SECTION (hidden old behavior): header.appendChild(edit);
@@ -3823,7 +3823,7 @@
             actions.className = 'summary-section-actions';
             const edit = document.createElement('button');
             edit.type = 'button';
-            edit.textContent = '✎ Edit';
+            edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
             edit.setAttribute('aria-label', `Edit ${title.textContent}`);
 
