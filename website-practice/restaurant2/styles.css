@@ -1954,11 +1954,48 @@ body.theme-dark.page3 #order-summary .summary-remove-btn {
 }
 
 body.page3 #order-summary .summary-inline-editor {
-    margin-top: 10px;
-    padding: 10px;
+    position: fixed;
+    inset: 0;
+    z-index: 2600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+body.page3 #order-summary .summary-inline-editor-panel {
+    width: min(92vw, 520px);
+    max-height: min(78vh, 680px);
+    overflow: auto;
     border: 1px solid var(--border-strong);
-    border-radius: 8px;
+    border-radius: 10px;
+    padding: 12px;
     background: color-mix(in srgb, var(--color-white) 92%, var(--accent) 8%);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+body.page3 #order-summary .summary-inline-editor-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border-strong);
+    padding-bottom: 8px;
+}
+
+body.page3 #order-summary .summary-inline-editor-header h4 {
+    margin: 0;
+    font-size: 13.5pt;
+    line-height: 1.2;
+}
+
+body.page3 #order-summary .summary-inline-editor-qty {
+    margin: 0;
+    font-weight: 700;
+    font-size: 11pt;
+    white-space: nowrap;
 }
 
 body.page3 #order-summary .summary-inline-editor-list {
@@ -1992,9 +2029,14 @@ body.page3 #order-summary .summary-inline-cancel-btn {
     padding: 6px 10px;
     font: inherit;
     font-weight: 700;
+    cursor: pointer;
 }
 
 body.theme-dark.page3 #order-summary .summary-inline-editor {
+    background: rgba(0, 0, 0, 0.68);
+}
+
+body.theme-dark.page3 #order-summary .summary-inline-editor-panel {
     background: var(--surface-strong);
     color: var(--text-primary);
     border-color: var(--border-strong);

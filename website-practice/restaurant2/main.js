@@ -2022,10 +2022,13 @@
                   } else if (activeOverlay) {
                     closeOverlay(activeOverlay);
                   }
+                  proceedToNextPage();
                 } else if (activeOverlay) {
-                  closeOverlay(activeOverlay);
+                  const closeBtn = activeOverlay.querySelector('.close-overlay');
+                  if (closeBtn && typeof closeBtn.focus === 'function') {
+                    closeBtn.focus({ preventScroll: true });
+                  }
                 }
-                proceedToNextPage();
               },
               { restoreFocus: false, confirmVariant: 'success' }
             );
@@ -3719,6 +3722,19 @@
             const editor = document.createElement('div');
             editor.className = 'summary-inline-editor';
             editor.hidden = true;
+            editor.setAttribute('aria-hidden', 'true');
+            const editorPanel = document.createElement('div');
+            editorPanel.className = 'summary-inline-editor-panel';
+            const editorHeader = document.createElement('div');
+            editorHeader.className = 'summary-inline-editor-header';
+            const editorTitle = document.createElement('h4');
+            editorTitle.textContent = `Edit ${sectionLabel} #${idx + 1}`;
+            editorHeader.appendChild(editorTitle);
+            const editorQty = document.createElement('p');
+            editorQty.className = 'summary-inline-editor-qty';
+            editorQty.textContent = `Quantity: x${currentItemQty}`;
+            editorHeader.appendChild(editorQty);
+            editorPanel.appendChild(editorHeader);
             const editorList = document.createElement('div');
             editorList.className = 'summary-inline-editor-list';
             options.forEach((opt, optIdx) => {
@@ -3739,7 +3755,7 @@
               row.appendChild(txt);
               editorList.appendChild(row);
             });
-            editor.appendChild(editorList);
+            editorPanel.appendChild(editorList);
             const editorActions = document.createElement('div');
             editorActions.className = 'summary-inline-editor-actions';
             const saveBtn = document.createElement('button');
@@ -3752,16 +3768,33 @@
             cancelBtn.textContent = 'Cancel';
             editorActions.appendChild(saveBtn);
             editorActions.appendChild(cancelBtn);
-            editor.appendChild(editorActions);
+            editorPanel.appendChild(editorActions);
+            editor.appendChild(editorPanel);
             sectionWrap.appendChild(editor);
 
             edit.addEventListener('click', () => {
-              editor.hidden = !editor.hidden;
+              document.querySelectorAll('.summary-inline-editor').forEach((el) => {
+                if (el !== editor) {
+                  el.hidden = true;
+                  el.setAttribute('aria-hidden', 'true');
+                }
+              });
+              editor.hidden = false;
+              editor.setAttribute('aria-hidden', 'false');
             });
             cancelBtn.addEventListener('click', () => {
               editor.hidden = true;
+              editor.setAttribute('aria-hidden', 'true');
+            });
+            editor.addEventListener('click', (evt) => {
+              if (evt.target === editor) {
+                editor.hidden = true;
+                editor.setAttribute('aria-hidden', 'true');
+              }
             });
             saveBtn.addEventListener('click', () => {
+              editor.hidden = true;
+              editor.setAttribute('aria-hidden', 'true');
               const checked = new Set(Array.from(editor.querySelectorAll('input[type="checkbox"]:checked')).map((el) => normalizeJalapenoValue(el.value)));
               const updatedIngredients = options
                 .filter((opt) => checked.has(normalizeJalapenoValue(opt.value)))
@@ -3956,6 +3989,24 @@
             const editor = document.createElement('div');
             editor.className = 'summary-inline-editor';
             editor.hidden = true;
+            editor.setAttribute('aria-hidden', 'true');
+            const editorPanel = document.createElement('div');
+            editorPanel.className = 'summary-inline-editor-panel';
+            const sectionQtyValue = SECTION_QUANTITY_SECTIONS.includes(sec)
+              ? Math.max(SECTION_QUANTITY_DEFAULT_MIN, clampSectionQuantity(qtySections[sec]))
+              : null;
+            const editorHeader = document.createElement('div');
+            editorHeader.className = 'summary-inline-editor-header';
+            const editorTitle = document.createElement('h4');
+            editorTitle.textContent = `Edit ${SECTION_LABELS[sec] || titleCase(sec.replace(/_/g, ' '))}`;
+            editorHeader.appendChild(editorTitle);
+            if (sectionQtyValue !== null) {
+              const editorQty = document.createElement('p');
+              editorQty.className = 'summary-inline-editor-qty';
+              editorQty.textContent = `Quantity: x${sectionQtyValue}`;
+              editorHeader.appendChild(editorQty);
+            }
+            editorPanel.appendChild(editorHeader);
             const editorList = document.createElement('div');
             editorList.className = 'summary-inline-editor-list';
             options.forEach((opt, idx) => {
@@ -3976,7 +4027,7 @@
               row.appendChild(txt);
               editorList.appendChild(row);
             });
-            editor.appendChild(editorList);
+            editorPanel.appendChild(editorList);
             const editorActions = document.createElement('div');
             editorActions.className = 'summary-inline-editor-actions';
             const saveBtn = document.createElement('button');
@@ -3989,16 +4040,33 @@
             cancelBtn.textContent = 'Cancel';
             editorActions.appendChild(saveBtn);
             editorActions.appendChild(cancelBtn);
-            editor.appendChild(editorActions);
+            editorPanel.appendChild(editorActions);
+            editor.appendChild(editorPanel);
             sectionWrap.appendChild(editor);
 
             edit.addEventListener('click', () => {
-              editor.hidden = !editor.hidden;
+              document.querySelectorAll('.summary-inline-editor').forEach((el) => {
+                if (el !== editor) {
+                  el.hidden = true;
+                  el.setAttribute('aria-hidden', 'true');
+                }
+              });
+              editor.hidden = false;
+              editor.setAttribute('aria-hidden', 'false');
             });
             cancelBtn.addEventListener('click', () => {
               editor.hidden = true;
+              editor.setAttribute('aria-hidden', 'true');
+            });
+            editor.addEventListener('click', (evt) => {
+              if (evt.target === editor) {
+                editor.hidden = true;
+                editor.setAttribute('aria-hidden', 'true');
+              }
             });
             saveBtn.addEventListener('click', () => {
+              editor.hidden = true;
+              editor.setAttribute('aria-hidden', 'true');
               const checked = new Set(
                 Array.from(editor.querySelectorAll('input[type="checkbox"]:checked')).map((i) => normalizeJalapenoValue(i.value))
               );
