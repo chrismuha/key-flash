@@ -432,27 +432,6 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
         margin-left: 4px;
     }
 
-    .order-type-chip__edit {
-        font-size: 35pt;
-        width: 60px;
-        height: 60px;
-    }
-}
-
-@media (max-width: 480px) {
-    .order-type-chip__edit {
-        font-size: 36pt;
-        width: 62px;
-        height: 62px;
-    }
-}
-
-@media screen and (max-width: 812px) and (-webkit-min-device-pixel-ratio: 2) {
-    .order-type-chip__edit {
-        font-size: 38pt;
-        width: 64px;
-        height: 64px;
-    }
 }
 
 .order-type-chip__edit {
@@ -487,6 +466,30 @@ body.theme-dark .order-type-chip__edit {
     background: var(--surface-strong);
     color: var(--text-primary);
     border-color: var(--border-strong);
+}
+
+@media (max-width: 768px) {
+    .order-type-chip__edit {
+        font-size: 35pt;
+        width: 60px;
+        height: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .order-type-chip__edit {
+        font-size: 36pt;
+        width: 62px;
+        height: 62px;
+    }
+}
+
+@media screen and (max-width: 812px) and (-webkit-min-device-pixel-ratio: 2) {
+    .order-type-chip__edit {
+        font-size: 38pt;
+        width: 64px;
+        height: 64px;
+    }
 }
 
 body.theme-dark .order-type-chip {
@@ -1037,7 +1040,7 @@ body:not(.nav-enabled) main {
 }
 
 .nav-theme-controls .theme-mode-toggle .theme-icon {
-    font-size: 19.2pt;
+    font-size: 17pt;
 }
 
 body.theme-dark .nav-theme-controls .theme-option {
@@ -1088,7 +1091,7 @@ body.theme-dark .nav-theme-controls .theme-option .theme-icon {
     }
 
     .nav-theme-controls .theme-mode-toggle .theme-icon {
-        font-size: 19.2pt;
+        font-size: 17pt;
     }
 
     .mobile-menu-swiper .swiper-arrow {
