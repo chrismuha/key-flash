@@ -2850,10 +2850,16 @@
         const sectionBody = overlay.querySelector('.menu-section');
         if (sectionBody) sectionBody.scrollTop = 0;
       };
+      const forceResetOverlayScroll = (overlay) => {
+        resetOverlayScroll(overlay);
+        window.requestAnimationFrame(() => resetOverlayScroll(overlay));
+        setTimeout(() => resetOverlayScroll(overlay), 0);
+        setTimeout(() => resetOverlayScroll(overlay), 60);
+      };
 
       const closeAllOverlays = () => {
         overlays.forEach((o) => {
-          resetOverlayScroll(o);
+          forceResetOverlayScroll(o);
           o.hidden = true;
           o.setAttribute('aria-hidden', 'true');
           updateArrowState(o.dataset.section, false);
@@ -2867,7 +2873,7 @@
         const overlay = typeof overlayOrSection === 'string' ? getOverlay(overlayOrSection) : overlayOrSection;
         if (!overlay) return;
         const section = String(overlay.dataset.section || '').toLowerCase();
-        resetOverlayScroll(overlay);
+        forceResetOverlayScroll(overlay);
         overlay.hidden = true;
         overlay.setAttribute('aria-hidden', 'true');
         updateArrowState(overlay.dataset.section, false);
@@ -2885,8 +2891,7 @@
         closeAllOverlays();
         overlay.hidden = false;
         overlay.setAttribute('aria-hidden', 'false');
-        resetOverlayScroll(overlay);
-        window.requestAnimationFrame(() => resetOverlayScroll(overlay));
+        forceResetOverlayScroll(overlay);
         updateArrowState(section, true);
         body.classList.add('menu-overlay-open');
         moveBackButtonToOverlay(overlay);
@@ -3119,6 +3124,14 @@
 
       overlays.forEach((overlay) => {
         overlay.setAttribute('aria-hidden', overlay.hidden ? 'true' : 'false');
+        ['pointerdown', 'touchstart', 'mousedown'].forEach((evtName) => {
+          overlay.addEventListener(evtName, (evt) => {
+            if (evt.target === overlay) {
+              evt.preventDefault();
+              evt.stopPropagation();
+            }
+          }, { passive: false });
+        });
         overlay.addEventListener('click', (e) => {
           if (e.target === overlay) {
             e.preventDefault();

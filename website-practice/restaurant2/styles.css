@@ -2534,6 +2534,16 @@ main .reset-group:hover {
     background: var(--color-cloud-soft);
 }
 
+@media (max-width: 768px) {
+    main .reset-group {
+        font-size: 14pt;
+    }
+
+    main .section-actions .section-done {
+        font-size: 14pt;
+    }
+}
+
 .menu-actions {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
