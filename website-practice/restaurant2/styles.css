@@ -1088,7 +1088,7 @@ body.theme-dark .nav-theme-controls .theme-option .theme-icon {
     }
 
     .nav-theme-controls .theme-mode-toggle .theme-icon {
-        font-size: 24pt;
+        font-size: 19.2pt;
     }
 
     .mobile-menu-swiper .swiper-arrow {
@@ -1884,53 +1884,29 @@ body.page3 #order-summary .summary-edit-btn:focus-visible {
 
 body.page3 #order-summary .summary-remove-btn {
     display: inline-flex;
-    position: relative;
     align-items: center;
     justify-content: center;
     margin-left: 0;
-    padding: 0;
-    border-radius: 50%;
-    border: 1px solid var(--color-red);
-    background: var(--color-porcelain-light);
-    color: var(--color-black);
-    font-weight: 400;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--danger-strong);
+    background: var(--danger);
+    color: var(--color-white);
+    font-weight: 700;
     cursor: pointer;
     transition: transform 0.1s ease, background 0.2s, color 0.2s;
-    width: 40px;
-    height: 40px;
+    min-width: 92px;
+    height: 38px;
     line-height: 1;
-    font-size: 0;
+    font-size: 11pt;
     font-family: inherit;
-    min-width: 40px;
-    min-height: 40px;
+    min-height: 38px;
     flex: 0 0 auto;
-    aspect-ratio: 1 / 1;
-}
-
-body.page3 #order-summary .summary-remove-btn::before,
-body.page3 #order-summary .summary-remove-btn::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 18px;
-    height: 2px;
-    border-radius: 999px;
-    background: currentColor;
-    transform-origin: center;
-}
-
-body.page3 #order-summary .summary-remove-btn::before {
-    transform: translate(-50%, -50%) rotate(45deg);
-}
-
-body.page3 #order-summary .summary-remove-btn::after {
-    transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 body.page3 #order-summary .summary-remove-btn:hover,
 body.page3 #order-summary .summary-remove-btn:focus-visible {
-    background: var(--color-porcelain-light);
+    background: var(--danger-strong);
     transform: scale(1.05);
 }
 
@@ -1940,9 +1916,9 @@ body.page3 #order-summary .summary-remove-btn:focus-visible {
 }
 
 body.theme-dark.page3 #order-summary .summary-remove-btn {
-    border-color: var(--border-strong);
-    background: var(--surface);
-    color: var(--text-primary);
+    border-color: var(--danger-strong);
+    background: var(--danger);
+    color: var(--color-white);
 }
 
 body.page3 #order-summary .summary-inline-editor {
