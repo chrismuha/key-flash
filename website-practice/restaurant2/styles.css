@@ -1370,7 +1370,7 @@ body.page2 .page-footer .action-button:active {
 body.page2 .page-footer .action-button[aria-disabled="true"] {
     opacity: 0.65;
     cursor: not-allowed;
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 body.page2 .page-footer .footer-back-button {
@@ -3067,7 +3067,13 @@ body.theme-dark .close-overlay:focus-visible {
     opacity: 0.5;
     filter: grayscale(0.3);
     cursor: not-allowed;
-    pointer-events: none;
+    pointer-events: auto;
+}
+
+/* Keep disabled Next/Page controls showing not-allowed cursor consistently */
+.next-button.next-disabled,
+.left-rail a.box[aria-disabled="true"] {
+    cursor: not-allowed !important;
 }
 
 /* Align left-rail items with collapsible menu rows on all pages */
