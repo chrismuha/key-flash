@@ -2842,8 +2842,18 @@
         );
       };
 
+      const resetOverlayScroll = (overlay) => {
+        if (!overlay) return;
+        overlay.scrollTop = 0;
+        const card = overlay.querySelector('.menu-overlay-card');
+        if (card) card.scrollTop = 0;
+        const sectionBody = overlay.querySelector('.menu-section');
+        if (sectionBody) sectionBody.scrollTop = 0;
+      };
+
       const closeAllOverlays = () => {
         overlays.forEach((o) => {
+          resetOverlayScroll(o);
           o.hidden = true;
           o.setAttribute('aria-hidden', 'true');
           updateArrowState(o.dataset.section, false);
@@ -2857,6 +2867,7 @@
         const overlay = typeof overlayOrSection === 'string' ? getOverlay(overlayOrSection) : overlayOrSection;
         if (!overlay) return;
         const section = String(overlay.dataset.section || '').toLowerCase();
+        resetOverlayScroll(overlay);
         overlay.hidden = true;
         overlay.setAttribute('aria-hidden', 'true');
         updateArrowState(overlay.dataset.section, false);
@@ -2874,6 +2885,8 @@
         closeAllOverlays();
         overlay.hidden = false;
         overlay.setAttribute('aria-hidden', 'false');
+        resetOverlayScroll(overlay);
+        window.requestAnimationFrame(() => resetOverlayScroll(overlay));
         updateArrowState(section, true);
         body.classList.add('menu-overlay-open');
         moveBackButtonToOverlay(overlay);
