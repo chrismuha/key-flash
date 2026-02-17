@@ -23,7 +23,7 @@
     --accent-strong: #256a52;
     --danger: #b04545;
     --danger-strong: #933737;
-    --box-bg: var(--accent);
+    --box-bg: #3a9a74;
     --box-border: var(--border-strong);
     --reset-button-bg: #2a231d;
     --color-item-arrows-light: #000;
@@ -1876,6 +1876,7 @@ body.page3 #order-summary .summary-edit-btn {
     line-height: 1;
     font-size: 12pt;
     font-family: inherit;
+    cursor: pointer;
 }
 
 @media (max-width: 768px) {
@@ -1898,24 +1899,27 @@ body.page3 #order-summary .summary-remove-btn {
     justify-content: center;
     margin-left: 0;
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 6px;
     border: 1px solid var(--danger-strong);
     background: var(--danger);
     color: var(--color-white);
     font-weight: 700;
     cursor: pointer;
     transition: transform 0.1s ease, background 0.2s, color 0.2s;
+    width: 102px;
     min-width: 102px;
     height: 38px;
     line-height: 1;
     font-size: 12pt;
     font-family: inherit;
-    min-height: 38px;
-    flex: 0 0 auto;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 @media (max-width: 768px) {
     body.page3 #order-summary .summary-remove-btn {
+        width: 112px;
         min-width: 112px;
         height: 42px;
         font-size: 13.5pt;
@@ -1925,11 +1929,10 @@ body.page3 #order-summary .summary-remove-btn {
 body.page3 #order-summary .summary-remove-btn:hover,
 body.page3 #order-summary .summary-remove-btn:focus-visible {
     background: var(--danger-strong);
-    transform: scale(1.05);
+    outline: 2px solid var(--border-strong);
 }
 
 body.page3 #order-summary .summary-remove-btn:focus-visible {
-    outline: 2px solid var(--border-strong);
     outline-offset: 2px;
 }
 
@@ -3036,4 +3039,17 @@ a.btn {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
+}
+
+/* Hide all scrollbars while preserving scroll behavior */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+  background: transparent;
 }
