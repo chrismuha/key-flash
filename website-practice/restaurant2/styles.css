@@ -985,6 +985,24 @@ body:not(.nav-enabled) main {
         padding-top: calc(var(--nav-height) + var(--gap) * 2);
     }
 
+    body.page3 main {
+        width: 100vw;
+        max-width: 100vw;
+        min-width: 0;
+        margin-inline: 0;
+        padding-inline: 0;
+    }
+
+    body.page3 main .wrapper {
+        width: 100%;
+        max-width: 100%;
+        margin-inline: 0;
+        padding-inline: 0;
+        padding-right: 0;
+        align-items: stretch;
+        scrollbar-gutter: auto;
+    }
+
 }
 
 .nav-theme-controls {

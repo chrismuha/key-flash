@@ -1998,7 +1998,10 @@
           if (typeof anyOverlayOpen === 'function' && anyOverlayOpen()) {
             event.preventDefault();
             const activeOverlay = overlays.find((overlay) => !overlay.hidden) || null;
-            requestOverlayClose(activeOverlay, { onAfterClose: proceedToNextPage });
+            requestOverlayClose(activeOverlay, {
+              onAfterClose: proceedToNextPage,
+              declineKeepsOpen: true
+            });
             return;
           }
           const state = evaluatePage3Requirements();
@@ -2805,6 +2808,7 @@
           if (typeof options.onAfterClose === 'function') options.onAfterClose();
           return;
         }
+        const declineKeepsOpen = options.declineKeepsOpen === true;
         const section = String(overlay.dataset.section || '').toLowerCase();
         const finishClose = () => {
           closeOverlay(overlay);
@@ -2815,14 +2819,19 @@
           return;
         }
         const sectionLabel = SECTION_LABELS[section] || titleCase(section.replace(/_/g, ' '));
+        const declineText = declineKeepsOpen ? 'Select "No" to keep editing.' : 'Select "No" to discard.';
         openCustomConfirm(
-          `Save your changes to ${sectionLabel}? Select "No" to discard.`,
+          `Save your changes to ${sectionLabel}? ${declineText}`,
           (approved) => {
             if (approved) {
               const doneBtn = document.querySelector(`.section-done[data-section="${section}"]`);
               if (doneBtn) doneBtn.click();
               else closeOverlay(overlay);
               if (typeof options.onAfterClose === 'function') options.onAfterClose();
+              return;
+            }
+            if (declineKeepsOpen) {
+              if (typeof options.onDecline === 'function') options.onDecline();
               return;
             }
             restoreSectionStateSnapshot(overlaySession.snapshot);
@@ -3833,10 +3842,16 @@
               if (document.activeElement instanceof HTMLElement) {
                 document.activeElement.blur();
               }
-              const next = loadOrderItemsFromStorage().filter((it) => it && it.id !== item.id);
-              writeOrderItems(next);
-              if (!next.length) redirectIfNoActiveSections();
-              renderOrderSummary();
+              openCustomConfirm(
+                `Are you sure you want to continue? This will remove ${title.textContent} from your order.`,
+                (confirmed) => {
+                  if (!confirmed) return;
+                  const next = loadOrderItemsFromStorage().filter((it) => it && it.id !== item.id);
+                  writeOrderItems(next);
+                  if (!next.length) redirectIfNoActiveSections();
+                  renderOrderSummary();
+                }
+              );
             });
             // OLD SECTION (hidden old behavior): header.appendChild(remove);
             actions.appendChild(remove);
@@ -4157,7 +4172,13 @@
               if (document.activeElement instanceof HTMLElement) {
                 document.activeElement.blur();
               }
-              handleRemoveSection(sec);
+              openCustomConfirm(
+                `Are you sure you want to continue? This will remove ${title.textContent} from your order.`,
+                (confirmed) => {
+                  if (!confirmed) return;
+                  handleRemoveSection(sec, { skipConfirm: true });
+                }
+              );
             });
             // OLD SECTION (hidden old behavior): header.appendChild(remove);
             actions.appendChild(remove);
