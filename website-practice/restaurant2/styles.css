@@ -849,12 +849,16 @@ body.page3 main {
     width: min(880px, calc(100vw - 96px));
     max-width: 880px;
     margin-inline: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
 }
 
 body.page3 main .wrapper {
     width: 100%;
     max-width: 880px;
     margin-inline: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
 }
 
 main .wrapper > * {
@@ -927,6 +931,10 @@ body:not(.nav-enabled) main {
 
     body.order-type .left-rail {
         padding-top: calc(var(--gap) * 3);
+    }
+
+    body.order-type.nav-enabled .left-rail {
+        padding-top: calc(var(--gap) * 3 + var(--page-button-row-offset));
     }
 
     .has-go-back .left-rail {
@@ -2386,6 +2394,10 @@ body.order-type .order-powered a {
     body.order-type .order-card {
         width: clamp(140px, 38vw, 170px);
         height: clamp(140px, 38vw, 170px);
+    }
+
+    body.order-type .order-label {
+        font-size: 12pt;
     }
 }
 
