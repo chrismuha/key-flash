@@ -1204,7 +1204,7 @@
       const isDark = body.classList.contains('theme-dark');
       const label = isDark ? 'Switch to light mode' : 'Switch to dark mode';
       const modeText = isDark ? 'Light Mode' : 'Dark Mode';
-      const iconText = isDark ? '☀' : '☾';
+      const iconText = isDark ? '☼' : '☾';
       themeModeBtns.forEach((btn) => {
         const iconEl = btn.querySelector('.theme-icon');
         const labelEl = btn.querySelector('.theme-label');
@@ -3260,18 +3260,17 @@
         });
       });
     }
-    if (navToggleBtn) {
-      navToggleBtn.addEventListener('click', () => {
-        setNavEnabled(!body.classList.contains('nav-enabled'));
-      });
-    }
     const toggleThemeMode = () => {
       body.classList.toggle('theme-dark');
       persistThemeState();
       updateThemeModeLabel();
     };
 
-    const bindThemeToggleButton = (btn) => {
+    const toggleNavMode = () => {
+      setNavEnabled(!body.classList.contains('nav-enabled'));
+    };
+
+    const bindRapidToggleButton = (btn, toggleFn) => {
       let holdDelayTimer = null;
       let holdRepeatTimer = null;
       let suppressNextClick = false;
@@ -3293,10 +3292,10 @@
           event.stopPropagation();
         }
         suppressNextClick = true;
-        toggleThemeMode();
+        toggleFn();
         clearRepeatTimers();
         holdDelayTimer = setTimeout(() => {
-          holdRepeatTimer = setInterval(toggleThemeMode, 140);
+          holdRepeatTimer = setInterval(toggleFn, 140);
         }, 260);
       };
 
@@ -3327,12 +3326,16 @@
           event.stopPropagation();
           return;
         }
-        toggleThemeMode();
+        toggleFn();
       });
     };
 
+    if (navToggleBtn) {
+      bindRapidToggleButton(navToggleBtn, toggleNavMode);
+    }
+
     if (themeModeBtns.length) {
-      themeModeBtns.forEach((btn) => bindThemeToggleButton(btn));
+      themeModeBtns.forEach((btn) => bindRapidToggleButton(btn, toggleThemeMode));
     }
     if (settingsCloseBtn) {
       settingsCloseBtn.addEventListener('click', closeSettings);

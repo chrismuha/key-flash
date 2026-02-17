@@ -252,7 +252,7 @@ body.page2 {
     align-items: flex-end;
     justify-content: center;
     font-weight: 700;
-    font-size: 12pt;
+    font-size: 13pt;
     flex-shrink: 0;
     cursor: pointer;
     scroll-snap-align: start;
@@ -1058,10 +1058,6 @@ body.theme-dark .nav-theme-controls .theme-option .theme-icon {
 
 
 @media (max-width: 768px) {
-    .mobile-menu-swiper {
-        --slider-visible-count: 3;
-    }
-
     .nav-theme-controls {
         top: 3px;
         right: 18px;
@@ -1088,11 +1084,6 @@ body.theme-dark .nav-theme-controls .theme-option .theme-icon {
         height: 48px;
         min-width: 48px;
         font-size: 20pt;
-    }
-
-    .mobile-menu-swiper .swiper-chip {
-        font-size: 11pt;
-        padding: 0 8px 10px;
     }
 
 }
