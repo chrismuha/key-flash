@@ -1998,10 +1998,7 @@
           if (typeof anyOverlayOpen === 'function' && anyOverlayOpen()) {
             event.preventDefault();
             const activeOverlay = overlays.find((overlay) => !overlay.hidden) || null;
-            requestOverlayClose(activeOverlay, {
-              onAfterClose: proceedToNextPage,
-              declineKeepsOpen: true
-            });
+            requestOverlayClose(activeOverlay, { onAfterClose: proceedToNextPage });
             return;
           }
           const state = evaluatePage3Requirements();
@@ -2667,7 +2664,6 @@
 
       const anyOverlayOpen = () => overlays.some((o) => !o.hidden);
       const getOverlay = (section) => overlays.find((o) => o.dataset.section === section) || null;
-      let suppressOverlayDirtyTracking = false;
       let overlaySession = {
         section: '',
         snapshot: null,
@@ -2716,90 +2712,11 @@
       };
 
       const markOverlayDirtyForSection = (section) => {
-        if (suppressOverlayDirtyTracking) return;
         const normalized = String(section || '').toLowerCase();
         if (!normalized) return;
         if (!overlaySession.snapshot || overlaySession.section !== normalized) return;
         const current = getSectionStateSnapshot(normalized);
         overlaySession.dirty = JSON.stringify(current) !== JSON.stringify(overlaySession.snapshot);
-      };
-
-      const restoreSectionStateSnapshot = (snapshot) => {
-        if (!snapshot || !snapshot.section) return;
-        const section = String(snapshot.section).toLowerCase();
-        const groups = getIngredientGroupsForSection(section);
-        if (!groups.length) return;
-        suppressOverlayDirtyTracking = true;
-        try {
-          const ingredientsState = loadIngredientsFromStorage();
-          groups.forEach((group) => {
-            ingredientsState[group] = Array.isArray(snapshot.ingredients[group]) ? [...snapshot.ingredients[group]] : [];
-          });
-          saveIngredientsToStorage(ingredientsState);
-
-          const qtyMap = safeParseJSON(localStorage.getItem(STORAGE_KEYS.quantities), {}) || {};
-          groups.forEach((group) => {
-            const prefix = `${group}|`;
-            Object.keys(qtyMap).forEach((key) => {
-              if (key.startsWith(prefix)) delete qtyMap[key];
-            });
-          });
-          Object.entries(snapshot.quantities || {}).forEach(([key, value]) => {
-            qtyMap[key] = String(value);
-          });
-          try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap)); } catch { /* ignore */ }
-
-          setSectionQuantity(section, snapshot.sectionQty);
-          refreshSectionQuantityControls();
-
-          if (section === 'pizza' && snapshot.pizzaSize) {
-            savePizzaSize(snapshot.pizzaSize);
-            pizzaSizeRadios.forEach((radio) => {
-              radio.checked = radio.value === snapshot.pizzaSize;
-            });
-          }
-
-          const toggle = document.querySelector(`.section-toggle[data-section="${section}"]`);
-          if (toggle && !toggle.disabled && toggle.checked !== !!snapshot.sectionEnabled) {
-            toggle.checked = !!snapshot.sectionEnabled;
-            toggle.dispatchEvent(new Event('change', { bubbles: true }));
-          }
-
-          groups.forEach((group) => {
-            const selected = new Set((ingredientsState[group] || []).map((val) => normalizeJalapenoValue(val)));
-            const groupInputs = Array.from(document.querySelectorAll(`input[type="checkbox"][name="${group}"]`));
-            groupInputs.forEach((cb) => {
-              const isRequired = cb.dataset && cb.dataset.required === 'true';
-              const cbValue = normalizeJalapenoValue(cb.value);
-              cb.checked = isRequired || selected.has(cbValue);
-              const label = cb.closest('label');
-              if (!label) return;
-              if (cb.dataset && cb.dataset.noQty === 'true') {
-                const ownSelect = label.querySelector('select.ingredient-qty');
-                if (ownSelect) {
-                  const selectedValue = (ingredientsState[group] || [])[0];
-                  if (selectedValue) ownSelect.value = String(selectedValue);
-                  ownSelect.disabled = !cb.checked;
-                  ownSelect.hidden = !cb.checked;
-                }
-                return;
-              }
-              const qtySelect = label.querySelector('select.ingredient-qty');
-              if (!qtySelect) return;
-              const key = `${group}|${cbValue}`;
-              const nextQty = snapshot.quantities && snapshot.quantities[key] != null
-                ? String(snapshot.quantities[key])
-                : '1';
-              qtySelect.value = nextQty;
-              qtySelect.disabled = !cb.checked;
-              qtySelect.hidden = !cb.checked;
-            });
-          });
-        } finally {
-          suppressOverlayDirtyTracking = false;
-        }
-        updateBuilderError();
-        updatePage3NavState();
       };
 
       const requestOverlayClose = (overlayOrSection, options = {}) => {
@@ -2808,7 +2725,6 @@
           if (typeof options.onAfterClose === 'function') options.onAfterClose();
           return;
         }
-        const declineKeepsOpen = true;
         const section = String(overlay.dataset.section || '').toLowerCase();
         const finishClose = () => {
           closeOverlay(overlay);
@@ -2831,7 +2747,6 @@
               return;
             }
             if (typeof options.onDecline === 'function') options.onDecline();
-            return;
           },
           { restoreFocus: false, confirmVariant: 'success' }
         );
