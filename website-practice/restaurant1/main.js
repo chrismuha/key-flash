@@ -2652,6 +2652,7 @@
           updatePageNavLocks();
           syncMenuLaunchState();
           syncRequiredCheckboxes();
+          if (section) updateSectionDoneState(section);
         });
       });
       // Quantity controls are created before toggles are restored, so re-sync after restore.
@@ -2852,6 +2853,41 @@
           okMenu
         };
       };
+      const getSectionFromIngredientGroup = (group) => {
+        if (!group) return '';
+        if (group.startsWith('pizza_')) return 'pizza';
+        if (group.startsWith('burger_')) return 'burger';
+        if (group.startsWith('calzone_')) return 'calzone';
+        if (group.startsWith('chicken_wings_')) return 'chicken_wings';
+        if (group.startsWith('salad_')) return 'salad';
+        if (group.startsWith('sauces_')) return 'sauces';
+        if (group.startsWith('sub_')) return 'sub';
+        if (group.startsWith('wrap_')) return 'wrap';
+        return '';
+      };
+      const sectionHasActiveIngredientSelection = (section) => {
+        if (!section) return false;
+        const details = detailsBySection[section];
+        if (!details) return false;
+        const toggle = details.querySelector('.section-toggle');
+        if (!toggle || !toggle.checked || toggle.disabled) return false;
+        const anyChecked = Array.from(details.querySelectorAll('input[type="checkbox"][name]')).some((cb) => cb.checked);
+        return anyChecked;
+      };
+      const updateSectionDoneState = (section) => {
+        if (!section) return;
+        const doneBtn = document.querySelector(`.section-done[data-section="${section}"]`);
+        if (!doneBtn) return;
+        const canUseDone = sectionHasActiveIngredientSelection(section);
+        doneBtn.disabled = !canUseDone;
+        if (canUseDone) doneBtn.removeAttribute('aria-disabled');
+        else doneBtn.setAttribute('aria-disabled', 'true');
+      };
+      const updateAllSectionDoneStates = () => {
+        document.querySelectorAll('.section-done[data-section]').forEach((btn) => {
+          updateSectionDoneState(btn.dataset.section || '');
+        });
+      };
 
       function updateNextButtonState() {
         if (!pageNextButton) return;
@@ -2973,6 +3009,7 @@
           syncRequiredCheckboxes();
           saveIngredients();
           updateBuilderError();
+          if (section) updateSectionDoneState(section);
           updatePageNavLocks();
         }
       });
@@ -2984,6 +3021,7 @@
       });
       // Ensure builder validation state is accurate after initial render/restore
       updateBuilderError();
+      updateAllSectionDoneStates();
       // Reset buttons per group
       const resetGroupByName = (group, { forceDisable = false } = {}) => {
         if (!group) return;
@@ -3067,6 +3105,8 @@
             }
           }
         }
+        const targetSection = getSectionFromIngredientGroup(group);
+        if (targetSection) updateSectionDoneState(targetSection);
       };
 
       document.querySelectorAll('.reset-group[data-group]').forEach((btn) => {
@@ -3117,6 +3157,7 @@
         groups.forEach((group) => resetGroupByName(group, { forceDisable: true }));
         saveIngredients();
         updateBuilderError();
+        updateSectionDoneState(section);
         updatePageNavLocks();
       };
       document.querySelectorAll('.section-done[data-section]').forEach((btn) => {
@@ -3131,6 +3172,7 @@
           orderItems.push(item);
           saveOrderItemsToStorage(orderItems);
           clearSectionOnPage2AfterDone(section);
+          updateSectionDoneState(section);
         });
       });
       // Next: must have at least one section checked (or at least one saved Done item)
