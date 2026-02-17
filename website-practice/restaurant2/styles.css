@@ -155,14 +155,6 @@ body.page2 {
     background: var(--surface-strong);
     overflow-x: auto;
     overflow-y: hidden;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.left-rail::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-    display: none;
 }
 
 .has-go-back .left-rail {
@@ -219,26 +211,6 @@ body.page2 {
     align-items: center;
     padding-left: 4px;
     padding-right: 4px;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.mobile-menu-swiper.show-scroll .swiper-track {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.mobile-menu-swiper .swiper-track::-webkit-scrollbar,
-.mobile-menu-swiper.show-scroll .swiper-track::-webkit-scrollbar {
-    height: 0;
-    width: 0;
-    display: none;
-    background: transparent;
-}
-
-.mobile-menu-swiper .swiper-track::-webkit-scrollbar-thumb,
-.mobile-menu-swiper.show-scroll .swiper-track::-webkit-scrollbar-thumb {
-    background: transparent;
 }
 
 .mobile-menu-swiper .swiper-chip {
