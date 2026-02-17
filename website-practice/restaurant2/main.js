@@ -2808,7 +2808,7 @@
           if (typeof options.onAfterClose === 'function') options.onAfterClose();
           return;
         }
-        const declineKeepsOpen = options.declineKeepsOpen === true;
+        const declineKeepsOpen = true;
         const section = String(overlay.dataset.section || '').toLowerCase();
         const finishClose = () => {
           closeOverlay(overlay);
@@ -2819,7 +2819,7 @@
           return;
         }
         const sectionLabel = SECTION_LABELS[section] || titleCase(section.replace(/_/g, ' '));
-        const declineText = declineKeepsOpen ? 'Select "No" to keep editing.' : 'Select "No" to discard.';
+        const declineText = 'Select "No" to keep editing.';
         openCustomConfirm(
           `Save your changes to ${sectionLabel}? ${declineText}`,
           (approved) => {
@@ -2830,13 +2830,8 @@
               if (typeof options.onAfterClose === 'function') options.onAfterClose();
               return;
             }
-            if (declineKeepsOpen) {
-              if (typeof options.onDecline === 'function') options.onDecline();
-              return;
-            }
-            restoreSectionStateSnapshot(overlaySession.snapshot);
-            closeOverlay(overlay);
-            if (typeof options.onAfterClose === 'function') options.onAfterClose();
+            if (typeof options.onDecline === 'function') options.onDecline();
+            return;
           },
           { restoreFocus: false, confirmVariant: 'success' }
         );
