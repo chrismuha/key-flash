@@ -4176,6 +4176,7 @@
           const sectionsContainer = document.createElement('div');
           sectionsContainer.className = 'summary-sections';
           const catalog = loadIngredientCatalogFromStorage();
+          const sectionDisplayCounts = {};
           const clampOrderItemQty = (value) => {
             const n = parseInt(value, 10) || SECTION_QUANTITY_DEFAULT_MIN;
             return Math.max(SECTION_QUANTITY_DEFAULT_MIN, Math.min(SECTION_QUANTITY_MAX, n));
@@ -4198,7 +4199,10 @@
             header.className = 'summary-section-header';
             const title = document.createElement('strong');
             const sectionLabel = item.sectionLabel || SECTION_LABELS[item.section] || titleCase(String(item.section).replace(/_/g, ' '));
-            title.textContent = `${sectionLabel} #${idx + 1}`;
+            const sectionKey = String(item.section || '').toLowerCase();
+            const nextSectionCount = (sectionDisplayCounts[sectionKey] || 0) + 1;
+            sectionDisplayCounts[sectionKey] = nextSectionCount;
+            title.textContent = `${sectionLabel} #${nextSectionCount}`;
             header.appendChild(title);
 
             const actions = document.createElement('div');
@@ -4331,7 +4335,7 @@
             const editorHeader = document.createElement('div');
             editorHeader.className = 'summary-inline-editor-header';
             const editorTitle = document.createElement('h4');
-            editorTitle.textContent = `Edit ${sectionLabel} #${idx + 1}`;
+            editorTitle.textContent = `Edit ${sectionLabel} #${nextSectionCount}`;
             editorHeader.appendChild(editorTitle);
             const editorQty = document.createElement('p');
             editorQty.className = 'summary-inline-editor-qty';
