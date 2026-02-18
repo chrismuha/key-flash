@@ -1713,6 +1713,13 @@ body.page3 #order-summary .summary-section-size {
     color: inherit;
 }
 
+body.page3 #order-summary .summary-section-note {
+    margin: 2px 0 6px;
+    font-size: 9.5pt;
+    font-style: italic;
+    opacity: 0.72;
+}
+
 body.page3 #order-summary .summary-section-header {
     display: flex;
     align-items: center;
@@ -2434,9 +2441,50 @@ main .menu-summary {
 main .section-actions {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     margin-top: 8px;
     gap: 8px;
     width: 100%;
+}
+
+main .section-actions .section-actions-qty-controls {
+    margin: 0;
+    width: 100%;
+}
+
+main .section-note-wrap {
+    display: grid;
+    gap: 4px;
+    width: min(100%, 54ch);
+}
+
+main .section-note-label {
+    font-size: 9pt;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+main .section-note-input {
+    width: 100%;
+    max-width: 54ch;
+    min-height: 3.7em;
+    max-height: 3.7em;
+    resize: none;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font: inherit;
+    font-size: 10pt;
+    line-height: 1.2;
+    background: var(--color-white);
+    color: var(--color-black);
+}
+
+body.theme-dark main .section-note-input {
+    background: var(--surface);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
 }
 
 main .section-actions .section-done {

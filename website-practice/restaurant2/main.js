@@ -29,6 +29,7 @@
     redirectReason: 'restaurant.redirectReason',
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantitiesSections',
+    sectionNotes: 'restaurant.sectionNotes',
     pizzaSize: 'restaurant.pizza.size',
     // OLD (hidden line reference): ingredientCatalog was last key before orderItems.
     ingredientCatalog: 'restaurant.ingredientCatalog',
@@ -196,6 +197,7 @@
   }
 
   const DEFAULT_PIZZA_SIZE = 'large';
+  const SECTION_NOTE_MAX_CHARS = 50;
   const PIZZA_SIZE_LABELS = {
     small: 'Small',
     medium: 'Medium',
@@ -493,6 +495,40 @@
       return acc;
     }, {});
     saveSectionQuantities();
+  }
+
+  function loadSectionNotes() {
+    const stored = safeParseJSON(localStorage.getItem(STORAGE_KEYS.sectionNotes), {}) || {};
+    const normalized = {};
+    Object.keys(stored || {}).forEach((section) => {
+      const key = String(section || '').toLowerCase();
+      const text = String(stored[section] || '').trim().slice(0, SECTION_NOTE_MAX_CHARS);
+      if (key) normalized[key] = text;
+    });
+    return normalized;
+  }
+
+  function saveSectionNotes(sectionNotes) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.sectionNotes, JSON.stringify(sectionNotes || {}));
+    } catch { /* ignore */ }
+  }
+
+  function getSectionNote(section) {
+    const key = String(section || '').toLowerCase();
+    if (!key) return '';
+    const notes = loadSectionNotes();
+    return String(notes[key] || '').trim().slice(0, SECTION_NOTE_MAX_CHARS);
+  }
+
+  function setSectionNote(section, noteText) {
+    const key = String(section || '').toLowerCase();
+    if (!key) return '';
+    const notes = loadSectionNotes();
+    const normalized = String(noteText || '').trim().slice(0, SECTION_NOTE_MAX_CHARS);
+    notes[key] = normalized;
+    saveSectionNotes(notes);
+    return normalized;
   }
 
   const DEFAULT_TOAST_DURATION = 500;
@@ -1247,7 +1283,19 @@
     }
 
     // Go Back button (pages 2/3)
-    const backBtn = document.querySelector('.go-back');
+    let backBtn = document.querySelector('.go-back');
+    if (!backBtn && body.classList.contains('page3')) {
+      const host = document.querySelector('body.page3 main .wrapper') || document.querySelector('body.page3 main');
+      if (host) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'go-back';
+        btn.setAttribute('aria-label', 'Go back');
+        btn.textContent = 'Go Back';
+        host.insertAdjacentElement('afterbegin', btn);
+        backBtn = btn;
+      }
+    }
     if (backBtn) {
       body.classList.add('has-go-back');
       backBtn.addEventListener('click', (e) => {
@@ -1991,6 +2039,14 @@
       bindSliderArrow(sliderPrev, -1);
       bindSliderArrow(sliderNext, 1);
       if (footerNext) {
+        const hasActiveUndoneSection = () => {
+          const hasDoneItems = hasMenuSelection();
+          const hasActiveSection = !!document.querySelector('.section-toggle[data-section]:checked:not(:disabled)');
+          return !hasDoneItems && hasActiveSection;
+        };
+        const showActiveUndoneWarning = () => {
+          window.alert('You have an active menu item that is not added yet.\n\nOpen that item and tap Done to add it to your order, or turn it off/reset it before continuing.');
+        };
         const proceedToNextPage = () => {
           const href = footerNext.getAttribute('href');
           if (!href) return;
@@ -1998,17 +2054,25 @@
         };
 
         footerNext.addEventListener('click', (event) => {
+          if (typeof anyOverlayOpen === 'function' && anyOverlayOpen()) {
+            event.preventDefault();
+            const activeOverlay = overlays.find((overlay) => !overlay.hidden) || null;
+            requestOverlayClose(activeOverlay, { onAfterClose: proceedToNextPage, declineAction: 'close' });
+            return;
+          }
           const nextDisabled = footerNext.getAttribute('aria-disabled') === 'true'
             || footerNext.classList.contains('next-disabled')
             || footerNext.matches(':disabled');
           if (nextDisabled) {
             event.preventDefault();
-            return;
-          }
-          if (typeof anyOverlayOpen === 'function' && anyOverlayOpen()) {
-            event.preventDefault();
-            const activeOverlay = overlays.find((overlay) => !overlay.hidden) || null;
-            requestOverlayClose(activeOverlay, { onAfterClose: proceedToNextPage });
+            if (hasActiveUndoneSection()) {
+              showActiveUndoneWarning();
+              if (builderError) {
+                builderError.hidden = false;
+                builderError.textContent = 'Finish active items with Done, or disable/reset them before continuing.';
+                if (typeof ensureBuilderErrorVisible === 'function') ensureBuilderErrorVisible();
+              }
+            }
             return;
           }
           const state = evaluatePage3Requirements();
@@ -2018,9 +2082,14 @@
           const hasDoneItems = hasMenuSelection();
           if (!page3NavEnabled && !hasDoneItems) {
             event.preventDefault();
+            if (hasActiveUndoneSection()) {
+              showActiveUndoneWarning();
+            }
             if (builderError) {
               builderError.hidden = false;
-              builderError.textContent = page3NavBlockedMessage || 'Please choose at least one menu item.';
+              builderError.textContent = hasActiveUndoneSection()
+                ? 'Finish active items with Done, or disable/reset them before continuing.'
+                : (page3NavBlockedMessage || 'Please choose at least one menu item.');
               if (typeof ensureBuilderErrorVisible === 'function') {
                 ensureBuilderErrorVisible();
               }
@@ -2095,14 +2164,98 @@
       const ingredientCheckboxes = Array.from(document.querySelectorAll('input[type="checkbox"][name]'));
       const builderError = document.getElementById('builder-error');
       const manualDisabledSet = new Set(readManualDisabledSections());
-      const updateSectionQuantityControl = (wrap, sec) => {
-        if (!wrap) return;
-        const countSpan = wrap.querySelector('.qty-controls-value');
+      const updateSectionQuantityControl = (sec) => {
         const qty = getSectionQuantity(sec);
-        if (countSpan) countSpan.textContent = `(x${qty})`;
-        const dec = wrap.querySelector('.qty-control-decrement');
         const min = getQuantityMin();
-        if (dec) dec.disabled = qty <= min;
+        document.querySelectorAll(`.qty-controls[data-section="${sec}"]`).forEach((wrap) => {
+          const countSpan = wrap.querySelector('.qty-controls-value');
+          if (countSpan) countSpan.textContent = `(x${qty})`;
+          const dec = wrap.querySelector('.qty-control-decrement');
+          const inc = wrap.querySelector('.qty-control-increment');
+          if (dec) dec.disabled = qty <= min;
+          if (inc) inc.disabled = qty >= SECTION_QUANTITY_MAX;
+        });
+      };
+      const adjustSectionQuantity = (sec, delta) => {
+        const current = getSectionQuantity(sec);
+        const next = setSectionQuantity(sec, current + delta);
+        if (next === null) return;
+        const toggle = document.querySelector(`.section-toggle[data-section="${sec}"]`);
+        if (toggle && !toggle.disabled) {
+          if (quantityCanDisable && next === 0) {
+            if (toggle.checked) {
+              quantityDisableTrigger = sec;
+              try {
+                toggle.checked = false;
+                toggle.dispatchEvent(new Event('change', { bubbles: true }));
+              } finally {
+                quantityDisableTrigger = '';
+              }
+            }
+          } else if (!toggle.checked) {
+            toggle.checked = true;
+            toggle.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
+        updateSectionQuantityControl(sec);
+        updateSectionDoneState(sec);
+        markOverlayDirtyForSection(sec);
+      };
+      const createSectionQuantityControls = (sec, extraClass = '') => {
+        const wrap = document.createElement('span');
+        wrap.className = `qty-controls ${extraClass}`.trim();
+        wrap.dataset.section = sec;
+        const count = document.createElement('span');
+        count.className = 'qty-controls-value';
+        const dec = document.createElement('button');
+        dec.type = 'button';
+        dec.className = 'qty-control-decrement';
+        dec.textContent = '−';
+        dec.setAttribute('aria-label', `Decrease ${SECTION_LABELS[sec] || sec} quantity`);
+        const inc = document.createElement('button');
+        inc.type = 'button';
+        inc.className = 'qty-control-increment';
+        inc.textContent = '+';
+        inc.setAttribute('aria-label', `Increase ${SECTION_LABELS[sec] || sec} quantity`);
+        ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach((evt) => {
+          wrap.addEventListener(evt, (event) => event.stopPropagation());
+        });
+        const bindAdjustButton = (btn, delta) => {
+          let ignoreNextClick = false;
+          const triggerAdjust = (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+            ignoreNextClick = true;
+            adjustSectionQuantity(sec, delta);
+          };
+          if (window.PointerEvent) {
+            btn.addEventListener('pointerdown', (evt) => {
+              if (evt.button != null && evt.button !== 0) return;
+              triggerAdjust(evt);
+            });
+          } else {
+            btn.addEventListener('mousedown', (evt) => {
+              if (evt.button != null && evt.button !== 0) return;
+              triggerAdjust(evt);
+            });
+            btn.addEventListener('touchstart', triggerAdjust, { passive: false });
+          }
+          btn.addEventListener('click', (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+            if (ignoreNextClick) {
+              ignoreNextClick = false;
+              return;
+            }
+            adjustSectionQuantity(sec, delta);
+          });
+        };
+        bindAdjustButton(dec, -1);
+        bindAdjustButton(inc, 1);
+        wrap.appendChild(count);
+        wrap.appendChild(dec);
+        wrap.appendChild(inc);
+        return wrap;
       };
       const ensureSectionQuantityControl = (sec) => {
         const sectionEl = document.getElementById(sec);
@@ -2111,91 +2264,61 @@
         if (!summary) return;
         let wrap = summary.querySelector('.qty-controls');
         if (!wrap) {
-          wrap = document.createElement('span');
-          wrap.className = 'qty-controls';
-          wrap.dataset.section = sec;
-          const count = document.createElement('span');
-          count.className = 'qty-controls-value';
-          const dec = document.createElement('button');
-          dec.type = 'button';
-          dec.className = 'qty-control-decrement';
-          dec.textContent = '−';
-          dec.setAttribute('aria-label', `Decrease ${SECTION_LABELS[sec] || sec} quantity`);
-          const inc = document.createElement('button');
-          inc.type = 'button';
-          inc.className = 'qty-control-increment';
-          inc.textContent = '+';
-          inc.setAttribute('aria-label', `Increase ${SECTION_LABELS[sec] || sec} quantity`);
-          const adjust = (delta) => {
-            const current = getSectionQuantity(sec);
-            const next = setSectionQuantity(sec, current + delta);
-            if (next === null) return;
-            const toggle = document.querySelector(`.section-toggle[data-section="${sec}"]`);
-            if (toggle && !toggle.disabled) {
-              if (quantityCanDisable && next === 0) {
-                if (toggle.checked) {
-                  quantityDisableTrigger = sec;
-                  try {
-                    toggle.checked = false;
-                    toggle.dispatchEvent(new Event('change', { bubbles: true }));
-                  } finally {
-                    quantityDisableTrigger = '';
-                  }
-                }
-              } else if (!toggle.checked) {
-                toggle.checked = true;
-                toggle.dispatchEvent(new Event('change', { bubbles: true }));
-              }
-            }
-            updateSectionQuantityControl(wrap, sec);
-            updateSectionDoneState(sec);
-            markOverlayDirtyForSection(sec);
-          };
-          ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach((evt) => {
-            wrap.addEventListener(evt, (event) => event.stopPropagation());
-          });
-          const bindAdjustButton = (btn, delta) => {
-            let ignoreNextClick = false;
-            const triggerAdjust = (evt) => {
-              evt.preventDefault();
-              evt.stopPropagation();
-              ignoreNextClick = true;
-              adjust(delta);
-            };
-            if (window.PointerEvent) {
-              btn.addEventListener('pointerdown', (evt) => {
-                if (evt.button != null && evt.button !== 0) return;
-                triggerAdjust(evt);
-              });
-            } else {
-              btn.addEventListener('mousedown', (evt) => {
-                if (evt.button != null && evt.button !== 0) return;
-                triggerAdjust(evt);
-              });
-              btn.addEventListener('touchstart', triggerAdjust, { passive: false });
-            }
-            btn.addEventListener('click', (evt) => {
-              evt.preventDefault();
-              evt.stopPropagation();
-              // Ignore the synthetic click paired with pointer/touch press.
-              if (ignoreNextClick) {
-                ignoreNextClick = false;
-                return;
-              }
-              adjust(delta);
-            });
-          };
-          bindAdjustButton(dec, -1);
-          bindAdjustButton(inc, 1);
-          wrap.appendChild(count);
-          wrap.appendChild(dec);
-          wrap.appendChild(inc);
+          wrap = createSectionQuantityControls(sec);
           summary.appendChild(wrap);
         }
-        updateSectionQuantityControl(wrap, sec);
+        updateSectionQuantityControl(sec);
+      };
+      const ensureSectionActionExtras = (sec) => {
+        const sectionEl = document.getElementById(sec);
+        if (!sectionEl) return;
+        const actions = sectionEl.querySelector('.section-actions');
+        if (!actions) return;
+        const resetBtn = actions.querySelector('.reset-group');
+        if (!resetBtn) return;
+        let qtyWrap = actions.querySelector('.qty-controls.section-actions-qty-controls');
+        if (!qtyWrap) {
+          qtyWrap = createSectionQuantityControls(sec, 'section-actions-qty-controls');
+          actions.insertBefore(qtyWrap, resetBtn);
+        }
+        let noteWrap = actions.querySelector('.section-note-wrap');
+        if (!noteWrap) {
+          noteWrap = document.createElement('label');
+          noteWrap.className = 'section-note-wrap';
+          noteWrap.setAttribute('for', `section-note-${sec}`);
+          const noteLabel = document.createElement('span');
+          noteLabel.className = 'section-note-label';
+          noteLabel.textContent = 'Customer request';
+          const noteInput = document.createElement('textarea');
+          noteInput.id = `section-note-${sec}`;
+          noteInput.className = 'section-note-input';
+          noteInput.maxLength = SECTION_NOTE_MAX_CHARS;
+          noteInput.rows = 2;
+          noteInput.cols = SECTION_NOTE_MAX_CHARS;
+          noteInput.placeholder = 'Optional note (max 50 chars)';
+          noteInput.value = getSectionNote(sec);
+          noteInput.addEventListener('input', () => {
+            const next = setSectionNote(sec, noteInput.value);
+            if (noteInput.value !== next) noteInput.value = next;
+            markOverlayDirtyForSection(sec);
+          });
+          ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach((evtName) => {
+            noteInput.addEventListener(evtName, (event) => event.stopPropagation(), { passive: evtName === 'touchstart' });
+          });
+          noteWrap.appendChild(noteLabel);
+          noteWrap.appendChild(noteInput);
+          actions.insertBefore(noteWrap, resetBtn);
+        } else {
+          const noteInput = noteWrap.querySelector('.section-note-input');
+          if (noteInput) noteInput.value = getSectionNote(sec);
+        }
+        updateSectionQuantityControl(sec);
       };
       const refreshSectionQuantityControls = () => {
-        SECTION_QUANTITY_SECTIONS.forEach((sec) => ensureSectionQuantityControl(sec));
+        SECTION_QUANTITY_SECTIONS.forEach((sec) => {
+          ensureSectionQuantityControl(sec);
+          ensureSectionActionExtras(sec);
+        });
       };
       function applySectionQuantityStateImpl() {
         sectionQuantities = loadSectionQuantities();
@@ -2723,6 +2846,7 @@
           section: normalized,
           ingredients: ingredientsSubset,
           quantities: quantitySubset,
+          note: getSectionNote(normalized),
           sectionQty: getSectionQuantity(normalized),
           sectionEnabled: !!(toggle && toggle.checked),
           pizzaSize: normalized === 'pizza' ? loadPizzaSize() : ''
@@ -2827,6 +2951,9 @@
           if (sectionToggle && !sectionToggle.disabled) {
             sectionToggle.checked = !!snapshot.sectionEnabled;
           }
+          const restoredNote = setSectionNote(section, snapshot.note || '');
+          const noteInput = overlay.querySelector('.section-note-input');
+          if (noteInput) noteInput.value = restoredNote;
           persistActiveSections();
           syncRequiredCheckboxes();
 
@@ -3101,6 +3228,7 @@
         resetSectionQuantitiesToDefaults();
         resetSettingsToDefaults();
         try { localStorage.removeItem(STORAGE_KEYS.orderItems); } catch { /* ignore */ }
+        try { localStorage.removeItem(STORAGE_KEYS.sectionNotes); } catch { /* ignore */ }
         if (typeof closeAllOverlays === 'function') closeAllOverlays();
         clearMenuLaunchVisualState();
         INGREDIENT_GROUPS.forEach((group) => resetGroupByName(group, { skipConfirm: true }));
@@ -3231,6 +3359,7 @@
           id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
           section,
           sectionLabel: SECTION_LABELS[section] || titleCase(String(section || '').replace(/_/g, ' ')),
+          note: getSectionNote(section),
           sectionQty,
           pizzaSize: section === 'pizza' ? loadPizzaSize() : '',
           ingredients: ingredientRows
@@ -3239,6 +3368,7 @@
       const clearSectionOnPage2AfterDone = (section) => {
         if (!section) return;
         suppressSectionToast = section;
+        setSectionNote(section, '');
         const groups = Array.isArray(SECTION_INGREDIENT_GROUPS[section]) ? SECTION_INGREDIENT_GROUPS[section] : [];
         try {
           const ing = loadIngredientsFromStorage();
@@ -3246,6 +3376,9 @@
           saveIngredientsToStorage(ing);
         } catch { /* ignore */ }
         clearOptionalSelections(section);
+        const sectionEl = document.getElementById(section);
+        const noteInput = sectionEl ? sectionEl.querySelector('.section-note-input') : null;
+        if (noteInput) noteInput.value = '';
         const toggle = document.querySelector(`.section-toggle[data-section="${section}"]`);
         if (toggle && toggle.checked) {
           toggle.checked = false;
@@ -4007,6 +4140,13 @@
             qtyWrap.appendChild(inc);
             actions.appendChild(qtyWrap);
             sectionWrap.appendChild(header);
+            const itemNoteText = String(item.note || '').trim();
+            if (itemNoteText) {
+              const noteLine = document.createElement('div');
+              noteLine.className = 'summary-section-note';
+              noteLine.textContent = itemNoteText;
+              sectionWrap.appendChild(noteLine);
+            }
             sectionWrap.appendChild(actions);
 
             if (item.section === 'pizza' && item.pizzaSize) {
@@ -4340,6 +4480,13 @@
             }
 
             sectionWrap.appendChild(header);
+            const sectionNoteText = getSectionNote(sec);
+            if (sectionNoteText) {
+              const noteLine = document.createElement('div');
+              noteLine.className = 'summary-section-note';
+              noteLine.textContent = sectionNoteText;
+              sectionWrap.appendChild(noteLine);
+            }
             sectionWrap.appendChild(actions);
 
             if (sec === 'pizza' && pizzaSizeLabel) {
