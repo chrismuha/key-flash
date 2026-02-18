@@ -197,7 +197,7 @@
   }
 
   const DEFAULT_PIZZA_SIZE = 'large';
-  const SECTION_NOTE_MAX_CHARS = 95;
+  const SECTION_NOTE_MAX_CHARS = 210;
   const PIZZA_SIZE_LABELS = {
     small: 'Small',
     medium: 'Medium',
@@ -502,7 +502,7 @@
     const normalized = {};
     Object.keys(stored || {}).forEach((section) => {
       const key = String(section || '').toLowerCase();
-      const text = String(stored[section] || '').trim().slice(0, SECTION_NOTE_MAX_CHARS);
+      const text = String(stored[section] || '').slice(0, SECTION_NOTE_MAX_CHARS);
       if (key) normalized[key] = text;
     });
     return normalized;
@@ -518,14 +518,14 @@
     const key = String(section || '').toLowerCase();
     if (!key) return '';
     const notes = loadSectionNotes();
-    return String(notes[key] || '').trim().slice(0, SECTION_NOTE_MAX_CHARS);
+    return String(notes[key] || '').slice(0, SECTION_NOTE_MAX_CHARS);
   }
 
   function setSectionNote(section, noteText) {
     const key = String(section || '').toLowerCase();
     if (!key) return '';
     const notes = loadSectionNotes();
-    const normalized = String(noteText || '').trim().slice(0, SECTION_NOTE_MAX_CHARS);
+    const normalized = String(noteText || '').slice(0, SECTION_NOTE_MAX_CHARS);
     notes[key] = normalized;
     saveSectionNotes(notes);
     return normalized;
@@ -2293,13 +2293,18 @@
           noteInput.id = `section-note-${sec}`;
           noteInput.className = 'section-note-input';
           noteInput.maxLength = SECTION_NOTE_MAX_CHARS;
-          noteInput.rows = 2;
+          noteInput.rows = 4;
           noteInput.cols = SECTION_NOTE_MAX_CHARS;
-          noteInput.placeholder = 'Optional note (max 95 chars)';
+          noteInput.placeholder = 'Optional note (max 210 chars)';
           noteInput.value = getSectionNote(sec);
+          const noteWarning = document.createElement('span');
+          noteWarning.className = 'section-note-limit-warning';
+          noteWarning.textContent = `Note limit reached (${SECTION_NOTE_MAX_CHARS} characters max).`;
+          noteWarning.hidden = noteInput.value.length < SECTION_NOTE_MAX_CHARS;
           noteInput.addEventListener('input', () => {
             const next = setSectionNote(sec, noteInput.value);
             if (noteInput.value !== next) noteInput.value = next;
+            noteWarning.hidden = noteInput.value.length < SECTION_NOTE_MAX_CHARS;
             markOverlayDirtyForSection(sec);
           });
           ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach((evtName) => {
@@ -2307,10 +2312,15 @@
           });
           noteWrap.appendChild(noteLabel);
           noteWrap.appendChild(noteInput);
+          noteWrap.appendChild(noteWarning);
           actions.insertBefore(noteWrap, resetBtn);
         } else {
           const noteInput = noteWrap.querySelector('.section-note-input');
-          if (noteInput) noteInput.value = getSectionNote(sec);
+          const noteWarning = noteWrap.querySelector('.section-note-limit-warning');
+          if (noteInput) {
+            noteInput.value = getSectionNote(sec);
+            if (noteWarning) noteWarning.hidden = noteInput.value.length < SECTION_NOTE_MAX_CHARS;
+          }
         }
         updateSectionQuantityControl(sec);
       };

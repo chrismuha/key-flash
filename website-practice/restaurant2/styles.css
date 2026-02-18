@@ -2494,8 +2494,8 @@ main .section-note-label {
 main .section-note-input {
     width: 100%;
     max-width: 54ch;
-    min-height: 3.7em;
-    max-height: 3.7em;
+    min-height: 6.2em;
+    max-height: 6.2em;
     resize: none;
     overflow: hidden;
     border: 1px solid var(--border-strong);
@@ -2504,8 +2504,15 @@ main .section-note-input {
     font: inherit;
     font-size: 10pt;
     line-height: 1.2;
+    text-align: justify;
     background: var(--color-white);
     color: var(--color-black);
+}
+
+main .section-note-limit-warning {
+    color: #b00020;
+    font-size: 9pt;
+    line-height: 1.2;
 }
 
 body.theme-dark main .section-note-input {
