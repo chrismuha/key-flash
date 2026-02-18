@@ -197,7 +197,7 @@
   }
 
   const DEFAULT_PIZZA_SIZE = 'large';
-  const SECTION_NOTE_MAX_CHARS = 50;
+  const SECTION_NOTE_MAX_CHARS = 95;
   const PIZZA_SIZE_LABELS = {
     small: 'Small',
     medium: 'Medium',
@@ -2295,7 +2295,7 @@
           noteInput.maxLength = SECTION_NOTE_MAX_CHARS;
           noteInput.rows = 2;
           noteInput.cols = SECTION_NOTE_MAX_CHARS;
-          noteInput.placeholder = 'Optional note (max 50 chars)';
+          noteInput.placeholder = 'Optional note (max 95 chars)';
           noteInput.value = getSectionNote(sec);
           noteInput.addEventListener('input', () => {
             const next = setSectionNote(sec, noteInput.value);

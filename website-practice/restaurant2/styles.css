@@ -171,6 +171,15 @@ body.page2 {
     display: none;
 }
 
+.left-rail .box.nav-cart {
+    margin-left: auto;
+    position: fixed;
+    top: 62px;
+    right: 28px;
+    margin: 0;
+    z-index: 1001;
+}
+
 
 /* Menu swiper (available on all breakpoints) */
 .mobile-menu-swiper {
@@ -798,7 +807,25 @@ body.theme-dark .settings-panel .settings-reset {
 
 /* Disable nav bar */
 body:not(.nav-enabled) .left-rail {
+    display: flex !important;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 8px 12px 0;
+    min-height: var(--nav-height);
+    background: transparent;
+    overflow: visible;
+    z-index: 1002;
+    pointer-events: none;
+}
+
+body:not(.nav-enabled) .left-rail > *:not(.box.nav-cart) {
     display: none !important;
+}
+
+body:not(.nav-enabled) .left-rail .box.nav-cart {
+    display: inline-flex !important;
+    margin: 0;
+    pointer-events: auto;
 }
 
 body.nav-enabled .left-rail {
