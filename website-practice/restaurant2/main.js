@@ -1429,6 +1429,9 @@
       settingsOverlay.setAttribute('aria-hidden', 'true');
       body.classList.remove('settings-open');
       docEl.classList.remove('settings-open');
+      body.classList.remove('overlay-ui-lock');
+      docEl.classList.remove('overlay-ui-lock');
+      body.classList.remove('overlay-scroll-lock');
       body.style.position = '';
       body.style.top = '';
       body.style.left = '';
@@ -1470,21 +1473,19 @@
     };
 
     let settingsScrollY = 0;
-    const lockSettingsScroll = () => {
-      if (body.classList.contains('settings-open')) return;
+    const lockViewportScroll = () => {
+      if (body.classList.contains('overlay-scroll-lock')) return;
       settingsScrollY = window.scrollY || window.pageYOffset || 0;
-      body.classList.add('settings-open');
-      docEl.classList.add('settings-open');
+      body.classList.add('overlay-scroll-lock');
       body.style.position = 'fixed';
       body.style.top = `-${settingsScrollY}px`;
       body.style.left = '0';
       body.style.right = '0';
       body.style.width = '100%';
     };
-    const unlockSettingsScroll = () => {
-      if (!body.classList.contains('settings-open')) return;
-      body.classList.remove('settings-open');
-      docEl.classList.remove('settings-open');
+    const unlockViewportScroll = () => {
+      if (!body.classList.contains('overlay-scroll-lock')) return;
+      body.classList.remove('overlay-scroll-lock');
       body.style.position = '';
       body.style.top = '';
       body.style.left = '';
@@ -1492,6 +1493,28 @@
       body.style.width = '';
       window.scrollTo(0, settingsScrollY || 0);
       settingsScrollY = 0;
+    };
+    const syncOverlayUiLock = () => {
+      const hasOpenSettings = body.classList.contains('settings-open');
+      const hasOpenMenuOverlay = !!document.querySelector('.menu-overlay[data-section]:not([hidden])');
+      const hasOpenSummaryEditor = !!document.querySelector('.summary-inline-editor:not([hidden])');
+      const shouldLockUi = hasOpenSettings || hasOpenMenuOverlay || hasOpenSummaryEditor;
+      body.classList.toggle('overlay-ui-lock', shouldLockUi);
+      docEl.classList.toggle('overlay-ui-lock', shouldLockUi);
+      if (shouldLockUi) lockViewportScroll();
+      else unlockViewportScroll();
+    };
+    const lockSettingsScroll = () => {
+      if (body.classList.contains('settings-open')) return;
+      body.classList.add('settings-open');
+      docEl.classList.add('settings-open');
+      syncOverlayUiLock();
+    };
+    const unlockSettingsScroll = () => {
+      if (!body.classList.contains('settings-open')) return;
+      body.classList.remove('settings-open');
+      docEl.classList.remove('settings-open');
+      syncOverlayUiLock();
     };
 
     const closeSettings = () => {
@@ -3024,6 +3047,7 @@
         });
         clearOverlaySession();
         body.classList.remove('menu-overlay-open');
+        syncOverlayUiLock();
         restoreBackButton();
         updateFooterBackState();
       };
@@ -3039,6 +3063,7 @@
         if (overlaySession.section === section) clearOverlaySession();
         if (!anyOverlayOpen()) {
           body.classList.remove('menu-overlay-open');
+          syncOverlayUiLock();
           restoreBackButton();
         }
         updateFooterBackState();
@@ -3054,6 +3079,7 @@
         forceResetOverlayScroll(overlay);
         updateArrowState(section, true);
         body.classList.add('menu-overlay-open');
+        syncOverlayUiLock();
         moveBackButtonToOverlay(overlay);
         setOverlaySessionForSection(section);
         updateSectionDoneState(section);
@@ -3792,6 +3818,7 @@
     updateNavToggleLabel();
     updatePage3NavState();
     updateOrderTypeChip();
+    syncOverlayUiLock();
 
     // Re-open section if hash present
     openSectionFromHash();
@@ -3900,6 +3927,7 @@
           const hasOpenEditor = !!document.querySelector('.summary-inline-editor:not([hidden])');
           document.documentElement.classList.toggle('summary-editor-open', hasOpenEditor);
           body.classList.toggle('summary-editor-open', hasOpenEditor);
+          syncOverlayUiLock();
         };
         const resetSummaryInlineEditorScroll = (editorEl, panelEl) => {
           if (editorEl) editorEl.scrollTop = 0;

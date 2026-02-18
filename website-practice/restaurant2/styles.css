@@ -1249,6 +1249,22 @@ body.menu-overlay-open .cart-toast {
     display: none !important;
 }
 
+/* Shared lock for any full-screen overlay state (menu/settings/summary editor) */
+html.overlay-ui-lock,
+body.overlay-ui-lock {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+    touch-action: none;
+}
+
+body.page3.overlay-ui-lock .left-rail,
+body.page3.overlay-ui-lock .nav-theme-controls,
+body.page3.overlay-ui-lock .go-back,
+body.page3.overlay-ui-lock .left-rail .box.nav-cart,
+body.page3.overlay-ui-lock .cart-toast {
+    display: none !important;
+}
+
 body.theme-dark .back-to-menu {
     border-color: var(--border-strong);
     background: var(--surface-strong);
@@ -3129,13 +3145,14 @@ body.theme-dark .close-overlay {
     background: var(--surface);
 }
 
-/* Keep page scrollable when overlays are open */
+/* Prevent page/background scrolling when overlays are open */
 body.menu-overlay-open {
-    overflow: auto !important;
+    overflow: hidden !important;
+    overscroll-behavior: none;
 }
 
 body.menu-overlay-open main {
-    overflow: visible !important;
+    overflow: hidden !important;
 }
 
 .overlay-header {
