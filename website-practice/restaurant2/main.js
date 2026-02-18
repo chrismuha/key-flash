@@ -4355,7 +4355,9 @@
               cb.checked = !!opt.required || selectedValues.has(opt.value);
               if (opt.required) cb.disabled = true;
               const txt = document.createElement('span');
-              txt.textContent = opt.label || titleCase(String(opt.value).replace(/_/g, ' '));
+              txt.textContent = normalizeJalapenoLabel(
+                opt.label || titleCase(String(opt.value).replace(/_/g, ' '))
+              );
               const mapKey = `${opt.group}|${normalizeJalapenoValue(opt.value)}`;
               const initialQty = selectedQtyByValue[normalizeJalapenoValue(opt.value)]
                 || (qtyMap[mapKey] == null || qtyMap[mapKey] === '' ? '1' : String(qtyMap[mapKey]));
@@ -4605,7 +4607,7 @@
               const li = document.createElement('li');
               const valueKey = normalizeJalapenoValue(resolveIngredientValueKey(val));
               const mapKey = `${group}|${valueKey}`;
-              const fallback = valueKey ? String(valueKey).replace(/_/g, ' ') : '';
+              const fallback = valueKey ? titleCase(String(valueKey).replace(/_/g, ' ')) : '';
               const pretty = INGREDIENT_LABELS[mapKey] || fallback;
               li.textContent = normalizeJalapenoLabel(pretty) + qtyLabel(group, valueKey);
               ul.appendChild(li);
@@ -4615,14 +4617,21 @@
             const catalog = loadIngredientCatalogFromStorage();
             const sectionOptions = Array.isArray(catalog[sec]) ? catalog[sec] : [];
             const options = sectionOptions.length
-              ? sectionOptions
+              ? sectionOptions.map((opt) => ({
+                group: opt.group || group,
+                value: normalizeJalapenoValue(opt.value),
+                label: normalizeJalapenoLabel(
+                  opt.label || titleCase(String(opt.value || '').replace(/_/g, ' '))
+                ),
+                required: !!opt.required
+              })).filter((opt) => !!opt.value)
               : values.map((val) => {
                 const raw = normalizeJalapenoValue(resolveIngredientValueKey(val));
                 const mapKey = `${group}|${raw}`;
                 return {
                   group,
                   value: raw,
-                  label: normalizeJalapenoLabel(INGREDIENT_LABELS[mapKey] || String(raw || '').replace(/_/g, ' ')),
+                  label: normalizeJalapenoLabel(INGREDIENT_LABELS[mapKey] || titleCase(String(raw || '').replace(/_/g, ' '))),
                   required: false
                 };
               });
@@ -4665,7 +4674,9 @@
               cb.checked = !!opt.required || selectedValues.has(opt.value);
               if (opt.required) cb.disabled = true;
               const txt = document.createElement('span');
-              txt.textContent = opt.label || String(opt.value).replace(/_/g, ' ');
+              txt.textContent = normalizeJalapenoLabel(
+                opt.label || titleCase(String(opt.value).replace(/_/g, ' '))
+              );
               const normalizedValue = normalizeJalapenoValue(opt.value);
               const rowKey = `${opt.group || group}|${normalizedValue}`;
               const initialQty = qtyMap[rowKey] == null || qtyMap[rowKey] === '' ? '1' : String(qtyMap[rowKey]);
