@@ -938,6 +938,20 @@
 
   const CASE_EXCEPTION_WORDS = new Set(['and', 'or', 'of', 'the', 'a', 'an', 'in', 'on', 'for', 'to']);
   const CASE_EXCEPTION_SELECTOR = 'main fieldset label, body.page3 #order-summary li, body.page3 #order-summary .summary-inline-option span';
+  const applyCaseExceptionsToText = (value) => {
+    const input = String(value || '');
+    if (!input) return '';
+    return input.replace(/\b([A-Za-z]+)\b/g, (full, word, offset, source) => {
+      const lower = String(word).toLowerCase();
+      if (!CASE_EXCEPTION_WORDS.has(lower)) return full;
+      const prefix = String(source || '').slice(0, Number(offset) || 0);
+      const isFirstWord = !/[A-Za-z]/.test(prefix);
+      return isFirstWord
+        ? lower.charAt(0).toUpperCase() + lower.slice(1)
+        : lower;
+    });
+  };
+  const formatIngredientDisplayLabel = (value) => applyCaseExceptionsToText(normalizeJalapenoLabel(value));
 
   function applyIngredientCaseExceptions(root = document) {
     if (!root || !root.querySelectorAll) return;
@@ -3941,14 +3955,20 @@
           setTimeout(() => resetSummaryInlineEditorScroll(editorEl, panelEl), 0);
           setTimeout(() => resetSummaryInlineEditorScroll(editorEl, panelEl), 60);
         };
-        const bindSummaryEditorBackdropGuards = (editorEl, onBackdropClose) => {
-          if (!editorEl || typeof onBackdropClose !== 'function') return;
+        const bindSummaryEditorBackdropGuards = (editorEl) => {
+          if (!editorEl) return;
+          const swallowBackdropPointer = (evt) => {
+            if (evt.target !== editorEl) return;
+            evt.preventDefault();
+            evt.stopPropagation();
+          };
+          editorEl.addEventListener('pointerdown', swallowBackdropPointer, { passive: false });
+          editorEl.addEventListener('mousedown', swallowBackdropPointer);
+          editorEl.addEventListener('touchstart', swallowBackdropPointer, { passive: false });
           editorEl.addEventListener('click', (evt) => {
-            if (evt.target === editorEl) {
-              evt.preventDefault();
-              evt.stopPropagation();
-              onBackdropClose();
-            }
+            if (evt.target !== editorEl) return;
+            evt.preventDefault();
+            evt.stopPropagation();
           });
           editorEl.addEventListener('touchmove', (evt) => {
             if (evt.target === editorEl) {
@@ -3995,10 +4015,14 @@
             evt.stopPropagation();
             closeEditor({ reset: true });
           });
-          bindSummaryEditorBackdropGuards(editorEl, () => closeEditor({ reset: true }));
+          bindSummaryEditorBackdropGuards(editorEl);
           return { closeEditor };
         };
         const writeOrderItems = (items) => saveOrderItemsToStorage(items);
+        const appendSummaryAndNormalizeCase = () => {
+          container.appendChild(frag);
+          applyIngredientCaseExceptions(container);
+        };
         const orderItems = loadOrderItemsFromStorage();
         const d = readDeliveryData();
         const orderType = (() => { try { return localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { return ''; } })();
@@ -4168,7 +4192,7 @@
           p.textContent = 'No ingredients selected yet.';
           selectionsBlock.appendChild(p);
           frag.appendChild(selectionsBlock);
-          container.appendChild(frag);
+          appendSummaryAndNormalizeCase();
           return;
         }
 
@@ -4198,7 +4222,9 @@
             const header = document.createElement('div');
             header.className = 'summary-section-header';
             const title = document.createElement('strong');
-            const sectionLabel = item.sectionLabel || SECTION_LABELS[item.section] || titleCase(String(item.section).replace(/_/g, ' '));
+            const sectionLabel = formatIngredientDisplayLabel(
+              item.sectionLabel || SECTION_LABELS[item.section] || titleCase(String(item.section).replace(/_/g, ' '))
+            );
             const sectionKey = String(item.section || '').toLowerCase();
             const nextSectionCount = (sectionDisplayCounts[sectionKey] || 0) + 1;
             sectionDisplayCounts[sectionKey] = nextSectionCount;
@@ -4300,7 +4326,7 @@
               if (!row || !row.value) return;
               const li = document.createElement('li');
               const qtyLabel = row.qtyLabel || 'Regular';
-              li.textContent = `${normalizeJalapenoLabel(row.label || titleCase(String(row.value).replace(/_/g, ' ')))} (${qtyLabel})`;
+              li.textContent = `${formatIngredientDisplayLabel(row.label || titleCase(String(row.value).replace(/_/g, ' ')))} (${qtyLabel})`;
               ul.appendChild(li);
             });
             sectionWrap.appendChild(ul);
@@ -4310,13 +4336,13 @@
               ? optionsRaw.map((opt) => ({
                 group: opt.group || `${item.section}_ingredients[]`,
                 value: normalizeJalapenoValue(opt.value),
-                label: normalizeJalapenoLabel(opt.label || titleCase(String(opt.value || '').replace(/_/g, ' '))),
+                label: formatIngredientDisplayLabel(opt.label || titleCase(String(opt.value || '').replace(/_/g, ' '))),
                 required: !!opt.required
               })).filter((opt) => !!opt.value)
               : itemIngredients.map((row) => ({
                 group: row.group || `${item.section}_ingredients[]`,
                 value: normalizeJalapenoValue(row.value),
-                label: normalizeJalapenoLabel(row.label || titleCase(String(row.value || '').replace(/_/g, ' '))),
+                label: formatIngredientDisplayLabel(row.label || titleCase(String(row.value || '').replace(/_/g, ' '))),
                 required: false
               }));
             const selectedValues = new Set(itemIngredients.map((row) => normalizeJalapenoValue(row.value)).filter(Boolean));
@@ -4359,7 +4385,7 @@
               cb.checked = !!opt.required || selectedValues.has(opt.value);
               if (opt.required) cb.disabled = true;
               const txt = document.createElement('span');
-              txt.textContent = normalizeJalapenoLabel(
+              txt.textContent = formatIngredientDisplayLabel(
                 opt.label || titleCase(String(opt.value).replace(/_/g, ' '))
               );
               const mapKey = `${opt.group}|${normalizeJalapenoValue(opt.value)}`;
@@ -4437,7 +4463,7 @@
                 updatedIngredients.push({
                   group: opt.group,
                   value: normalizedValue,
-                  label: normalizeJalapenoLabel(opt.label || titleCase(String(normalizedValue).replace(/_/g, ' '))),
+                  label: formatIngredientDisplayLabel(opt.label || titleCase(String(normalizedValue).replace(/_/g, ' '))),
                   qtyLabel: qtyValueToLabel(qStr)
                 });
               });
@@ -4460,7 +4486,7 @@
           }
 
           frag.appendChild(selectionsBlock);
-          container.appendChild(frag);
+          appendSummaryAndNormalizeCase();
           return;
         }
 
@@ -4613,7 +4639,7 @@
               const mapKey = `${group}|${valueKey}`;
               const fallback = valueKey ? titleCase(String(valueKey).replace(/_/g, ' ')) : '';
               const pretty = INGREDIENT_LABELS[mapKey] || fallback;
-              li.textContent = normalizeJalapenoLabel(pretty) + qtyLabel(group, valueKey);
+              li.textContent = formatIngredientDisplayLabel(pretty) + qtyLabel(group, valueKey);
               ul.appendChild(li);
             });
             sectionWrap.appendChild(ul);
@@ -4624,7 +4650,7 @@
               ? sectionOptions.map((opt) => ({
                 group: opt.group || group,
                 value: normalizeJalapenoValue(opt.value),
-                label: normalizeJalapenoLabel(
+                label: formatIngredientDisplayLabel(
                   opt.label || titleCase(String(opt.value || '').replace(/_/g, ' '))
                 ),
                 required: !!opt.required
@@ -4635,7 +4661,7 @@
                 return {
                   group,
                   value: raw,
-                  label: normalizeJalapenoLabel(INGREDIENT_LABELS[mapKey] || titleCase(String(raw || '').replace(/_/g, ' '))),
+                  label: formatIngredientDisplayLabel(INGREDIENT_LABELS[mapKey] || titleCase(String(raw || '').replace(/_/g, ' '))),
                   required: false
                 };
               });
@@ -4678,7 +4704,7 @@
               cb.checked = !!opt.required || selectedValues.has(opt.value);
               if (opt.required) cb.disabled = true;
               const txt = document.createElement('span');
-              txt.textContent = normalizeJalapenoLabel(
+              txt.textContent = formatIngredientDisplayLabel(
                 opt.label || titleCase(String(opt.value).replace(/_/g, ' '))
               );
               const normalizedValue = normalizeJalapenoValue(opt.value);
@@ -4781,7 +4807,7 @@
         }
 
         frag.appendChild(selectionsBlock);
-        container.appendChild(frag);
+        appendSummaryAndNormalizeCase();
       }
 
       renderOrderSummary();
