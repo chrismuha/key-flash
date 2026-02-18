@@ -954,6 +954,11 @@ body:not(.nav-enabled) main {
     padding-top: calc(var(--gap) * 2);
 }
 
+/* Keep Page 3 summary header clear of fixed top controls in all nav states */
+body.page3 main {
+    padding-top: calc(var(--nav-offset) + var(--gap) * 2);
+}
+
 @media (max-width: 768px) {
     .left-rail {
         padding: calc(var(--gap) * 1) var(--gap) 0;
@@ -1236,6 +1241,12 @@ body.page3 .go-back {
 
 body.menu-overlay-open .back-to-menu {
     display: inline-flex;
+}
+
+/* Keep cart UI out of ingredient overlays */
+body.menu-overlay-open .left-rail .box.nav-cart,
+body.menu-overlay-open .cart-toast {
+    display: none !important;
 }
 
 body.theme-dark .back-to-menu {
@@ -1718,8 +1729,77 @@ body.page3 #order-summary .summary-block:first-child {
     padding-top: 0;
 }
 
+body.page3 #order-summary .summary-block:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+
+body.page3 #order-summary .summary-location-card {
+    border: 2px solid var(--color-black);
+    border-radius: 8px;
+    background: #dcdcdc;
+    padding: 12px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+body.page3 #order-summary .summary-location-pane {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+body.page3 #order-summary .summary-location-title {
+    margin: 0;
+    font-size: 16pt;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+body.page3 #order-summary .summary-location-line {
+    font-size: 12pt;
+    line-height: 1.2;
+}
+
+body.page3 #order-summary .summary-location-change {
+    margin-top: auto;
+    width: fit-content;
+    min-width: 108px;
+    min-height: 40px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    background: #248e2a;
+    color: #fff;
+    font-size: 14pt;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+}
+
+body.page3 #order-summary .summary-location-change:focus-visible,
+body.page3 #order-summary .summary-location-change:hover {
+    filter: brightness(1.05);
+}
+
+body.theme-dark.page3 #order-summary .summary-location-card {
+    background: #3f3f3f;
+    border-color: var(--border-strong);
+}
+
+body.theme-dark.page3 #order-summary .summary-location-change {
+    background: #2b9e32;
+}
+
 body.theme-dark.page3 #order-summary .summary-block {
     border-top-color: var(--border-strong);
+}
+
+@media (max-width: 980px) {
+    body.page3 #order-summary .summary-location-card {
+        grid-template-columns: 1fr;
+    }
 }
 
 body.page3 #order-summary .summary-sections {

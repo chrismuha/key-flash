@@ -3923,6 +3923,18 @@
         const qtySections = readJSON(STORAGE_KEYS.quantitiesSections, {}) || {};
         const pizzaSize = loadPizzaSize();
         const pizzaSizeLabel = PIZZA_SIZE_LABELS[pizzaSize] || pizzaSize || '';
+        const formatPhone = (value) => {
+          const digits = String(value || '').replace(/\D+/g, '').slice(0, 10);
+          const a = digits.slice(0, 3);
+          const b = digits.slice(3, 6);
+          const c = digits.slice(6, 10);
+          let out = '';
+          if (a) out = `(${a}`;
+          if (a.length === 3) out += ')';
+          if (b) out += `-${b}`;
+          if (c) out += `-${c}`;
+          return out || '';
+        };
         syncSummaryEditorOpenState();
         container.innerHTML = '';
         const frag = document.createDocumentFragment();
@@ -3931,6 +3943,41 @@
           block.className = 'summary-block';
           return block;
         };
+
+        const locationBlock = document.createElement('section');
+        locationBlock.className = 'summary-location-card';
+        const createLocationPane = (title, lines, buttonClassName) => {
+          const pane = document.createElement('div');
+          pane.className = 'summary-location-pane';
+          const heading = document.createElement('h2');
+          heading.className = 'summary-location-title';
+          heading.textContent = title;
+          pane.appendChild(heading);
+          lines.forEach((lineText) => {
+            const line = document.createElement('div');
+            line.className = 'summary-location-line';
+            line.textContent = lineText;
+            pane.appendChild(line);
+          });
+          const changeBtn = document.createElement('button');
+          changeBtn.type = 'button';
+          changeBtn.className = `summary-location-change ${buttonClassName}`;
+          changeBtn.textContent = 'CHANGE';
+          changeBtn.addEventListener('click', () => { window.location.href = 'index.html'; });
+          pane.appendChild(changeBtn);
+          return pane;
+        };
+        locationBlock.appendChild(createLocationPane(
+          'Business Location',
+          ['John Doe', '123 Placeholder Ave', 'Sampletown, NY 10000', '(315) 555-0101'],
+          'summary-location-change-store'
+        ));
+        locationBlock.appendChild(createLocationPane(
+          'Your Location',
+          ['Jane Doe', '456 Commerce Blvd', 'Mocksville, NY 10101', '(315) 555-0199'],
+          'summary-location-change-user'
+        ));
+        frag.appendChild(locationBlock);
 
         if (orderType) {
           const typeBlock = createSummaryBlock();
@@ -3967,16 +4014,7 @@
           }
           if (dph) {
             const line = document.createElement('div');
-            const pretty = (function (v) {
-              const d = String(v || '').replace(/\D+/g, '').slice(0, 10);
-              const a = d.slice(0, 3), b = d.slice(3, 6), c = d.slice(6, 10);
-              let out = '';
-              if (a) out = `(${a}`;
-              if (a.length === 3) out += `)`;
-              if (b) out += `-${b}`;
-              if (c) out += `-${c}`;
-              return out || v;
-            })(dph);
+            const pretty = formatPhone(dph) || dph;
             line.textContent = `Phone: ${pretty}`;
             addressBlock.appendChild(line);
           }
