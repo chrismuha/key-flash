@@ -1257,6 +1257,14 @@ body.overlay-ui-lock {
     touch-action: none;
 }
 
+html.overlay-ui-lock {
+    background: rgba(0, 0, 0, 0.55);
+}
+
+body.page3.overlay-ui-lock {
+    background: rgba(0, 0, 0, 0.55);
+}
+
 body.page3.overlay-ui-lock .left-rail,
 body.page3.overlay-ui-lock .nav-theme-controls,
 body.page3.overlay-ui-lock .go-back,
@@ -2126,14 +2134,16 @@ body.theme-dark.page3 #order-summary .summary-remove-btn {
 body.page3 #order-summary .summary-inline-editor {
     position: fixed;
     inset: 0;
+    min-height: 100dvh;
+    height: 100dvh;
     z-index: 2600;
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    padding: max(10px, env(safe-area-inset-top)) 16px max(10px, env(safe-area-inset-bottom));
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
+    overscroll-behavior: none;
     background: rgba(0, 0, 0, 0.55);
 }
 
@@ -2143,8 +2153,8 @@ body.page3 #order-summary .summary-inline-editor[hidden] {
 
 body.page3 #order-summary .summary-inline-editor-panel {
     width: min(92vw, 520px);
-    max-height: min(78vh, 680px);
-    max-height: min(78dvh, 680px);
+    max-height: min(90vh, 840px);
+    max-height: min(90dvh, 840px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
