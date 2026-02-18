@@ -546,6 +546,12 @@ body.settings-open.menu-overlay-open {
     overscroll-behavior: none;
 }
 
+html.summary-editor-open,
+body.summary-editor-open {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+}
+
 .settings-modal-header {
     display: flex;
     align-items: center;
@@ -1970,9 +1976,12 @@ body.page3 #order-summary .summary-inline-editor {
     inset: 0;
     z-index: 2600;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 16px;
+    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     background: rgba(0, 0, 0, 0.55);
 }
 
@@ -1983,7 +1992,10 @@ body.page3 #order-summary .summary-inline-editor[hidden] {
 body.page3 #order-summary .summary-inline-editor-panel {
     width: min(92vw, 520px);
     max-height: min(78vh, 680px);
-    overflow: auto;
+    max-height: min(78dvh, 680px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     border: 1px solid var(--border-strong);
     border-radius: 10px;
     padding: 12px;

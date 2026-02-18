@@ -3753,6 +3753,23 @@
         const readJSON = (key, fallback) => {
           try { return safeParseJSON(localStorage.getItem(key), fallback); } catch { return fallback; }
         };
+        const syncSummaryEditorOpenState = () => {
+          const hasOpenEditor = !!document.querySelector('.summary-inline-editor:not([hidden])');
+          document.documentElement.classList.toggle('summary-editor-open', hasOpenEditor);
+          body.classList.toggle('summary-editor-open', hasOpenEditor);
+        };
+        const resetSummaryInlineEditorScroll = (editorEl, panelEl) => {
+          if (editorEl) editorEl.scrollTop = 0;
+          if (panelEl) panelEl.scrollTop = 0;
+          const list = panelEl?.querySelector('.summary-inline-editor-list');
+          if (list) list.scrollTop = 0;
+        };
+        const forceResetSummaryInlineEditorScroll = (editorEl, panelEl) => {
+          resetSummaryInlineEditorScroll(editorEl, panelEl);
+          window.requestAnimationFrame(() => resetSummaryInlineEditorScroll(editorEl, panelEl));
+          setTimeout(() => resetSummaryInlineEditorScroll(editorEl, panelEl), 0);
+          setTimeout(() => resetSummaryInlineEditorScroll(editorEl, panelEl), 60);
+        };
         const writeOrderItems = (items) => saveOrderItemsToStorage(items);
         const orderItems = loadOrderItemsFromStorage();
         const d = readDeliveryData();
@@ -3763,6 +3780,7 @@
         const qtySections = readJSON(STORAGE_KEYS.quantitiesSections, {}) || {};
         const pizzaSize = loadPizzaSize();
         const pizzaSizeLabel = PIZZA_SIZE_LABELS[pizzaSize] || pizzaSize || '';
+        syncSummaryEditorOpenState();
         container.innerHTML = '';
         const frag = document.createDocumentFragment();
         const createSummaryBlock = () => {
@@ -4109,16 +4127,21 @@
               if (reset) resetEditorFields();
               editor.hidden = true;
               editor.setAttribute('aria-hidden', 'true');
+              forceResetSummaryInlineEditorScroll(editor, editorPanel);
+              syncSummaryEditorOpenState();
             };
             edit.addEventListener('click', () => {
               document.querySelectorAll('.summary-inline-editor').forEach((el) => {
                 if (el !== editor) {
                   el.hidden = true;
                   el.setAttribute('aria-hidden', 'true');
+                  forceResetSummaryInlineEditorScroll(el, el.querySelector('.summary-inline-editor-panel'));
                 }
               });
               editor.hidden = false;
               editor.setAttribute('aria-hidden', 'false');
+              forceResetSummaryInlineEditorScroll(editor, editorPanel);
+              syncSummaryEditorOpenState();
             });
             const resetEditorFields = () => {
               optionFieldRefs.forEach(({ id, qtyId, initialChecked, initialQty }) => {
@@ -4138,6 +4161,8 @@
             });
             editor.addEventListener('click', (evt) => {
               if (evt.target === editor) {
+                evt.preventDefault();
+                evt.stopPropagation();
                 closeEditor({ reset: true });
               }
             });
@@ -4434,16 +4459,21 @@
               if (reset) resetEditorFields();
               editor.hidden = true;
               editor.setAttribute('aria-hidden', 'true');
+              forceResetSummaryInlineEditorScroll(editor, editorPanel);
+              syncSummaryEditorOpenState();
             };
             edit.addEventListener('click', () => {
               document.querySelectorAll('.summary-inline-editor').forEach((el) => {
                 if (el !== editor) {
                   el.hidden = true;
                   el.setAttribute('aria-hidden', 'true');
+                  forceResetSummaryInlineEditorScroll(el, el.querySelector('.summary-inline-editor-panel'));
                 }
               });
               editor.hidden = false;
               editor.setAttribute('aria-hidden', 'false');
+              forceResetSummaryInlineEditorScroll(editor, editorPanel);
+              syncSummaryEditorOpenState();
             });
             const resetEditorFields = () => {
               optionFieldRefs.forEach(({ id, qtyId, initialChecked, initialQty }) => {
@@ -4463,6 +4493,8 @@
             });
             editor.addEventListener('click', (evt) => {
               if (evt.target === editor) {
+                evt.preventDefault();
+                evt.stopPropagation();
                 closeEditor({ reset: true });
               }
             });
