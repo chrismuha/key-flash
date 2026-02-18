@@ -2077,12 +2077,6 @@
         };
 
         footerNext.addEventListener('click', (event) => {
-          if (typeof anyOverlayOpen === 'function' && anyOverlayOpen()) {
-            event.preventDefault();
-            const activeOverlay = overlays.find((overlay) => !overlay.hidden) || null;
-            requestOverlayClose(activeOverlay, { onAfterClose: proceedToNextPage, declineAction: 'close' });
-            return;
-          }
           const nextDisabled = footerNext.getAttribute('aria-disabled') === 'true'
             || footerNext.classList.contains('next-disabled')
             || footerNext.matches(':disabled');
@@ -2096,6 +2090,12 @@
                 if (typeof ensureBuilderErrorVisible === 'function') ensureBuilderErrorVisible();
               }
             }
+            return;
+          }
+          if (typeof anyOverlayOpen === 'function' && anyOverlayOpen()) {
+            event.preventDefault();
+            const activeOverlay = overlays.find((overlay) => !overlay.hidden) || null;
+            requestOverlayClose(activeOverlay, { onAfterClose: proceedToNextPage, declineAction: 'close' });
             return;
           }
           const state = evaluatePage3Requirements();
@@ -3941,6 +3941,63 @@
           setTimeout(() => resetSummaryInlineEditorScroll(editorEl, panelEl), 0);
           setTimeout(() => resetSummaryInlineEditorScroll(editorEl, panelEl), 60);
         };
+        const bindSummaryEditorBackdropGuards = (editorEl, onBackdropClose) => {
+          if (!editorEl || typeof onBackdropClose !== 'function') return;
+          editorEl.addEventListener('click', (evt) => {
+            if (evt.target === editorEl) {
+              evt.preventDefault();
+              evt.stopPropagation();
+              onBackdropClose();
+            }
+          });
+          editorEl.addEventListener('touchmove', (evt) => {
+            if (evt.target === editorEl) {
+              evt.preventDefault();
+              evt.stopPropagation();
+            }
+          }, { passive: false });
+        };
+        const wireSummaryEditorLifecycle = ({
+          editorEl,
+          panelEl,
+          editBtn,
+          cancelBtn,
+          resetEditorFields
+        }) => {
+          if (!editorEl || !panelEl || !editBtn || !cancelBtn) {
+            return { closeEditor: () => { } };
+          }
+          panelEl.addEventListener('click', (evt) => {
+            evt.stopPropagation();
+          });
+          const closeEditor = ({ reset = false } = {}) => {
+            if (reset && typeof resetEditorFields === 'function') resetEditorFields();
+            editorEl.hidden = true;
+            editorEl.setAttribute('aria-hidden', 'true');
+            forceResetSummaryInlineEditorScroll(editorEl, panelEl);
+            syncSummaryEditorOpenState();
+          };
+          editBtn.addEventListener('click', () => {
+            document.querySelectorAll('.summary-inline-editor').forEach((el) => {
+              if (el !== editorEl) {
+                el.hidden = true;
+                el.setAttribute('aria-hidden', 'true');
+                forceResetSummaryInlineEditorScroll(el, el.querySelector('.summary-inline-editor-panel'));
+              }
+            });
+            editorEl.hidden = false;
+            editorEl.setAttribute('aria-hidden', 'false');
+            forceResetSummaryInlineEditorScroll(editorEl, panelEl);
+            syncSummaryEditorOpenState();
+          });
+          cancelBtn.addEventListener('click', (evt) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+            closeEditor({ reset: true });
+          });
+          bindSummaryEditorBackdropGuards(editorEl, () => closeEditor({ reset: true }));
+          return { closeEditor };
+        };
         const writeOrderItems = (items) => saveOrderItemsToStorage(items);
         const orderItems = loadOrderItemsFromStorage();
         const d = readDeliveryData();
@@ -4335,30 +4392,6 @@
             editorPanel.appendChild(editorActions);
             editor.appendChild(editorPanel);
             sectionWrap.appendChild(editor);
-            editorPanel.addEventListener('click', (evt) => {
-              evt.stopPropagation();
-            });
-
-            const closeEditor = ({ reset = false } = {}) => {
-              if (reset) resetEditorFields();
-              editor.hidden = true;
-              editor.setAttribute('aria-hidden', 'true');
-              forceResetSummaryInlineEditorScroll(editor, editorPanel);
-              syncSummaryEditorOpenState();
-            };
-            edit.addEventListener('click', () => {
-              document.querySelectorAll('.summary-inline-editor').forEach((el) => {
-                if (el !== editor) {
-                  el.hidden = true;
-                  el.setAttribute('aria-hidden', 'true');
-                  forceResetSummaryInlineEditorScroll(el, el.querySelector('.summary-inline-editor-panel'));
-                }
-              });
-              editor.hidden = false;
-              editor.setAttribute('aria-hidden', 'false');
-              forceResetSummaryInlineEditorScroll(editor, editorPanel);
-              syncSummaryEditorOpenState();
-            });
             const resetEditorFields = () => {
               optionFieldRefs.forEach(({ id, qtyId, initialChecked, initialQty }) => {
                 const cb = editor.querySelector(`#${id}`);
@@ -4370,17 +4403,12 @@
                 }
               });
             };
-            cancelBtn.addEventListener('click', (evt) => {
-              evt.preventDefault();
-              evt.stopPropagation();
-              closeEditor({ reset: true });
-            });
-            editor.addEventListener('click', (evt) => {
-              if (evt.target === editor) {
-                evt.preventDefault();
-                evt.stopPropagation();
-                closeEditor({ reset: true });
-              }
+            const { closeEditor } = wireSummaryEditorLifecycle({
+              editorEl: editor,
+              panelEl: editorPanel,
+              editBtn: edit,
+              cancelBtn,
+              resetEditorFields
             });
             saveBtn.addEventListener('click', (evt) => {
               evt.preventDefault();
@@ -4674,30 +4702,6 @@
             editorPanel.appendChild(editorActions);
             editor.appendChild(editorPanel);
             sectionWrap.appendChild(editor);
-            editorPanel.addEventListener('click', (evt) => {
-              evt.stopPropagation();
-            });
-
-            const closeEditor = ({ reset = false } = {}) => {
-              if (reset) resetEditorFields();
-              editor.hidden = true;
-              editor.setAttribute('aria-hidden', 'true');
-              forceResetSummaryInlineEditorScroll(editor, editorPanel);
-              syncSummaryEditorOpenState();
-            };
-            edit.addEventListener('click', () => {
-              document.querySelectorAll('.summary-inline-editor').forEach((el) => {
-                if (el !== editor) {
-                  el.hidden = true;
-                  el.setAttribute('aria-hidden', 'true');
-                  forceResetSummaryInlineEditorScroll(el, el.querySelector('.summary-inline-editor-panel'));
-                }
-              });
-              editor.hidden = false;
-              editor.setAttribute('aria-hidden', 'false');
-              forceResetSummaryInlineEditorScroll(editor, editorPanel);
-              syncSummaryEditorOpenState();
-            });
             const resetEditorFields = () => {
               optionFieldRefs.forEach(({ id, qtyId, initialChecked, initialQty }) => {
                 const cb = editor.querySelector(`#${id}`);
@@ -4709,17 +4713,12 @@
                 }
               });
             };
-            cancelBtn.addEventListener('click', (evt) => {
-              evt.preventDefault();
-              evt.stopPropagation();
-              closeEditor({ reset: true });
-            });
-            editor.addEventListener('click', (evt) => {
-              if (evt.target === editor) {
-                evt.preventDefault();
-                evt.stopPropagation();
-                closeEditor({ reset: true });
-              }
+            const { closeEditor } = wireSummaryEditorLifecycle({
+              editorEl: editor,
+              panelEl: editorPanel,
+              editBtn: edit,
+              cancelBtn,
+              resetEditorFields
             });
             saveBtn.addEventListener('click', (evt) => {
               evt.preventDefault();

@@ -1265,6 +1265,28 @@ body.page3.overlay-ui-lock .cart-toast {
     display: none !important;
 }
 
+/* iPhone/Safari: freeze background scroll containers while overlays are open */
+body.page3.overlay-ui-lock main,
+body.page3.overlay-ui-lock main .wrapper {
+    overflow: hidden !important;
+    -webkit-overflow-scrolling: auto;
+}
+
+/* Keep scrolling contained inside the summary edit overlay itself */
+body.page3.overlay-ui-lock #order-summary .summary-inline-editor {
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+}
+
+body.page3.overlay-ui-lock #order-summary .summary-inline-editor-panel {
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+}
+
 body.theme-dark .back-to-menu {
     border-color: var(--border-strong);
     background: var(--surface-strong);
