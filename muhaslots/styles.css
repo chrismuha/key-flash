@@ -544,45 +544,144 @@ a.btn {
 }
 
 @media (max-width: 700px) and (orientation: portrait) {
+  html,
   body {
-    min-height: 100dvh;
+    width: 100vw;
     height: 100dvh;
-    padding: 6px;
+    margin: 0;
+    padding: 0;
     overflow: hidden;
-    justify-content: flex-start;
-    align-items: flex-start;
+    overscroll-behavior: none;
   }
 
   .game {
-    width: 165%;
+    position: fixed;
+    top: 6px;
+    right: 6px;
+    bottom: 6px;
+    left: 6px;
+    width: auto !important;
+    height: auto !important;
     max-width: none;
-    gap: 8px;
-    transform-origin: top center;
-    transform: scale(0.62);
-    margin: 0 auto;
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 2.15fr) minmax(0, 1fr);
+    gap: 6px;
+    min-width: 0;
+    overflow: hidden;
+    transform: none !important;
   }
 
   .card {
-    padding: 10px;
+    min-width: 0;
+    min-height: 0;
+    padding: 7px;
+    overflow: hidden;
   }
 
-  .reels {
-    min-height: 260px;
+  .card:first-child {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
     gap: 4px;
   }
 
+  .title {
+    margin-bottom: 0;
+    font-size: .95rem;
+  }
+
+  .reels-wrap {
+    padding: 6px;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 4px;
+    min-height: 0;
+  }
+
+  .reels {
+    min-height: 0;
+    height: 100%;
+    gap: 3px;
+    grid-auto-rows: 1fr;
+  }
+
   .cell {
-    font-size: clamp(19pt, 4.8vmin, 28pt);
+    font-size: clamp(17pt, 5.2vmin, 25pt);
+  }
+
+  .hud {
+    margin-top: 0;
+    gap: 4px;
+    align-items: flex-start;
+  }
+
+  .left,
+  .right {
+    gap: 4px;
+  }
+
+  .stat,
+  .select,
+  .paytable {
+    padding: 5px 6px;
+    border-radius: 8px;
+  }
+
+  label {
+    margin-bottom: 2px;
+    font-size: 8pt;
+  }
+
+  .muted,
+  .message,
+  .table,
+  .legend {
+    font-size: 8pt;
+  }
+
+  select,
+  input[type=number] {
+    min-height: 30px;
+    padding: 5px 7px;
+    font-size: 8.5pt;
   }
 
   button {
-    min-width: 94px;
-    padding: 10px 12px;
-    font-size: 9.5pt;
+    min-height: 30px;
+    min-width: 76px;
+    padding: 6px 8px;
+    font-size: 8pt;
   }
 
   .icon-btn {
-    padding: 6px 8px;
     min-width: 0;
+    padding: 5px 6px;
+    min-height: 30px;
+  }
+
+  .sidebar .paytable {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    gap: 4px;
+    height: 100%;
+  }
+
+  .table {
+    gap: 3px;
+    font-size: 7.5pt;
+  }
+
+  .table div {
+    padding: 3px 2px;
+  }
+
+  .legend,
+  .lines-preview {
+    display: none;
+  }
+
+  .message {
+    min-height: 16px;
   }
 }
