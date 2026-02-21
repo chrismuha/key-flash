@@ -10,6 +10,7 @@
     --danger: #ff7d7d;
     --shadow: 0 10px 30px rgba(0, 0, 0, .5), inset 0 0 0 1px rgba(255, 255, 255, .05);
     --radius: 14px;
+    --mobile-fit-scale: 1;
 }
 
 /* Reset / Base */
@@ -540,5 +541,22 @@ a.btn {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 700px) and (orientation: portrait) {
+  body.mobile-portrait-fit {
+    min-height: 100dvh;
+    height: 100dvh;
+    padding: 8px;
+    overflow: hidden;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  body.mobile-portrait-fit .game {
+    transform-origin: top center;
+    transform: scale(var(--mobile-fit-scale));
+    margin: 0 auto;
   }
 }

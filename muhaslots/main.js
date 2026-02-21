@@ -404,6 +404,33 @@ function doMaxBet() {
     onConfigChange();
 }
 
+const mobilePortraitQuery = window.matchMedia("(max-width: 700px) and (orientation: portrait)");
+
+function applyMobilePortraitFit() {
+    const gameEl = document.querySelector(".game");
+    if (!gameEl) return;
+
+    if (!mobilePortraitQuery.matches) {
+        document.body.classList.remove("mobile-portrait-fit");
+        document.documentElement.style.setProperty("--mobile-fit-scale", "1");
+        return;
+    }
+
+    document.body.classList.add("mobile-portrait-fit");
+    gameEl.style.transform = "none";
+
+    const bodyStyles = getComputedStyle(document.body);
+    const padX = parseFloat(bodyStyles.paddingLeft) + parseFloat(bodyStyles.paddingRight);
+    const padY = parseFloat(bodyStyles.paddingTop) + parseFloat(bodyStyles.paddingBottom);
+    const availableWidth = Math.max(window.innerWidth - padX, 1);
+    const availableHeight = Math.max(window.innerHeight - padY, 1);
+    const contentWidth = Math.max(gameEl.scrollWidth, 1);
+    const contentHeight = Math.max(gameEl.scrollHeight, 1);
+
+    const scale = Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight);
+    document.documentElement.style.setProperty("--mobile-fit-scale", String(scale));
+}
+
 // Events
 function onConfigChange() {
     updateTotals();
@@ -460,7 +487,12 @@ document.addEventListener("keydown", (e) => {
     ensureSessionWinningsUI();
     updateSessionWinningsDisplay();
     removeOrphanSessionWinningsLabels();
+    applyMobilePortraitFit();
 })();
+
+window.addEventListener("resize", applyMobilePortraitFit, { passive: true });
+window.addEventListener("orientationchange", applyMobilePortraitFit, { passive: true });
+mobilePortraitQuery.addEventListener("change", applyMobilePortraitFit);
 
 // Render Payout Table automatically
 function renderPayoutTable() {
