@@ -228,19 +228,6 @@ function handleEsc(e) {
 }
 
 // Credit step controls (▲ / ▼)
-function getCreditStep() {
-    const v = parseFloat(creditStepEl.value);
-    return isNaN(v) ? 1 : v;
-}
-function incBet(delta) {
-    const step = getCreditStep();
-    let newVal = parseFloat(betEl.value) + delta * step;
-    const options = Array.from(betEl.options).map(o => parseFloat(o.value));
-    const nearest = options.reduce((best, val) =>
-        Math.abs(val - newVal) < Math.abs(best - newVal) ? val : best, options[0]);
-    betEl.value = String(nearest);
-    onConfigChange();
-}
 
 // -----------------------------
 // Session Winnings UI (match Available Credits, DELETE duplicates hard + orphans)
@@ -471,14 +458,46 @@ creditStepEl.addEventListener("input", () => {
     if (parseFloat(creditStepEl.value) < 0) creditStepEl.value = "0";
 });
 
+creditStepEl.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowUp") {
+        e.preventDefault();
+        creditUpBtn.click();
+        return;
+    }
+    if (e.key === "ArrowDown") {
+        e.preventDefault();
+        creditDownBtn.click();
+        return;
+    }
+    if (e.key === "Enter") {
+        e.preventDefault();
+        if (parseFloat(creditStepEl.value) < 0) creditStepEl.value = "0";
+        creditUpBtn.click();
+    }
+});
+
 payInfoBtn.addEventListener("click", () => togglePayInfo());
 document.addEventListener("click", handleDocumentClick);
 document.addEventListener("keydown", handleEsc);
 
 // Keyboard shortcuts
 document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowUp") { e.preventDefault(); incBet(+1); }
-    else if (e.key === "ArrowDown") { e.preventDefault(); incBet(-1); }
+    const target = e.target;
+    const isTypingField = target && (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.tagName === "SELECT" ||
+        target.isContentEditable
+    );
+    if (isTypingField) return;
+
+    if (e.key === "ArrowUp") {
+        e.preventDefault();
+        creditUpBtn.click();
+    } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        creditDownBtn.click();
+    }
 });
 
 // Init
