@@ -55,6 +55,7 @@ const maxBtn = document.getElementById("max");
 const payInfoBtn = document.getElementById("payInfo");
 const payInfoPopup = document.getElementById("payInfoPopup");
 const linesPreviewEl = document.getElementById("linesPreview");
+const desktopAutoFitQuery = window.matchMedia("(min-width: 701px) and (max-height: 900px)");
 
 
 // State
@@ -404,10 +405,46 @@ function doMaxBet() {
     onConfigChange();
 }
 
+function applyDesktopAutoFit() {
+    const gameEl = document.querySelector(".game");
+    if (!gameEl) return;
+
+    if (!desktopAutoFitQuery.matches) {
+        document.body.classList.remove("desktop-autofit");
+        document.documentElement.style.setProperty("--desktop-fit-scale", "1");
+        return;
+    }
+
+    document.body.classList.add("desktop-autofit");
+
+    // Measure unscaled dimensions before computing fit scale.
+    gameEl.style.transform = "none";
+    const contentWidth = Math.max(gameEl.scrollWidth, 1);
+    const contentHeight = Math.max(gameEl.scrollHeight, 1);
+    const availableWidth = Math.max(window.innerWidth - 16, 1);
+    const availableHeight = Math.max(window.innerHeight - 16, 1);
+    const rawScale = Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight);
+    // Keep a small safety margin to avoid 1-2px clipping from subpixel rounding.
+    const scale = Math.max(0.5, rawScale * 0.985);
+
+    document.documentElement.style.setProperty("--desktop-fit-scale", String(scale));
+    gameEl.style.transform = "";
+}
+
+let desktopFitRaf = 0;
+function scheduleDesktopAutoFit() {
+    if (desktopFitRaf) cancelAnimationFrame(desktopFitRaf);
+    desktopFitRaf = requestAnimationFrame(() => {
+        desktopFitRaf = 0;
+        applyDesktopAutoFit();
+    });
+}
+
 // Events
 function onConfigChange() {
     updateTotals();
     renderLinesPreview();
+    scheduleDesktopAutoFit();
 }
 
 spinBtn.addEventListener("click", doSpin);
@@ -460,7 +497,11 @@ document.addEventListener("keydown", (e) => {
     ensureSessionWinningsUI();
     updateSessionWinningsDisplay();
     removeOrphanSessionWinningsLabels();
+    applyDesktopAutoFit();
 })();
+
+window.addEventListener("resize", scheduleDesktopAutoFit, { passive: true });
+desktopAutoFitQuery.addEventListener("change", scheduleDesktopAutoFit);
 
 // Render Payout Table automatically
 function renderPayoutTable() {
