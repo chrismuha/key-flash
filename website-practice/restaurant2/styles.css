@@ -3135,6 +3135,10 @@ body.theme-dark.page3 #order-summary .summary-section+.summary-section {
     border-top-color: var(--border-strong);
 }
 
+.summary-section ul li {
+    text-transform: capitalize !important;
+}
+
 body.theme-dark.page3 .summary-divider {
     border-color: var(--border-strong);
     opacity: 1;
