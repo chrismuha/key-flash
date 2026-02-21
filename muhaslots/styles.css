@@ -10,7 +10,6 @@
     --danger: #ff7d7d;
     --shadow: 0 10px 30px rgba(0, 0, 0, .5), inset 0 0 0 1px rgba(255, 255, 255, .05);
     --radius: 14px;
-    --mobile-fit-scale: 1;
 }
 
 /* Reset / Base */
@@ -545,18 +544,45 @@ a.btn {
 }
 
 @media (max-width: 700px) and (orientation: portrait) {
-  body.mobile-portrait-fit {
+  body {
     min-height: 100dvh;
     height: 100dvh;
-    padding: 8px;
+    padding: 6px;
     overflow: hidden;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: flex-start;
   }
 
-  body.mobile-portrait-fit .game {
+  .game {
+    width: 165%;
+    max-width: none;
+    gap: 8px;
     transform-origin: top center;
-    transform: scale(var(--mobile-fit-scale));
+    transform: scale(0.62);
     margin: 0 auto;
+  }
+
+  .card {
+    padding: 10px;
+  }
+
+  .reels {
+    min-height: 260px;
+    gap: 4px;
+  }
+
+  .cell {
+    font-size: clamp(19pt, 4.8vmin, 28pt);
+  }
+
+  button {
+    min-width: 94px;
+    padding: 10px 12px;
+    font-size: 9.5pt;
+  }
+
+  .icon-btn {
+    padding: 6px 8px;
+    min-width: 0;
   }
 }
