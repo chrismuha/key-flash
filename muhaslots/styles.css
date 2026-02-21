@@ -93,12 +93,30 @@ body {
     }
 
     .sidebar .paytable {
-        padding-bottom: 14px;
+        padding-bottom: 10px;
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+        gap: 6px;
+        align-content: start;
+    }
+
+    .sidebar .paytable .table {
+        align-content: start;
+    }
+
+    .legend {
+        display: none;
     }
 
     .lines-preview {
-        margin-top: 4px;
-        margin-bottom: 4px;
+        display: grid;
+        margin-top: 2px;
+        margin-bottom: 2px;
+    }
+
+    .sidebar .paytable > div:last-child {
+        min-height: 72px;
+        align-content: start;
     }
 }
 
@@ -151,7 +169,7 @@ body {
     }
 }
 
-@media (min-width:701px) and (max-height:900px) {
+@media (min-width:841px) and (max-height:900px) {
     body.desktop-autofit {
         width: 100vw;
         height: 100vh;
@@ -219,11 +237,45 @@ body {
     }
 
     .sidebar .paytable {
-        padding-bottom: 10px;
+        padding-bottom: 8px;
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+        gap: 4px;
+        align-content: start;
+    }
+
+    .sidebar .paytable .table {
+        align-content: start;
     }
 
     .lines-preview {
+        grid-template-columns: repeat(5, 10px);
+        gap: 2px;
+        margin-top: 2px;
         margin-bottom: 0;
+    }
+
+    .sidebar .paytable > div:last-child {
+        min-height: 68px;
+        align-content: start;
+    }
+
+    .dot2 {
+        width: 10px;
+        height: 10px;
+    }
+
+    .table {
+        gap: 3px;
+        font-size: 9pt;
+    }
+
+    .table div {
+        padding: 4px 5px;
+    }
+
+    .legend {
+        display: none;
     }
 
     .paytable h3 {

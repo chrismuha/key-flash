@@ -55,7 +55,7 @@ const maxBtn = document.getElementById("max");
 const payInfoBtn = document.getElementById("payInfo");
 const payInfoPopup = document.getElementById("payInfoPopup");
 const linesPreviewEl = document.getElementById("linesPreview");
-const desktopAutoFitQuery = window.matchMedia("(min-width: 701px) and (max-height: 900px)");
+const desktopAutoFitQuery = window.matchMedia("(min-width: 841px) and (max-height: 900px)");
 
 
 // State
@@ -425,7 +425,7 @@ function applyDesktopAutoFit() {
     const availableHeight = Math.max(window.innerHeight - 16, 1);
     const rawScale = Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight);
     // Keep a small safety margin to avoid 1-2px clipping from subpixel rounding.
-    const scale = Math.max(0.5, rawScale * 0.985);
+    const scale = Math.max(0.5, rawScale * 0.93);
 
     document.documentElement.style.setProperty("--desktop-fit-scale", String(scale));
     gameEl.style.transform = "";
