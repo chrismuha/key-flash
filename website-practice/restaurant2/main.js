@@ -936,14 +936,19 @@
     observer.observe(root, { childList: true, subtree: true, characterData: true });
   }
 
-  const CASE_EXCEPTION_WORDS = new Set(['and', 'or', 'of', 'the', 'a', 'an', 'in', 'on', 'for', 'to']);
+  // Array of words that should remain lowercase in capitalized text (edit this array as needed)
+  const CASE_EXCEPTION_WORDS_ARRAY = ['a', 'an', 'and', 'for', 'in', 'of', 'on', 'or', 'the', 'to'];
+  const CASE_EXCEPTION_WORDS = new Set(CASE_EXCEPTION_WORDS_ARRAY);
   const CASE_EXCEPTION_SELECTOR = 'main fieldset label, body.page3 #order-summary li, body.page3 #order-summary .summary-inline-option span';
   const applyCaseExceptionsToText = (value) => {
     const input = String(value || '');
     if (!input) return '';
     return input.replace(/\b([A-Za-z]+)\b/g, (full, word, offset, source) => {
       const lower = String(word).toLowerCase();
-      if (!CASE_EXCEPTION_WORDS.has(lower)) return full;
+      if (!CASE_EXCEPTION_WORDS.has(lower)) {
+        return lower.charAt(0).toUpperCase() + lower.slice(1);
+      }
+
       const prefix = String(source || '').slice(0, Number(offset) || 0);
       const isFirstWord = !/[A-Za-z]/.test(prefix);
       return isFirstWord
