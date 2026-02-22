@@ -236,20 +236,24 @@ form .horizontal>div {
     background-color: red;
     color: white;
     padding: 0.5rem;
-    width: 6rem;
+    min-width: 12rem;
+    flex: 1 1 12rem;
     display: flex;
-    justify-content: space-between;
-    gap: 1rem;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.35rem;
 }
 
 body.dark-mode form .horizontal>div {
     background-color: darkblue;
     color: white;
     padding: 0.5rem;
-    width: 6rem;
+    min-width: 12rem;
+    flex: 1 1 12rem;
     display: flex;
-    justify-content: space-between;
-    gap: 1rem;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.35rem;
 }
 
 /* File Input */

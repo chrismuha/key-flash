@@ -84,26 +84,77 @@
         <input type="number" id="quantity" min="0" max="99" value="1">
         <br>
 
-        <label for="title">Title:</label>
+        <label for="title-honorific">Title:</label>
         <div class="horizontal">
             <div>
-                <label for="Mr.">Mr.</label>
-                <input type="radio" id="Mr." value="Mr." name="title">
+                <label for="title-honorific">Honorific:</label>
+                <select id="title-honorific" name="title-honorific">
+                    <option value="">Select</option>
+                    <option value="Mr.">Mr.</option>
+                    <option value="Mrs.">Mrs.</option>
+                    <option value="Ms.">Ms.</option>
+                    <option value="Miss">Miss</option>
+                    <option value="Mx.">Mx.</option>
+                    <option value="Dr.">Dr.</option>
+                    <option value="Prof.">Prof.</option>
+                    <option value="Rev.">Rev.</option>
+                    <option value="Hon.">Hon.</option>
+                    <option value="Sir">Sir</option>
+                    <option value="Dame">Dame</option>
+                    <option value="Fr.">Fr.</option>
+                    <option value="Rabbi">Rabbi</option>
+                    <option value="Imam">Imam</option>
+                    <option value="Pastor">Pastor</option>
+                    <option value="Judge">Judge</option>
+                    <option value="Justice">Justice</option>
+                    <option value="Officer">Officer</option>
+                    <option value="Captain">Captain</option>
+                    <option value="Major">Major</option>
+                    <option value="Colonel">Colonel</option>
+                    <option value="General">General</option>
+                    <option value="Lt.">Lt.</option>
+                    <option value="Sgt.">Sgt.</option>
+                    <option value="Cpl.">Cpl.</option>
+                </select>
             </div>
 
             <div>
-                <label for="Ms.">Ms.</label>
-                <input type="radio" id="Ms." value="Ms." name="title">
+                <label for="title-credentials">Credentials:</label>
+                <select id="title-credentials" name="title-credentials">
+                    <option value="">Select</option>
+                    <option value="MD">MD</option>
+                    <option value="DO">DO</option>
+                    <option value="DDS">DDS</option>
+                    <option value="DMD">DMD</option>
+                    <option value="PhD">PhD</option>
+                    <option value="JD">JD</option>
+                    <option value="Esq.">Esq.</option>
+                    <option value="MBA">MBA</option>
+                    <option value="MS">MS</option>
+                    <option value="MA">MA</option>
+                    <option value="BS">BS</option>
+                    <option value="BA">BA</option>
+                    <option value="EdD">EdD</option>
+                    <option value="PharmD">PharmD</option>
+                    <option value="DVM">DVM</option>
+                    <option value="CPA">CPA</option>
+                    <option value="PE">PE</option>
+                    <option value="RN">RN</option>
+                    <option value="LPN">LPN</option>
+                </select>
             </div>
 
             <div>
-                <label for="PhD.">PhD.</label>
-                <input type="radio" id="PhD." value="PhD." name="title">
-            </div>
-
-            <div>
-                <label for="Dr.">Dr.</label>
-                <input type="radio" id="Dr." value="Dr." name="title">
+                <label for="title-suffix">Suffix:</label>
+                <select id="title-suffix" name="title-suffix">
+                    <option value="">Select</option>
+                    <option value="Jr.">Jr.</option>
+                    <option value="Sr.">Sr.</option>
+                    <option value="II">II</option>
+                    <option value="III">III</option>
+                    <option value="IV">IV</option>
+                    <option value="V">V</option>
+                </select>
             </div>
         </div>
         <br>
