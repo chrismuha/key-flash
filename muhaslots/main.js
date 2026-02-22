@@ -520,14 +520,16 @@ function applyDesktopAutoFit() {
     gameEl.style.transform = "none";
     const contentWidth = Math.max(gameEl.scrollWidth, 1);
     const contentHeight = Math.max(gameEl.scrollHeight, 1);
-    const availableWidth = Math.max(window.innerWidth - 32, 1);
-    const availableHeight = Math.max(window.innerHeight - 32, 1);
+    const availableWidth = Math.max(window.innerWidth - 24, 1);
+    const availableHeight = Math.max(window.innerHeight - 24, 1);
     const rawScale = Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight);
 
     document.body.classList.add("desktop-autofit");
-    // Always keep desktop in a slightly compact "fit" mode.
-    const compactCap = 0.86;
-    const scale = Math.max(0.5, Math.min(compactCap, rawScale * 0.95));
+    // Only force compact look on wider desktops; narrower widths should fill space.
+    const forceCompact = window.innerWidth >= 1280;
+    const compactCap = forceCompact ? 0.97 : 1;
+    const safety = forceCompact ? 0.985 : 1;
+    const scale = Math.max(0.5, Math.min(compactCap, rawScale * safety));
 
     document.documentElement.style.setProperty("--desktop-fit-scale", String(scale));
     gameEl.style.transform = "";

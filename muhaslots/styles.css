@@ -167,13 +167,13 @@ body {
     body.desktop-autofit .game {
         position: fixed;
         top: 8px;
-        left: 8px;
+        left: 50%;
         width: calc(100vw - 16px);
         max-width: none;
         gap: 10px;
         margin: 0;
-        transform-origin: top left;
-        transform: scale(var(--desktop-fit-scale, 1));
+        transform-origin: top center;
+        transform: translateX(-50%) scale(var(--desktop-fit-scale, 1));
     }
 
     .reels {
