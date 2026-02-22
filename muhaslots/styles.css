@@ -1361,6 +1361,7 @@ body.overlay-open {
 }
 
 @media (max-width: 1200px) {
+  .left .stat:has(#balance),
   .left .stat:has(#totalBet),
   .left .select:has(#sessionStatDisplay),
   .left .select:has(#denom),
@@ -1369,5 +1370,9 @@ body.overlay-open {
     height: 86px !important;
     min-height: 86px !important;
     max-height: 86px !important;
+  }
+
+  .left .stat:has(#balance) {
+    margin-top: -1px !important;
   }
 }
