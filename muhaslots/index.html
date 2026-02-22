@@ -105,14 +105,8 @@
                 <h3>
                     Payouts
                     <button id="payInfo" class="info-btn" type="button" title="How payouts are calculated"
-                        aria-controls="payInfoPopup" aria-expanded="false" aria-haspopup="tooltip"
-                        aria-describedby="payInfoPopup">i</button>
+                        aria-controls="previewOverlay" aria-expanded="false" aria-haspopup="dialog">i</button>
                 </h3>
-
-                <div id="payInfoPopup" class="info-popup" role="tooltip" hidden>
-                    <p>Payout = multiplier × bet per line (credits) × denomination ($).</p>
-                    <p>Example: 4 ⭐ with bet 2 credits, denom $0.25 → 40 × 2 × 0.25 = $20</p>
-                </div>
 
                 <!-- paytable symbols -->
                 <div class="table">
@@ -157,9 +151,6 @@
                 <div>
                     <div class="lines-preview-header">
                         <label for="linesPreview">Lines Preview</label>
-                        <button id="previewInfo" class="info-btn" type="button"
-                            title="Open payout rules and lines preview"
-                            aria-controls="previewOverlay" aria-expanded="false" aria-haspopup="dialog">i</button>
                     </div>
                     <div class="lines-preview" id="linesPreview" aria-hidden="true"></div>
                 </div>
@@ -176,13 +167,19 @@
             </div>
 
             <div class="overlay-content">
-                <div class="overlay-section">
+                <div class="overlay-nav" aria-label="Overlay pages">
+                    <button id="overlayPrev" type="button" class="overlay-arrow" aria-label="Previous page">&#8592;</button>
+                    <span id="overlayPageLabel" class="overlay-page-label" aria-live="polite">Page 1 of 2</span>
+                    <button id="overlayNext" type="button" class="overlay-arrow" aria-label="Next page">&#8594;</button>
+                </div>
+
+                <div class="overlay-section" data-info-page="0">
                     <h4>Payout Rules</h4>
                     <p>Payout = multiplier × bet per line (credits) × denomination ($).</p>
                     <p>Only matching symbols from the left count. 3, 4, or 5 in a row on an active payline pays.</p>
                 </div>
 
-                <div class="overlay-section">
+                <div class="overlay-section" data-info-page="1" hidden>
                     <h4>Active Lines Preview</h4>
                     <p class="overlay-note">Highlighted cells represent currently active paylines.</p>
                     <div class="lines-preview lines-preview-overlay" id="linesPreviewOverlay" aria-hidden="true"></div>

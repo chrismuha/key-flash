@@ -1133,8 +1133,7 @@ a.btn {
 }
 
 /* Keep payout info button shape/size consistent across all breakpoints. */
-#payInfo.info-btn,
-#previewInfo.info-btn {
+#payInfo.info-btn {
   width: 22px;
   height: 22px;
   min-width: 22px;
@@ -1198,6 +1197,27 @@ body.overlay-open {
 .overlay-content {
   display: grid;
   gap: 12px;
+}
+
+.overlay-nav {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.overlay-page-label {
+  text-align: center;
+  color: var(--muted);
+  font-size: 9pt;
+}
+
+.overlay-arrow {
+  min-width: 46px;
+  min-height: 34px;
+  padding: 6px 10px;
+  line-height: 1;
+  font-size: 12pt;
 }
 
 .overlay-section {

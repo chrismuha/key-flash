@@ -53,12 +53,14 @@ const creditDownBtn = document.getElementById("creditDown");
 const spinBtn = document.getElementById("spin");
 const maxBtn = document.getElementById("max");
 const payInfoBtn = document.getElementById("payInfo");
-const payInfoPopup = document.getElementById("payInfoPopup");
 const linesPreviewEl = document.getElementById("linesPreview");
-const previewInfoBtn = document.getElementById("previewInfo");
 const previewOverlayEl = document.getElementById("previewOverlay");
 const previewOverlayCloseBtn = document.getElementById("previewOverlayClose");
 const linesPreviewOverlayEl = document.getElementById("linesPreviewOverlay");
+const overlayPrevBtn = document.getElementById("overlayPrev");
+const overlayNextBtn = document.getElementById("overlayNext");
+const overlayPageLabelEl = document.getElementById("overlayPageLabel");
+const overlayPageEls = Array.from(document.querySelectorAll("[data-info-page]"));
 const sessionStatDisplayEl = document.getElementById("sessionStatDisplay");
 const desktopAutoFitQuery = window.matchMedia("(min-width: 841px) and (max-height: 900px)");
 
@@ -66,6 +68,7 @@ const desktopAutoFitQuery = window.matchMedia("(min-width: 841px) and (max-heigh
 // State
 let balance = 100.0;
 let isSpinning = false;
+let overlayPageIndex = 0;
 
 // Session Winnings State
 let sessionWinningsUSD = 0;
@@ -219,39 +222,81 @@ function renderLinesPreview() {
 }
 
 
-// Info Tooltip
-function togglePayInfo(force) {
-    const wantOpen = (typeof force === "boolean") ? force : payInfoPopup.hidden;
-    payInfoPopup.hidden = !wantOpen;
-    payInfoBtn.setAttribute("aria-expanded", String(wantOpen));
-}
-function handleDocumentClick(e) {
-    if (!payInfoPopup.hidden) {
-        const clickInside = payInfoPopup.contains(e.target) || payInfoBtn.contains(e.target);
-        if (!clickInside) togglePayInfo(false);
-    }
-}
-function handleEsc(e) {
-    if (e.key !== "Escape") return;
+// Info Overlay
+function applyOverlayPage(index) {
+    const max = Math.max(overlayPageEls.length - 1, 0);
+    overlayPageIndex = Math.min(Math.max(index, 0), max);
 
-    if (!payInfoPopup.hidden) {
-        togglePayInfo(false);
-        payInfoBtn.focus();
-        return;
-    }
+    overlayPageEls.forEach((el, i) => {
+        el.hidden = i !== overlayPageIndex;
+    });
 
-    if (previewOverlayEl && !previewOverlayEl.hidden) {
-        togglePreviewOverlay(false);
-        previewInfoBtn?.focus();
+    if (overlayPageLabelEl) {
+        overlayPageLabelEl.textContent = `Page ${overlayPageIndex + 1} of ${Math.max(overlayPageEls.length, 1)}`;
     }
+}
+
+function stepOverlayPage(delta) {
+    applyOverlayPage(overlayPageIndex + delta);
 }
 
 function togglePreviewOverlay(force) {
     if (!previewOverlayEl) return;
     const wantOpen = (typeof force === "boolean") ? force : previewOverlayEl.hidden;
     previewOverlayEl.hidden = !wantOpen;
-    previewInfoBtn?.setAttribute("aria-expanded", String(wantOpen));
+    payInfoBtn?.setAttribute("aria-expanded", String(wantOpen));
     document.body.classList.toggle("overlay-open", wantOpen);
+}
+
+function bindRapidPress(button, action) {
+    if (!button || typeof action !== "function") return;
+
+    let holdTimer = 0;
+    let repeatTimer = 0;
+    let didRepeat = false;
+
+    const clearRepeat = () => {
+        if (holdTimer) {
+            clearTimeout(holdTimer);
+            holdTimer = 0;
+        }
+        if (repeatTimer) {
+            clearInterval(repeatTimer);
+            repeatTimer = 0;
+        }
+    };
+
+    button.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0) return;
+        didRepeat = false;
+        clearRepeat();
+        holdTimer = setTimeout(() => {
+            didRepeat = true;
+            action();
+            repeatTimer = setInterval(action, 85);
+        }, 220);
+    });
+
+    ["pointerup", "pointercancel", "pointerleave"].forEach((evt) => {
+        button.addEventListener(evt, clearRepeat);
+    });
+
+    button.addEventListener("click", () => {
+        if (didRepeat) {
+            didRepeat = false;
+            return;
+        }
+        action();
+    });
+}
+
+function handleEsc(e) {
+    if (e.key !== "Escape") return;
+
+    if (previewOverlayEl && !previewOverlayEl.hidden) {
+        togglePreviewOverlay(false);
+        payInfoBtn.focus();
+    }
 }
 
 // Credit step controls (▲ / ▼)
@@ -567,14 +612,17 @@ creditStepEl.addEventListener("keydown", (e) => {
     }
 });
 
-payInfoBtn.addEventListener("click", () => togglePayInfo());
-document.addEventListener("click", handleDocumentClick);
+payInfoBtn.addEventListener("click", () => {
+    applyOverlayPage(0);
+    togglePreviewOverlay(true);
+});
 document.addEventListener("keydown", handleEsc);
-previewInfoBtn?.addEventListener("click", () => togglePreviewOverlay());
 previewOverlayCloseBtn?.addEventListener("click", () => togglePreviewOverlay(false));
 previewOverlayEl?.addEventListener("click", (e) => {
     if (e.target === previewOverlayEl) togglePreviewOverlay(false);
 });
+bindRapidPress(overlayPrevBtn, () => stepOverlayPage(-1));
+bindRapidPress(overlayNextBtn, () => stepOverlayPage(1));
 
 // Keyboard shortcuts
 document.addEventListener("keydown", (e) => {
@@ -587,7 +635,14 @@ document.addEventListener("keydown", (e) => {
     );
     if (isTypingField) return;
 
-    if (e.key === "ArrowUp") {
+    const overlayOpen = previewOverlayEl && !previewOverlayEl.hidden;
+    if (overlayOpen && e.key === "ArrowLeft") {
+        e.preventDefault();
+        stepOverlayPage(-1);
+    } else if (overlayOpen && e.key === "ArrowRight") {
+        e.preventDefault();
+        stepOverlayPage(1);
+    } else if (e.key === "ArrowUp") {
         e.preventDefault();
         creditUpBtn.click();
     } else if (e.key === "ArrowDown") {
@@ -606,10 +661,9 @@ document.addEventListener("keydown", (e) => {
     renderLinesPreview();
 
     // ARIA defaults
-    payInfoPopup.hidden = true;
     payInfoBtn.setAttribute("aria-expanded", "false");
     if (previewOverlayEl) previewOverlayEl.hidden = true;
-    previewInfoBtn?.setAttribute("aria-expanded", "false");
+    applyOverlayPage(0);
 
     ensureSessionStatsUI();
     updateSessionWinningsDisplay();
