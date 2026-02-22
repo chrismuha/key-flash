@@ -10,6 +10,8 @@
     --danger: #ff7d7d;
     --shadow: 0 10px 30px rgba(0, 0, 0, .5), inset 0 0 0 1px rgba(255, 255, 255, .05);
     --radius: 14px;
+    --reel-row-h: 62px;
+    --reel-row-gap: 8px;
 }
 
 /* Reset / Base */
@@ -47,6 +49,7 @@ body {
     display: grid;
     gap: 14px;
     grid-template-columns: 1fr;
+    align-items: start;
 }
 
 @media (max-width:980px) and (min-width:841px) {
@@ -174,8 +177,8 @@ body {
     }
 
     .reels {
-        min-height: 300px;
-        gap: 6px;
+        --reel-row-h: 50px;
+        --reel-row-gap: 6px;
     }
 
     .hud {
@@ -255,6 +258,7 @@ body {
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     padding: 16px;
+    height: fit-content;
 }
 
 /* Title / Header */
@@ -287,17 +291,25 @@ body {
 .reels {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(5, minmax(56px, 1fr));
-    gap: 8px;
-    height: auto;
-    min-height: 368px;
+    grid-template-rows: repeat(5, var(--reel-row-h));
+    grid-auto-rows: var(--reel-row-h);
+    gap: var(--reel-row-gap);
+    height: fit-content;
+    min-height: 0;
     border-radius: 10px;
-    overflow: hidden;
+    overflow: clip;
     position: relative;
-    align-content: stretch;
+    z-index: 0;
+    align-content: start;
+    contain: layout paint;
 }
 
 .reels-wrap {
+    display: grid;
+    grid-template-rows: auto auto;
+    grid-auto-rows: max-content;
+    align-content: start;
+    row-gap: 10px;
     padding: 12px;
     border-radius: 12px;
     background: linear-gradient(180deg, #0e1424, #0b0f17);
@@ -309,7 +321,7 @@ body {
     background: transparent;
     overflow: hidden;
     box-shadow: none;
-    min-height: 56px;
+    min-height: 0;
 }
 
 .reels .icon-container {
@@ -398,7 +410,9 @@ body {
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    margin-top: 10px;
+    margin-top: 0;
+    position: relative;
+    z-index: 1;
 }
 
 .left,
@@ -746,8 +760,9 @@ a.btn {
 
   .card:first-child {
     display: grid;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
     gap: 4px;
+    overflow: auto;
   }
 
   .title {
@@ -758,21 +773,18 @@ a.btn {
   .reels-wrap {
     padding: 6px;
     display: grid;
-    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
     gap: 4px;
     min-height: 0;
   }
 
   .reels {
-    grid-template-rows: repeat(5, minmax(38px, 1fr));
-    min-height: 250px;
-    height: auto;
-    gap: 5px;
-    grid-auto-rows: unset;
+    --reel-row-h: 32px;
+    --reel-row-gap: 5px;
   }
 
   .reels .cell {
-    min-height: 38px;
+    min-height: 0;
   }
 
   .cell {
@@ -891,17 +903,16 @@ a.btn {
   .reels-wrap {
     padding: 5px;
     gap: 3px;
-    grid-template-rows: minmax(140px, 1fr) auto;
+    grid-template-rows: auto auto;
   }
 
   .reels {
-    grid-template-rows: repeat(5, minmax(30px, 1fr));
-    gap: 4px;
-    min-height: 190px;
+    --reel-row-h: 24px;
+    --reel-row-gap: 3px;
   }
 
   .reels .cell {
-    min-height: 30px;
+    min-height: 0;
   }
 
   .cell {
