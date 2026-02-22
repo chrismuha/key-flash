@@ -185,7 +185,7 @@ body {
     }
 
     .reels {
-        --reel-row-h: 30px;
+        --reel-row-h: 36px;
         --reel-row-gap: 3px;
     }
 
@@ -260,7 +260,7 @@ body {
     }
 
     .cell {
-        font-size: clamp(22pt, 5.3vmin, 34pt);
+        font-size: 26px;
     }
 
     label {
@@ -321,6 +321,16 @@ body {
   body.desktop-autofit .reels {
     --reel-row-h: 38px;
     --reel-row-gap: 5px;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1200px) {
+  .reels {
+    --reel-row-h: 40px;
+  }
+
+  .cell {
+    font-size: 26px;
   }
 }
 
@@ -404,12 +414,13 @@ body {
     background: var(--accent2);
     color: #0b0f17;
     border-radius: inherit;
-    padding: 8px 0;
+    padding: 0;
     align-self: stretch;
     justify-self: stretch;
     align-items: center;
     justify-content: center;
-    background: var(--accent2)
+    background: var(--accent2);
+    line-height: 1;
 }
 
 .reels .cell.win .icon-container {
@@ -460,7 +471,7 @@ body {
     align-items: center;
     justify-content: center;
     line-height: 1;
-    font-size: clamp(27pt, 6.5vmin, 40.5pt);
+    font-size: 34px;
     background: rgba(255, 255, 255, .02);
     border-radius: 8px;
     position: relative;
@@ -898,7 +909,7 @@ a.btn {
   }
 
   .cell {
-    font-size: clamp(17pt, 5.2vmin, 25pt);
+    font-size: 20px;
   }
 
   .hud {
@@ -1022,7 +1033,7 @@ a.btn {
   }
 
   .cell {
-    font-size: clamp(14pt, 4.8vmin, 20pt);
+    font-size: 16px;
   }
 
   .hud,
