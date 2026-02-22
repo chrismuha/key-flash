@@ -157,6 +157,33 @@ function setMessage(msg) {
     messageEl.textContent = msg;
 }
 
+function getCreditStatusMessage() {
+    const totalBetUSD = getTotalBet();
+    if (balance <= 0) return "Out of credits. Add credits to continue.";
+    if (balance < totalBetUSD) return "Insufficient credits for this bet. Lower bet/lines or add credits.";
+    return "";
+}
+
+function isCreditStatusMessage(msg) {
+    const text = (msg || "").trim();
+    return (
+        text === "Out of credits. Add credits to continue." ||
+        text === "Insufficient credits for this bet. Lower bet/lines or add credits."
+    );
+}
+
+function updateRealtimeCreditMessage() {
+    if (isSpinning) return;
+    const status = getCreditStatusMessage();
+    if (status) {
+        setMessage(status);
+        return;
+    }
+    if (isCreditStatusMessage(messageEl?.textContent)) {
+        clearMessage();
+    }
+}
+
 function createCell(symbol, isWinning = false) {
     const cell = document.createElement("div");
     cell.className = "cell";
@@ -674,6 +701,7 @@ function adjustBalanceByCredits(creditDelta) {
     const denom = getDenominationValue();
     balance = Math.max(0, balance + (step * denom * creditDelta));
     updateTotals();
+    updateRealtimeCreditMessage();
 }
 
 // Main Spin Flow
@@ -681,11 +709,7 @@ async function doSpin() {
     if (isSpinning) return;
     const totalBetUSD = getTotalBet();
     if (balance < totalBetUSD) {
-        if (balance <= 0) {
-            setMessage("Out of credits. Add credits to continue.");
-        } else {
-            setMessage("Insufficient credits for this bet. Lower bet/lines or add credits.");
-        }
+        updateRealtimeCreditMessage();
         return;
     }
 
@@ -724,11 +748,8 @@ async function doSpin() {
         setMessage(`WIN ${fmtUSD(totalWinUSD)} — ${linesText}`);
     } else {
         let creditHint = "";
-        if (balance < getTotalBet()) {
-            creditHint = balance <= 0
-                ? " Out of credits. Add credits to continue."
-                : " Insufficient credits for this bet. Lower bet/lines or add credits.";
-        }
+        const status = getCreditStatusMessage();
+        if (status) creditHint = ` ${status}`;
         setMessage(`No win — try again!${creditHint}`);
     }
 
@@ -823,6 +844,7 @@ function onConfigChange() {
     updateTotals();
     renderLinesPreview();
     updateGameOddsDisplay();
+    updateRealtimeCreditMessage();
     scheduleDesktopAutoFit();
 }
 
@@ -954,6 +976,7 @@ document.addEventListener("keydown", (e) => {
     updateActualSessionLossesDisplay();
     updateSessionStatsVisibility();
     removeOrphanSessionLabels();
+    updateRealtimeCreditMessage();
     disableDoubleTapZoom();
     applyDesktopAutoFit();
 })();
