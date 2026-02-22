@@ -153,3 +153,45 @@ document.getElementById("phone").addEventListener("paste", function (event) {
 
     event.target.value = formattedValue;
 });
+
+// Section: Birthday Formatting (MM/DD/YYYY)
+const bdayInput = document.getElementById("bday");
+
+function formatBirthdayValue(rawValue) {
+    const digits = rawValue.replace(/\D/g, '').slice(0, 8);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
+if (bdayInput) {
+    bdayInput.addEventListener("input", function (event) {
+        event.target.value = formatBirthdayValue(event.target.value);
+    });
+
+    bdayInput.addEventListener("paste", function (event) {
+        event.preventDefault();
+        const pastedData = (event.clipboardData || window.clipboardData).getData("text");
+        event.target.value = formatBirthdayValue(pastedData);
+    });
+}
+
+// Section: Card Number Formatting (#### #### #### ####)
+const cardNumberInput = document.getElementById("card-number");
+
+function formatCardNumberValue(rawValue) {
+    const digits = rawValue.replace(/\D/g, '').slice(0, 19);
+    return digits.replace(/(.{4})/g, '$1 ').trim();
+}
+
+if (cardNumberInput) {
+    cardNumberInput.addEventListener("input", function (event) {
+        event.target.value = formatCardNumberValue(event.target.value);
+    });
+
+    cardNumberInput.addEventListener("paste", function (event) {
+        event.preventDefault();
+        const pastedData = (event.clipboardData || window.clipboardData).getData("text");
+        event.target.value = formatCardNumberValue(pastedData);
+    });
+}
