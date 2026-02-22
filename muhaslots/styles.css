@@ -17,6 +17,13 @@
     box-sizing: border-box
 }
 
+html,
+body,
+.game,
+.game * {
+    -webkit-tap-highlight-color: transparent;
+}
+
 /* Page Layout */
 body {
     margin: 0;
@@ -28,6 +35,10 @@ body {
     justify-content: center;
     min-height: 100vh;
     padding: 24px;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 /* Game Grid */
@@ -80,7 +91,8 @@ body {
 
     .left .stat:has(#balance) { order: 1; }
     .left .stat-box,
-    .left #sessionWinningsBox { order: 2; }
+    .left #sessionWinningsBox,
+    .left #sessionLossesBox { order: 2; }
     .left .credit-controls { order: 3; margin-top: 0; }
     .left .stat:has(#totalBet) { order: 4; }
     .left .select:has(#denom) { order: 5; }
@@ -140,7 +152,8 @@ body {
 
     .left .stat:has(#balance) { order: 1; }
     .left .stat-box,
-    .left #sessionWinningsBox { order: 2; }
+    .left #sessionWinningsBox,
+    .left #sessionLossesBox { order: 2; }
     .left .credit-controls { order: 3; margin-top: 0; }
     .left .stat:has(#totalBet) { order: 4; }
     .left .select:has(#denom) { order: 5; }
@@ -220,7 +233,8 @@ body {
 
     .left .stat:has(#balance) { order: 1; }
     .left .stat-box,
-    .left #sessionWinningsBox { order: 2; }
+    .left #sessionWinningsBox,
+    .left #sessionLossesBox { order: 2; }
     .left .credit-controls { order: 3; margin-top: 0; }
     .left .stat:has(#totalBet) { order: 4; }
     .left .select:has(#denom) { order: 5; }
@@ -490,6 +504,8 @@ input[type=number] {
     padding: 8px 10px;
     font-size: 10.5pt;
     outline: none;
+    -webkit-user-select: text;
+    user-select: text;
 }
 
 /* Primary Buttons */

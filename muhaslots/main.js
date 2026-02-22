@@ -64,6 +64,7 @@ let isSpinning = false;
 
 // Session Winnings State
 let sessionWinningsUSD = 0;
+let sessionLossesUSD = 0;
 
 
 // Utilities
@@ -265,43 +266,32 @@ function matchValueTypography(srcValueEl, destValueEl) {
     destValueEl.style.textShadow = cs.textShadow;
 }
 
-/** Remove any orphan elements whose text is exactly "Session Winnings" that are NOT inside our box. */
-function removeOrphanSessionWinningsLabels() {
+/** Remove orphan labels for session stat boxes when not inside known stat containers. */
+function removeOrphanSessionLabels() {
     const candidates = document.querySelectorAll(
         'button, .label, [data-label], label, .chip, .tag, .pill, .badge, span, div'
     );
     candidates.forEach(el => {
         const txt = (el.textContent || "").trim().toLowerCase();
-        if (txt === "session winnings" && !el.closest("#sessionWinningsBox")) {
+        const inKnownBox = el.closest("#sessionWinningsBox, #sessionLossesBox");
+        if ((txt === "session winnings" || txt === "session losses total") && !inKnownBox) {
             el.remove();
         }
     });
 }
 
-/* Ensure one Session Winnings box exists, matching Available Credits. */
-function ensureSessionWinningsUI() {
-    // HARD DELETE existing session winnings containers/values and orphan labels
-    document.querySelectorAll("#sessionWinningsBox").forEach(n => n.remove());
-    document.querySelectorAll("#sessionWinnings").forEach(n => n.remove());
-    removeOrphanSessionWinningsLabels();
-
-    const availBox = findAvailableCreditsBox();
-    if (!availBox) return;
-
-    // Clone Available Credits
+function createSessionStatBox({ availBox, boxId, valueId, labelText }) {
     const clone = availBox.cloneNode(true);
-    clone.id = "sessionWinningsBox";
+    clone.id = boxId;
 
-    // Label
     let cloneLabel = clone.querySelector(".label, [data-label], label") || clone.firstElementChild;
     if (!cloneLabel) {
         cloneLabel = document.createElement("div");
         cloneLabel.className = "label";
         clone.insertBefore(cloneLabel, clone.firstChild);
     }
-    cloneLabel.textContent = "Session Winnings";
+    cloneLabel.textContent = labelText;
 
-    // Value
     let cloneValue =
         clone.querySelector("#balance") ||
         clone.querySelector(".value, [data-value]");
@@ -310,21 +300,48 @@ function ensureSessionWinningsUI() {
         cloneValue.className = "value";
         clone.appendChild(cloneValue);
     }
-    cloneValue.id = "sessionWinnings";
+    cloneValue.id = valueId;
     cloneValue.textContent = fmtUSD(0);
-    cloneValue.setAttribute?.("aria-label", "Session Winnings");
+    cloneValue.setAttribute?.("aria-label", labelText);
 
-    // Insert directly below Available Credits
-    availBox.insertAdjacentElement("afterend", clone);
-
-    // Match value typography to Available Credits value
     const availValue =
         availBox.querySelector("#balance") ||
         availBox.querySelector(".value, [data-value]") ||
         balanceEl;
     matchValueTypography(availValue, cloneValue);
 
-    removeOrphanSessionWinningsLabels();
+    return clone;
+}
+
+/* Ensure session stat boxes exist, matching Available Credits. */
+function ensureSessionStatsUI() {
+    // HARD DELETE existing session stat containers/values and orphan labels
+    document.querySelectorAll("#sessionWinningsBox").forEach(n => n.remove());
+    document.querySelectorAll("#sessionLossesBox").forEach(n => n.remove());
+    document.querySelectorAll("#sessionWinnings").forEach(n => n.remove());
+    document.querySelectorAll("#sessionLosses").forEach(n => n.remove());
+    removeOrphanSessionLabels();
+
+    const availBox = findAvailableCreditsBox();
+    if (!availBox) return;
+
+    const winningsBox = createSessionStatBox({
+        availBox,
+        boxId: "sessionWinningsBox",
+        valueId: "sessionWinnings",
+        labelText: "Session Winnings",
+    });
+    availBox.insertAdjacentElement("afterend", winningsBox);
+
+    const lossesBox = createSessionStatBox({
+        availBox,
+        boxId: "sessionLossesBox",
+        valueId: "sessionLosses",
+        labelText: "Session Losses Total",
+    });
+    winningsBox.insertAdjacentElement("afterend", lossesBox);
+
+    removeOrphanSessionLabels();
 }
 
 function updateSessionWinningsDisplay() {
@@ -332,10 +349,21 @@ function updateSessionWinningsDisplay() {
     if (el) el.textContent = fmtUSD(sessionWinningsUSD);
 }
 
+function updateSessionLossesDisplay() {
+    const el = document.getElementById("sessionLosses");
+    if (el) el.textContent = fmtUSD(sessionLossesUSD);
+}
+
 function addSessionWinnings(amountUSD) {
     if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
     sessionWinningsUSD += amountUSD;
     updateSessionWinningsDisplay();
+}
+
+function addSessionLosses(amountUSD) {
+    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
+    sessionLossesUSD += amountUSD;
+    updateSessionLossesDisplay();
 }
 
 // Main Spin Flow
@@ -363,6 +391,7 @@ async function doSpin() {
     const grid = spinOnce();
     const { totalWinUSD, lineWins, winningPositions } = evaluateGrid(grid);
     renderGrid(grid, winningPositions);
+    addSessionLosses(Math.max(totalBetUSD - totalWinUSD, 0));
 
     // Payout
     if (totalWinUSD > 0) {
@@ -380,8 +409,9 @@ async function doSpin() {
     isSpinning = false;
     updateTotals();
 
-    removeOrphanSessionWinningsLabels();
+    removeOrphanSessionLabels();
     updateSessionWinningsDisplay();
+    updateSessionLossesDisplay();
 }
 
 function doMaxBet() {
@@ -432,6 +462,21 @@ function onConfigChange() {
     updateTotals();
     renderLinesPreview();
     scheduleDesktopAutoFit();
+}
+
+function disableDoubleTapZoom() {
+    let lastTouchEnd = 0;
+    document.addEventListener("touchend", (e) => {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, { passive: false });
+
+    document.addEventListener("gesturestart", (e) => {
+        e.preventDefault();
+    }, { passive: false });
 }
 
 spinBtn.addEventListener("click", doSpin);
@@ -513,9 +558,11 @@ document.addEventListener("keydown", (e) => {
     payInfoPopup.hidden = true;
     payInfoBtn.setAttribute("aria-expanded", "false");
 
-    ensureSessionWinningsUI();
+    ensureSessionStatsUI();
     updateSessionWinningsDisplay();
-    removeOrphanSessionWinningsLabels();
+    updateSessionLossesDisplay();
+    removeOrphanSessionLabels();
+    disableDoubleTapZoom();
     applyDesktopAutoFit();
 })();
 
