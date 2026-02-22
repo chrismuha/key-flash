@@ -50,6 +50,9 @@
                                 <option value="netBoth">Both Net</option>
                                 <option value="netWinnings">Net Winnings Only</option>
                                 <option value="netLosses">Net Losses Only</option>
+                                <option value="actualNetBoth">Both Actual Net</option>
+                                <option value="actualNetWinnings">Actual Net Winnings Only</option>
+                                <option value="actualNetLosses">Actual Net Losses Only</option>
                             </select>
                         </div>
 
@@ -62,6 +65,11 @@
                                 <option value="0.25">$0.25</option>
                                 <option value="0.50">$0.50</option>
                                 <option value="1.00" selected>$1.00</option>
+                                <option value="2.00">$2.00</option>
+                                <option value="5.00">$5.00</option>
+                                <option value="10.00">$10.00</option>
+                                <option value="50.00">$50.00</option>
+                                <option value="100.00">$100.00</option>
                             </select>
                         </div>
 
@@ -128,6 +136,21 @@
                     <h4>Payout Rules</h4>
                     <p>Payout = multiplier x bet per line (credits) x denomination ($).</p>
                     <p>Only matching symbols from the left count. 3, 4, or 5 in a row on an active payline pays.</p>
+                    <h4>Settings Guide</h4>
+                    <p class="overlay-note"><strong>Session Stats Display:</strong> Chooses which stat boxes are visible (regular session totals, Net totals, or Actual Net totals).</p>
+                    <p class="overlay-note"><strong>Winnings Only / Losses Only:</strong> Shows only regular session winnings or regular session losses.</p>
+                    <p class="overlay-note"><strong>Both Net / Net Winnings Only / Net Losses Only:</strong> Uses your running net-style counters where wins and losses are tracked as separate buckets.</p>
+                    <p class="overlay-note"><strong>Both Actual Net / Actual Net Winnings Only / Actual Net Losses Only:</strong> Uses true net math from one value (wins minus bets), then displays positive side as winnings and negative side as losses.</p>
+                    <p class="overlay-note"><strong>Session Winnings:</strong> Total amount won this session (sum of all payouts).</p>
+                    <p class="overlay-note"><strong>Session Losses:</strong> Total loss this session from spins where bet exceeded payout.</p>
+                    <p class="overlay-note"><strong>Net Session Winnings / Net Session Losses:</strong> Legacy net-style totals where each side can stay positive at the same time.</p>
+                    <p class="overlay-note"><strong>Actual Net Session Winnings / Actual Net Session Losses:</strong> True net totals where only one side is non-zero at a time.</p>
+                    <p class="overlay-note"><strong>Denomination (Value Per Credit):</strong> Dollar value of one credit. Higher denomination increases bet size and payout size proportionally.</p>
+                    <p class="overlay-note"><strong>Lines:</strong> Number of active paylines (1-10). More lines means more chances to win, but higher total bet.</p>
+                    <p class="overlay-note"><strong>Bet Per Line:</strong> Credits wagered on each active line. Increasing this raises both total bet and possible payout.</p>
+                    <p class="overlay-note"><strong>Adjust Credit + ▲/▼:</strong> Sets how much credit to add/remove per click, scaled by denomination.</p>
+                    <p class="overlay-note"><strong>Spin:</strong> Plays one round using current settings and deducts the total bet first.</p>
+                    <p class="overlay-note"><strong>Max Bet:</strong> Sets the highest bet per line and all 10 lines, then updates totals.</p>
                     <h4>Definition: Bernoulli Trial</h4>
                     <p class="overlay-note">A Bernoulli trial is a random experiment with exactly two possible outcomes: success and failure.</p>
                     <p class="overlay-note">The probability of success, p, stays constant for each independent trial. It models binary events like coin flips, pass/fail tests, purchases, and slot win/loss outcomes.</p>

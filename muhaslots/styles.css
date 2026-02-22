@@ -448,6 +448,8 @@ body {
 .left .stat-box,
 .left #sessionWinningsBox,
 .left #sessionLossesBox,
+.left #netSessionWinningsBox,
+.left #netSessionLossesBox,
 .left #actualSessionWinningsBox,
 .left #actualSessionLossesBox { order: 3; }
 .left .credit-controls { order: 4; margin-top: 0; }
@@ -665,6 +667,8 @@ button:focus-visible,
 
 #sessionWinningsBox,
 #sessionLossesBox,
+#netSessionWinningsBox,
+#netSessionLossesBox,
 #actualSessionWinningsBox,
 #actualSessionLossesBox {
     padding-top: 4px;
@@ -1365,6 +1369,8 @@ body.overlay-open {
 /* Uniform 6px whitespace overrides (all screen sizes). */
 #sessionWinningsBox,
 #sessionLossesBox,
+#netSessionWinningsBox,
+#netSessionLossesBox,
 #actualSessionWinningsBox,
 #actualSessionLossesBox,
 .stat:has(#balance),

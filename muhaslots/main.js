@@ -89,8 +89,9 @@ let overlayPageIndex = 0;
 // Session Winnings State
 let sessionWinningsUSD = 0;
 let sessionLossesUSD = 0;
-let actualSessionWinningsUSD = 0;
-let actualSessionLossesUSD = 0;
+let netSessionWinningsUSD = 0;
+let netSessionLossesUSD = 0;
+let actualSessionNetUSD = 0;
 
 
 // Utilities
@@ -127,10 +128,15 @@ function randomSymbol() {
     return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
 }
 
+function getDenominationValue() {
+    const value = Number.parseFloat(denomEl?.value ?? "1");
+    return Number.isFinite(value) && value > 0 ? value : 1;
+}
+
 function getTotalBet() {
     const lines = parseInt(linesEl.value, 10);
     const betPerLine = parseFloat(betEl.value);
-    const denom = parseFloat(denomEl.value);
+    const denom = getDenominationValue();
     // Total bet shown in dollars to user (lines * bet credits * denom)
     return lines * betPerLine * denom;
 }
@@ -180,7 +186,7 @@ function spinOnce() {
 function evaluateGrid(grid) {
     const linesActive = parseInt(linesEl.value, 10);
     const betPerLine = parseFloat(betEl.value);
-    const denom = parseFloat(denomEl.value);
+    const denom = getDenominationValue();
 
     let totalWinUSD = 0;
     const lineWins = [];
@@ -424,13 +430,17 @@ function removeOrphanSessionLabels() {
     );
     candidates.forEach(el => {
         const txt = (el.textContent || "").trim().toLowerCase();
-        const inKnownBox = el.closest("#sessionWinningsBox, #sessionLossesBox, #actualSessionWinningsBox, #actualSessionLossesBox");
+        const inKnownBox = el.closest(
+            "#sessionWinningsBox, #sessionLossesBox, #netSessionWinningsBox, #netSessionLossesBox, #actualSessionWinningsBox, #actualSessionLossesBox"
+        );
         if (
             (txt === "session winnings" ||
                 txt === "session losses" ||
                 txt === "session losses total" ||
                 txt === "net session winnings" ||
                 txt === "net session losses" ||
+                txt === "actual net session winnings" ||
+                txt === "actual net session losses" ||
                 txt === "actual session winnings" ||
                 txt === "actual session losses") &&
             !inKnownBox
@@ -479,10 +489,14 @@ function ensureSessionStatsUI() {
     [
         "#sessionWinningsBox",
         "#sessionLossesBox",
+        "#netSessionWinningsBox",
+        "#netSessionLossesBox",
         "#actualSessionWinningsBox",
         "#actualSessionLossesBox",
         "#sessionWinnings",
         "#sessionLosses",
+        "#netSessionWinnings",
+        "#netSessionLosses",
         "#actualSessionWinnings",
         "#actualSessionLosses",
     ]
@@ -510,19 +524,35 @@ function ensureSessionStatsUI() {
     });
     winningsBox.insertAdjacentElement("afterend", lossesBox);
 
+    const netWinningsBox = createSessionStatBox({
+        availBox,
+        boxId: "netSessionWinningsBox",
+        valueId: "netSessionWinnings",
+        labelText: "Net Session Winnings",
+    });
+    lossesBox.insertAdjacentElement("afterend", netWinningsBox);
+
+    const netLossesBox = createSessionStatBox({
+        availBox,
+        boxId: "netSessionLossesBox",
+        valueId: "netSessionLosses",
+        labelText: "Net Session Losses",
+    });
+    netWinningsBox.insertAdjacentElement("afterend", netLossesBox);
+
     const actualWinningsBox = createSessionStatBox({
         availBox,
         boxId: "actualSessionWinningsBox",
         valueId: "actualSessionWinnings",
-        labelText: "Net Session Winnings",
+        labelText: "Actual Net Session Winnings",
     });
-    lossesBox.insertAdjacentElement("afterend", actualWinningsBox);
+    netLossesBox.insertAdjacentElement("afterend", actualWinningsBox);
 
     const actualLossesBox = createSessionStatBox({
         availBox,
         boxId: "actualSessionLossesBox",
         valueId: "actualSessionLosses",
-        labelText: "Net Session Losses",
+        labelText: "Actual Net Session Losses",
     });
     actualWinningsBox.insertAdjacentElement("afterend", actualLossesBox);
 
@@ -542,34 +572,56 @@ function updateSessionLossesDisplay() {
     updateSessionDisplay("sessionLosses", sessionLossesUSD);
 }
 
+function updateNetSessionWinningsDisplay() {
+    updateSessionDisplay("netSessionWinnings", netSessionWinningsUSD);
+}
+
+function updateNetSessionLossesDisplay() {
+    updateSessionDisplay("netSessionLosses", netSessionLossesUSD);
+}
+
 function updateActualSessionWinningsDisplay() {
-    updateSessionDisplay("actualSessionWinnings", actualSessionWinningsUSD);
+    updateSessionDisplay("actualSessionWinnings", Math.max(actualSessionNetUSD, 0));
 }
 
 function updateActualSessionLossesDisplay() {
-    updateSessionDisplay("actualSessionLosses", actualSessionLossesUSD);
+    updateSessionDisplay("actualSessionLosses", Math.max(-actualSessionNetUSD, 0));
 }
 
 function updateSessionStatsVisibility() {
     const mode = sessionStatDisplayEl?.value || "both";
     const winningsBox = document.getElementById("sessionWinningsBox");
     const lossesBox = document.getElementById("sessionLossesBox");
+    const netWinningsBox = document.getElementById("netSessionWinningsBox");
+    const netLossesBox = document.getElementById("netSessionLossesBox");
     const actualWinningsBox = document.getElementById("actualSessionWinningsBox");
     const actualLossesBox = document.getElementById("actualSessionLossesBox");
-    if (!winningsBox || !lossesBox || !actualWinningsBox || !actualLossesBox) return;
+    if (
+        !winningsBox ||
+        !lossesBox ||
+        !netWinningsBox ||
+        !netLossesBox ||
+        !actualWinningsBox ||
+        !actualLossesBox
+    ) return;
 
     const visibilityByMode = {
-        both: { winnings: true, losses: true, actualWinnings: false, actualLosses: false },
-        winnings: { winnings: true, losses: false, actualWinnings: false, actualLosses: false },
-        losses: { winnings: false, losses: true, actualWinnings: false, actualLosses: false },
-        netBoth: { winnings: false, losses: false, actualWinnings: true, actualLosses: true },
-        netWinnings: { winnings: false, losses: false, actualWinnings: true, actualLosses: false },
-        netLosses: { winnings: false, losses: false, actualWinnings: false, actualLosses: true },
+        both: { winnings: true, losses: true, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: false },
+        winnings: { winnings: true, losses: false, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: false },
+        losses: { winnings: false, losses: true, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: false },
+        netBoth: { winnings: false, losses: false, netWinnings: true, netLosses: true, actualWinnings: false, actualLosses: false },
+        netWinnings: { winnings: false, losses: false, netWinnings: true, netLosses: false, actualWinnings: false, actualLosses: false },
+        netLosses: { winnings: false, losses: false, netWinnings: false, netLosses: true, actualWinnings: false, actualLosses: false },
+        actualNetBoth: { winnings: false, losses: false, netWinnings: false, netLosses: false, actualWinnings: true, actualLosses: true },
+        actualNetWinnings: { winnings: false, losses: false, netWinnings: false, netLosses: false, actualWinnings: true, actualLosses: false },
+        actualNetLosses: { winnings: false, losses: false, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: true },
     };
     const selected = visibilityByMode[mode] || visibilityByMode.both;
 
     winningsBox.hidden = !selected.winnings;
     lossesBox.hidden = !selected.losses;
+    netWinningsBox.hidden = !selected.netWinnings;
+    netLossesBox.hidden = !selected.netLosses;
     actualWinningsBox.hidden = !selected.actualWinnings;
     actualLossesBox.hidden = !selected.actualLosses;
 }
@@ -586,33 +638,40 @@ function addSessionLosses(amountUSD) {
     updateSessionLossesDisplay();
 }
 
-function addActualSessionWinnings(amountUSD) {
+function addNetSessionWinnings(amountUSD) {
     if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
-    actualSessionWinningsUSD += amountUSD;
+    netSessionWinningsUSD += amountUSD;
+    updateNetSessionWinningsDisplay();
+}
+
+function addNetSessionLosses(amountUSD) {
+    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
+    netSessionLossesUSD += amountUSD;
+    updateNetSessionLossesDisplay();
+}
+
+function subtractNetSessionWinnings(amountUSD) {
+    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
+    netSessionWinningsUSD = Math.max(0, netSessionWinningsUSD - amountUSD);
+    updateNetSessionWinningsDisplay();
+}
+
+function subtractNetSessionLosses(amountUSD) {
+    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
+    netSessionLossesUSD = Math.max(0, netSessionLossesUSD - amountUSD);
+    updateNetSessionLossesDisplay();
+}
+
+function adjustActualSessionNet(amountUSD) {
+    if (!Number.isFinite(amountUSD) || amountUSD === 0) return;
+    actualSessionNetUSD += amountUSD;
     updateActualSessionWinningsDisplay();
-}
-
-function addActualSessionLosses(amountUSD) {
-    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
-    actualSessionLossesUSD += amountUSD;
-    updateActualSessionLossesDisplay();
-}
-
-function subtractActualSessionWinnings(amountUSD) {
-    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
-    actualSessionWinningsUSD = Math.max(0, actualSessionWinningsUSD - amountUSD);
-    updateActualSessionWinningsDisplay();
-}
-
-function subtractActualSessionLosses(amountUSD) {
-    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
-    actualSessionLossesUSD = Math.max(0, actualSessionLossesUSD - amountUSD);
     updateActualSessionLossesDisplay();
 }
 
 function adjustBalanceByCredits(creditDelta) {
     const step = parseFloat(creditStepEl.value) || 0;
-    const denom = parseFloat(denomEl.value) || 1;
+    const denom = getDenominationValue();
     balance = Math.max(0, balance + (step * denom * creditDelta));
     updateTotals();
 }
@@ -643,15 +702,17 @@ async function doSpin() {
     const { totalWinUSD, lineWins, winningPositions } = evaluateGrid(grid);
     renderGrid(grid, winningPositions);
     addSessionLosses(Math.max(totalBetUSD - totalWinUSD, 0));
-    addActualSessionLosses(totalBetUSD);
-    subtractActualSessionWinnings(totalBetUSD);
+    addNetSessionLosses(totalBetUSD);
+    subtractNetSessionWinnings(totalBetUSD);
+    adjustActualSessionNet(-totalBetUSD);
 
     // Payout
     if (totalWinUSD > 0) {
         balance += totalWinUSD;
         addSessionWinnings(totalWinUSD);
-        addActualSessionWinnings(totalWinUSD);
-        subtractActualSessionLosses(totalWinUSD);
+        addNetSessionWinnings(totalWinUSD);
+        subtractNetSessionLosses(totalWinUSD);
+        adjustActualSessionNet(totalWinUSD);
 
         const linesText = lineWins
             .map(w => `Line ${w.lineIndex}: ${w.symbol} × ${w.count} → ${fmtUSD(w.winUSD)}`)
@@ -667,6 +728,8 @@ async function doSpin() {
     removeOrphanSessionLabels();
     updateSessionWinningsDisplay();
     updateSessionLossesDisplay();
+    updateNetSessionWinningsDisplay();
+    updateNetSessionLossesDisplay();
     updateActualSessionWinningsDisplay();
     updateActualSessionLossesDisplay();
 }
@@ -875,6 +938,8 @@ document.addEventListener("keydown", (e) => {
     ensureSessionStatsUI();
     updateSessionWinningsDisplay();
     updateSessionLossesDisplay();
+    updateNetSessionWinningsDisplay();
+    updateNetSessionLossesDisplay();
     updateActualSessionWinningsDisplay();
     updateActualSessionLossesDisplay();
     updateSessionStatsVisibility();
