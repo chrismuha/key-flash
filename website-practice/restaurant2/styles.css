@@ -197,10 +197,14 @@ body.page2 {
 .left-rail .box.nav-cart {
     margin-left: auto;
     position: fixed;
-    top: 62px;
-    right: 28px;
+    top: 52px;
+    right: 8px;
     margin: 0;
     z-index: 1001;
+}
+
+body.nav-enabled .left-rail .box.nav-cart {
+    top: clamp(54px, calc(var(--nav-offset) - 48px - var(--gap)), 86px);
 }
 
 
@@ -983,6 +987,14 @@ body.page3 main {
 }
 
 @media (max-width: 768px) {
+    .left-rail .box.nav-cart {
+        top: 56px;
+    }
+
+    body.nav-enabled .left-rail .box.nav-cart {
+        top: clamp(58px, calc(var(--nav-offset) - 48px - var(--gap)), 90px);
+    }
+
     .left-rail {
         padding: calc(var(--gap) * 1) var(--gap) 0;
         gap: 6px;
@@ -1031,6 +1043,16 @@ body.page3 main {
         margin-top: 4px;
         transform: scale(0.88);
         transform-origin: center;
+    }
+
+    .left-rail .box.nav-cart {
+        transform: scale(1);
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        padding: 0;
+        font-size: 16.5pt;
+        margin-top: 0;
     }
 
     .order-type-chip {
@@ -2275,6 +2297,42 @@ body.theme-dark.page3 #order-summary .summary-inline-qty {
     border-color: var(--border-strong);
 }
 
+/* Tone down cart-page button scale on very wide/maximized displays */
+@media (min-width: 1400px) {
+    body.page3 #order-summary .summary-location-change {
+        min-width: 90px;
+        min-height: 32px;
+        padding: 5px 10px;
+        font-size: 11pt;
+    }
+
+    body.page3 #order-summary .summary-edit-btn,
+    body.page3 #order-summary .summary-remove-btn {
+        min-width: 86px;
+        width: 86px;
+        height: 32px;
+        font-size: 10pt;
+        padding: 3px 8px;
+    }
+
+    body.page3 .pos-checkout {
+        min-width: 100px;
+        min-height: 36px;
+        height: 36px;
+        font-size: 9.2pt;
+        padding: 3px 8px;
+    }
+
+    body.page3 #order-summary .summary-qty-controls .qty-control-decrement,
+    body.page3 #order-summary .summary-qty-controls .qty-control-increment {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        min-height: 30px;
+        font-size: 17pt;
+    }
+}
+
 /* Section: Page 1 Order Type */
 body.order-type main {
     text-align: center;
@@ -2291,6 +2349,12 @@ body.order-type main {
     padding-bottom: calc(220px + var(--safe-area-bottom));
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+}
+
+/* Keep the order-type heading clear of the expanded fixed nav */
+body.order-type.nav-enabled main {
+    justify-content: flex-start;
+    padding-top: calc(var(--nav-offset) + var(--gap) * 2);
 }
 
 @media (max-width: 768px) {

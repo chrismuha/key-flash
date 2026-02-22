@@ -764,6 +764,18 @@
     return data;
   }
 
+  function clearDeliveryDetailsFromStorage() {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.deliveryName);
+      localStorage.removeItem(STORAGE_KEYS.deliveryPhone);
+      localStorage.removeItem(STORAGE_KEYS.deliveryAddress);
+      localStorage.removeItem(STORAGE_KEYS.deliverySuite);
+      localStorage.removeItem(STORAGE_KEYS.deliveryType);
+      localStorage.removeItem(STORAGE_KEYS.deliveryCity);
+      localStorage.removeItem(STORAGE_KEYS.deliveryZip);
+    } catch { /* ignore */ }
+  }
+
   function hasValidDeliveryDetails() {
     try {
       const d = readDeliveryData();
@@ -1836,15 +1848,7 @@
             if (field) field.value = '';
           });
           if (deliveryError) deliveryError.hidden = true;
-          try {
-            localStorage.removeItem(STORAGE_KEYS.deliveryName);
-            localStorage.removeItem(STORAGE_KEYS.deliveryPhone);
-            localStorage.removeItem(STORAGE_KEYS.deliveryAddress);
-            localStorage.removeItem(STORAGE_KEYS.deliverySuite);
-            localStorage.removeItem(STORAGE_KEYS.deliveryType);
-            localStorage.removeItem(STORAGE_KEYS.deliveryCity);
-            localStorage.removeItem(STORAGE_KEYS.deliveryZip);
-          } catch { /* ignore */ }
+          clearDeliveryDetailsFromStorage();
           updatePage3NavState();
         });
       }
@@ -3284,6 +3288,7 @@
         resetSettingsToDefaults();
         try { localStorage.removeItem(STORAGE_KEYS.orderItems); } catch { /* ignore */ }
         try { localStorage.removeItem(STORAGE_KEYS.sectionNotes); } catch { /* ignore */ }
+        clearDeliveryDetailsFromStorage();
         if (typeof closeAllOverlays === 'function') closeAllOverlays();
         clearMenuLaunchVisualState();
         INGREDIENT_GROUPS.forEach((group) => resetGroupByName(group, { skipConfirm: true }));
