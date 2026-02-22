@@ -90,14 +90,15 @@ body {
     }
 
     .left .stat:has(#balance) { order: 1; }
+    .left .select:has(#sessionStatDisplay) { order: 2; }
     .left .stat-box,
     .left #sessionWinningsBox,
-    .left #sessionLossesBox { order: 2; }
-    .left .credit-controls { order: 3; margin-top: 0; }
-    .left .stat:has(#totalBet) { order: 4; }
-    .left .select:has(#denom) { order: 5; }
-    .left .select:has(#lines) { order: 6; }
-    .left .select:has(#bet) { order: 7; }
+    .left #sessionLossesBox { order: 3; }
+    .left .credit-controls { order: 4; margin-top: 0; }
+    .left .stat:has(#totalBet) { order: 5; }
+    .left .select:has(#denom) { order: 6; }
+    .left .select:has(#lines) { order: 7; }
+    .left .select:has(#bet) { order: 8; }
 
     .right {
         flex: 0 0 auto;
@@ -151,14 +152,15 @@ body {
     }
 
     .left .stat:has(#balance) { order: 1; }
+    .left .select:has(#sessionStatDisplay) { order: 2; }
     .left .stat-box,
     .left #sessionWinningsBox,
-    .left #sessionLossesBox { order: 2; }
-    .left .credit-controls { order: 3; margin-top: 0; }
-    .left .stat:has(#totalBet) { order: 4; }
-    .left .select:has(#denom) { order: 5; }
-    .left .select:has(#lines) { order: 6; }
-    .left .select:has(#bet) { order: 7; }
+    .left #sessionLossesBox { order: 3; }
+    .left .credit-controls { order: 4; margin-top: 0; }
+    .left .stat:has(#totalBet) { order: 5; }
+    .left .select:has(#denom) { order: 6; }
+    .left .select:has(#lines) { order: 7; }
+    .left .select:has(#bet) { order: 8; }
 
     .right {
         flex: 0 0 auto;
@@ -224,14 +226,15 @@ body {
     }
 
     .left .stat:has(#balance) { order: 1; }
+    .left .select:has(#sessionStatDisplay) { order: 2; }
     .left .stat-box,
     .left #sessionWinningsBox,
-    .left #sessionLossesBox { order: 2; }
-    .left .credit-controls { order: 3; margin-top: 0; }
-    .left .stat:has(#totalBet) { order: 4; }
-    .left .select:has(#denom) { order: 5; }
-    .left .select:has(#lines) { order: 6; }
-    .left .select:has(#bet) { order: 7; }
+    .left #sessionLossesBox { order: 3; }
+    .left .credit-controls { order: 4; margin-top: 0; }
+    .left .stat:has(#totalBet) { order: 5; }
+    .left .select:has(#denom) { order: 6; }
+    .left .select:has(#lines) { order: 7; }
+    .left .select:has(#bet) { order: 8; }
 
     .right {
         flex: 0 0 auto;
@@ -1137,7 +1140,7 @@ body.overlay-open {
 
 .overlay-panel {
   width: min(760px, calc(100vw - 28px));
-  height: min(86dvh, 720px);
+  height: min(90dvh, 780px);
   overflow: hidden;
   background: linear-gradient(180deg, #131c31, #0d1322);
   border: 1px solid rgba(165, 255, 125, 0.32);
@@ -1211,6 +1214,15 @@ body.overlay-open {
   margin: 0 0 8px 0;
   font-size: 9.25pt;
   color: var(--text);
+}
+
+.overlay-section[data-info-page="0"] h4 {
+  font-size: 16pt;
+}
+
+.overlay-section[data-info-page="0"] p {
+  font-size: 13pt;
+  line-height: 1.45;
 }
 
 .overlay-section p:last-child {
