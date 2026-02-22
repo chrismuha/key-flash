@@ -507,6 +507,8 @@ function doMaxBet() {
 function applyDesktopAutoFit() {
     const gameEl = document.querySelector(".game");
     if (!gameEl) return;
+    const cardEl = gameEl.querySelector(".card");
+    if (!cardEl) return;
 
     if (!desktopAutoFitQuery.matches) {
         document.body.classList.remove("desktop-autofit");
@@ -518,19 +520,20 @@ function applyDesktopAutoFit() {
     document.body.classList.remove("desktop-autofit");
     document.documentElement.style.setProperty("--desktop-fit-scale", "1");
     gameEl.style.transform = "none";
-    const contentWidth = Math.max(gameEl.scrollWidth, 1);
-    const contentHeight = Math.max(gameEl.scrollHeight, 1);
-    const availableWidth = Math.max(window.innerWidth - 2, 1);
-    const availableHeight = Math.max(window.innerHeight - 2, 1);
+    const contentWidth = Math.max(cardEl.scrollWidth, gameEl.scrollWidth, 1);
+    const contentHeight = Math.max(cardEl.scrollHeight, gameEl.scrollHeight, 1);
+    const viewportWidth = window.visualViewport?.width || window.innerWidth;
+    const viewportHeight = window.visualViewport?.height || window.innerHeight;
+
+    // Keep a larger vertical safety buffer on shorter desktop heights to avoid bottom clipping.
+    const horizontalPadding = viewportWidth >= 1400 ? 22 : 18;
+    const verticalPadding = viewportHeight <= 860 ? 56 : 38;
+    const availableWidth = Math.max(viewportWidth - horizontalPadding, 1);
+    const availableHeight = Math.max(viewportHeight - verticalPadding, 1);
     const rawScale = Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight);
 
-    if (rawScale >= 0.999) {
-        gameEl.style.transform = "";
-        return;
-    }
-
     document.body.classList.add("desktop-autofit");
-    const scale = Math.max(0.5, rawScale * 0.975);
+    const scale = Math.max(0.5, Math.min(0.985, rawScale * 0.985));
 
     document.documentElement.style.setProperty("--desktop-fit-scale", String(scale));
     gameEl.style.transform = "";
@@ -694,3 +697,5 @@ document.addEventListener("keydown", (e) => {
 
 window.addEventListener("resize", scheduleDesktopAutoFit, { passive: true });
 desktopAutoFitQuery.addEventListener("change", scheduleDesktopAutoFit);
+window.visualViewport?.addEventListener("resize", scheduleDesktopAutoFit, { passive: true });
+window.visualViewport?.addEventListener("scroll", scheduleDesktopAutoFit, { passive: true });
