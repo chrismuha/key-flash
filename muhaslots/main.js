@@ -61,7 +61,7 @@ const overlayNextBtn = document.getElementById("overlayNext");
 const overlayPageLabelEl = document.getElementById("overlayPageLabel");
 const overlayPageEls = Array.from(document.querySelectorAll("[data-info-page]"));
 const sessionStatDisplayEl = document.getElementById("sessionStatDisplay");
-const desktopAutoFitQuery = window.matchMedia("(min-width: 701px)");
+const desktopAutoFitQuery = window.matchMedia("(min-width: 841px)");
 
 
 // State
@@ -524,12 +524,13 @@ function applyDesktopAutoFit() {
     const availableHeight = Math.max(window.innerHeight - 24, 1);
     const rawScale = Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight);
 
+    if (rawScale >= 0.999) {
+        gameEl.style.transform = "";
+        return;
+    }
+
     document.body.classList.add("desktop-autofit");
-    // Only force compact look on wider desktops; narrower widths should fill space.
-    const forceCompact = window.innerWidth >= 1280;
-    const compactCap = forceCompact ? 0.97 : 1;
-    const safety = forceCompact ? 0.985 : 1;
-    const scale = Math.max(0.5, Math.min(compactCap, rawScale * safety));
+    const scale = Math.max(0.5, rawScale * 0.975);
 
     document.documentElement.style.setProperty("--desktop-fit-scale", String(scale));
     gameEl.style.transform = "";

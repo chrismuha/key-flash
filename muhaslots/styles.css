@@ -156,7 +156,7 @@ body {
 
 }
 
-@media (min-width:701px) {
+@media (min-width:841px) {
     body.desktop-autofit {
         width: 100vw;
         height: 100vh;
@@ -177,27 +177,27 @@ body {
     }
 
     .reels {
-        --reel-row-h: 40px;
-        --reel-row-gap: 6px;
+        --reel-row-h: 30px;
+        --reel-row-gap: 4px;
     }
 
     .hud {
-        margin-top: 6px;
-        gap: 6px;
+        margin-top: 4px;
+        gap: 5px;
         align-items: flex-start;
     }
 
     .stat,
     .select {
-        padding: 7px 9px;
+        padding: 6px 8px;
     }
 
     .left {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         flex: 1 1 100%;
         width: 100%;
-        gap: 6px;
+        gap: 5px;
         align-items: start;
     }
 
@@ -1146,4 +1146,40 @@ body.overlay-open {
 
 .overlay-close {
   min-width: 90px;
+}
+
+/* Final desktop-autofit overrides: keep controls in 2 columns so content can scale larger. */
+@media (min-width: 841px) {
+  body.desktop-autofit .hud {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 5px;
+    margin-top: 4px;
+  }
+
+  body.desktop-autofit .left {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 5px;
+    align-items: start;
+  }
+
+  body.desktop-autofit .left > * {
+    min-width: 0;
+    width: 100%;
+  }
+
+  body.desktop-autofit .stat,
+  body.desktop-autofit .select {
+    padding: 6px 8px;
+  }
+
+  body.desktop-autofit .right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
 }
