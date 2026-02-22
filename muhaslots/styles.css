@@ -185,19 +185,19 @@ body {
     }
 
     .reels {
-        --reel-row-h: 34px;
-        --reel-row-gap: 4px;
+        --reel-row-h: 30px;
+        --reel-row-gap: 3px;
     }
 
     .hud {
-        margin-top: 4px;
-        gap: 5px;
+        margin-top: 3px;
+        gap: 4px;
         align-items: flex-start;
     }
 
     .stat,
     .select {
-        padding: 6px 8px;
+        padding: 5px 7px;
     }
 
     .left {
@@ -205,7 +205,7 @@ body {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         flex: 1 1 100%;
         width: 100%;
-        gap: 5px;
+        gap: 4px;
         align-items: start;
     }
 
@@ -229,33 +229,90 @@ body {
         align-items: center;
     }
 
-    .card {
-        padding: 12px;
-    }
+    .card { padding: 10px; }
 
     .lines-preview {
-        grid-template-columns: repeat(5, 10px);
-        gap: 2px;
+        grid-template-columns: repeat(5, 8px);
+        gap: 1px;
         margin-top: 2px;
         margin-bottom: 0;
     }
 
     .dot2 {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
     }
 
     .table {
-        gap: 3px;
-        font-size: 9pt;
+        gap: 2px;
+        font-size: 8pt;
     }
 
     .table div {
-        padding: 4px 5px;
+        padding: 3px 4px;
     }
 
-    .legend {
-        display: none;
+    .legend { display: none; }
+
+    .title {
+        margin-bottom: 6px;
+        font-size: 1.1rem;
+    }
+
+    .cell {
+        font-size: clamp(22pt, 5.3vmin, 34pt);
+    }
+
+    label {
+        margin-bottom: 4px;
+        font-size: 8.5pt;
+        line-height: 1.15;
+    }
+
+    select,
+    input[type=number] {
+        min-height: 32px;
+        padding: 6px 8px;
+        font-size: 9pt;
+    }
+
+    button {
+        min-height: 32px;
+        min-width: 96px;
+        padding: 8px 10px;
+        font-size: 8.5pt;
+    }
+
+    .icon-btn {
+        min-height: 32px;
+        padding: 6px 8px;
+    }
+
+    .message {
+        margin-top: 8px;
+        min-height: 18px;
+        font-size: 9pt;
+    }
+
+    .credit-controls {
+        width: 100%;
+    }
+
+    .credit-controls .credit-row {
+        display: flex;
+        width: 100%;
+    }
+
+    #creditStep {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: auto;
+    }
+
+    .credit-controls .icon-btn {
+        flex: 0 0 36px;
+        min-width: 36px;
+        padding: 6px 0;
     }
 
 }
@@ -610,18 +667,30 @@ button:focus-visible,
 }
 
 .credit-controls {
-    margin-top: 10px;
+    margin-top: 4px;
+    width: 100%;
 }
 
 .credit-controls .credit-row {
-    display: inline-flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 36px 36px;
     gap: 8px;
     align-items: center;
+    width: 100%;
+}
+
+.credit-controls label {
+    margin-bottom: 2px;
+}
+
+.left .credit-controls {
+    grid-column: 1 / -1;
 }
 
 .icon-btn {
-    min-width: 0;
-    padding: 8px 10px;
+    min-width: 36px;
+    width: 36px;
+    padding: 8px 0;
     border-radius: 10px;
 }
 
@@ -633,13 +702,26 @@ button:focus-visible,
     line-height: 1.2;
 }
 
+#sessionWinningsBox,
+#sessionLossesBox {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.stat:has(#totalBet),
+.select:has(#denom) {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
 #session-winnings strong {
     font-weight: 700;
 }
 
 /* Stat Displays */
 #creditStep {
-    width: 90px;
+    width: 100%;
+    min-width: 0;
     padding: 8px 10px;
     background: rgba(255, 255, 255, .04);
     border: 1px solid rgba(255, 255, 255, .08);
@@ -1194,5 +1276,105 @@ body.overlay-open {
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
+  }
+
+  .credit-controls {
+    width: 100%;
+    grid-column: 1 / -1;
+  }
+
+  .credit-controls .credit-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 36px 36px;
+    width: 100%;
+    gap: 8px;
+    align-items: center;
+  }
+
+  #creditStep {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .credit-controls .icon-btn {
+    min-width: 36px;
+    width: 36px;
+    padding: 0;
+  }
+}
+
+/* Global tight spacing override for requested blocks on all screen sizes. */
+#sessionWinningsBox,
+#sessionLossesBox,
+.stat:has(#totalBet),
+.select:has(#denom),
+.credit-controls {
+  padding: 4px !important;
+}
+
+.credit-controls label {
+  margin-bottom: 4px !important;
+}
+
+.credit-controls .credit-row {
+  row-gap: 4px !important;
+}
+
+/* Reduce the exact vertical whitespace areas marked in red. */
+.left > * {
+  align-self: start !important;
+}
+
+.left {
+  row-gap: 0 !important;
+}
+
+.hud {
+  row-gap: 0 !important;
+}
+
+.reels-wrap {
+  row-gap: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+.right {
+  margin-top: 4px !important;
+}
+
+.message {
+  margin-top: 4px !important;
+  min-height: 4px !important;
+}
+
+/* Keep Total Bet -> Denomination tight across all viewport sizes. */
+.stat:has(#totalBet) {
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+  align-self: stretch !important;
+  display: flex;
+  align-items: center;
+}
+
+.stat:has(#balance) {
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+  align-self: stretch !important;
+  display: flex;
+  align-items: center;
+}
+
+.select:has(#denom) {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+@media (max-width: 700px) {
+  .stat:has(#totalBet) {
+    margin-bottom: 4px !important;
+  }
+
+  .select:has(#denom) {
+    margin-top: 4px !important;
   }
 }
