@@ -728,10 +728,11 @@ async function doSpin() {
     // Final outcome
     const grid = spinOnce();
     const { totalWinUSD, lineWins, winningPositions } = evaluateGrid(grid);
+    const lossComponentUSD = Math.max(totalBetUSD - totalWinUSD, 0);
     renderGrid(grid, winningPositions);
-    addSessionLosses(Math.max(totalBetUSD - totalWinUSD, 0));
-    addNetSessionLosses(totalBetUSD);
-    subtractNetSessionWinnings(totalBetUSD);
+    addSessionLosses(lossComponentUSD);
+    addNetSessionLosses(lossComponentUSD);
+    subtractNetSessionWinnings(lossComponentUSD);
     adjustActualSessionNet(-totalBetUSD);
 
     // Payout
