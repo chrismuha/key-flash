@@ -172,14 +172,6 @@ body {
         white-space: nowrap;
     }
 
-    .info-btn,
-    button.info-btn {
-        width: 24px;
-        height: 24px;
-        min-width: 24px;
-        min-height: 24px;
-        line-height: 1;
-    }
 }
 
 @media (min-width:841px) and (max-height:900px) {
@@ -298,15 +290,6 @@ body {
         gap: 6px;
     }
 
-    .info-btn,
-    button.info-btn {
-        width: 24px;
-        height: 24px;
-        min-width: 24px;
-        min-height: 24px;
-        font-size: 10pt;
-        line-height: 1;
-    }
 }
 
 /* Card */
@@ -525,19 +508,12 @@ button {
 }
 
 button.info-btn {
-    min-width: 22px;
-    width: 22px;
-    height: 22px;
-    aspect-ratio: 1 / 1;
     flex-shrink: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    line-height: 1;
     text-transform: none;
     overflow: hidden;
-    padding: 0 !important;
-    border-radius: 999px;
 }
 
 button.info-btn::before {
@@ -606,6 +582,16 @@ button:focus-visible,
 
 .paytable h3 {
     margin: 0 0 6px 0
+}
+
+.lines-preview-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lines-preview-header label {
+    margin: 0;
 }
 
 .table {
@@ -971,16 +957,6 @@ a.btn {
     line-height: 1.15;
   }
 
-  .info-btn,
-  button.info-btn {
-    width: 24px;
-    height: 24px;
-    min-width: 24px;
-    min-height: 24px;
-    padding: 0;
-    font-size: 10pt;
-  }
-
   .table {
     gap: 3px;
     font-size: 7.5pt;
@@ -1113,15 +1089,6 @@ a.btn {
     align-content: start;
   }
 
-  .info-btn,
-  button.info-btn {
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
-    min-height: 20px;
-    font-size: 8.5pt;
-  }
-
   .table {
     gap: 1px;
     font-size: 6.4pt;
@@ -1163,4 +1130,115 @@ a.btn {
     height: 6px;
     border-radius: 2px;
   }
+}
+
+/* Keep payout info button shape/size consistent across all breakpoints. */
+#payInfo.info-btn,
+#previewInfo.info-btn {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  aspect-ratio: 1 / 1;
+  flex: 0 0 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  font-size: 10.5pt;
+  border-radius: 999px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Overlay for payout rules + lines preview */
+body.overlay-open {
+  overflow: hidden;
+}
+
+.overlay[hidden] {
+  display: none;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(6, 10, 18, 0.82);
+  display: grid;
+  place-items: center;
+  padding: 14px;
+}
+
+.overlay-panel {
+  width: min(760px, 100%);
+  max-height: min(90dvh, 820px);
+  overflow: auto;
+  background: linear-gradient(180deg, #131c31, #0d1322);
+  border: 1px solid rgba(165, 255, 125, 0.32);
+  border-radius: 14px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.58);
+  padding: 14px;
+}
+
+.overlay-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.overlay-head h3 {
+  margin: 0;
+  font-size: 12pt;
+}
+
+.overlay-content {
+  display: grid;
+  gap: 12px;
+}
+
+.overlay-section {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 10px 12px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.overlay-section h4 {
+  margin: 0 0 8px 0;
+  font-size: 10pt;
+  color: var(--accent2);
+}
+
+.overlay-section p {
+  margin: 0 0 8px 0;
+  font-size: 9.25pt;
+  color: var(--text);
+}
+
+.overlay-section p:last-child {
+  margin-bottom: 0;
+}
+
+.overlay-note {
+  color: var(--muted);
+}
+
+.lines-preview-overlay {
+  grid-template-columns: repeat(5, 18px);
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.lines-preview-overlay .dot2 {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+}
+
+.overlay-close {
+  min-width: 90px;
 }

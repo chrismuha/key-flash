@@ -55,6 +55,10 @@ const maxBtn = document.getElementById("max");
 const payInfoBtn = document.getElementById("payInfo");
 const payInfoPopup = document.getElementById("payInfoPopup");
 const linesPreviewEl = document.getElementById("linesPreview");
+const previewInfoBtn = document.getElementById("previewInfo");
+const previewOverlayEl = document.getElementById("previewOverlay");
+const previewOverlayCloseBtn = document.getElementById("previewOverlayClose");
+const linesPreviewOverlayEl = document.getElementById("linesPreviewOverlay");
 const sessionStatDisplayEl = document.getElementById("sessionStatDisplay");
 const desktopAutoFitQuery = window.matchMedia("(min-width: 841px) and (max-height: 900px)");
 
@@ -188,10 +192,10 @@ function animateSpin(durationMs = 600) {
 
 
 // Lines Preview (now 5 rows)
-function renderLinesPreview() {
-    if (!linesPreviewEl) return;
+function renderSingleLinesPreview(targetEl) {
+    if (!targetEl) return;
     const active = parseInt(linesEl.value, 10);
-    linesPreviewEl.innerHTML = "";
+    targetEl.innerHTML = "";
 
     for (let row = 0; row < ROWS; row++) {
         for (let col = 0; col < COLS; col++) {
@@ -204,9 +208,14 @@ function renderLinesPreview() {
                     break;
                 }
             }
-            linesPreviewEl.appendChild(dot);
+            targetEl.appendChild(dot);
         }
     }
+}
+
+function renderLinesPreview() {
+    renderSingleLinesPreview(linesPreviewEl);
+    renderSingleLinesPreview(linesPreviewOverlayEl);
 }
 
 
@@ -223,10 +232,26 @@ function handleDocumentClick(e) {
     }
 }
 function handleEsc(e) {
-    if (e.key === "Escape" && !payInfoPopup.hidden) {
+    if (e.key !== "Escape") return;
+
+    if (!payInfoPopup.hidden) {
         togglePayInfo(false);
         payInfoBtn.focus();
+        return;
     }
+
+    if (previewOverlayEl && !previewOverlayEl.hidden) {
+        togglePreviewOverlay(false);
+        previewInfoBtn?.focus();
+    }
+}
+
+function togglePreviewOverlay(force) {
+    if (!previewOverlayEl) return;
+    const wantOpen = (typeof force === "boolean") ? force : previewOverlayEl.hidden;
+    previewOverlayEl.hidden = !wantOpen;
+    previewInfoBtn?.setAttribute("aria-expanded", String(wantOpen));
+    document.body.classList.toggle("overlay-open", wantOpen);
 }
 
 // Credit step controls (▲ / ▼)
@@ -477,16 +502,25 @@ function onConfigChange() {
 
 function disableDoubleTapZoom() {
     let lastTouchEnd = 0;
+
+    const isInteractiveTarget = (target) => {
+        if (!(target instanceof Element)) return false;
+        return Boolean(
+            target.closest("button, input, select, textarea, label, a, [role='button']")
+        );
+    };
+
     document.addEventListener("touchend", (e) => {
         const now = Date.now();
-        if (now - lastTouchEnd <= 300) {
+        // Do not block rapid taps on controls; they need to remain responsive.
+        if (!isInteractiveTarget(e.target) && now - lastTouchEnd <= 300 && e.cancelable) {
             e.preventDefault();
         }
         lastTouchEnd = now;
     }, { passive: false });
 
     document.addEventListener("gesturestart", (e) => {
-        e.preventDefault();
+        if (e.cancelable) e.preventDefault();
     }, { passive: false });
 }
 
@@ -536,6 +570,11 @@ creditStepEl.addEventListener("keydown", (e) => {
 payInfoBtn.addEventListener("click", () => togglePayInfo());
 document.addEventListener("click", handleDocumentClick);
 document.addEventListener("keydown", handleEsc);
+previewInfoBtn?.addEventListener("click", () => togglePreviewOverlay());
+previewOverlayCloseBtn?.addEventListener("click", () => togglePreviewOverlay(false));
+previewOverlayEl?.addEventListener("click", (e) => {
+    if (e.target === previewOverlayEl) togglePreviewOverlay(false);
+});
 
 // Keyboard shortcuts
 document.addEventListener("keydown", (e) => {
@@ -569,6 +608,8 @@ document.addEventListener("keydown", (e) => {
     // ARIA defaults
     payInfoPopup.hidden = true;
     payInfoBtn.setAttribute("aria-expanded", "false");
+    if (previewOverlayEl) previewOverlayEl.hidden = true;
+    previewInfoBtn?.setAttribute("aria-expanded", "false");
 
     ensureSessionStatsUI();
     updateSessionWinningsDisplay();
