@@ -569,7 +569,8 @@ function applyDesktopAutoFit() {
     const rawScale = Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight);
 
     document.body.classList.add("desktop-autofit");
-    const scale = Math.max(0.5, Math.min(0.985, rawScale * 0.985));
+    // Keep a little extra headroom so controls don't clip on shorter desktops.
+    const scale = Math.max(0.5, Math.min(0.95, rawScale * 0.95));
 
     document.documentElement.style.setProperty("--desktop-fit-scale", String(scale));
     gameEl.style.transform = "";
