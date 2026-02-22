@@ -32,14 +32,11 @@ document.getElementById('exportButton').addEventListener('click', async () => {
 const themeOptions = Array.from(document.querySelectorAll('.themes-switcher div[data-theme]'));
 const systemThemeOption = document.querySelector('.themes-switcher .system-theme-option');
 const systemColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
-const isMobileThemeSwitcher =
-    window.matchMedia('(hover: none) and (pointer: coarse)').matches ||
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-let selectedThemeMode = 'light';
+let selectedThemeMode = 'system';
 
-if (!isMobileThemeSwitcher && systemThemeOption) {
-    systemThemeOption.style.display = 'none';
+if (systemThemeOption) {
+    systemThemeOption.style.display = '';
 }
 
 function applyThemeMode(mode) {
@@ -55,7 +52,7 @@ function setActiveThemeOption(mode) {
 
 themeOptions.forEach((option) => {
     option.addEventListener('click', function () {
-        const mode = this.dataset.theme || 'light';
+        const mode = this.dataset.theme || 'system';
         selectedThemeMode = mode;
         setActiveThemeOption(mode);
         applyThemeMode(mode);
@@ -67,6 +64,9 @@ systemColorScheme.addEventListener('change', () => {
         applyThemeMode('system');
     }
 });
+
+setActiveThemeOption(selectedThemeMode);
+applyThemeMode(selectedThemeMode);
 
 // Section: Quantity Input Styling
 document.addEventListener("DOMContentLoaded", function () {
@@ -193,5 +193,26 @@ if (cardNumberInput) {
         event.preventDefault();
         const pastedData = (event.clipboardData || window.clipboardData).getData("text");
         event.target.value = formatCardNumberValue(pastedData);
+    });
+}
+
+// Section: Card Expiration Formatting (MM/YY)
+const cardExpInput = document.getElementById("card-exp");
+
+function formatCardExpValue(rawValue) {
+    const digits = rawValue.replace(/\D/g, '').slice(0, 4);
+    if (digits.length <= 2) return digits;
+    return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+}
+
+if (cardExpInput) {
+    cardExpInput.addEventListener("input", function (event) {
+        event.target.value = formatCardExpValue(event.target.value);
+    });
+
+    cardExpInput.addEventListener("paste", function (event) {
+        event.preventDefault();
+        const pastedData = (event.clipboardData || window.clipboardData).getData("text");
+        event.target.value = formatCardExpValue(pastedData);
     });
 }
