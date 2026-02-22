@@ -256,11 +256,11 @@ body {
 
     .title {
         margin-bottom: 6px;
-        font-size: 1.1rem;
+        font-size: 13pt;
     }
 
     .cell {
-        font-size: 26px;
+        font-size: 19.5pt;
     }
 
     label {
@@ -330,7 +330,7 @@ body {
   }
 
   .cell {
-    font-size: 26px;
+    font-size: 19.5pt;
   }
 }
 
@@ -471,7 +471,7 @@ body {
     align-items: center;
     justify-content: center;
     line-height: 1;
-    font-size: 34px;
+    font-size: 25.5pt;
     background: rgba(255, 255, 255, .02);
     border-radius: 8px;
     position: relative;
@@ -888,7 +888,7 @@ a.btn {
 
   .title {
     margin-bottom: 0;
-    font-size: .95rem;
+    font-size: 11.5pt;
   }
 
   .reels-wrap {
@@ -909,7 +909,7 @@ a.btn {
   }
 
   .cell {
-    font-size: 20px;
+    font-size: 15pt;
   }
 
   .hud {
@@ -941,7 +941,7 @@ a.btn {
   .message,
   .table,
   .legend {
-    font-size: 8.4pt;
+    font-size: 8.5pt;
   }
 
   .select,
@@ -1014,7 +1014,7 @@ a.btn {
   }
 
   .title {
-    font-size: .88rem;
+    font-size: 10.5pt;
   }
 
   .reels-wrap {
@@ -1033,7 +1033,7 @@ a.btn {
   }
 
   .cell {
-    font-size: 16px;
+    font-size: 12pt;
   }
 
   .hud,
@@ -1061,7 +1061,7 @@ a.btn {
   .muted,
   .message,
   .table {
-    font-size: 7.4pt;
+    font-size: 7.5pt;
   }
 
   select,
@@ -1085,7 +1085,7 @@ a.btn {
 
   .table {
     gap: 1px;
-    font-size: 6.4pt;
+    font-size: 6.5pt;
   }
 
   .table div {
@@ -1223,7 +1223,7 @@ body.overlay-open {
 
 .overlay-section p {
   margin: 0 0 8px 0;
-  font-size: 9.25pt;
+  font-size: 9pt;
   color: var(--text);
 }
 
