@@ -411,7 +411,7 @@ function ensureSessionStatsUI() {
         availBox,
         boxId: "sessionLossesBox",
         valueId: "sessionLosses",
-        labelText: "Session Losses Total",
+        labelText: "Session Losses",
     });
     winningsBox.insertAdjacentElement("afterend", lossesBox);
 
