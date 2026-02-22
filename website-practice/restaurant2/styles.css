@@ -1787,7 +1787,6 @@ body.page2 label.required * {
 body.page2 input[type="checkbox"][data-required="true"][disabled] {
     opacity: var(--checkbox-disabled-opacity);
     cursor: not-allowed;
-    transform: translateY(1px);
 }
 
 /* Visually gray required items when their section is inactive */
@@ -2713,9 +2712,9 @@ main .menu-summary {
 }
 
 main .section-actions {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
     align-items: center;
-    flex-wrap: wrap;
     margin-top: 8px;
     gap: 8px;
     width: 100%;
@@ -2724,12 +2723,14 @@ main .section-actions {
 main .section-actions .section-actions-qty-controls {
     margin: 0;
     width: 100%;
+    grid-column: 1 / -1;
 }
 
 main .section-note-wrap {
     display: grid;
     gap: 4px;
     width: min(100%, 54ch);
+    grid-column: 1 / -1;
 }
 
 main .section-note-label {
@@ -2769,7 +2770,8 @@ body.theme-dark main .section-note-input {
 }
 
 main .section-actions .section-done {
-    margin-left: auto;
+    margin-left: 0;
+    justify-self: end;
     padding: 4px 14px;
     border: 1px solid currentColor;
     border-radius: 999px;
@@ -2790,6 +2792,11 @@ main .section-actions .section-done:focus-visible {
 body.theme-dark main .section-actions .section-done:hover,
 body.theme-dark main .section-actions .section-done:focus-visible {
     background: var(--surface-dim-hover-dark);
+}
+
+main .section-actions .reset-group {
+    margin-top: 0;
+    justify-self: end;
 }
 
 main .menu-summary-label {
