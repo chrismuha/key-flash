@@ -520,8 +520,8 @@ function applyDesktopAutoFit() {
     gameEl.style.transform = "none";
     const contentWidth = Math.max(gameEl.scrollWidth, 1);
     const contentHeight = Math.max(gameEl.scrollHeight, 1);
-    const availableWidth = Math.max(window.innerWidth - 24, 1);
-    const availableHeight = Math.max(window.innerHeight - 24, 1);
+    const availableWidth = Math.max(window.innerWidth - 2, 1);
+    const availableHeight = Math.max(window.innerHeight - 2, 1);
     const rawScale = Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight);
 
     if (rawScale >= 0.999) {
