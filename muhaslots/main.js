@@ -23,6 +23,21 @@ const PAYTABLE = {
 
 const ROWS = 5;
 const COLS = 5;
+const MONTE_CARLO_BASELINES_BY_LINES = {
+    spins: 500000,
+    byLines: {
+        1: { winRate: 0.047536, lossRate: 0.952464, rtp: 0.406668, houseEdge: 0.593332 },
+        2: { winRate: 0.093756, lossRate: 0.906244, rtp: 0.418394, houseEdge: 0.581606 },
+        3: { winRate: 0.136486, lossRate: 0.863514, rtp: 0.42093733333333333, houseEdge: 0.5790626666666667 },
+        4: { winRate: 0.177584, lossRate: 0.822416, rtp: 0.416944, houseEdge: 0.583056 },
+        5: { winRate: 0.217176, lossRate: 0.782824, rtp: 0.4209688, houseEdge: 0.5790312 },
+        6: { winRate: 0.253474, lossRate: 0.746526, rtp: 0.417354, houseEdge: 0.582646 },
+        7: { winRate: 0.285758, lossRate: 0.714242, rtp: 0.4150897142857143, houseEdge: 0.5849102857142857 },
+        8: { winRate: 0.318648, lossRate: 0.681352, rtp: 0.4166925, houseEdge: 0.5833075 },
+        9: { winRate: 0.339284, lossRate: 0.660716, rtp: 0.41754355555555556, houseEdge: 0.5824564444444444 },
+        10: { winRate: 0.358774, lossRate: 0.641226, rtp: 0.4148412, houseEdge: 0.5851588 },
+    },
+};
 
 // Paylines
 const PAYLINES = [
@@ -267,17 +282,20 @@ function updateGameOddsDisplay() {
     if (!casinoAdvantageTextEl || !winLossOddsTextEl) return;
 
     const { lineWinProb, lineLossProb, returnToPlayer, casinoAdvantage } = getPerLineOddsAndReturn();
-    const linesActive = parseInt(linesEl.value, 10) || 1;
+    const linesActive = Math.min(10, Math.max(1, parseInt(linesEl.value, 10) || 1));
     const spinWinApprox = 1 - (lineLossProb ** linesActive);
     const spinLossApprox = lineLossProb ** linesActive;
+    const baseline = MONTE_CARLO_BASELINES_BY_LINES.byLines[linesActive] || MONTE_CARLO_BASELINES_BY_LINES.byLines[10];
 
     casinoAdvantageTextEl.textContent =
-        `Theoretical casino advantage is ${fmtPercent(casinoAdvantage)} (RTP ${fmtPercent(returnToPlayer)}).`;
+        `100% random mode baseline (Monte Carlo, ${MONTE_CARLO_BASELINES_BY_LINES.spins.toLocaleString()} spins, ${linesActive} lines): ` +
+        `house edge ${fmtPercent(baseline.houseEdge)}, RTP ${fmtPercent(baseline.rtp)}.`;
 
     winLossOddsTextEl.textContent =
-        `Per payline win odds: ${fmtPercent(lineWinProb)} (${fmtOneIn(lineWinProb)}). ` +
-        `Per payline loss odds: ${fmtPercent(lineLossProb)}. ` +
-        `Current ${linesActive}-line spin odds (approx): win ${fmtPercent(spinWinApprox)}, loss ${fmtPercent(spinLossApprox)}.`;
+        `Baseline win/loss: win ${fmtPercent(baseline.winRate)}, loss ${fmtPercent(baseline.lossRate)}. ` +
+        `Base paytable model at ${linesActive} lines (approx): win ${fmtPercent(spinWinApprox)}, loss ${fmtPercent(spinLossApprox)}, ` +
+        `per-line win ${fmtPercent(lineWinProb)} (${fmtOneIn(lineWinProb)}), per-line loss ${fmtPercent(lineLossProb)}, ` +
+        `model RTP ${fmtPercent(returnToPlayer)} / house edge ${fmtPercent(casinoAdvantage)}.`;
 }
 
 
