@@ -1303,78 +1303,44 @@ body.overlay-open {
   }
 }
 
-/* Global tight spacing override for requested blocks on all screen sizes. */
+/* Uniform 6px whitespace overrides (all screen sizes). */
 #sessionWinningsBox,
 #sessionLossesBox,
+.stat:has(#balance),
 .stat:has(#totalBet),
 .select:has(#denom),
 .credit-controls {
-  padding: 4px !important;
+  padding: 6px !important;
+  margin-top: 6px !important;
+  margin-bottom: 6px !important;
 }
 
 .credit-controls label {
-  margin-bottom: 4px !important;
+  margin-bottom: 6px !important;
 }
 
 .credit-controls .credit-row {
-  row-gap: 4px !important;
-}
-
-/* Reduce the exact vertical whitespace areas marked in red. */
-.left > * {
-  align-self: start !important;
+  row-gap: 6px !important;
 }
 
 .left {
-  row-gap: 0 !important;
+  row-gap: 6px !important;
 }
 
 .hud {
-  row-gap: 0 !important;
+  row-gap: 6px !important;
 }
 
 .reels-wrap {
-  row-gap: 4px !important;
-  padding-bottom: 4px !important;
+  row-gap: 6px !important;
+  padding-bottom: 6px !important;
 }
 
 .right {
-  margin-top: 4px !important;
+  margin-top: 6px !important;
 }
 
 .message {
-  margin-top: 4px !important;
-  min-height: 4px !important;
-}
-
-/* Keep Total Bet -> Denomination tight across all viewport sizes. */
-.stat:has(#totalBet) {
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-  align-self: stretch !important;
-  display: flex;
-  align-items: center;
-}
-
-.stat:has(#balance) {
-  padding-bottom: 0 !important;
-  margin-bottom: 0 !important;
-  align-self: stretch !important;
-  display: flex;
-  align-items: center;
-}
-
-.select:has(#denom) {
-  padding-top: 0 !important;
-  margin-top: 0 !important;
-}
-
-@media (max-width: 700px) {
-  .stat:has(#totalBet) {
-    margin-bottom: 4px !important;
-  }
-
-  .select:has(#denom) {
-    margin-top: 4px !important;
-  }
+  margin-top: 6px !important;
+  min-height: 6px !important;
 }
