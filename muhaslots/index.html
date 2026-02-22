@@ -163,7 +163,10 @@
         <div class="overlay-panel">
             <div class="overlay-head">
                 <h3 id="previewOverlayTitle">Payout Rules and Lines Preview</h3>
-                <button id="previewOverlayClose" type="button" class="overlay-close" aria-label="Close overlay">Close</button>
+                <div class="overlay-close-row">
+                    <button id="previewOverlayClose" type="button" class="overlay-close" aria-label="Close overlay">Close</button>
+                    <button id="previewOverlayCloseX" type="button" class="overlay-close-x" aria-label="Close overlay">&times;</button>
+                </div>
             </div>
 
             <div class="overlay-content">
@@ -180,7 +183,45 @@
                 </div>
 
                 <div class="overlay-section" data-info-page="1" hidden>
-                    <h4>Active Lines Preview</h4>
+                    <h4>Payout Symbols</h4>
+                    <div class="table overlay-paytable" aria-label="Payout symbols table">
+                        <div class="head">Symbol</div>
+                        <div class="head">3</div>
+                        <div class="head">4</div>
+                        <div class="head">5</div>
+
+                        <div><span class="icon-container">💎</span></div>
+                        <div>50</div>
+                        <div>200</div>
+                        <div>1000</div>
+
+                        <div><span class="icon-container">🍀</span></div>
+                        <div>20</div>
+                        <div>100</div>
+                        <div>400</div>
+
+                        <div><span class="icon-container">⭐</span></div>
+                        <div>10</div>
+                        <div>40</div>
+                        <div>200</div>
+
+                        <div><span class="icon-container">🔔</span></div>
+                        <div>6</div>
+                        <div>20</div>
+                        <div>100</div>
+
+                        <div><span class="icon-container">🍋</span></div>
+                        <div>4</div>
+                        <div>12</div>
+                        <div>60</div>
+
+                        <div><span class="icon-container">🍒</span></div>
+                        <div>2</div>
+                        <div>6</div>
+                        <div>30</div>
+                    </div>
+
+                    <h4>Lines Preview</h4>
                     <p class="overlay-note">Highlighted cells represent currently active paylines.</p>
                     <div class="lines-preview lines-preview-overlay" id="linesPreviewOverlay" aria-hidden="true"></div>
                 </div>

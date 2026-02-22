@@ -56,6 +56,7 @@ const payInfoBtn = document.getElementById("payInfo");
 const linesPreviewEl = document.getElementById("linesPreview");
 const previewOverlayEl = document.getElementById("previewOverlay");
 const previewOverlayCloseBtn = document.getElementById("previewOverlayClose");
+const previewOverlayCloseXBtn = document.getElementById("previewOverlayCloseX");
 const linesPreviewOverlayEl = document.getElementById("linesPreviewOverlay");
 const overlayPrevBtn = document.getElementById("overlayPrev");
 const overlayNextBtn = document.getElementById("overlayNext");
@@ -237,7 +238,10 @@ function applyOverlayPage(index) {
 }
 
 function stepOverlayPage(delta) {
-    applyOverlayPage(overlayPageIndex + delta);
+    const total = overlayPageEls.length;
+    if (total <= 0) return;
+    const wrappedIndex = ((overlayPageIndex + delta) % total + total) % total;
+    applyOverlayPage(wrappedIndex);
 }
 
 function togglePreviewOverlay(force) {
@@ -548,18 +552,22 @@ function onConfigChange() {
 function disableDoubleTapZoom() {
     let lastTouchEnd = 0;
 
-    const isInteractiveTarget = (target) => {
-        if (!(target instanceof Element)) return false;
-        return Boolean(
-            target.closest("button, input, select, textarea, label, a, [role='button']")
-        );
+    const getInteractiveTarget = (target) => {
+        if (!(target instanceof Element)) return null;
+        return target.closest("button, input, select, textarea, label, a, [role='button']");
     };
 
     document.addEventListener("touchend", (e) => {
         const now = Date.now();
-        // Do not block rapid taps on controls; they need to remain responsive.
-        if (!isInteractiveTarget(e.target) && now - lastTouchEnd <= 300 && e.cancelable) {
+        const isRapidDoubleTap = now - lastTouchEnd <= 300;
+        if (isRapidDoubleTap && e.cancelable) {
             e.preventDefault();
+
+            // Preserve responsiveness for controls while blocking Safari double-tap zoom.
+            const interactive = getInteractiveTarget(e.target);
+            if (interactive && typeof interactive.click === "function") {
+                interactive.click();
+            }
         }
         lastTouchEnd = now;
     }, { passive: false });
@@ -618,9 +626,7 @@ payInfoBtn.addEventListener("click", () => {
 });
 document.addEventListener("keydown", handleEsc);
 previewOverlayCloseBtn?.addEventListener("click", () => togglePreviewOverlay(false));
-previewOverlayEl?.addEventListener("click", (e) => {
-    if (e.target === previewOverlayEl) togglePreviewOverlay(false);
-});
+previewOverlayCloseXBtn?.addEventListener("click", () => togglePreviewOverlay(false));
 bindRapidPress(overlayPrevBtn, () => stepOverlayPage(-1));
 bindRapidPress(overlayNextBtn, () => stepOverlayPage(1));
 

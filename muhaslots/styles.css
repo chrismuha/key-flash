@@ -1194,6 +1194,12 @@ body.overlay-open {
   font-size: 12pt;
 }
 
+.overlay-close-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .overlay-content {
   display: grid;
   gap: 12px;
@@ -1259,6 +1265,19 @@ body.overlay-open {
   border-radius: 5px;
 }
 
+.overlay-paytable {
+  margin-bottom: 10px;
+  font-size: 9.5pt;
+}
+
 .overlay-close {
   min-width: 90px;
+}
+
+.overlay-close-x {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  font-size: 16pt;
+  line-height: 1;
 }
