@@ -681,7 +681,11 @@ async function doSpin() {
     if (isSpinning) return;
     const totalBetUSD = getTotalBet();
     if (balance < totalBetUSD) {
-        setMessage("Insufficient balance for that bet.");
+        if (balance <= 0) {
+            setMessage("Out of credits. Add credits to continue.");
+        } else {
+            setMessage("Insufficient credits for this bet. Lower bet/lines or add credits.");
+        }
         return;
     }
 
@@ -719,7 +723,13 @@ async function doSpin() {
             .join(" • ");
         setMessage(`WIN ${fmtUSD(totalWinUSD)} — ${linesText}`);
     } else {
-        setMessage("No win — try again!");
+        let creditHint = "";
+        if (balance < getTotalBet()) {
+            creditHint = balance <= 0
+                ? " Out of credits. Add credits to continue."
+                : " Insufficient credits for this bet. Lower bet/lines or add credits.";
+        }
+        setMessage(`No win — try again!${creditHint}`);
     }
 
     isSpinning = false;
