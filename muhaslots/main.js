@@ -679,10 +679,12 @@ function addNetSessionLosses(amountUSD) {
 }
 
 function subtractNetSessionWinnings(amountUSD) {
+    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
     addNetSessionWinnings(-amountUSD);
 }
 
 function subtractNetSessionLosses(amountUSD) {
+    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
     addNetSessionLosses(-amountUSD);
 }
 
