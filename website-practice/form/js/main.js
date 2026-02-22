@@ -29,17 +29,43 @@ document.getElementById('exportButton').addEventListener('click', async () => {
     doc.save("custom-letter-template.pdf");
 });
 // Section: Theme Switcher (Light/Dark)
-document.querySelectorAll('.themes-switcher div').forEach(theme => {
-    theme.addEventListener('click', function () {
-        document.querySelectorAll('.themes-switcher div').forEach(div => div.classList.remove('active'));
-        this.classList.add('active');
+const themeOptions = Array.from(document.querySelectorAll('.themes-switcher div[data-theme]'));
+const systemThemeOption = document.querySelector('.themes-switcher .system-theme-option');
+const systemColorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+const isMobileThemeSwitcher =
+    window.matchMedia('(hover: none) and (pointer: coarse)').matches ||
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-        if (this.textContent.trim() === 'Dark') {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
+let selectedThemeMode = 'light';
+
+if (!isMobileThemeSwitcher && systemThemeOption) {
+    systemThemeOption.style.display = 'none';
+}
+
+function applyThemeMode(mode) {
+    const useDark = mode === 'dark' || (mode === 'system' && systemColorScheme.matches);
+    document.body.classList.toggle('dark-mode', useDark);
+}
+
+function setActiveThemeOption(mode) {
+    themeOptions.forEach((option) => {
+        option.classList.toggle('active', option.dataset.theme === mode);
     });
+}
+
+themeOptions.forEach((option) => {
+    option.addEventListener('click', function () {
+        const mode = this.dataset.theme || 'light';
+        selectedThemeMode = mode;
+        setActiveThemeOption(mode);
+        applyThemeMode(mode);
+    });
+});
+
+systemColorScheme.addEventListener('change', () => {
+    if (selectedThemeMode === 'system') {
+        applyThemeMode('system');
+    }
 });
 
 // Section: Quantity Input Styling
@@ -62,6 +88,20 @@ document.addEventListener("DOMContentLoaded", function () {
             this.style.color = "white";
         });
     }
+});
+
+// Section: Mobile Keypads (Phone, DOB, Credit Card)
+document.addEventListener("DOMContentLoaded", function () {
+    const isMobileDevice =
+        window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (!isMobileDevice) return;
+
+    const keypadTargets = document.querySelectorAll('[data-mobile-keypad="numeric"]');
+    keypadTargets.forEach((input) => {
+        input.setAttribute("inputmode", "numeric");
+    });
 });
 
 // Section: Phone Number Formatting

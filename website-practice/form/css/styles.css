@@ -498,6 +498,16 @@ textarea {
     cursor: pointer;
 }
 
+.themes-switcher .system-theme-option {
+    display: none;
+}
+
+@media (max-width: 840px) and (hover: none) and (pointer: coarse) {
+    .themes-switcher .system-theme-option {
+        display: flex;
+    }
+}
+
 .themes-switcher .active {
     background: black;
     border-radius: 0.2rem;

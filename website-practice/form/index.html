@@ -52,8 +52,9 @@
 
         <label>Theme:</label>
         <div class="themes-switcher">
-            <div class="active">Light</div>
-            <div>Dark</div>
+            <div class="active" data-theme="light">Light</div>
+            <div data-theme="dark">Dark</div>
+            <div class="system-theme-option" data-theme="system">System</div>
         </div>
         <br>
 
@@ -71,12 +72,12 @@
 <div class="container">
 <div class="input-wrapper">
         <label for="phone">Phone #:</label>
-        <input type="text" id="phone" name="phone" oninput="formatPhoneNumber(this); validateInput(event);" maxlength="12" placeholder="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
+        <input type="text" id="phone" name="phone" data-mobile-keypad="numeric" oninput="formatPhoneNumber(this); validateInput(event);" maxlength="12" placeholder="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
         <p id="error-message">Only numbers are allowed!</p>
         <br>
 
         <label for="bday">Birthdate:</label>
-        <input type="text" id="bday" placeholder="MM/DD/YYYY" pattern="\d{2}/\d{2}/\d{4}" required>
+        <input type="text" id="bday" data-mobile-keypad="numeric" placeholder="MM/DD/YYYY" pattern="\d{2}/\d{2}/\d{4}" maxlength="10" required>
         <br>
 
         <label for="quantity">Quantity:</label>
@@ -116,6 +117,17 @@
                 <option value="American Express">American Express</option>
                 <option value="Gift Card">Gift Card</option>
             </select>
+
+            <div id="credit-card-section">
+                <label for="card-number">Card Number:</label>
+                <input type="text" id="card-number" data-mobile-keypad="numeric" autocomplete="cc-number" inputmode="text" maxlength="19" placeholder="1234 5678 9012 3456" pattern="[0-9 ]{13,19}">
+
+                <label for="card-exp">Expiration (MM/YY):</label>
+                <input type="text" id="card-exp" data-mobile-keypad="numeric" autocomplete="cc-exp" inputmode="text" maxlength="5" placeholder="MM/YY" pattern="\d{2}/\d{2}">
+
+                <label for="card-cvv">CVV:</label>
+                <input type="text" id="card-cvv" data-mobile-keypad="numeric" autocomplete="cc-csc" inputmode="text" maxlength="4" placeholder="123" pattern="\d{3,4}">
+            </div>
         </div>
         <br>
 
