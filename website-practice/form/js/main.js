@@ -1,32 +1,17 @@
 // Section: Export PDF (US Letter)
-document.getElementById('exportButton').addEventListener('click', async () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({
-        format: "letter", // Set PDF to US Letter size
+document.getElementById("exportButton")?.addEventListener("click", async () => {
+    await window.PdfExportShared?.exportTemplatePdf({
+        format: "letter",
+        templateURL: "https://via.placeholder.com/612x792",
+        canvasWidth: 612,
+        canvasHeight: 792,
+        imageWidth: 216,
+        imageHeight: 279,
+        text: "Hello, this is content over the template!",
+        textX: 20,
+        textY: 50,
+        fileName: "custom-letter-template.pdf",
     });
-
-    // Load the template image
-    const templateURL = 'https://via.placeholder.com/612x792'; // Replace with your template URL
-    const templateImage = await fetch(templateURL)
-        .then(response => response.blob())
-        .then(blob => createImageBitmap(blob));
-
-    // Add the template image as the background
-    const canvas = document.createElement('canvas');
-    canvas.width = 612; // US Letter width in points
-    canvas.height = 792; // US Letter height in points
-    const context = canvas.getContext('2d');
-    context.drawImage(templateImage, 0, 0, canvas.width, canvas.height);
-    const imageData = canvas.toDataURL('image/png');
-    doc.addImage(imageData, 'PNG', 0, 0, 216, 279); // Fit image to US Letter size (8.5 x 11 inches)
-
-    // Overlay custom content
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text("Hello, this is content over the template!", 20, 50);
-
-    // Save the PDF
-    doc.save("custom-letter-template.pdf");
 });
 // Section: Theme Switcher (Light/Dark)
 const themeOptions = Array.from(document.querySelectorAll('.themes-switcher div[data-theme]'));

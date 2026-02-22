@@ -38,63 +38,6 @@
     try { localStorage.setItem(TEMPLATES_KEY, JSON.stringify(Array.from(list || []))); } catch { }
   }
 
-  // Build Wrapper From Existing Node
-  function ensureWrapper(el, label) {
-    const wrapper = document.createElement("div");
-    wrapper.className = "boxify";
-    wrapper.setAttribute("data-boxify-id", label.toLowerCase().replace(/\s+/g, "-"));
-    wrapper.setAttribute("aria-label", label + " quantity");
-    wrapper.setAttribute("aria-live", "polite");
-    wrapper.tabIndex = 0;
-
-    const title = document.createElement("div");
-    title.className = "boxify-title";
-    title.textContent = label;
-
-    const controls = document.createElement("div");
-    controls.className = "boxify-controls";
-
-    const minusBtn = document.createElement("button");
-    minusBtn.type = "button";
-    minusBtn.className = "boxify-btn minus";
-    minusBtn.textContent = "-";
-    minusBtn.setAttribute("aria-label", "Decrease " + label);
-
-    const qty = document.createElement("div");
-    qty.className = "boxify-qty";
-    qty.textContent = "0";
-
-    const plusBtn = document.createElement("button");
-    plusBtn.type = "button";
-    plusBtn.className = "boxify-btn plus";
-    plusBtn.textContent = "+";
-    plusBtn.setAttribute("aria-label", "Increase " + label);
-
-    controls.appendChild(minusBtn);
-    controls.appendChild(qty);
-    controls.appendChild(plusBtn);
-
-    const contentHolder = document.createElement("div");
-    contentHolder.style.font = "400 12px/1.2 Arial, sans-serif";
-    contentHolder.style.opacity = "0.8";
-    while (el.firstChild) contentHolder.appendChild(el.firstChild);
-
-    const removeBtn = document.createElement("button");
-    removeBtn.type = "button";
-    removeBtn.className = "boxify-remove";
-    removeBtn.setAttribute("aria-label", "Remove box");
-    removeBtn.title = "Remove";
-    removeBtn.textContent = "−";
-
-    wrapper.appendChild(title);
-    if (contentHolder.childNodes.length) wrapper.appendChild(contentHolder);
-    wrapper.appendChild(controls);
-    wrapper.appendChild(removeBtn);
-
-    el.replaceWith(wrapper);
-    return wrapper;
-  }
-
   // Build Wrapper From Label
   function createWrapper(label) {
     const wrapper = document.createElement("div");
@@ -230,9 +173,7 @@
       wrapper.setAttribute("aria-label", id + " quantity " + n);
       saveCounts(counts);
       updateLogLine(id, n);
-      saveCounts(counts);
       if (onChange) onChange({ id, quantity: n, el: wrapper });
-      updateLogLine(id, n);
     }
     function getQty() { return Number(counts[id] || 0); }
 
