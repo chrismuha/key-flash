@@ -55,6 +55,7 @@ const maxBtn = document.getElementById("max");
 const payInfoBtn = document.getElementById("payInfo");
 const payInfoPopup = document.getElementById("payInfoPopup");
 const linesPreviewEl = document.getElementById("linesPreview");
+const sessionStatDisplayEl = document.getElementById("sessionStatDisplay");
 const desktopAutoFitQuery = window.matchMedia("(min-width: 841px) and (max-height: 900px)");
 
 
@@ -354,6 +355,16 @@ function updateSessionLossesDisplay() {
     if (el) el.textContent = fmtUSD(sessionLossesUSD);
 }
 
+function updateSessionStatsVisibility() {
+    const mode = sessionStatDisplayEl?.value || "both";
+    const winningsBox = document.getElementById("sessionWinningsBox");
+    const lossesBox = document.getElementById("sessionLossesBox");
+    if (!winningsBox || !lossesBox) return;
+
+    winningsBox.hidden = (mode === "losses");
+    lossesBox.hidden = (mode === "winnings");
+}
+
 function addSessionWinnings(amountUSD) {
     if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
     sessionWinningsUSD += amountUSD;
@@ -484,6 +495,7 @@ maxBtn.addEventListener("click", doMaxBet);
 denomEl.addEventListener("change", onConfigChange);
 linesEl.addEventListener("change", onConfigChange);
 betEl.addEventListener("change", onConfigChange);
+sessionStatDisplayEl?.addEventListener("change", updateSessionStatsVisibility);
 
 creditUpBtn.onclick = () => {
     const step = parseFloat(creditStepEl.value) || 0;
@@ -561,6 +573,7 @@ document.addEventListener("keydown", (e) => {
     ensureSessionStatsUI();
     updateSessionWinningsDisplay();
     updateSessionLossesDisplay();
+    updateSessionStatsVisibility();
     removeOrphanSessionLabels();
     disableDoubleTapZoom();
     applyDesktopAutoFit();
