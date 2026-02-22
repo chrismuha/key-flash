@@ -43,7 +43,7 @@ body {
 
 /* Game Grid */
 .game {
-    width: min(760px, 100%);
+    width: min(980px, 100%);
     display: grid;
     gap: 14px;
     grid-template-columns: 1fr;
@@ -51,7 +51,7 @@ body {
 
 @media (max-width:980px) and (min-width:841px) {
     .game {
-        width: min(760px, 100%);
+        width: min(920px, 100%);
         grid-template-columns: 1fr;
     }
 

@@ -298,7 +298,7 @@ function handleEsc(e) {
 
     if (previewOverlayEl && !previewOverlayEl.hidden) {
         togglePreviewOverlay(false);
-        payInfoBtn.focus();
+        payInfoBtn?.focus();
     }
 }
 
@@ -574,6 +574,16 @@ function disableDoubleTapZoom() {
     document.addEventListener("gesturestart", (e) => {
         if (e.cancelable) e.preventDefault();
     }, { passive: false });
+
+    document.addEventListener("touchstart", (e) => {
+        if (e.touches && e.touches.length > 1 && e.cancelable) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    document.addEventListener("dblclick", (e) => {
+        if (e.cancelable) e.preventDefault();
+    }, { passive: false });
 }
 
 spinBtn.addEventListener("click", doSpin);
@@ -619,7 +629,7 @@ creditStepEl.addEventListener("keydown", (e) => {
     }
 });
 
-payInfoBtn.addEventListener("click", () => {
+payInfoBtn?.addEventListener("click", () => {
     applyOverlayPage(0);
     togglePreviewOverlay(true);
 });
@@ -665,7 +675,7 @@ document.addEventListener("keydown", (e) => {
     renderLinesPreview();
 
     // ARIA defaults
-    payInfoBtn.setAttribute("aria-expanded", "false");
+    payInfoBtn?.setAttribute("aria-expanded", "false");
     if (previewOverlayEl) previewOverlayEl.hidden = true;
     applyOverlayPage(0);
 
