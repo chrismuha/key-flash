@@ -56,7 +56,6 @@ const payInfoBtn = document.getElementById("payInfo");
 const linesPreviewEl = document.getElementById("linesPreview");
 const previewOverlayEl = document.getElementById("previewOverlay");
 const previewOverlayCloseBtn = document.getElementById("previewOverlayClose");
-const previewOverlayCloseXBtn = document.getElementById("previewOverlayCloseX");
 const linesPreviewOverlayEl = document.getElementById("linesPreviewOverlay");
 const overlayPrevBtn = document.getElementById("overlayPrev");
 const overlayNextBtn = document.getElementById("overlayNext");
@@ -626,7 +625,6 @@ payInfoBtn.addEventListener("click", () => {
 });
 document.addEventListener("keydown", handleEsc);
 previewOverlayCloseBtn?.addEventListener("click", () => togglePreviewOverlay(false));
-previewOverlayCloseXBtn?.addEventListener("click", () => togglePreviewOverlay(false));
 bindRapidPress(overlayPrevBtn, () => stepOverlayPage(-1));
 bindRapidPress(overlayNextBtn, () => stepOverlayPage(1));
 
