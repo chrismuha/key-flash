@@ -47,6 +47,9 @@
                                 <option value="both" selected>Both</option>
                                 <option value="winnings">Winnings Only</option>
                                 <option value="losses">Losses Only</option>
+                                <option value="netBoth">Both Net</option>
+                                <option value="netWinnings">Net Winnings Only</option>
+                                <option value="netLosses">Net Losses Only</option>
                             </select>
                         </div>
 
@@ -125,6 +128,9 @@
                     <h4>Payout Rules</h4>
                     <p>Payout = multiplier x bet per line (credits) x denomination ($).</p>
                     <p>Only matching symbols from the left count. 3, 4, or 5 in a row on an active payline pays.</p>
+                    <h4>Game Odds</h4>
+                    <p id="casinoAdvantageText" class="overlay-note"></p>
+                    <p id="winLossOddsText" class="overlay-note"></p>
                 </div>
 
                 <div class="overlay-section" data-info-page="1" hidden>

@@ -60,6 +60,8 @@ const overlayPrevBtn = document.getElementById("overlayPrev");
 const overlayNextBtn = document.getElementById("overlayNext");
 const overlayPageLabelEl = document.getElementById("overlayPageLabel");
 const overlayPageEls = Array.from(document.querySelectorAll("[data-info-page]"));
+const casinoAdvantageTextEl = document.getElementById("casinoAdvantageText");
+const winLossOddsTextEl = document.getElementById("winLossOddsText");
 const sessionStatDisplayEl = document.getElementById("sessionStatDisplay");
 const desktopAutoFitQuery = window.matchMedia("(min-width: 841px)");
 
@@ -72,11 +74,22 @@ let overlayPageIndex = 0;
 // Session Winnings State
 let sessionWinningsUSD = 0;
 let sessionLossesUSD = 0;
+let actualSessionWinningsUSD = 0;
+let actualSessionLossesUSD = 0;
 
 
 // Utilities
 function fmtUSD(n) {
     return `$${Number(n).toFixed(2)}`;
+}
+
+function fmtPercent(n) {
+    return `${(Number(n) * 100).toFixed(2)}%`;
+}
+
+function fmtOneIn(p) {
+    if (!Number.isFinite(p) || p <= 0) return "N/A";
+    return `1 in ${(1 / p).toFixed(2)}`;
 }
 
 function choiceWeighted(weightsMap) {
@@ -224,6 +237,49 @@ function renderLinesPreview() {
     renderSingleLinesPreview(linesPreviewOverlayEl);
 }
 
+function getPerLineOddsAndReturn() {
+    const totalWeight = Object.values(WEIGHTS).reduce((sum, w) => sum + w, 0);
+    let lineWinProb = 0;
+    let lineExpectedReturn = 0;
+
+    for (const symbol of SYMBOLS) {
+        const p = (WEIGHTS[symbol] || 0) / totalWeight;
+        const p3 = p ** 3;
+        const p4 = p ** 4;
+        const p5 = p ** 5;
+
+        lineWinProb += p3;
+        lineExpectedReturn +=
+            (PAYTABLE[symbol]?.[3] || 0) * p3 * (1 - p) +
+            (PAYTABLE[symbol]?.[4] || 0) * p4 * (1 - p) +
+            (PAYTABLE[symbol]?.[5] || 0) * p5;
+    }
+
+    return {
+        lineWinProb,
+        lineLossProb: Math.max(0, 1 - lineWinProb),
+        returnToPlayer: lineExpectedReturn,
+        casinoAdvantage: Math.max(0, 1 - lineExpectedReturn),
+    };
+}
+
+function updateGameOddsDisplay() {
+    if (!casinoAdvantageTextEl || !winLossOddsTextEl) return;
+
+    const { lineWinProb, lineLossProb, returnToPlayer, casinoAdvantage } = getPerLineOddsAndReturn();
+    const linesActive = parseInt(linesEl.value, 10) || 1;
+    const spinWinApprox = 1 - (lineLossProb ** linesActive);
+    const spinLossApprox = lineLossProb ** linesActive;
+
+    casinoAdvantageTextEl.textContent =
+        `Theoretical casino advantage is ${fmtPercent(casinoAdvantage)} (RTP ${fmtPercent(returnToPlayer)}).`;
+
+    winLossOddsTextEl.textContent =
+        `Per payline win odds: ${fmtPercent(lineWinProb)} (${fmtOneIn(lineWinProb)}). ` +
+        `Per payline loss odds: ${fmtPercent(lineLossProb)}. ` +
+        `Current ${linesActive}-line spin odds (approx): win ${fmtPercent(spinWinApprox)}, loss ${fmtPercent(spinLossApprox)}.`;
+}
+
 
 // Info Overlay
 function applyOverlayPage(index) {
@@ -350,8 +406,17 @@ function removeOrphanSessionLabels() {
     );
     candidates.forEach(el => {
         const txt = (el.textContent || "").trim().toLowerCase();
-        const inKnownBox = el.closest("#sessionWinningsBox, #sessionLossesBox");
-        if ((txt === "session winnings" || txt === "session losses total") && !inKnownBox) {
+        const inKnownBox = el.closest("#sessionWinningsBox, #sessionLossesBox, #actualSessionWinningsBox, #actualSessionLossesBox");
+        if (
+            (txt === "session winnings" ||
+                txt === "session losses" ||
+                txt === "session losses total" ||
+                txt === "net session winnings" ||
+                txt === "net session losses" ||
+                txt === "actual session winnings" ||
+                txt === "actual session losses") &&
+            !inKnownBox
+        ) {
             el.remove();
         }
     });
@@ -393,7 +458,16 @@ function createSessionStatBox({ availBox, boxId, valueId, labelText }) {
 /* Ensure session stat boxes exist, matching Available Credits. */
 function ensureSessionStatsUI() {
     // HARD DELETE existing session stat containers/values and orphan labels
-    ["#sessionWinningsBox", "#sessionLossesBox", "#sessionWinnings", "#sessionLosses"]
+    [
+        "#sessionWinningsBox",
+        "#sessionLossesBox",
+        "#actualSessionWinningsBox",
+        "#actualSessionLossesBox",
+        "#sessionWinnings",
+        "#sessionLosses",
+        "#actualSessionWinnings",
+        "#actualSessionLosses",
+    ]
         .forEach((selector) => {
             document.querySelectorAll(selector).forEach(n => n.remove());
         });
@@ -418,6 +492,22 @@ function ensureSessionStatsUI() {
     });
     winningsBox.insertAdjacentElement("afterend", lossesBox);
 
+    const actualWinningsBox = createSessionStatBox({
+        availBox,
+        boxId: "actualSessionWinningsBox",
+        valueId: "actualSessionWinnings",
+        labelText: "Net Session Winnings",
+    });
+    lossesBox.insertAdjacentElement("afterend", actualWinningsBox);
+
+    const actualLossesBox = createSessionStatBox({
+        availBox,
+        boxId: "actualSessionLossesBox",
+        valueId: "actualSessionLosses",
+        labelText: "Net Session Losses",
+    });
+    actualWinningsBox.insertAdjacentElement("afterend", actualLossesBox);
+
     removeOrphanSessionLabels();
 }
 
@@ -434,14 +524,36 @@ function updateSessionLossesDisplay() {
     updateSessionDisplay("sessionLosses", sessionLossesUSD);
 }
 
+function updateActualSessionWinningsDisplay() {
+    updateSessionDisplay("actualSessionWinnings", actualSessionWinningsUSD);
+}
+
+function updateActualSessionLossesDisplay() {
+    updateSessionDisplay("actualSessionLosses", actualSessionLossesUSD);
+}
+
 function updateSessionStatsVisibility() {
     const mode = sessionStatDisplayEl?.value || "both";
     const winningsBox = document.getElementById("sessionWinningsBox");
     const lossesBox = document.getElementById("sessionLossesBox");
-    if (!winningsBox || !lossesBox) return;
+    const actualWinningsBox = document.getElementById("actualSessionWinningsBox");
+    const actualLossesBox = document.getElementById("actualSessionLossesBox");
+    if (!winningsBox || !lossesBox || !actualWinningsBox || !actualLossesBox) return;
 
-    winningsBox.hidden = (mode === "losses");
-    lossesBox.hidden = (mode === "winnings");
+    const visibilityByMode = {
+        both: { winnings: true, losses: true, actualWinnings: false, actualLosses: false },
+        winnings: { winnings: true, losses: false, actualWinnings: false, actualLosses: false },
+        losses: { winnings: false, losses: true, actualWinnings: false, actualLosses: false },
+        netBoth: { winnings: false, losses: false, actualWinnings: true, actualLosses: true },
+        netWinnings: { winnings: false, losses: false, actualWinnings: true, actualLosses: false },
+        netLosses: { winnings: false, losses: false, actualWinnings: false, actualLosses: true },
+    };
+    const selected = visibilityByMode[mode] || visibilityByMode.both;
+
+    winningsBox.hidden = !selected.winnings;
+    lossesBox.hidden = !selected.losses;
+    actualWinningsBox.hidden = !selected.actualWinnings;
+    actualLossesBox.hidden = !selected.actualLosses;
 }
 
 function addSessionWinnings(amountUSD) {
@@ -454,6 +566,30 @@ function addSessionLosses(amountUSD) {
     if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
     sessionLossesUSD += amountUSD;
     updateSessionLossesDisplay();
+}
+
+function addActualSessionWinnings(amountUSD) {
+    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
+    actualSessionWinningsUSD += amountUSD;
+    updateActualSessionWinningsDisplay();
+}
+
+function addActualSessionLosses(amountUSD) {
+    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
+    actualSessionLossesUSD += amountUSD;
+    updateActualSessionLossesDisplay();
+}
+
+function subtractActualSessionWinnings(amountUSD) {
+    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
+    actualSessionWinningsUSD = Math.max(0, actualSessionWinningsUSD - amountUSD);
+    updateActualSessionWinningsDisplay();
+}
+
+function subtractActualSessionLosses(amountUSD) {
+    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
+    actualSessionLossesUSD = Math.max(0, actualSessionLossesUSD - amountUSD);
+    updateActualSessionLossesDisplay();
 }
 
 function adjustBalanceByCredits(creditDelta) {
@@ -489,11 +625,15 @@ async function doSpin() {
     const { totalWinUSD, lineWins, winningPositions } = evaluateGrid(grid);
     renderGrid(grid, winningPositions);
     addSessionLosses(Math.max(totalBetUSD - totalWinUSD, 0));
+    addActualSessionLosses(totalBetUSD);
+    subtractActualSessionWinnings(totalBetUSD);
 
     // Payout
     if (totalWinUSD > 0) {
         balance += totalWinUSD;
         addSessionWinnings(totalWinUSD);
+        addActualSessionWinnings(totalWinUSD);
+        subtractActualSessionLosses(totalWinUSD);
 
         const linesText = lineWins
             .map(w => `Line ${w.lineIndex}: ${w.symbol} × ${w.count} → ${fmtUSD(w.winUSD)}`)
@@ -509,6 +649,8 @@ async function doSpin() {
     removeOrphanSessionLabels();
     updateSessionWinningsDisplay();
     updateSessionLossesDisplay();
+    updateActualSessionWinningsDisplay();
+    updateActualSessionLossesDisplay();
 }
 
 function doMaxBet() {
@@ -589,6 +731,7 @@ function scheduleDesktopAutoFit() {
 function onConfigChange() {
     updateTotals();
     renderLinesPreview();
+    updateGameOddsDisplay();
     scheduleDesktopAutoFit();
 }
 
@@ -704,6 +847,7 @@ document.addEventListener("keydown", (e) => {
     renderGrid(grid);
     updateTotals();
     renderLinesPreview();
+    updateGameOddsDisplay();
 
     // ARIA defaults
     payInfoBtn?.setAttribute("aria-expanded", "false");
@@ -713,6 +857,8 @@ document.addEventListener("keydown", (e) => {
     ensureSessionStatsUI();
     updateSessionWinningsDisplay();
     updateSessionLossesDisplay();
+    updateActualSessionWinningsDisplay();
+    updateActualSessionLossesDisplay();
     updateSessionStatsVisibility();
     removeOrphanSessionLabels();
     disableDoubleTapZoom();
