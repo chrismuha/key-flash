@@ -3862,7 +3862,6 @@
         const orderItems = loadOrderItemsFromStorage();
         if (Array.isArray(orderItems) && orderItems.length > 0) return false;
         const page2ReasonMessage = 'No more items were selected on Page 3, so you were rerouted back to the menu builder.';
-        setRedirectReason(page2ReasonMessage);
         showCartToast('order', false, PAGE3_REDIRECT_TOAST_MESSAGE, { persistUntilHide: true, force: true });
         let redirectTimer = null;
         const handleRedirect = () => {
@@ -3870,6 +3869,8 @@
             clearTimeout(redirectTimer);
             redirectTimer = null;
           }
+          // Persist reason only for the actual auto-redirect.
+          setRedirectReason(page2ReasonMessage);
           window.location.href = 'page2.html';
         };
         redirectTimer = setTimeout(handleRedirect, PAGE3_REDIRECT_DELAY);
