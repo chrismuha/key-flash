@@ -53,7 +53,6 @@ const creditDownBtn = document.getElementById("creditDown");
 const spinBtn = document.getElementById("spin");
 const maxBtn = document.getElementById("max");
 const payInfoBtn = document.getElementById("payInfo");
-const linesPreviewEl = document.getElementById("linesPreview");
 const previewOverlayEl = document.getElementById("previewOverlay");
 const previewOverlayCloseBtn = document.getElementById("previewOverlayClose");
 const linesPreviewOverlayEl = document.getElementById("linesPreviewOverlay");
@@ -217,7 +216,6 @@ function renderSingleLinesPreview(targetEl) {
 }
 
 function renderLinesPreview() {
-    renderSingleLinesPreview(linesPreviewEl);
     renderSingleLinesPreview(linesPreviewOverlayEl);
 }
 
@@ -690,26 +688,3 @@ document.addEventListener("keydown", (e) => {
 
 window.addEventListener("resize", scheduleDesktopAutoFit, { passive: true });
 desktopAutoFitQuery.addEventListener("change", scheduleDesktopAutoFit);
-
-// Render Payout Table automatically
-function renderPayoutTable() {
-    const table = document.querySelector('.paytable .table');
-    if (!table) return;
-    table.innerHTML = `
-    <div class="head">Symbol</div>
-    <div class="head">3</div>
-    <div class="head">4</div>
-    <div class="head">5</div>
-  `;
-    const order = ["💎", "🍀", "⭐", "🔔", "🍋", "🍒"];
-    for (const sym of order) {
-        const p = PAYTABLE[sym];
-        table.insertAdjacentHTML(
-            'beforeend',
-            `<div><span class="icon-container">${sym}</span></div>
-       <div>${p[3]}</div>
-       <div>${p[4]}</div>
-       <div>${p[5]}</div>`
-        );
-    }
-}

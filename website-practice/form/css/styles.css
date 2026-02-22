@@ -431,41 +431,6 @@ input[type="checkbox"]:focus {
     outline: 1.5px solid #7CFC00;
 }
 
-/* Circles/Bullets/Radio Button Styling */
-form input[type="radio"] {
-    appearance: none;
-    width: 24px;
-    height: 24px;
-    outline: 1.5px solid #888;
-    border-radius: 50%;
-    background-color: white;
-    cursor: pointer;
-    margin: 0;
-    box-sizing: border-box;
-    border: 2px solid #888;
-    padding: 0;
-}
-
-form input[type="radio"]:checked {
-    background-color: #7CFC00;
-    border: 2px solid red;
-    outline: 1.5px solid #7CFC00;
-}
-
-form input[type="radio"]:focus {
-    outline: 1.5px solid #7CFC00;
-}
-
-body.dark-mode form input[type="radio"]:checked {
-    background-color: #32CD32;
-    border: 2px solid darkblue;
-    outline: 1.5px solid #32CD32;
-}
-
-body.dark-mode form input[type="radio"]:focus {
-    outline: 1.5px solid #32CD32;
-}
-
 /* Focus Styles */
 form input:focus,
 form textarea:focus {

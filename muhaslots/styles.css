@@ -105,18 +105,6 @@ body {
         align-items: center;
     }
 
-    .sidebar .paytable {
-        padding-bottom: 10px;
-        display: grid;
-        grid-template-rows: auto auto minmax(0, 1fr) auto auto;
-        gap: 6px;
-        align-content: start;
-    }
-
-    .sidebar .paytable .table {
-        align-content: start;
-    }
-
     .legend {
         display: none;
     }
@@ -127,10 +115,6 @@ body {
         margin-bottom: 2px;
     }
 
-    .sidebar .paytable > div:last-child {
-        min-height: 72px;
-        align-content: start;
-    }
 }
 
 @media (min-width:841px) and (max-width:1320px) {
@@ -165,13 +149,6 @@ body {
     .right {
         flex: 0 0 auto;
         align-items: center;
-    }
-
-    .paytable h3 {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        white-space: nowrap;
     }
 
 }
@@ -245,28 +222,11 @@ body {
         padding: 12px;
     }
 
-    .sidebar .paytable {
-        padding-bottom: 8px;
-        display: grid;
-        grid-template-rows: auto auto minmax(0, 1fr) auto auto;
-        gap: 4px;
-        align-content: start;
-    }
-
-    .sidebar .paytable .table {
-        align-content: start;
-    }
-
     .lines-preview {
         grid-template-columns: repeat(5, 10px);
         gap: 2px;
         margin-top: 2px;
         margin-bottom: 0;
-    }
-
-    .sidebar .paytable > div:last-child {
-        min-height: 68px;
-        align-content: start;
     }
 
     .dot2 {
@@ -287,12 +247,6 @@ body {
         display: none;
     }
 
-    .paytable h3 {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
 }
 
 /* Card */
@@ -301,11 +255,6 @@ body {
     border-radius: var(--radius);
     box-shadow: var(--shadow);
     padding: 16px;
-}
-
-.card.sidebar {
-    display: flex;
-    padding: 0;
 }
 
 /* Title / Header */
@@ -338,14 +287,14 @@ body {
 .reels {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, minmax(0, 1fr));
     gap: 6px;
     height: auto;
     min-height: 320px;
     border-radius: 10px;
     overflow: hidden;
     position: relative;
-    align-content: center;
-    grid-auto-rows: min-content;
+    align-content: stretch;
 }
 
 .reels-wrap {
@@ -360,6 +309,7 @@ body {
     background: transparent;
     overflow: hidden;
     box-shadow: none;
+    min-height: 54px;
 }
 
 .reels .icon-container {
@@ -461,8 +411,7 @@ body {
 
 /* Grouped control blocks */
 .stat,
-.select,
-.paytable {
+.select {
     background: rgba(255, 255, 255, .03);
     padding: 10px 12px;
     border-radius: 10px;
@@ -568,33 +517,6 @@ button:focus-visible,
     font-size: 10pt;
     font-weight: 300;
     text-shadow: 0 0 18px rgba(125, 249, 255, .35);
-}
-
-/* Paytable */
-.sidebar .paytable {
-    display: grid;
-    gap: 10px;
-    width: 100%;
-    justify-self: stretch;
-    align-self: stretch;
-    flex: 1 1 auto;
-    min-height: 100%;
-    border-radius: var(--radius);
-    padding: 16px;
-}
-
-.paytable h3 {
-    margin: 0 0 6px 0
-}
-
-.lines-preview-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.lines-preview-header label {
-    margin: 0;
 }
 
 .table {
@@ -848,6 +770,10 @@ a.btn {
     grid-auto-rows: 1fr;
   }
 
+  .reels .cell {
+    min-height: 34px;
+  }
+
   .cell {
     font-size: clamp(17pt, 5.2vmin, 25pt);
   }
@@ -864,8 +790,7 @@ a.btn {
   }
 
   .stat,
-  .select,
-  .paytable {
+  .select {
     padding: 6px 7px;
     border-radius: 8px;
   }
@@ -909,20 +834,6 @@ a.btn {
     min-width: 0;
     padding: 5px 6px;
     min-height: 30px;
-  }
-
-  .sidebar .paytable {
-    display: grid;
-    grid-template-rows: auto auto minmax(0, 1fr) auto;
-    gap: 3px;
-    height: 100%;
-    align-content: start;
-  }
-
-  .paytable h3 {
-    margin-bottom: 4px;
-    font-size: 9pt;
-    line-height: 1.15;
   }
 
   .table {
@@ -987,6 +898,10 @@ a.btn {
     min-height: 140px;
   }
 
+  .reels .cell {
+    min-height: 28px;
+  }
+
   .cell {
     font-size: clamp(14pt, 4.8vmin, 20pt);
   }
@@ -998,8 +913,7 @@ a.btn {
   }
 
   .stat,
-  .select,
-  .paytable {
+  .select {
     padding: 4px 5px;
   }
 
@@ -1039,24 +953,6 @@ a.btn {
     padding: 4px 5px;
   }
 
-  .paytable h3 {
-    font-size: 8.25pt;
-    margin-bottom: 2px;
-  }
-
-  .sidebar .paytable {
-    grid-template-rows: auto minmax(0, 1fr) auto auto;
-    gap: 2px;
-    align-content: stretch;
-  }
-
-  .sidebar .paytable .table {
-    min-height: 0;
-    height: auto;
-    overflow: visible;
-    align-content: start;
-  }
-
   .table {
     gap: 1px;
     font-size: 6.4pt;
@@ -1076,21 +972,6 @@ a.btn {
     grid-template-columns: repeat(5, 6px);
     gap: 1px;
     margin-top: 0;
-  }
-
-  .sidebar .paytable>div:last-child {
-    display: grid;
-    grid-template-rows: auto auto;
-    gap: 1px;
-    align-content: end;
-    min-height: 36px;
-    margin-top: 1px;
-  }
-
-  .sidebar .paytable>div:last-child label {
-    margin: 0;
-    font-size: 6.8pt;
-    line-height: 1.1;
   }
 
   .dot2 {
