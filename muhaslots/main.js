@@ -79,6 +79,44 @@ const casinoAdvantageTextEl = document.getElementById("casinoAdvantageText");
 const winLossOddsTextEl = document.getElementById("winLossOddsText");
 const sessionStatDisplayEl = document.getElementById("sessionStatDisplay");
 const desktopAutoFitQuery = window.matchMedia("(min-width: 841px)");
+const KNOWN_SESSION_BOX_SELECTOR =
+    "#sessionWinningsBox, #sessionLossesBox, #netSessionWinningsBox, #netSessionLossesBox, #actualSessionWinningsBox, #actualSessionLossesBox";
+const SESSION_STAT_CLEANUP_SELECTORS = [
+    "#sessionWinningsBox",
+    "#sessionLossesBox",
+    "#netSessionWinningsBox",
+    "#netSessionLossesBox",
+    "#actualSessionWinningsBox",
+    "#actualSessionLossesBox",
+    "#sessionWinnings",
+    "#sessionLosses",
+    "#netSessionWinnings",
+    "#netSessionLosses",
+    "#actualSessionWinnings",
+    "#actualSessionLosses",
+];
+const ORPHAN_SESSION_LABELS = new Set([
+    "session winnings",
+    "session losses",
+    "session losses total",
+    "net session winnings",
+    "net session losses",
+    "actual net session winnings",
+    "actual net session losses",
+    "actual session winnings",
+    "actual session losses",
+]);
+const SESSION_VISIBILITY_BY_MODE = {
+    both: { winnings: true, losses: true, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: false },
+    winnings: { winnings: true, losses: false, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: false },
+    losses: { winnings: false, losses: true, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: false },
+    netBoth: { winnings: false, losses: false, netWinnings: true, netLosses: true, actualWinnings: false, actualLosses: false },
+    netWinnings: { winnings: false, losses: false, netWinnings: true, netLosses: false, actualWinnings: false, actualLosses: false },
+    netLosses: { winnings: false, losses: false, netWinnings: false, netLosses: true, actualWinnings: false, actualLosses: false },
+    actualNetBoth: { winnings: false, losses: false, netWinnings: false, netLosses: false, actualWinnings: true, actualLosses: true },
+    actualNetWinnings: { winnings: false, losses: false, netWinnings: false, netLosses: false, actualWinnings: true, actualLosses: false },
+    actualNetLosses: { winnings: false, losses: false, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: true },
+};
 
 
 // State
@@ -142,9 +180,10 @@ function getTotalBet() {
 }
 
 function updateTotals() {
-    totalBetEl.textContent = fmtUSD(getTotalBet());
+    const totalBet = getTotalBet();
+    totalBetEl.textContent = fmtUSD(totalBet);
     balanceEl.textContent = fmtUSD(balance);
-    const canAfford = balance >= getTotalBet();
+    const canAfford = balance >= totalBet;
     spinBtn.disabled = !canAfford || isSpinning;
     maxBtn.disabled = isSpinning;
 }
@@ -457,21 +496,8 @@ function removeOrphanSessionLabels() {
     );
     candidates.forEach(el => {
         const txt = (el.textContent || "").trim().toLowerCase();
-        const inKnownBox = el.closest(
-            "#sessionWinningsBox, #sessionLossesBox, #netSessionWinningsBox, #netSessionLossesBox, #actualSessionWinningsBox, #actualSessionLossesBox"
-        );
-        if (
-            (txt === "session winnings" ||
-                txt === "session losses" ||
-                txt === "session losses total" ||
-                txt === "net session winnings" ||
-                txt === "net session losses" ||
-                txt === "actual net session winnings" ||
-                txt === "actual net session losses" ||
-                txt === "actual session winnings" ||
-                txt === "actual session losses") &&
-            !inKnownBox
-        ) {
+        const inKnownBox = el.closest(KNOWN_SESSION_BOX_SELECTOR);
+        if (ORPHAN_SESSION_LABELS.has(txt) && !inKnownBox) {
             el.remove();
         }
     });
@@ -513,23 +539,9 @@ function createSessionStatBox({ availBox, boxId, valueId, labelText }) {
 /* Ensure session stat boxes exist, matching Available Credits. */
 function ensureSessionStatsUI() {
     // HARD DELETE existing session stat containers/values and orphan labels
-    [
-        "#sessionWinningsBox",
-        "#sessionLossesBox",
-        "#netSessionWinningsBox",
-        "#netSessionLossesBox",
-        "#actualSessionWinningsBox",
-        "#actualSessionLossesBox",
-        "#sessionWinnings",
-        "#sessionLosses",
-        "#netSessionWinnings",
-        "#netSessionLosses",
-        "#actualSessionWinnings",
-        "#actualSessionLosses",
-    ]
-        .forEach((selector) => {
-            document.querySelectorAll(selector).forEach(n => n.remove());
-        });
+    SESSION_STAT_CLEANUP_SELECTORS.forEach((selector) => {
+        document.querySelectorAll(selector).forEach((n) => n.remove());
+    });
     removeOrphanSessionLabels();
 
     const availBox = findAvailableCreditsBox();
@@ -632,18 +644,7 @@ function updateSessionStatsVisibility() {
         !actualLossesBox
     ) return;
 
-    const visibilityByMode = {
-        both: { winnings: true, losses: true, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: false },
-        winnings: { winnings: true, losses: false, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: false },
-        losses: { winnings: false, losses: true, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: false },
-        netBoth: { winnings: false, losses: false, netWinnings: true, netLosses: true, actualWinnings: false, actualLosses: false },
-        netWinnings: { winnings: false, losses: false, netWinnings: true, netLosses: false, actualWinnings: false, actualLosses: false },
-        netLosses: { winnings: false, losses: false, netWinnings: false, netLosses: true, actualWinnings: false, actualLosses: false },
-        actualNetBoth: { winnings: false, losses: false, netWinnings: false, netLosses: false, actualWinnings: true, actualLosses: true },
-        actualNetWinnings: { winnings: false, losses: false, netWinnings: false, netLosses: false, actualWinnings: true, actualLosses: false },
-        actualNetLosses: { winnings: false, losses: false, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: true },
-    };
-    const selected = visibilityByMode[mode] || visibilityByMode.both;
+    const selected = SESSION_VISIBILITY_BY_MODE[mode] || SESSION_VISIBILITY_BY_MODE.both;
 
     winningsBox.hidden = !selected.winnings;
     lossesBox.hidden = !selected.losses;
@@ -666,32 +667,37 @@ function addSessionLosses(amountUSD) {
 }
 
 function addNetSessionWinnings(amountUSD) {
-    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
-    netSessionWinningsUSD += amountUSD;
+    if (!Number.isFinite(amountUSD) || amountUSD === 0) return;
+    netSessionWinningsUSD = Math.max(0, netSessionWinningsUSD + amountUSD);
     updateNetSessionWinningsDisplay();
 }
 
 function addNetSessionLosses(amountUSD) {
-    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
-    netSessionLossesUSD += amountUSD;
+    if (!Number.isFinite(amountUSD) || amountUSD === 0) return;
+    netSessionLossesUSD = Math.max(0, netSessionLossesUSD + amountUSD);
     updateNetSessionLossesDisplay();
 }
 
 function subtractNetSessionWinnings(amountUSD) {
-    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
-    netSessionWinningsUSD = Math.max(0, netSessionWinningsUSD - amountUSD);
-    updateNetSessionWinningsDisplay();
+    addNetSessionWinnings(-amountUSD);
 }
 
 function subtractNetSessionLosses(amountUSD) {
-    if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
-    netSessionLossesUSD = Math.max(0, netSessionLossesUSD - amountUSD);
-    updateNetSessionLossesDisplay();
+    addNetSessionLosses(-amountUSD);
 }
 
 function adjustActualSessionNet(amountUSD) {
     if (!Number.isFinite(amountUSD) || amountUSD === 0) return;
     actualSessionNetUSD += amountUSD;
+    updateActualSessionWinningsDisplay();
+    updateActualSessionLossesDisplay();
+}
+
+function updateAllSessionDisplays() {
+    updateSessionWinningsDisplay();
+    updateSessionLossesDisplay();
+    updateNetSessionWinningsDisplay();
+    updateNetSessionLossesDisplay();
     updateActualSessionWinningsDisplay();
     updateActualSessionLossesDisplay();
 }
@@ -758,12 +764,7 @@ async function doSpin() {
     updateTotals();
 
     removeOrphanSessionLabels();
-    updateSessionWinningsDisplay();
-    updateSessionLossesDisplay();
-    updateNetSessionWinningsDisplay();
-    updateNetSessionLossesDisplay();
-    updateActualSessionWinningsDisplay();
-    updateActualSessionLossesDisplay();
+    updateAllSessionDisplays();
 }
 
 function doMaxBet() {
@@ -969,12 +970,7 @@ document.addEventListener("keydown", (e) => {
     applyOverlayPage(0);
 
     ensureSessionStatsUI();
-    updateSessionWinningsDisplay();
-    updateSessionLossesDisplay();
-    updateNetSessionWinningsDisplay();
-    updateNetSessionLossesDisplay();
-    updateActualSessionWinningsDisplay();
-    updateActualSessionLossesDisplay();
+    updateAllSessionDisplays();
     updateSessionStatsVisibility();
     removeOrphanSessionLabels();
     updateRealtimeCreditMessage();
