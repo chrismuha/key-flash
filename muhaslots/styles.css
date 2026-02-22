@@ -724,48 +724,13 @@ button {
 
 /* Base glow effect */
 button::before {
-    content: "";
-    position: absolute;
-    inset: -2px;
-    z-index: -1;
-    border-radius: inherit;
-    background: linear-gradient(45deg,
-            #ff00cc,
-            #3333ff,
-            #00ffff,
-            #00ff00,
-            #ffff00,
-            #ff6600,
-            #ff0000);
-    background-size: 400%;
-    filter: blur(8px);
-    opacity: 0.6;
-    animation: glowMove 6s linear infinite;
+    content: none;
 }
 
-/* Slight scale and stronger glow on hover */
+/* Slight scale on hover */
 button:hover {
     transform: scale(1.05);
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-}
-
-button:hover::before {
-    opacity: 0.9;
-}
-
-/* Optional: subtle pulse animation even when idle */
-@keyframes glowMove {
-    0% {
-        background-position: 0% 50%;
-    }
-
-    50% {
-        background-position: 100% 50%;
-    }
-
-    100% {
-        background-position: 0% 50%;
-    }
 }
 
 /* Glowing effect - alternative style
