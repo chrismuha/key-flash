@@ -1,5 +1,31 @@
 // Shared PDF export helpers for form pages.
 (function initPdfExportHelpers() {
+    const TEMPLATE_PRESETS = {
+        letter: {
+            format: "letter",
+            templateURL: "https://via.placeholder.com/612x792",
+            canvasWidth: 612,
+            canvasHeight: 792,
+            imageWidth: 216,
+            imageHeight: 279,
+            text: "Hello, this is content over the template!",
+            textX: 20,
+            textY: 50,
+            fileName: "custom-letter-template.pdf",
+        },
+        a4: {
+            templateURL: "https://via.placeholder.com/595x842",
+            canvasWidth: 595,
+            canvasHeight: 842,
+            imageWidth: 210,
+            imageHeight: 297,
+            text: "Hello, this is content over the template!",
+            textX: 20,
+            textY: 50,
+            fileName: "custom-template.pdf",
+        },
+    };
+
     function createImageFromBlob(blob) {
         return new Promise((resolve, reject) => {
             const img = new Image();
@@ -47,7 +73,23 @@
         doc.save(fileName);
     }
 
+    async function exportTemplatePreset(name) {
+        const preset = TEMPLATE_PRESETS[name];
+        if (!preset) return;
+        await exportTemplatePdf(preset);
+    }
+
+    function bindExportButton(buttonId, presetName) {
+        const button = document.getElementById(buttonId);
+        if (!button) return;
+        button.addEventListener("click", async () => {
+            await exportTemplatePreset(presetName);
+        });
+    }
+
     window.PdfExportShared = {
         exportTemplatePdf,
+        exportTemplatePreset,
+        bindExportButton,
     };
 })();
