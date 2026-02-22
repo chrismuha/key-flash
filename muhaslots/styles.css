@@ -159,6 +159,11 @@ body {
 }
 
 @media (min-width:841px) {
+    html,
+    body.desktop-autofit {
+        overflow: hidden;
+    }
+
     body.desktop-autofit {
         width: 100vw;
         height: 100vh;

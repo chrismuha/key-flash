@@ -89,6 +89,16 @@ function choiceWeighted(weightsMap) {
     return entries[entries.length - 1][0];
 }
 
+function createGrid(cellFactory) {
+    return Array.from({ length: ROWS }, () =>
+        Array.from({ length: COLS }, (_, col) => cellFactory(col))
+    );
+}
+
+function randomSymbol() {
+    return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+}
+
 function getTotalBet() {
     const lines = parseInt(linesEl.value, 10);
     const betPerLine = parseFloat(betEl.value);
@@ -135,10 +145,7 @@ function renderGrid(grid, winningPositions = new Set()) {
 }
 
 function spinOnce() {
-    // produce ROWS x COLS
-    return Array.from({ length: ROWS }, () =>
-        Array.from({ length: COLS }, () => choiceWeighted(WEIGHTS))
-    );
+    return createGrid(() => choiceWeighted(WEIGHTS));
 }
 
 // Returns { totalWinUSD, lineWins: [...], winningPositions: Set<string> }
@@ -183,9 +190,7 @@ function evaluateGrid(grid) {
 function animateSpin(durationMs = 600) {
     const start = performance.now();
     function frame(t) {
-        const grid = Array.from({ length: ROWS }, () =>
-            Array.from({ length: COLS }, () => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)])
-        );
+        const grid = createGrid(() => randomSymbol());
         renderGrid(grid);
         if (t - start < durationMs) requestAnimationFrame(frame);
     }
@@ -388,10 +393,10 @@ function createSessionStatBox({ availBox, boxId, valueId, labelText }) {
 /* Ensure session stat boxes exist, matching Available Credits. */
 function ensureSessionStatsUI() {
     // HARD DELETE existing session stat containers/values and orphan labels
-    document.querySelectorAll("#sessionWinningsBox").forEach(n => n.remove());
-    document.querySelectorAll("#sessionLossesBox").forEach(n => n.remove());
-    document.querySelectorAll("#sessionWinnings").forEach(n => n.remove());
-    document.querySelectorAll("#sessionLosses").forEach(n => n.remove());
+    ["#sessionWinningsBox", "#sessionLossesBox", "#sessionWinnings", "#sessionLosses"]
+        .forEach((selector) => {
+            document.querySelectorAll(selector).forEach(n => n.remove());
+        });
     removeOrphanSessionLabels();
 
     const availBox = findAvailableCreditsBox();
@@ -416,14 +421,17 @@ function ensureSessionStatsUI() {
     removeOrphanSessionLabels();
 }
 
+function updateSessionDisplay(valueId, amountUSD) {
+    const el = document.getElementById(valueId);
+    if (el) el.textContent = fmtUSD(amountUSD);
+}
+
 function updateSessionWinningsDisplay() {
-    const el = document.getElementById("sessionWinnings");
-    if (el) el.textContent = fmtUSD(sessionWinningsUSD);
+    updateSessionDisplay("sessionWinnings", sessionWinningsUSD);
 }
 
 function updateSessionLossesDisplay() {
-    const el = document.getElementById("sessionLosses");
-    if (el) el.textContent = fmtUSD(sessionLossesUSD);
+    updateSessionDisplay("sessionLosses", sessionLossesUSD);
 }
 
 function updateSessionStatsVisibility() {
@@ -446,6 +454,13 @@ function addSessionLosses(amountUSD) {
     if (!Number.isFinite(amountUSD) || amountUSD <= 0) return;
     sessionLossesUSD += amountUSD;
     updateSessionLossesDisplay();
+}
+
+function adjustBalanceByCredits(creditDelta) {
+    const step = parseFloat(creditStepEl.value) || 0;
+    const denom = parseFloat(denomEl.value) || 1;
+    balance = Math.max(0, balance + (step * denom * creditDelta));
+    updateTotals();
 }
 
 // Main Spin Flow
@@ -520,8 +535,29 @@ function applyDesktopAutoFit() {
     document.body.classList.remove("desktop-autofit");
     document.documentElement.style.setProperty("--desktop-fit-scale", "1");
     gameEl.style.transform = "none";
-    const contentWidth = Math.max(cardEl.scrollWidth, gameEl.scrollWidth, 1);
-    const contentHeight = Math.max(cardEl.scrollHeight, gameEl.scrollHeight, 1);
+
+    const prevGameHeight = gameEl.style.height;
+    const prevCardHeight = cardEl.style.height;
+    gameEl.style.height = "auto";
+    cardEl.style.height = "auto";
+
+    const contentWidth = Math.max(
+        cardEl.scrollWidth,
+        cardEl.offsetWidth,
+        gameEl.scrollWidth,
+        gameEl.offsetWidth,
+        1
+    );
+    const contentHeight = Math.max(
+        cardEl.scrollHeight,
+        cardEl.offsetHeight,
+        gameEl.scrollHeight,
+        gameEl.offsetHeight,
+        1
+    );
+
+    gameEl.style.height = prevGameHeight;
+    cardEl.style.height = prevCardHeight;
     const viewportWidth = window.visualViewport?.width || window.innerWidth;
     const viewportHeight = window.visualViewport?.height || window.innerHeight;
 
@@ -600,19 +636,8 @@ linesEl.addEventListener("change", onConfigChange);
 betEl.addEventListener("change", onConfigChange);
 sessionStatDisplayEl?.addEventListener("change", updateSessionStatsVisibility);
 
-creditUpBtn.onclick = () => {
-    const step = parseFloat(creditStepEl.value) || 0;
-    const denom = parseFloat(denomEl.value) || 1;
-    balance = Math.max(0, balance + step * denom);
-    updateTotals();
-};
-
-creditDownBtn.onclick = () => {
-    const step = parseFloat(creditStepEl.value) || 0;
-    const denom = parseFloat(denomEl.value) || 1;
-    balance = Math.max(0, balance - step * denom);
-    updateTotals();
-};
+creditUpBtn.onclick = () => adjustBalanceByCredits(1);
+creditDownBtn.onclick = () => adjustBalanceByCredits(-1);
 
 creditStepEl.addEventListener("input", () => {
     if (parseFloat(creditStepEl.value) < 0) creditStepEl.value = "0";
@@ -674,9 +699,7 @@ document.addEventListener("keydown", (e) => {
 
 // Init
 (function init() {
-    const grid = Array.from({ length: ROWS }, () =>
-        Array.from({ length: COLS }, () => SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)])
-    );
+    const grid = createGrid(() => randomSymbol());
     renderGrid(grid);
     updateTotals();
     renderLinesPreview();
@@ -699,3 +722,5 @@ window.addEventListener("resize", scheduleDesktopAutoFit, { passive: true });
 desktopAutoFitQuery.addEventListener("change", scheduleDesktopAutoFit);
 window.visualViewport?.addEventListener("resize", scheduleDesktopAutoFit, { passive: true });
 window.visualViewport?.addEventListener("scroll", scheduleDesktopAutoFit, { passive: true });
+window.addEventListener("load", scheduleDesktopAutoFit);
+document.fonts?.ready?.then(scheduleDesktopAutoFit);
