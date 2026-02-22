@@ -174,8 +174,8 @@ body {
     }
 
     .reels {
-        min-height: 230px;
-        gap: 4px;
+        min-height: 300px;
+        gap: 6px;
     }
 
     .hud {
@@ -287,10 +287,10 @@ body {
 .reels {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(5, minmax(0, 1fr));
-    gap: 6px;
+    grid-template-rows: repeat(5, minmax(56px, 1fr));
+    gap: 8px;
     height: auto;
-    min-height: 320px;
+    min-height: 368px;
     border-radius: 10px;
     overflow: hidden;
     position: relative;
@@ -309,7 +309,7 @@ body {
     background: transparent;
     overflow: hidden;
     box-shadow: none;
-    min-height: 54px;
+    min-height: 56px;
 }
 
 .reels .icon-container {
@@ -320,7 +320,7 @@ body {
     background: var(--accent2);
     color: #0b0f17;
     border-radius: inherit;
-    padding: 6px 0;
+    padding: 8px 0;
     align-self: stretch;
     justify-self: stretch;
     align-items: center;
@@ -764,14 +764,15 @@ a.btn {
   }
 
   .reels {
-    min-height: 0;
-    height: 100%;
-    gap: 3px;
-    grid-auto-rows: 1fr;
+    grid-template-rows: repeat(5, minmax(38px, 1fr));
+    min-height: 250px;
+    height: auto;
+    gap: 5px;
+    grid-auto-rows: unset;
   }
 
   .reels .cell {
-    min-height: 34px;
+    min-height: 38px;
   }
 
   .cell {
@@ -894,12 +895,13 @@ a.btn {
   }
 
   .reels {
-    gap: 2px;
-    min-height: 140px;
+    grid-template-rows: repeat(5, minmax(30px, 1fr));
+    gap: 4px;
+    min-height: 190px;
   }
 
   .reels .cell {
-    min-height: 28px;
+    min-height: 30px;
   }
 
   .cell {
