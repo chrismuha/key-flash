@@ -61,7 +61,7 @@ const overlayNextBtn = document.getElementById("overlayNext");
 const overlayPageLabelEl = document.getElementById("overlayPageLabel");
 const overlayPageEls = Array.from(document.querySelectorAll("[data-info-page]"));
 const sessionStatDisplayEl = document.getElementById("sessionStatDisplay");
-const desktopAutoFitQuery = window.matchMedia("(min-width: 841px) and (max-height: 900px)");
+const desktopAutoFitQuery = window.matchMedia("(min-width: 841px)");
 
 
 // State
@@ -514,17 +514,20 @@ function applyDesktopAutoFit() {
         return;
     }
 
-    document.body.classList.add("desktop-autofit");
-
-    // Measure unscaled dimensions before computing fit scale.
+    // Measure natural content size first, without auto-fit.
+    document.body.classList.remove("desktop-autofit");
+    document.documentElement.style.setProperty("--desktop-fit-scale", "1");
     gameEl.style.transform = "none";
     const contentWidth = Math.max(gameEl.scrollWidth, 1);
     const contentHeight = Math.max(gameEl.scrollHeight, 1);
     const availableWidth = Math.max(window.innerWidth - 16, 1);
     const availableHeight = Math.max(window.innerHeight - 16, 1);
     const rawScale = Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight);
-    // Keep a small safety margin to avoid 1-2px clipping from subpixel rounding.
-    const scale = Math.max(0.5, rawScale * 0.93);
+
+    document.body.classList.add("desktop-autofit");
+    // Always keep desktop in a slightly compact "fit" mode.
+    const compactCap = 0.94;
+    const scale = Math.max(0.5, Math.min(compactCap, rawScale * 0.985));
 
     document.documentElement.style.setProperty("--desktop-fit-scale", String(scale));
     gameEl.style.transform = "";

@@ -156,7 +156,7 @@ body {
 
 }
 
-@media (min-width:841px) and (max-height:900px) {
+@media (min-width:841px) {
     body.desktop-autofit {
         width: 100vw;
         height: 100vh;
@@ -168,7 +168,7 @@ body {
         position: fixed;
         top: 8px;
         left: 8px;
-        width: min(980px, calc(100vw - 16px));
+        width: calc(100vw - 16px);
         max-width: none;
         gap: 10px;
         margin: 0;
@@ -177,7 +177,7 @@ body {
     }
 
     .reels {
-        --reel-row-h: 50px;
+        --reel-row-h: 44px;
         --reel-row-gap: 6px;
     }
 
