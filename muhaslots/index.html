@@ -106,20 +106,7 @@
                     <div class="right">
                         <button id="spin" type="button">Spin</button>
                         <button id="max" type="button">Max Bet</button>
-                        <div id="autoSpinPanel" class="auto-spin-panel" hidden>
-                            <label for="autoSpinCount">Auto spins</label>
-                            <input id="autoSpinCount" type="number" min="1" step="1" value="10" inputmode="numeric" />
-                            <label for="instantSpins" class="checkbox-row">
-                                <input id="instantSpins" type="checkbox" />
-                                <span>Instant spins (skip animation)</span>
-                            </label>
-                            <p class="auto-spin-hint">Tap and hold Spin to open this menu, then tap Start Auto Spins.</p>
-                            <p id="autoSpinRemaining" class="auto-spin-countdown" aria-live="polite">Auto spins remaining: 0</p>
-                            <div class="auto-spin-actions">
-                                <button id="autoSpinStart" type="button">Start Auto Spins</button>
-                                <button id="autoSpinCancel" type="button">Close</button>
-                            </div>
-                        </div>
+                        <p id="autoSpinHint" class="auto-spin-hint" aria-live="polite">Hold Spin to start auto spin. Tap Cancel to stop.</p>
                         <div id="message" class="message" role="status" aria-live="polite"></div>
                     </div>
                 </div>
