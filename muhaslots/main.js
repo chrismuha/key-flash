@@ -67,6 +67,11 @@ const creditUpBtn = document.getElementById("creditUp");
 const creditDownBtn = document.getElementById("creditDown");
 const spinBtn = document.getElementById("spin");
 const maxBtn = document.getElementById("max");
+const autoSpinPanelEl = document.getElementById("autoSpinPanel");
+const autoSpinCountEl = document.getElementById("autoSpinCount");
+const instantSpinsEl = document.getElementById("instantSpins");
+const autoSpinStartBtn = document.getElementById("autoSpinStart");
+const autoSpinCancelBtn = document.getElementById("autoSpinCancel");
 const payInfoBtn = document.getElementById("payInfo");
 const previewOverlayEl = document.getElementById("previewOverlay");
 const previewOverlayCloseBtn = document.getElementById("previewOverlayClose");
@@ -123,6 +128,10 @@ const SESSION_VISIBILITY_BY_MODE = {
 let balance = 100.0;
 let isSpinning = false;
 let overlayPageIndex = 0;
+let autoSpinRunning = false;
+let autoSpinStopRequested = false;
+let spinHoldTimer = 0;
+let suppressSpinClick = false;
 
 // Session Winnings State
 let sessionWinningsUSD = 0;
@@ -184,8 +193,8 @@ function updateTotals() {
     totalBetEl.textContent = fmtUSD(totalBet);
     balanceEl.textContent = fmtUSD(balance);
     const canAfford = balance >= totalBet;
-    spinBtn.disabled = !canAfford || isSpinning;
-    maxBtn.disabled = isSpinning;
+    spinBtn.disabled = !canAfford || isSpinning || autoSpinRunning;
+    maxBtn.disabled = isSpinning || autoSpinRunning;
 }
 
 function clearMessage() {
@@ -712,13 +721,58 @@ function adjustBalanceByCredits(creditDelta) {
     updateRealtimeCreditMessage();
 }
 
+function getAutoSpinCount() {
+    const raw = Number.parseInt(autoSpinCountEl?.value ?? "0", 10);
+    return Number.isFinite(raw) ? Math.max(1, raw) : 1;
+}
+
+function setAutoSpinPanelVisible(visible) {
+    if (!autoSpinPanelEl) return;
+    autoSpinPanelEl.hidden = !visible;
+    if (visible) {
+        autoSpinCountEl?.focus();
+        autoSpinCountEl?.select?.();
+    }
+}
+
+function cancelAutoSpin() {
+    autoSpinStopRequested = true;
+    autoSpinRunning = false;
+    setAutoSpinPanelVisible(false);
+    updateTotals();
+}
+
+async function runAutoSpin() {
+    if (autoSpinRunning || isSpinning) return;
+
+    const spinsRequested = getAutoSpinCount();
+    autoSpinRunning = true;
+    autoSpinStopRequested = false;
+    setAutoSpinPanelVisible(false);
+
+    let spinsCompleted = 0;
+    for (let i = 0; i < spinsRequested; i++) {
+        if (autoSpinStopRequested) break;
+        const result = await doSpin({ instant: Boolean(instantSpinsEl?.checked), silentNoWin: true });
+        if (!result?.completed) break;
+        spinsCompleted += 1;
+    }
+
+    autoSpinRunning = false;
+    autoSpinStopRequested = false;
+    updateTotals();
+    if (spinsCompleted > 0) {
+        setMessage(`Auto spin complete: ${spinsCompleted} spin${spinsCompleted === 1 ? "" : "s"}.`);
+    }
+}
+
 // Main Spin Flow
-async function doSpin() {
+async function doSpin(options = {}) {
     if (isSpinning) return;
     const totalBetUSD = getTotalBet();
     if (balance < totalBetUSD) {
         updateRealtimeCreditMessage();
-        return;
+        return { completed: false, totalWinUSD: 0 };
     }
 
     isSpinning = true;
@@ -729,9 +783,11 @@ async function doSpin() {
     balance -= totalBetUSD;
     updateTotals();
 
-    // Simple spin animation
-    animateSpin(650);
-    await new Promise(r => setTimeout(r, 700));
+    const instantSpin = Boolean(options.instant);
+    if (!instantSpin) {
+        animateSpin(650);
+        await new Promise(r => setTimeout(r, 700));
+    }
 
     // Final outcome
     const grid = spinOnce();
@@ -759,7 +815,9 @@ async function doSpin() {
         let creditHint = "";
         const status = getCreditStatusMessage();
         if (status) creditHint = ` ${status}`;
-        setMessage(`No win — try again!${creditHint}`);
+        if (!options.silentNoWin) {
+            setMessage(`No win — try again!${creditHint}`);
+        }
     }
 
     isSpinning = false;
@@ -767,6 +825,7 @@ async function doSpin() {
 
     removeOrphanSessionLabels();
     updateAllSessionDisplays();
+    return { completed: true, totalWinUSD };
 }
 
 function doMaxBet() {
@@ -843,6 +902,39 @@ function scheduleDesktopAutoFit() {
     });
 }
 
+function bindSpinHold() {
+    if (!spinBtn) return;
+
+    const clearHoldTimer = () => {
+        if (!spinHoldTimer) return;
+        clearTimeout(spinHoldTimer);
+        spinHoldTimer = 0;
+    };
+
+    spinBtn.addEventListener("pointerdown", (e) => {
+        if (e.button !== 0 || isSpinning || autoSpinRunning) return;
+        suppressSpinClick = false;
+        clearHoldTimer();
+        spinHoldTimer = setTimeout(() => {
+            suppressSpinClick = true;
+            setAutoSpinPanelVisible(true);
+        }, 420);
+    });
+
+    ["pointerup", "pointercancel", "pointerleave"].forEach((evt) => {
+        spinBtn.addEventListener(evt, clearHoldTimer);
+    });
+
+    spinBtn.addEventListener("click", () => {
+        clearHoldTimer();
+        if (suppressSpinClick) {
+            suppressSpinClick = false;
+            return;
+        }
+        doSpin();
+    });
+}
+
 // Events
 function onConfigChange() {
     updateTotals();
@@ -890,8 +982,13 @@ function disableDoubleTapZoom() {
     }, { passive: false });
 }
 
-spinBtn.addEventListener("click", doSpin);
 maxBtn.addEventListener("click", doMaxBet);
+autoSpinStartBtn?.addEventListener("click", runAutoSpin);
+autoSpinCancelBtn?.addEventListener("click", cancelAutoSpin);
+autoSpinCountEl?.addEventListener("input", () => {
+    const value = Number.parseInt(autoSpinCountEl.value, 10);
+    if (!Number.isFinite(value) || value < 1) autoSpinCountEl.value = "1";
+});
 denomEl.addEventListener("change", onConfigChange);
 linesEl.addEventListener("change", onConfigChange);
 betEl.addEventListener("change", onConfigChange);
@@ -977,6 +1074,7 @@ document.addEventListener("keydown", (e) => {
     removeOrphanSessionLabels();
     updateRealtimeCreditMessage();
     disableDoubleTapZoom();
+    bindSpinHold();
     applyDesktopAutoFit();
 })();
 

@@ -606,6 +606,43 @@ button:focus-visible,
     text-shadow: 0 0 18px rgba(125, 249, 255, .35);
 }
 
+.auto-spin-panel {
+    min-width: 240px;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .04);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+    display: grid;
+    gap: 8px;
+}
+
+.auto-spin-panel label {
+    margin-bottom: 0;
+}
+
+.auto-spin-panel .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 9pt;
+    color: var(--text);
+}
+
+.auto-spin-panel .checkbox-row input {
+    margin: 0;
+}
+
+.auto-spin-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.auto-spin-actions button {
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 10px 12px;
+}
+
 .right .message {
     flex: 0 0 auto;
     min-width: 260px;
