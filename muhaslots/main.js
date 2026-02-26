@@ -71,6 +71,7 @@ const autoSpinPanelEl = document.getElementById("autoSpinPanel");
 const autoSpinCountEl = document.getElementById("autoSpinCount");
 const instantSpinsEl = document.getElementById("instantSpins");
 const autoSpinRemainingEl = document.getElementById("autoSpinRemaining");
+const autoSpinStartBtn = document.getElementById("autoSpinStart");
 const autoSpinCancelBtn = document.getElementById("autoSpinCancel");
 const payInfoBtn = document.getElementById("payInfo");
 const previewOverlayEl = document.getElementById("previewOverlay");
@@ -739,6 +740,10 @@ function setAutoSpinPanelVisible(visible) {
 
 function updateAutoSpinControls() {
     if (autoSpinCountEl) autoSpinCountEl.disabled = autoSpinRunning;
+    if (autoSpinStartBtn) {
+        autoSpinStartBtn.disabled = autoSpinRunning;
+        autoSpinStartBtn.textContent = autoSpinRunning ? "Running..." : "Start Auto Spins";
+    }
     if (autoSpinCancelBtn) autoSpinCancelBtn.textContent = autoSpinRunning ? "Stop" : "Close";
 }
 
@@ -956,7 +961,7 @@ function bindSpinHold() {
     };
 
     spinBtn.addEventListener("pointerdown", (e) => {
-        if (e.button !== 0 || isSpinning || autoSpinRunning) return;
+        if (e.button !== 0 || isSpinning || autoSpinRunning || (autoSpinPanelEl && !autoSpinPanelEl.hidden)) return;
         suppressSpinClick = false;
         clearHoldTimer();
         spinHoldTimer = setTimeout(() => {
@@ -1035,6 +1040,9 @@ function disableDoubleTapZoom() {
 }
 
 maxBtn.addEventListener("click", doMaxBet);
+autoSpinStartBtn?.addEventListener("click", () => {
+    runAutoSpin();
+});
 autoSpinCancelBtn?.addEventListener("click", cancelAutoSpin);
 autoSpinCountEl?.addEventListener("input", () => {
     const value = Number.parseInt(autoSpinCountEl.value, 10);
