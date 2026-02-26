@@ -632,6 +632,19 @@ button:focus-visible,
     margin: 0;
 }
 
+
+.auto-spin-hint {
+    margin: 0;
+    font-size: 8.8pt;
+    color: var(--muted);
+}
+
+.auto-spin-countdown {
+    margin: 0;
+    font-size: 8.8pt;
+    color: var(--accent2);
+}
+
 .auto-spin-actions {
     display: flex;
     gap: 8px;
