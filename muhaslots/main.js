@@ -70,7 +70,6 @@ const maxBtn = document.getElementById("max");
 const autoSpinPanelEl = document.getElementById("autoSpinPanel");
 const autoSpinCountEl = document.getElementById("autoSpinCount");
 const instantSpinsEl = document.getElementById("instantSpins");
-const autoSpinStartBtn = document.getElementById("autoSpinStart");
 const autoSpinCancelBtn = document.getElementById("autoSpinCancel");
 const payInfoBtn = document.getElementById("payInfo");
 const previewOverlayEl = document.getElementById("previewOverlay");
@@ -193,7 +192,7 @@ function updateTotals() {
     totalBetEl.textContent = fmtUSD(totalBet);
     balanceEl.textContent = fmtUSD(balance);
     const canAfford = balance >= totalBet;
-    spinBtn.disabled = !canAfford || isSpinning || autoSpinRunning;
+    spinBtn.disabled = !canAfford || isSpinning;
     maxBtn.disabled = isSpinning || autoSpinRunning;
 }
 
@@ -931,7 +930,13 @@ function bindSpinHold() {
             suppressSpinClick = false;
             return;
         }
-        doSpin();
+
+        if (!autoSpinRunning && !isSpinning && autoSpinPanelEl && !autoSpinPanelEl.hidden) {
+            runAutoSpin();
+            return;
+        }
+
+        doSpin({ instant: Boolean(instantSpinsEl?.checked) });
     });
 }
 
@@ -983,7 +988,6 @@ function disableDoubleTapZoom() {
 }
 
 maxBtn.addEventListener("click", doMaxBet);
-autoSpinStartBtn?.addEventListener("click", runAutoSpin);
 autoSpinCancelBtn?.addEventListener("click", cancelAutoSpin);
 autoSpinCountEl?.addEventListener("input", () => {
     const value = Number.parseInt(autoSpinCountEl.value, 10);
