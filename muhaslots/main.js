@@ -67,12 +67,7 @@ const creditUpBtn = document.getElementById("creditUp");
 const creditDownBtn = document.getElementById("creditDown");
 const spinBtn = document.getElementById("spin");
 const maxBtn = document.getElementById("max");
-const autoSpinPanelEl = document.getElementById("autoSpinPanel");
-const autoSpinCountEl = document.getElementById("autoSpinCount");
-const instantSpinsEl = document.getElementById("instantSpins");
-const autoSpinRemainingEl = document.getElementById("autoSpinRemaining");
-const autoSpinStartBtn = document.getElementById("autoSpinStart");
-const autoSpinCancelBtn = document.getElementById("autoSpinCancel");
+const autoSpinHintEl = document.getElementById("autoSpinHint");
 const payInfoBtn = document.getElementById("payInfo");
 const previewOverlayEl = document.getElementById("previewOverlay");
 const previewOverlayCloseBtn = document.getElementById("previewOverlayClose");
@@ -132,7 +127,6 @@ let overlayPageIndex = 0;
 let autoSpinRunning = false;
 let autoSpinStopRequested = false;
 let autoSpinRemaining = 0;
-let autoSpinPlannedCount = 0;
 let spinHoldTimer = 0;
 let suppressSpinClick = false;
 
@@ -724,94 +718,61 @@ function adjustBalanceByCredits(creditDelta) {
     updateRealtimeCreditMessage();
 }
 
-function getAutoSpinCount() {
-    const raw = Number.parseInt(autoSpinCountEl?.value ?? "0", 10);
-    return Number.isFinite(raw) ? Math.max(1, raw) : 1;
-}
-
-function setAutoSpinPanelVisible(visible) {
-    if (!autoSpinPanelEl) return;
-    autoSpinPanelEl.hidden = !visible;
-    if (visible && !autoSpinRunning) {
-        autoSpinCountEl?.focus();
-        autoSpinCountEl?.select?.();
-    }
-}
-
 function updateAutoSpinControls() {
-    if (autoSpinCountEl) autoSpinCountEl.disabled = autoSpinRunning;
-    if (autoSpinStartBtn) {
-        autoSpinStartBtn.disabled = autoSpinRunning;
-        autoSpinStartBtn.textContent = autoSpinRunning ? "Running..." : "Start Auto Spins";
-    }
-    if (autoSpinCancelBtn) autoSpinCancelBtn.textContent = autoSpinRunning ? "Stop" : "Close";
+    if (!spinBtn) return;
+    spinBtn.textContent = autoSpinRunning ? "Cancel" : "Spin";
 }
 
-function updateAutoSpinCountdown() {
-    if (!autoSpinRemainingEl) return;
-    autoSpinRemainingEl.textContent = `Auto spins remaining: ${Math.max(0, autoSpinRemaining)}`;
-}
-
-function resetAutoSpinCounter({ resetInput = false } = {}) {
-    if (resetInput && autoSpinPlannedCount > 0 && autoSpinCountEl) {
-        autoSpinCountEl.value = String(autoSpinPlannedCount);
+function updateAutoSpinHint() {
+    if (!autoSpinHintEl) return;
+    if (autoSpinRunning) {
+        autoSpinHintEl.textContent = `Auto spin running (${autoSpinRemaining} spins). Tap Cancel to stop.`;
+        return;
     }
-    autoSpinRemaining = 0;
-    autoSpinPlannedCount = 0;
-    updateAutoSpinCountdown();
+    autoSpinHintEl.textContent = "Hold Spin to start auto spin. Tap Cancel to stop.";
 }
 
 function cancelAutoSpin() {
-    if (autoSpinRunning) {
-        autoSpinStopRequested = true;
-        setMessage("Stopping auto spins...");
-        return;
-    }
-
-    setAutoSpinPanelVisible(false);
-    resetAutoSpinCounter();
-    updateAutoSpinControls();
-    updateTotals();
+    if (!autoSpinRunning) return;
+    autoSpinStopRequested = true;
+    setMessage("Stopping auto spins...");
 }
 
 async function runAutoSpin() {
     if (autoSpinRunning || isSpinning) return;
 
-    const spinsRequested = getAutoSpinCount();
     autoSpinRunning = true;
     autoSpinStopRequested = false;
-    autoSpinPlannedCount = spinsRequested;
-    autoSpinRemaining = spinsRequested;
-    setAutoSpinPanelVisible(true);
-    updateAutoSpinCountdown();
+    autoSpinRemaining = 0;
     updateAutoSpinControls();
+    updateAutoSpinHint();
     updateTotals();
 
-    let spinsCompleted = 0;
-    for (let i = 0; i < spinsRequested; i++) {
-        if (autoSpinStopRequested) break;
-        const result = await doSpin({ instant: Boolean(instantSpinsEl?.checked), silentNoWin: true });
+    while (!autoSpinStopRequested) {
+        const result = await doSpin({ silentNoWin: true });
         if (!result?.completed) break;
-        spinsCompleted += 1;
-        autoSpinRemaining = Math.max(spinsRequested - spinsCompleted, 0);
-        updateAutoSpinCountdown();
-    }
+        autoSpinRemaining += 1;
+        updateAutoSpinHint();
 
-    const wasStopped = autoSpinStopRequested;
-    autoSpinRunning = false;
-    autoSpinStopRequested = false;
-    if (wasStopped) {
-        resetAutoSpinCounter({ resetInput: true });
-        setMessage("Auto spin stopped and reset.");
-    } else {
-        resetAutoSpinCounter();
-        if (spinsCompleted > 0) {
-            setMessage(`Auto spin complete: ${spinsCompleted} spin${spinsCompleted === 1 ? "" : "s"}.`);
+        if (result.totalWinUSD > 0 && !autoSpinStopRequested) {
+            await new Promise((resolve) => setTimeout(resolve, 5000));
         }
     }
 
-    setAutoSpinPanelVisible(false);
+    const wasStopped = autoSpinStopRequested;
+    const spinsCompleted = autoSpinRemaining;
+    autoSpinRunning = false;
+    autoSpinStopRequested = false;
+    autoSpinRemaining = 0;
+
+    if (wasStopped) {
+        setMessage("Auto spin canceled.");
+    } else if (spinsCompleted > 0) {
+        setMessage(`Auto spin ended after ${spinsCompleted} spin${spinsCompleted === 1 ? "" : "s"}.`);
+    }
+
     updateAutoSpinControls();
+    updateAutoSpinHint();
     updateTotals();
 }
 
@@ -961,12 +922,12 @@ function bindSpinHold() {
     };
 
     spinBtn.addEventListener("pointerdown", (e) => {
-        if (e.button !== 0 || isSpinning || autoSpinRunning || (autoSpinPanelEl && !autoSpinPanelEl.hidden)) return;
+        if (e.button !== 0 || isSpinning || autoSpinRunning) return;
         suppressSpinClick = false;
         clearHoldTimer();
         spinHoldTimer = setTimeout(() => {
             suppressSpinClick = true;
-            setAutoSpinPanelVisible(true);
+            runAutoSpin();
         }, 420);
     });
 
@@ -981,12 +942,12 @@ function bindSpinHold() {
             return;
         }
 
-        if (!autoSpinRunning && !isSpinning && autoSpinPanelEl && !autoSpinPanelEl.hidden) {
-            runAutoSpin();
+        if (autoSpinRunning) {
+            cancelAutoSpin();
             return;
         }
 
-        doSpin({ instant: Boolean(instantSpinsEl?.checked) });
+        doSpin();
     });
 }
 
@@ -996,7 +957,6 @@ function onConfigChange() {
     renderLinesPreview();
     updateGameOddsDisplay();
     updateAutoSpinControls();
-    updateAutoSpinCountdown();
     updateRealtimeCreditMessage();
     scheduleDesktopAutoFit();
 }
@@ -1040,14 +1000,6 @@ function disableDoubleTapZoom() {
 }
 
 maxBtn.addEventListener("click", doMaxBet);
-autoSpinStartBtn?.addEventListener("click", () => {
-    runAutoSpin();
-});
-autoSpinCancelBtn?.addEventListener("click", cancelAutoSpin);
-autoSpinCountEl?.addEventListener("input", () => {
-    const value = Number.parseInt(autoSpinCountEl.value, 10);
-    if (!Number.isFinite(value) || value < 1) autoSpinCountEl.value = "1";
-});
 denomEl.addEventListener("change", onConfigChange);
 linesEl.addEventListener("change", onConfigChange);
 betEl.addEventListener("change", onConfigChange);
@@ -1122,7 +1074,6 @@ document.addEventListener("keydown", (e) => {
     renderLinesPreview();
     updateGameOddsDisplay();
     updateAutoSpinControls();
-    updateAutoSpinCountdown();
 
     // ARIA defaults
     payInfoBtn?.setAttribute("aria-expanded", "false");
