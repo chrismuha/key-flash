@@ -70,6 +70,7 @@ const maxBtn = document.getElementById("max");
 const autoSpinPanelEl = document.getElementById("autoSpinPanel");
 const autoSpinCountEl = document.getElementById("autoSpinCount");
 const instantSpinsEl = document.getElementById("instantSpins");
+const autoSpinRemainingEl = document.getElementById("autoSpinRemaining");
 const autoSpinCancelBtn = document.getElementById("autoSpinCancel");
 const payInfoBtn = document.getElementById("payInfo");
 const previewOverlayEl = document.getElementById("previewOverlay");
@@ -129,6 +130,8 @@ let isSpinning = false;
 let overlayPageIndex = 0;
 let autoSpinRunning = false;
 let autoSpinStopRequested = false;
+let autoSpinRemaining = 0;
+let autoSpinPlannedCount = 0;
 let spinHoldTimer = 0;
 let suppressSpinClick = false;
 
@@ -192,7 +195,7 @@ function updateTotals() {
     totalBetEl.textContent = fmtUSD(totalBet);
     balanceEl.textContent = fmtUSD(balance);
     const canAfford = balance >= totalBet;
-    spinBtn.disabled = !canAfford || isSpinning;
+    spinBtn.disabled = !canAfford || isSpinning || autoSpinRunning;
     maxBtn.disabled = isSpinning || autoSpinRunning;
 }
 
@@ -728,16 +731,41 @@ function getAutoSpinCount() {
 function setAutoSpinPanelVisible(visible) {
     if (!autoSpinPanelEl) return;
     autoSpinPanelEl.hidden = !visible;
-    if (visible) {
+    if (visible && !autoSpinRunning) {
         autoSpinCountEl?.focus();
         autoSpinCountEl?.select?.();
     }
 }
 
+function updateAutoSpinControls() {
+    if (autoSpinCountEl) autoSpinCountEl.disabled = autoSpinRunning;
+    if (autoSpinCancelBtn) autoSpinCancelBtn.textContent = autoSpinRunning ? "Stop" : "Close";
+}
+
+function updateAutoSpinCountdown() {
+    if (!autoSpinRemainingEl) return;
+    autoSpinRemainingEl.textContent = `Auto spins remaining: ${Math.max(0, autoSpinRemaining)}`;
+}
+
+function resetAutoSpinCounter({ resetInput = false } = {}) {
+    if (resetInput && autoSpinPlannedCount > 0 && autoSpinCountEl) {
+        autoSpinCountEl.value = String(autoSpinPlannedCount);
+    }
+    autoSpinRemaining = 0;
+    autoSpinPlannedCount = 0;
+    updateAutoSpinCountdown();
+}
+
 function cancelAutoSpin() {
-    autoSpinStopRequested = true;
-    autoSpinRunning = false;
+    if (autoSpinRunning) {
+        autoSpinStopRequested = true;
+        setMessage("Stopping auto spins...");
+        return;
+    }
+
     setAutoSpinPanelVisible(false);
+    resetAutoSpinCounter();
+    updateAutoSpinControls();
     updateTotals();
 }
 
@@ -747,7 +775,12 @@ async function runAutoSpin() {
     const spinsRequested = getAutoSpinCount();
     autoSpinRunning = true;
     autoSpinStopRequested = false;
-    setAutoSpinPanelVisible(false);
+    autoSpinPlannedCount = spinsRequested;
+    autoSpinRemaining = spinsRequested;
+    setAutoSpinPanelVisible(true);
+    updateAutoSpinCountdown();
+    updateAutoSpinControls();
+    updateTotals();
 
     let spinsCompleted = 0;
     for (let i = 0; i < spinsRequested; i++) {
@@ -755,14 +788,26 @@ async function runAutoSpin() {
         const result = await doSpin({ instant: Boolean(instantSpinsEl?.checked), silentNoWin: true });
         if (!result?.completed) break;
         spinsCompleted += 1;
+        autoSpinRemaining = Math.max(spinsRequested - spinsCompleted, 0);
+        updateAutoSpinCountdown();
     }
 
+    const wasStopped = autoSpinStopRequested;
     autoSpinRunning = false;
     autoSpinStopRequested = false;
-    updateTotals();
-    if (spinsCompleted > 0) {
-        setMessage(`Auto spin complete: ${spinsCompleted} spin${spinsCompleted === 1 ? "" : "s"}.`);
+    if (wasStopped) {
+        resetAutoSpinCounter({ resetInput: true });
+        setMessage("Auto spin stopped and reset.");
+    } else {
+        resetAutoSpinCounter();
+        if (spinsCompleted > 0) {
+            setMessage(`Auto spin complete: ${spinsCompleted} spin${spinsCompleted === 1 ? "" : "s"}.`);
+        }
     }
+
+    setAutoSpinPanelVisible(false);
+    updateAutoSpinControls();
+    updateTotals();
 }
 
 // Main Spin Flow
@@ -945,6 +990,8 @@ function onConfigChange() {
     updateTotals();
     renderLinesPreview();
     updateGameOddsDisplay();
+    updateAutoSpinControls();
+    updateAutoSpinCountdown();
     updateRealtimeCreditMessage();
     scheduleDesktopAutoFit();
 }
@@ -1066,6 +1113,8 @@ document.addEventListener("keydown", (e) => {
     updateTotals();
     renderLinesPreview();
     updateGameOddsDisplay();
+    updateAutoSpinControls();
+    updateAutoSpinCountdown();
 
     // ARIA defaults
     payInfoBtn?.setAttribute("aria-expanded", "false");
