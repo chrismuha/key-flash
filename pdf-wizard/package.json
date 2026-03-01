@@ -7,7 +7,7 @@
     "test": "find . -name '*.js' -not -path './node_modules/*' -exec node --check {} \\;"
   },
   "devDependencies": {
-    "electron": "^25.3.0"
+    "electron": "^40.6.1"
   },
   "keywords": [],
   "author": "",
