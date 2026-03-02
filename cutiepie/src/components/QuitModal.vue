@@ -3,9 +3,10 @@
     <div class="quit-modal">
       <p class="quit-kicker">Quit Protection</p>
       <h2 id="quit-title">Leave CutiePie?</h2>
-      <p class="quit-text">You are about to quit the app. Unsaved active edits may be lost.</p>
+      <p class="quit-text">You are about to quit the app. Unsaved edits will be lost.</p>
       <div class="quit-actions">
         <button type="button" class="soft" @click="keepWorking">Keep Working</button>
+        <button type="button" class="soft" @click="saveThenQuit">Save &amp; Quit</button>
         <button type="button" class="quit-now" @click="quitApp">Quit App</button>
       </div>
     </div>
@@ -14,7 +15,7 @@
 
 <script setup>
 import { useAppStore } from '../stores/appStore';
-import { cancelQuit, confirmQuit } from '../services/quitService';
+import { cancelQuit, confirmQuit, saveAndQuit } from '../services/quitService';
 
 const appStore = useAppStore();
 
@@ -25,5 +26,9 @@ async function keepWorking() {
 
 async function quitApp() {
   await confirmQuit();
+}
+
+async function saveThenQuit() {
+  await saveAndQuit();
 }
 </script>

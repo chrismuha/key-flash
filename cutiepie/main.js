@@ -149,12 +149,12 @@ function createWindow() {
       return;
     }
 
-    event.preventDefault();
-
     if (win.__allowCloseOnce) {
       win.__allowCloseOnce = false;
       return;
     }
+
+    event.preventDefault();
 
     const unsaved = await hasUnsavedChanges(win);
     if (!unsaved) {
@@ -189,12 +189,26 @@ app.on('before-quit', (event) => {
     return;
   }
 
-  if (BrowserWindow.getAllWindows().length === 0) {
+  const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+  if (!win || win.isDestroyed()) {
     return;
   }
 
   event.preventDefault();
-  requestQuitConfirmation();
+
+  hasUnsavedChanges(win)
+    .then((unsaved) => {
+      if (unsaved) {
+        requestQuitConfirmation();
+        return;
+      }
+
+      isQuitting = true;
+      app.quit();
+    })
+    .catch(() => {
+      requestQuitConfirmation();
+    });
 });
 
 app.on('window-all-closed', () => {

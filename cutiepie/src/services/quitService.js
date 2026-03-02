@@ -15,3 +15,17 @@ export async function cancelQuit() {
   if (!api?.cancel) return { ok: false };
   return api.cancel();
 }
+
+export async function saveAndQuit() {
+  try {
+    if (window.__CUTIEPIE_PERSIST_STATE) {
+      await window.__CUTIEPIE_PERSIST_STATE();
+    }
+    if (window.__CUTIEPIE_PERSIST_SETTINGS) {
+      await window.__CUTIEPIE_PERSIST_SETTINGS();
+    }
+  } catch (_error) {
+    // proceed to quit prompt action even if save fails
+  }
+  return confirmQuit();
+}

@@ -1,7 +1,18 @@
 <template>
   <section class="panel">
     <div class="panel-head">
-      <h2>1) Field Builder</h2>
+      <div class="panel-title-row">
+        <h2>1) Field Builder</h2>
+        <button
+          v-if="hasCategoryField"
+          type="button"
+          class="builder-info-btn"
+          title="Category behavior info"
+          @click="showCategoryInfo = !showCategoryInfo"
+        >
+          i
+        </button>
+      </div>
       <p>Choose the columns your dataset should use.</p>
     </div>
     <form class="field-form" autocomplete="off" @submit.prevent="submitField">
@@ -20,11 +31,15 @@
         <button type="button" @click="remove(field.id)">x</button>
       </div>
     </div>
+
+    <p v-if="showCategoryInfo" class="settings-note field-info-note">
+      Category handling: Settings category list blocks duplicates case-insensitively (for example, Retail and retail are treated the same there), but manually typed Data Entry values are stored exactly as typed, so capitalization differences are treated as separate chart categories.
+    </p>
   </section>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useDataStore } from '../stores/dataStore';
 import { useChartStore } from '../stores/chartStore';
 
@@ -32,6 +47,8 @@ const store = useDataStore();
 const chartStore = useChartStore();
 const name = ref('');
 const type = ref('text');
+const showCategoryInfo = ref(false);
+const hasCategoryField = computed(() => store.sortedFields.some((field) => isCategoryField(field)));
 
 function submitField() {
   store.addField(name.value, type.value);
@@ -43,5 +60,9 @@ function submitField() {
 function remove(id) {
   store.removeField(id);
   chartStore.requireManualRefresh('Fields changed. Click Generate Chart to apply the new structure.');
+}
+
+function isCategoryField(field) {
+  return String(field?.name || '').trim().toLowerCase() === 'category';
 }
 </script>
