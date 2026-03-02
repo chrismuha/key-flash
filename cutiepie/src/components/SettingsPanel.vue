@@ -37,6 +37,8 @@
 
       <div class="settings-actions">
         <button type="button" class="soft" @click="saveNow">Save Now</button>
+        <button type="button" class="soft" @click="backupNow">Create Backup</button>
+        <button type="button" class="soft danger" @click="restoreBackup">Restore Latest Backup</button>
       </div>
       <p class="settings-note">Status: {{ appStore.saveStatus }}</p>
       <p class="settings-note">Last saved: {{ fmt(appStore.lastSavedAt) }}</p>
@@ -49,6 +51,7 @@
 import { ref } from 'vue';
 import { useAppStore } from '../stores/appStore';
 import { useSettingsStore } from '../stores/settingsStore';
+import { createBackup, restoreLatestBackup } from '../services/backupService';
 
 const appStore = useAppStore();
 const settings = useSettingsStore();
@@ -57,6 +60,26 @@ const categoryDraft = ref('');
 function saveNow() {
   if (window.__CUTIEPIE_PERSIST_STATE) window.__CUTIEPIE_PERSIST_STATE();
   if (window.__CUTIEPIE_PERSIST_SETTINGS) window.__CUTIEPIE_PERSIST_SETTINGS();
+}
+
+async function backupNow() {
+  const result = await createBackup();
+  if (!result?.ok) {
+    appStore.saveStatus = 'Backup failed';
+    return;
+  }
+  appStore.saveStatus = `Backup created (${result.fileName})`;
+}
+
+async function restoreBackup() {
+  const result = await restoreLatestBackup();
+  if (!result?.ok) {
+    appStore.saveStatus = result?.error === 'no_backup_found' ? 'No backup found' : 'Restore failed';
+    return;
+  }
+
+  appStore.saveStatus = `Backup restored (${result.fileName})`;
+  window.location.reload();
 }
 
 function addCategory() {

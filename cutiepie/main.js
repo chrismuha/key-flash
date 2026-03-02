@@ -5,11 +5,22 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 
 const STATE_FILE_NAME = 'cutiepie-state.json';
 const SETTINGS_FILE_NAME = 'cutiepie-settings.json';
+const BACKUP_DIR_NAME = 'backups';
+const BACKUP_FILE_PREFIX = 'cutiepie-backup-';
 let isQuitting = false;
 let quitPromptPending = false;
 
 function getDataFilePath(fileName) {
   return path.join(app.getPath('userData'), fileName);
+}
+
+function getBackupDirPath() {
+  return path.join(app.getPath('userData'), BACKUP_DIR_NAME);
+}
+
+function buildBackupFileName() {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  return `${BACKUP_FILE_PREFIX}${timestamp}.json`;
 }
 
 async function readJsonFile(fileName) {
@@ -27,6 +38,17 @@ async function writeJsonFile(fileName, payload) {
 async function clearJsonFile(fileName) {
   const filePath = getDataFilePath(fileName);
   await fs.rm(filePath, { force: true });
+}
+
+async function readJsonFileIfExists(fileName) {
+  try {
+    return await readJsonFile(fileName);
+  } catch (error) {
+    if (error && error.code === 'ENOENT') {
+      return null;
+    }
+    throw error;
+  }
 }
 
 ipcMain.handle('cutiepie:state:load', async () => {
@@ -86,6 +108,67 @@ ipcMain.handle('cutiepie:settings:clear', async () => {
     return { ok: true };
   } catch (error) {
     return { ok: false, error: 'clear_failed' };
+  }
+});
+
+ipcMain.handle('cutiepie:backup:create', async () => {
+  try {
+    const state = await readJsonFileIfExists(STATE_FILE_NAME);
+    const settings = await readJsonFileIfExists(SETTINGS_FILE_NAME);
+    const backupPayload = {
+      version: 1,
+      createdAt: new Date().toISOString(),
+      state,
+      settings
+    };
+
+    const backupDirPath = getBackupDirPath();
+    await fs.mkdir(backupDirPath, { recursive: true });
+    const backupFileName = buildBackupFileName();
+    const backupFilePath = path.join(backupDirPath, backupFileName);
+    await fs.writeFile(backupFilePath, JSON.stringify(backupPayload, null, 2), 'utf8');
+
+    return { ok: true, fileName: backupFileName, createdAt: backupPayload.createdAt };
+  } catch (error) {
+    return { ok: false, error: 'backup_create_failed' };
+  }
+});
+
+ipcMain.handle('cutiepie:backup:restoreLatest', async () => {
+  try {
+    const backupDirPath = getBackupDirPath();
+    const entries = await fs.readdir(backupDirPath);
+    const backupFiles = entries
+      .filter((name) => name.startsWith(BACKUP_FILE_PREFIX) && name.endsWith('.json'))
+      .sort()
+      .reverse();
+
+    if (backupFiles.length === 0) {
+      return { ok: false, error: 'no_backup_found' };
+    }
+
+    const latestFile = backupFiles[0];
+    const latestPath = path.join(backupDirPath, latestFile);
+    const raw = await fs.readFile(latestPath, 'utf8');
+    const backupPayload = JSON.parse(raw);
+
+    if (backupPayload && typeof backupPayload === 'object') {
+      if (backupPayload.state != null) {
+        await writeJsonFile(STATE_FILE_NAME, backupPayload.state);
+      }
+      if (backupPayload.settings != null) {
+        await writeJsonFile(SETTINGS_FILE_NAME, backupPayload.settings);
+      }
+    }
+
+    return {
+      ok: true,
+      fileName: latestFile,
+      restoredAt: new Date().toISOString(),
+      backupCreatedAt: backupPayload?.createdAt || null
+    };
+  } catch (error) {
+    return { ok: false, error: 'backup_restore_failed' };
   }
 });
 

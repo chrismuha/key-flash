@@ -8,9 +8,10 @@
           type="button"
           class="builder-info-btn"
           title="Category behavior info"
+          aria-label="Category behavior info"
           @click="showCategoryInfo = !showCategoryInfo"
         >
-          i
+          <i class="bi bi-info-lg" aria-hidden="true"></i>
         </button>
       </div>
       <p>Choose the columns your dataset should use.</p>

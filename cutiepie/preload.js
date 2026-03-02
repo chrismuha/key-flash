@@ -26,5 +26,9 @@ contextBridge.exposeInMainWorld('cutiepieDesktop', {
     load: () => ipcRenderer.invoke('cutiepie:settings:load'),
     save: (payload) => ipcRenderer.invoke('cutiepie:settings:save', payload),
     clear: () => ipcRenderer.invoke('cutiepie:settings:clear')
+  },
+  backup: {
+    create: () => ipcRenderer.invoke('cutiepie:backup:create'),
+    restoreLatest: () => ipcRenderer.invoke('cutiepie:backup:restoreLatest')
   }
 });

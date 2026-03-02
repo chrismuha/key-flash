@@ -83,7 +83,9 @@ button.soft { width: auto; margin-top: 0.65rem; background: var(--soft-btn-bg); 
 .field-pill button { width: auto; font-size: 0.75rem; background: transparent; color: var(--field-pill-ink); padding: 0; }
 .panel-title-row { display: flex; align-items: center; gap: 0.55rem; }
 .builder-info-btn { width: 1.55rem; height: 1.55rem; padding: 0; margin: 0; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 800; color: var(--white); background: var(--accent-2); border: 1px solid var(--accent-2); box-shadow: 0 2px 8px var(--builder-info-shadow); }
-.builder-info-btn:hover, .builder-info-btn:focus { background: var(--builder-info-hover); border-color: var(--builder-info-hover); }
+.builder-info-btn:hover { background: var(--builder-info-hover); border-color: var(--builder-info-hover); }
+.builder-info-btn:focus { outline: none; }
+.builder-info-btn:focus-visible { outline: 2px solid var(--builder-info-hover); outline-offset: 2px; }
 .field-info-note { margin-top: 0.55rem; }
 
 .table-wrap { overflow-x: auto; }
