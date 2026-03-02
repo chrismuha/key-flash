@@ -694,7 +694,6 @@
     const themeChoiceBtns = document.querySelectorAll('.theme-choice');
     const themeViews = document.querySelectorAll('[data-theme-view]');
     const boxifyGrid = document.getElementById('boxify-inventory');
-    const boxifyResetBtn = document.querySelector('.boxify-reset');
     let boxifyInitialized = false;
     let currentThemeChoice = 'restaurant';
     const docEl = document.documentElement;
@@ -1669,7 +1668,6 @@
 
     // Live validation utilities for delivery form
     function validateDeliveryForm(form) {
-      const errEl = document.getElementById('delivery-error');
       const name = form.querySelector('#delivery-name');
       const phoneEl = form.querySelector('#delivery-phone');
       const addr = form.querySelector('#delivery-address');
@@ -2258,7 +2256,7 @@
           wrap.style.display = active ? 'inline-flex' : 'none';
         };
         const getStoredQty = () => {
-          let stored = sectionDefaultQty;
+          let stored;
           try {
             const qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
             const hasStored = Object.prototype.hasOwnProperty.call(qs, sec);
@@ -3791,7 +3789,7 @@
                 li.appendChild(controlsRow);
               } else {
                 const qKey = `${group}|${normValue}`;
-                let qv = 1;
+                let qv;
                 try { qv = Math.max(1, Math.min(4, parseInt(qtyMap[qKey] || '1', 10) || 1)); } catch { qv = 1; }
                 if (qv > 1) {
                   const suffix = qtyLabelMap[qv] || `x${qv}`;
@@ -4192,15 +4190,6 @@
 
   function initSummaryHandlers() {
     const summaries = Array.from(document.querySelectorAll('summary.menu-summary'));
-    const allowToggleCheckbox = () => {
-      try {
-        const lbl = document.querySelector('.setting-label-selects');
-        const ttl = document.querySelector('.setting-title-selects');
-        const lblOn = lbl ? !!lbl.checked : true;
-        const ttlOn = ttl ? !!ttl.checked : true;
-        return lblOn || ttlOn;
-      } catch { return true; }
-    };
     const isTitleToggleEnabled = () => {
       try { return !!titleSelects; } catch { return true; }
     };
