@@ -23,15 +23,18 @@ const chartStore = useChartStore();
 
 let stateSaveTimer = null;
 let settingsSaveTimer = null;
+let isWorkspaceSyncing = false;
 
 function syncWorkspaceSnapshot() {
+  isWorkspaceSyncing = true;
   dataStore.syncActiveWorkspace(chartStore.snapshotForWorkspace());
+  isWorkspaceSyncing = false;
 }
 
 function buildStatePayload() {
   syncWorkspaceSnapshot();
   return {
-    version: 3,
+    version: 4,
     workspaces: dataStore.workspaces,
     activeWorkspaceId: dataStore.activeWorkspaceId,
     updatedAt: new Date().toISOString()
@@ -49,6 +52,9 @@ function buildSettingsPayload() {
     dashboardHistoryLimit: settingsStore.dashboardHistoryLimit,
     performanceMode: settingsStore.performanceMode,
     alertThresholds: settingsStore.normalizedAlertThresholds,
+    chartGoalEnabled: settingsStore.chartGoalEnabled,
+    chartGoalValue: settingsStore.chartGoalValue,
+    onboardingCompleted: settingsStore.onboardingCompleted,
     updatedAt: new Date().toISOString()
   };
 }
@@ -71,7 +77,10 @@ function buildComparableSnapshot() {
     roleView: settingsStore.roleView,
     dashboardHistoryLimit: settingsStore.dashboardHistoryLimit,
     performanceMode: settingsStore.performanceMode,
-    alertThresholds: settingsStore.normalizedAlertThresholds
+    alertThresholds: settingsStore.normalizedAlertThresholds,
+    chartGoalEnabled: settingsStore.chartGoalEnabled,
+    chartGoalValue: settingsStore.chartGoalValue,
+    onboardingCompleted: settingsStore.onboardingCompleted
   });
 }
 
@@ -130,6 +139,11 @@ async function hydrate() {
     settingsStore.performanceMode = ['balanced', 'fast', 'quality'].includes(loadedSettings.settings.performanceMode)
       ? loadedSettings.settings.performanceMode
       : 'balanced';
+    settingsStore.chartGoalEnabled = loadedSettings.settings.chartGoalEnabled === true;
+    settingsStore.chartGoalValue = Number.isFinite(Number(loadedSettings.settings.chartGoalValue))
+      ? Number(loadedSettings.settings.chartGoalValue)
+      : 100;
+    settingsStore.onboardingCompleted = loadedSettings.settings.onboardingCompleted === true;
     settingsStore.alertThresholds = {
       ...settingsStore.alertThresholds,
       ...(loadedSettings.settings.alertThresholds && typeof loadedSettings.settings.alertThresholds === 'object'
@@ -180,6 +194,7 @@ watch(
   ],
   () => {
     if (appStore.isHydrating) return;
+    if (isWorkspaceSyncing) return;
     appStore.markUpdated(buildComparableSnapshot());
     scheduleStateSave();
   },
@@ -195,7 +210,10 @@ watch(
     settingsStore.roleView,
     settingsStore.dashboardHistoryLimit,
     settingsStore.performanceMode,
-    settingsStore.alertThresholds
+    settingsStore.alertThresholds,
+    settingsStore.chartGoalEnabled,
+    settingsStore.chartGoalValue,
+    settingsStore.onboardingCompleted
   ],
   () => {
     if (appStore.isHydrating) return;

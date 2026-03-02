@@ -24,6 +24,7 @@
     </div>
 
     <div class="settings-actions">
+      <button type="button" class="soft" @click="cloneWorkspace">Clone Active</button>
       <button type="button" class="soft" @click="renameWorkspace">Rename Active</button>
       <button
         type="button"
@@ -33,6 +34,8 @@
       >
         Delete Active
       </button>
+      <button type="button" class="soft" :disabled="!dataStore.undoStack.length" @click="undo">Undo</button>
+      <button type="button" class="soft" :disabled="!dataStore.redoStack.length" @click="redo">Redo</button>
     </div>
 
     <p v-if="status" class="settings-note">{{ status }}</p>
@@ -75,6 +78,18 @@ function createWorkspace() {
   workspaceName.value = '';
 }
 
+function cloneWorkspace() {
+  syncCurrentWorkspace();
+  const id = dataStore.cloneWorkspace(dataStore.activeWorkspaceId);
+  if (!id) {
+    status.value = 'Unable to clone workspace.';
+    return;
+  }
+  const workspace = dataStore.setActiveWorkspace(id);
+  applyWorkspace(workspace);
+  status.value = `Workspace cloned: ${workspace?.name || 'Workspace Copy'}`;
+}
+
 function renameWorkspace() {
   const name = workspaceName.value;
   if (!name) return;
@@ -92,5 +107,17 @@ function deleteWorkspace() {
   }
   applyWorkspace(dataStore.activeWorkspace);
   status.value = `Workspace deleted. Active: ${dataStore.activeWorkspace?.name || 'Unknown'}`;
+}
+
+function undo() {
+  const ok = dataStore.undo();
+  if (!ok) return;
+  status.value = 'Undid last builder/data/formula action.';
+}
+
+function redo() {
+  const ok = dataStore.redo();
+  if (!ok) return;
+  status.value = 'Redid builder/data/formula action.';
 }
 </script>

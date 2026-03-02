@@ -19,7 +19,10 @@ export const useSettingsStore = defineStore('settings', {
     roleView: 'editor',
     dashboardHistoryLimit: 40,
     performanceMode: 'balanced',
-    alertThresholds: defaultThresholds()
+    alertThresholds: defaultThresholds(),
+    chartGoalEnabled: false,
+    chartGoalValue: 100,
+    onboardingCompleted: false
   }),
   getters: {
     sortedSavedCategories(state) {

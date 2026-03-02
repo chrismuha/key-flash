@@ -60,6 +60,14 @@ async function readJsonFileIfExists(fileName) {
   }
 }
 
+async function safeStat(filePath) {
+  try {
+    return await fs.stat(filePath);
+  } catch (_error) {
+    return null;
+  }
+}
+
 ipcMain.handle('cutiepie:state:load', async () => {
   try {
     const state = await readJsonFile(STATE_FILE_NAME);
@@ -178,6 +186,72 @@ ipcMain.handle('cutiepie:backup:restoreLatest', async () => {
     };
   } catch (error) {
     return { ok: false, error: 'backup_restore_failed' };
+  }
+});
+
+ipcMain.handle('cutiepie:backup:list', async () => {
+  try {
+    const backupDirPath = getBackupDirPath();
+    const entries = await fs.readdir(backupDirPath);
+    const backups = await Promise.all(
+      entries
+        .filter((name) => name.startsWith(BACKUP_FILE_PREFIX) && name.endsWith('.json'))
+        .map(async (name) => {
+          const fullPath = path.join(backupDirPath, name);
+          const stat = await safeStat(fullPath);
+          return {
+            fileName: name,
+            fullPath,
+            sizeBytes: stat?.size || 0,
+            modifiedAt: stat?.mtime?.toISOString?.() || null
+          };
+        })
+    );
+    backups.sort((a, b) => String(b.modifiedAt || '').localeCompare(String(a.modifiedAt || '')));
+    return { ok: true, backups };
+  } catch (_error) {
+    return { ok: false, backups: [] };
+  }
+});
+
+ipcMain.handle('cutiepie:diagnostics:get', async () => {
+  try {
+    const userDataPath = app.getPath('userData');
+    const statePath = getDataFilePath(STATE_FILE_NAME);
+    const settingsPath = getDataFilePath(SETTINGS_FILE_NAME);
+    const backupDirPath = getBackupDirPath();
+    const exportsDirPath = getExportsDirPath();
+
+    const [stateStat, settingsStat, backupDirStat] = await Promise.all([
+      safeStat(statePath),
+      safeStat(settingsPath),
+      safeStat(backupDirPath)
+    ]);
+
+    const backupEntries = backupDirStat ? await fs.readdir(backupDirPath) : [];
+    const backupCount = backupEntries.filter((name) => name.startsWith(BACKUP_FILE_PREFIX) && name.endsWith('.json')).length;
+
+    return {
+      ok: true,
+      diagnostics: {
+        appVersion: app.getVersion(),
+        platform: process.platform,
+        userDataPath,
+        statePath,
+        stateExists: Boolean(stateStat),
+        stateBytes: stateStat?.size || 0,
+        stateUpdatedAt: stateStat?.mtime?.toISOString?.() || null,
+        settingsPath,
+        settingsExists: Boolean(settingsStat),
+        settingsBytes: settingsStat?.size || 0,
+        settingsUpdatedAt: settingsStat?.mtime?.toISOString?.() || null,
+        backupDirPath,
+        backupCount,
+        exportsDirPath
+      }
+    };
+  } catch (_error) {
+    return { ok: false, error: 'diagnostics_failed' };
   }
 });
 

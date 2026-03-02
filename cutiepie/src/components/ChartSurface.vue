@@ -11,9 +11,11 @@
 import { onBeforeUnmount, ref } from 'vue';
 import { useDataStore } from '../stores/dataStore';
 import { useChartStore } from '../stores/chartStore';
+import { useSettingsStore } from '../stores/settingsStore';
 
 const dataStore = useDataStore();
 const chartStore = useChartStore();
+const settingsStore = useSettingsStore();
 
 const canvasRef = ref(null);
 const plotRef = ref(null);
@@ -186,6 +188,25 @@ async function render() {
         },
         options: { responsive: true, maintainAspectRatio: false }
       };
+    }
+
+    if (
+      settingsStore.chartGoalEnabled &&
+      Number.isFinite(Number(settingsStore.chartGoalValue)) &&
+      ['bar', 'column', 'line', 'area', 'step', 'stacked_bar', 'stacked_area', 'pareto', 'waterfall', 'funnel', 'sparkline'].includes(type)
+    ) {
+      const labels = config.data?.labels || [];
+      const goal = Number(settingsStore.chartGoalValue);
+      config.data.datasets.push({
+        type: 'line',
+        label: 'Goal',
+        data: labels.map(() => goal),
+        borderColor: '#c84b62',
+        backgroundColor: '#c84b62',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0
+      });
     }
 
     chartInstance.value = new Chart(canvasRef.value, config);

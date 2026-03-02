@@ -15,7 +15,9 @@ function createDefaultDataset() {
     rows: [{}, {}, {}],
     draftRows: [{}, {}, {}],
     templates: [],
-    customFormulas: []
+    customFormulas: [],
+    formulaFields: [],
+    reportExportCount: 0
   };
 }
 
@@ -29,6 +31,8 @@ function createDefaultWorkspace(name = 'Default Workspace') {
     draftRows: dataset.draftRows,
     templates: dataset.templates,
     customFormulas: dataset.customFormulas,
+    formulaFields: dataset.formulaFields,
+    reportExportCount: dataset.reportExportCount,
     chartState: null,
     generatedTracks: []
   };
@@ -63,7 +67,12 @@ export const useDataStore = defineStore('data', {
       rows: workspace.rows,
       draftRows: workspace.draftRows,
       templates: workspace.templates,
-      customFormulas: workspace.customFormulas
+      customFormulas: workspace.customFormulas,
+      formulaFields: workspace.formulaFields,
+      reportExportCount: workspace.reportExportCount,
+      focusRowIndex: null,
+      undoStack: [],
+      redoStack: []
     };
   },
   getters: {
@@ -81,6 +90,9 @@ export const useDataStore = defineStore('data', {
     },
     sortedWorkspaces(state) {
       return [...state.workspaces].sort((a, b) => a.name.localeCompare(b.name));
+    },
+    formulaExecutionPlan(state) {
+      return [...state.formulaFields].sort((a, b) => String(a.createdAt || '').localeCompare(String(b.createdAt || '')));
     }
   },
   actions: {
@@ -153,6 +165,19 @@ export const useDataStore = defineStore('data', {
         }))
         .filter((formula) => formula.expression);
     },
+    sanitizeFormulaFields(formulaFields) {
+      if (!Array.isArray(formulaFields)) return [];
+      return formulaFields
+        .filter((item) => item && typeof item === 'object')
+        .map((item) => ({
+          outputFieldId: String(item.outputFieldId || ''),
+          outputFieldName: String(item.outputFieldName || '').trim(),
+          formulaId: String(item.formulaId || ''),
+          inputFieldIds: Array.isArray(item.inputFieldIds) ? item.inputFieldIds.map((id) => String(id || '')).filter(Boolean) : [],
+          createdAt: typeof item.createdAt === 'string' ? item.createdAt : new Date().toISOString()
+        }))
+        .filter((item) => item.outputFieldId && item.formulaId && item.inputFieldIds.length > 0);
+    },
     sanitizeWorkspace(workspace) {
       if (!workspace || typeof workspace !== 'object') return null;
       const fields = this.sanitizeFields(workspace.fields);
@@ -167,6 +192,8 @@ export const useDataStore = defineStore('data', {
         draftRows: draftRows.length ? draftRows : (rows.length ? rows : [{}]).map((row) => ({ ...row })),
         templates: this.sanitizeTemplates(workspace.templates),
         customFormulas: this.sanitizeCustomFormulas(workspace.customFormulas),
+        formulaFields: this.sanitizeFormulaFields(workspace.formulaFields),
+        reportExportCount: Math.max(0, Math.round(Number(workspace.reportExportCount) || 0)),
         chartState: workspace.chartState && typeof workspace.chartState === 'object'
           ? {
               chartType: String(workspace.chartState.chartType || ''),
@@ -193,6 +220,8 @@ export const useDataStore = defineStore('data', {
         this.draftRows = workspace.draftRows;
         this.templates = workspace.templates;
         this.customFormulas = workspace.customFormulas;
+        this.formulaFields = workspace.formulaFields;
+        this.reportExportCount = workspace.reportExportCount;
         return;
       }
 
@@ -219,6 +248,14 @@ export const useDataStore = defineStore('data', {
         ...formula,
         inputLabels: [...formula.inputLabels]
       }));
+      this.formulaFields = workspace.formulaFields.map((item) => ({
+        ...item,
+        inputFieldIds: [...item.inputFieldIds]
+      }));
+      this.reportExportCount = workspace.reportExportCount;
+      this.focusRowIndex = null;
+      this.undoStack = [];
+      this.redoStack = [];
     },
     syncActiveWorkspace(extra = {}) {
       const index = this.workspaces.findIndex((workspace) => workspace.id === this.activeWorkspaceId);
@@ -240,6 +277,11 @@ export const useDataStore = defineStore('data', {
           ...formula,
           inputLabels: [...formula.inputLabels]
         })),
+        formulaFields: this.formulaFields.map((item) => ({
+          ...item,
+          inputFieldIds: [...item.inputFieldIds]
+        })),
+        reportExportCount: this.reportExportCount,
         chartState: extra.chartState ? { ...extra.chartState } : current.chartState,
         generatedTracks: Array.isArray(extra.generatedTracks)
           ? extra.generatedTracks.map((track) => ({ ...track }))
@@ -252,6 +294,8 @@ export const useDataStore = defineStore('data', {
         draftRows: current.draftRows,
         templates: current.templates,
         customFormulas: current.customFormulas,
+        formulaFields: current.formulaFields,
+        reportExportCount: current.reportExportCount,
         chartState: current.chartState,
         generatedTracks: current.generatedTracks
       });
@@ -261,6 +305,8 @@ export const useDataStore = defineStore('data', {
         draftRows: nextWorkspace.draftRows,
         templates: nextWorkspace.templates,
         customFormulas: nextWorkspace.customFormulas,
+        formulaFields: nextWorkspace.formulaFields,
+        reportExportCount: nextWorkspace.reportExportCount,
         chartState: nextWorkspace.chartState,
         generatedTracks: nextWorkspace.generatedTracks
       });
@@ -301,13 +347,120 @@ export const useDataStore = defineStore('data', {
       }
       return true;
     },
+    cloneWorkspace(workspaceId) {
+      const source = this.workspaces.find((workspace) => workspace.id === workspaceId);
+      if (!source) return null;
+
+      const clone = {
+        ...source,
+        id: crypto.randomUUID(),
+        name: `${source.name} Copy`,
+        fields: source.fields.map((field) => ({ ...field })),
+        rows: source.rows.map((row) => ({ ...row })),
+        draftRows: source.draftRows.map((row) => ({ ...row })),
+        templates: source.templates.map((template) => ({
+          ...template,
+          id: crypto.randomUUID(),
+          fields: template.fields.map((field) => ({ ...field })),
+          rows: template.rows.map((row) => ({ ...row })),
+          draftRows: template.draftRows.map((row) => ({ ...row }))
+        })),
+        customFormulas: source.customFormulas.map((formula) => ({
+          ...formula,
+          id: `custom:${crypto.randomUUID()}`,
+          inputLabels: [...formula.inputLabels]
+        })),
+        formulaFields: source.formulaFields.map((item) => ({
+          ...item,
+          inputFieldIds: [...item.inputFieldIds]
+        }))
+      };
+
+      this.workspaces.push(clone);
+      return clone.id;
+    },
+    snapshotForUndo() {
+      return {
+        fields: this.fields.map((field) => ({ ...field })),
+        rows: this.rows.map((row) => ({ ...row })),
+        draftRows: this.draftRows.map((row) => ({ ...row })),
+        templates: this.templates.map((template) => ({
+          ...template,
+          fields: template.fields.map((field) => ({ ...field })),
+          rows: template.rows.map((row) => ({ ...row })),
+          draftRows: template.draftRows.map((row) => ({ ...row }))
+        })),
+        customFormulas: this.customFormulas.map((formula) => ({
+          ...formula,
+          inputLabels: [...formula.inputLabels]
+        })),
+        formulaFields: this.formulaFields.map((item) => ({
+          ...item,
+          inputFieldIds: [...item.inputFieldIds]
+        }))
+      };
+    },
+    restoreFromUndo(snapshot) {
+      if (!snapshot) return;
+      this.fields = snapshot.fields.map((field) => ({ ...field }));
+      this.rows = snapshot.rows.map((row) => ({ ...row }));
+      this.draftRows = snapshot.draftRows.map((row) => ({ ...row }));
+      this.templates = snapshot.templates.map((template) => ({
+        ...template,
+        fields: template.fields.map((field) => ({ ...field })),
+        rows: template.rows.map((row) => ({ ...row })),
+        draftRows: template.draftRows.map((row) => ({ ...row }))
+      }));
+      this.customFormulas = snapshot.customFormulas.map((formula) => ({
+        ...formula,
+        inputLabels: [...formula.inputLabels]
+      }));
+      this.formulaFields = snapshot.formulaFields.map((item) => ({
+        ...item,
+        inputFieldIds: [...item.inputFieldIds]
+      }));
+    },
+    pushUndoSnapshot() {
+      this.undoStack.push(this.snapshotForUndo());
+      if (this.undoStack.length > 40) this.undoStack.shift();
+      this.redoStack = [];
+    },
+    undo() {
+      if (!this.undoStack.length) return false;
+      const prev = this.undoStack.pop();
+      this.redoStack.push(this.snapshotForUndo());
+      this.restoreFromUndo(prev);
+      return true;
+    },
+    redo() {
+      if (!this.redoStack.length) return false;
+      const next = this.redoStack.pop();
+      this.undoStack.push(this.snapshotForUndo());
+      this.restoreFromUndo(next);
+      return true;
+    },
+    setFocusRow(rowIndex) {
+      this.focusRowIndex = Number.isFinite(rowIndex) ? rowIndex : null;
+    },
+    clearFocusRow() {
+      this.focusRowIndex = null;
+    },
+    incrementReportExportCount() {
+      this.reportExportCount += 1;
+    },
+    clearReportExportCount() {
+      this.reportExportCount = 0;
+    },
     addField(name, type) {
       const trimmed = String(name || '').trim();
       if (!trimmed) return;
+      this.pushUndoSnapshot();
       this.fields.push(makeField(trimmed, type));
     },
     removeField(fieldId) {
+      this.pushUndoSnapshot();
       this.fields = this.fields.filter((field) => field.id !== fieldId);
+      this.formulaFields = this.formulaFields.filter((item) => item.outputFieldId !== fieldId && !item.inputFieldIds.includes(fieldId));
       this.rows = this.rows.map((row) => {
         const next = { ...row };
         delete next[fieldId];
@@ -323,6 +476,7 @@ export const useDataStore = defineStore('data', {
       }
     },
     addRow() {
+      this.pushUndoSnapshot();
       this.draftRows.push({});
     },
     updateDraftCell(rowIndex, fieldId, value) {
@@ -330,14 +484,17 @@ export const useDataStore = defineStore('data', {
       this.draftRows[rowIndex][fieldId] = value;
     },
     applyAllRows() {
+      this.pushUndoSnapshot();
       this.rows = this.draftRows.map((row) => ({ ...row }));
     },
     applyRow(rowIndex) {
       if (!this.draftRows[rowIndex]) return;
+      this.pushUndoSnapshot();
       while (this.rows.length <= rowIndex) this.rows.push({});
       this.rows[rowIndex] = { ...this.draftRows[rowIndex] };
     },
     deleteRow(rowIndex) {
+      this.pushUndoSnapshot();
       this.draftRows.splice(rowIndex, 1);
       if (rowIndex < this.rows.length) this.rows.splice(rowIndex, 1);
       if (this.draftRows.length === 0) this.draftRows.push({});
@@ -346,6 +503,7 @@ export const useDataStore = defineStore('data', {
     replaceDataset({ fields, rows, draftRows }) {
       const sanitizedFields = this.sanitizeFields(fields);
       if (!sanitizedFields.length) return;
+      this.pushUndoSnapshot();
 
       const sanitizedRows = this.sanitizeRows(rows, sanitizedFields);
       const sanitizedDrafts = this.sanitizeRows(draftRows, sanitizedFields);
@@ -353,10 +511,12 @@ export const useDataStore = defineStore('data', {
       this.fields = sanitizedFields;
       this.rows = sanitizedRows.length ? sanitizedRows : [{}];
       this.draftRows = sanitizedDrafts.length ? sanitizedDrafts : this.rows.map((row) => ({ ...row }));
+      this.formulaFields = [];
     },
     saveTemplate(name, chartSelection) {
       const trimmed = String(name || '').trim();
       if (!trimmed) return null;
+      this.pushUndoSnapshot();
 
       const now = new Date().toISOString();
       const existing = this.templates.find((item) => item.name.toLowerCase() === trimmed.toLowerCase());
@@ -380,11 +540,13 @@ export const useDataStore = defineStore('data', {
       return payload.id;
     },
     deleteTemplate(templateId) {
+      this.pushUndoSnapshot();
       this.templates = this.templates.filter((template) => template.id !== templateId);
     },
     applyTemplate(templateId) {
       const template = this.templates.find((item) => item.id === templateId);
       if (!template) return null;
+      this.pushUndoSnapshot();
       this.replaceDataset({
         fields: template.fields,
         rows: template.rows,
@@ -403,6 +565,7 @@ export const useDataStore = defineStore('data', {
         return { ok: false, error: 'invalid_formula_inputs' };
       }
 
+      this.pushUndoSnapshot();
       const fieldName = normalizeOutputName(outputName || (formula ? formula.name : customFormula.name), this.fields);
       const outputField = makeField(fieldName, 'number');
 
@@ -441,11 +604,60 @@ export const useDataStore = defineStore('data', {
       this.fields.push(outputField);
       this.rows = applyToRows(this.rows);
       this.draftRows = applyToRows(this.draftRows);
+      this.formulaFields.push({
+        outputFieldId: outputField.id,
+        outputFieldName: outputField.name,
+        formulaId,
+        inputFieldIds: [...ids],
+        createdAt: new Date().toISOString()
+      });
       return { ok: true, fieldId: outputField.id, fieldName: outputField.name };
+    },
+    recalculateFormulaFields() {
+      const plan = this.formulaExecutionPlan;
+      if (!plan.length) return { ok: true, count: 0 };
+
+      const applyPlan = (rows) => rows.map((row, rowIndex, allRows) => {
+        const next = { ...row };
+        plan.forEach((item) => {
+          const formula = formulaMap.get(item.formulaId);
+          const customFormula = this.customFormulas.find((custom) => custom.id === item.formulaId);
+          if (!formula && !customFormula) return;
+
+          let value = null;
+          if (formula) {
+            value = formula.compute({
+              row: next,
+              rowIndex,
+              rows: allRows,
+              inputFieldIds: item.inputFieldIds,
+              numberAt(inputIndex, targetRowIndex = rowIndex) {
+                const fieldId = item.inputFieldIds[inputIndex];
+                if (!fieldId) return null;
+                const targetRow = allRows[targetRowIndex];
+                if (!targetRow) return null;
+                return toFiniteNumber(targetRow[fieldId]);
+              }
+            });
+          } else {
+            const values = item.inputFieldIds.map((id) => toFiniteNumber(next[id]));
+            const result = evaluateCustomExpression(customFormula.expression, values, rowIndex);
+            value = result.ok ? result.value : null;
+          }
+
+          next[item.outputFieldId] = Number.isFinite(value) ? String(roundNumber(value)) : '';
+        });
+        return next;
+      });
+
+      this.rows = applyPlan(this.rows);
+      this.draftRows = applyPlan(this.draftRows);
+      return { ok: true, count: plan.length };
     },
     upsertCustomFormula(formula) {
       const normalized = this.sanitizeCustomFormulas([formula])[0];
       if (!normalized) return { ok: false, error: 'invalid_custom_formula' };
+      this.pushUndoSnapshot();
 
       const existingIndex = this.customFormulas.findIndex((item) => item.id === normalized.id);
       if (existingIndex >= 0) {
@@ -458,6 +670,7 @@ export const useDataStore = defineStore('data', {
       return { ok: true, formula: normalized };
     },
     deleteCustomFormula(formulaId) {
+      this.pushUndoSnapshot();
       this.customFormulas = this.customFormulas.filter((formula) => formula.id !== formulaId);
     }
   }

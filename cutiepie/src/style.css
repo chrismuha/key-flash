@@ -130,6 +130,7 @@ table { width: 100%; border-collapse: collapse; min-width: 540px; }
 th, td { border-bottom: 1px solid var(--stroke); padding: 0.42rem; text-align: left; }
 th { color: var(--muted); font-weight: 700; font-size: 0.85rem; }
 .table-input { width: 100%; border-radius: 8px; }
+.focus-row { background: #eef8ff; outline: 2px solid rgba(31, 156, 194, 0.34); outline-offset: -2px; }
 
 .row-actions { display: flex; align-items: stretch; gap: 0.45rem; }
 .row-action-btn { margin-top: 0; min-width: 96px; height: 40px; padding: 0.62rem 0.72rem; border-radius: 10px; display: inline-flex; justify-content: center; align-items: center; font: inherit; font-weight: 700; line-height: 1; border: 1px solid var(--stroke); cursor: pointer; }

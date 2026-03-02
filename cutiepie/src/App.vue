@@ -1,7 +1,8 @@
 <template>
   <div>
     <QuitModal />
-    <RoleStartupModal :open="showRoleStartup" @close="showRoleStartup = false" />
+    <OnboardingTourModal :open="showOnboarding" @close="showOnboarding = false" />
+    <RoleStartupModal :open="showRoleStartup" @close="closeRoleStartup" />
 
     <div class="ambient ambient-a"></div>
     <div class="ambient ambient-b"></div>
@@ -16,6 +17,7 @@
               <RouterLink to="/dashboard">Dashboard</RouterLink>
               <RouterLink to="/reports">Reports</RouterLink>
               <RouterLink to="/settings">Settings</RouterLink>
+              <RouterLink to="/diagnostics">Diagnostics</RouterLink>
               <RouterLink to="/about">About</RouterLink>
             </nav>
             <button type="button" class="hero-export-btn" :disabled="isExporting" @click="exportPagePdf">
@@ -38,12 +40,23 @@ import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import QuitModal from './components/QuitModal.vue';
 import RoleStartupModal from './components/RoleStartupModal.vue';
+import OnboardingTourModal from './components/OnboardingTourModal.vue';
 import { exportCurrentPagePdf } from './services/pdfService';
+import { useSettingsStore } from './stores/settingsStore';
 
 const route = useRoute();
 const isExporting = ref(false);
 const exportStatus = ref('');
+const settings = useSettingsStore();
 const showRoleStartup = ref(true);
+const showOnboarding = ref(false);
+
+function closeRoleStartup() {
+  showRoleStartup.value = false;
+  if (settings.onboardingCompleted !== true) {
+    showOnboarding.value = true;
+  }
+}
 
 async function exportPagePdf() {
   if (isExporting.value) return;

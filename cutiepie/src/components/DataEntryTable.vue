@@ -14,7 +14,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(row, rowIndex) in dataStore.draftRows" :key="rowIndex">
+          <tr
+            v-for="(row, rowIndex) in dataStore.draftRows"
+            :key="rowIndex"
+            :class="{ 'focus-row': dataStore.focusRowIndex === rowIndex }"
+            :data-row-index="rowIndex"
+          >
             <td v-for="field in dataStore.sortedFields" :key="field.id">
               <select
                 v-if="shouldUseCategoryDropdown(field)"
@@ -60,6 +65,7 @@
 </template>
 
 <script setup>
+import { nextTick, watch } from 'vue';
 import { useDataStore } from '../stores/dataStore';
 import { useSettingsStore } from '../stores/settingsStore';
 
@@ -81,4 +87,16 @@ function categoryOptions(currentValue) {
   if (!current || base.includes(current)) return base;
   return [...base, current].sort((a, b) => a.localeCompare(b));
 }
+
+watch(
+  () => dataStore.focusRowIndex,
+  async (rowIndex) => {
+    if (!Number.isFinite(rowIndex)) return;
+    await nextTick();
+    const node = document.querySelector(`tr[data-row-index="${rowIndex}"]`);
+    if (node?.scrollIntoView) {
+      node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+);
 </script>

@@ -3,6 +3,7 @@
     <WorkspaceManager />
     <FieldBuilder />
     <DataEntryTable />
+    <DataValidationPanel />
     <FormulaBuilder />
     <TemplateManager />
     <DataExchangePanel />
@@ -16,6 +17,7 @@ import { onMounted, ref, watch } from 'vue';
 import WorkspaceManager from '../components/WorkspaceManager.vue';
 import FieldBuilder from '../components/FieldBuilder.vue';
 import DataEntryTable from '../components/DataEntryTable.vue';
+import DataValidationPanel from '../components/DataValidationPanel.vue';
 import FormulaBuilder from '../components/FormulaBuilder.vue';
 import TemplateManager from '../components/TemplateManager.vue';
 import DataExchangePanel from '../components/DataExchangePanel.vue';

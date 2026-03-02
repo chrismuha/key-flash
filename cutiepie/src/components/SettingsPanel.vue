@@ -60,6 +60,18 @@
         <p class="settings-note"><strong>Balanced:</strong> middle delay (default tradeoff).</p>
         <p class="settings-note"><strong>Quality rendering:</strong> longest delay (fewer redraws, smoother/stabler on heavier datasets).</p>
       </div>
+      <label class="settings-toggle">
+        <input v-model="settings.chartGoalEnabled" type="checkbox" />
+        Enable chart goal marker line
+      </label>
+      <label>
+        Chart Goal Value
+        <input v-model.number="settings.chartGoalValue" type="number" />
+      </label>
+      <label class="settings-toggle">
+        <input v-model="settings.onboardingCompleted" type="checkbox" />
+        Skip onboarding tour at startup
+      </label>
 
       <div class="wizard-grid">
         <p class="settings-note"><strong>Threshold Alerts</strong></p>
@@ -106,6 +118,7 @@
         <button type="button" class="soft" @click="saveNow">Save Now</button>
         <button type="button" class="soft" @click="backupNow">Create Backup</button>
         <button type="button" class="soft danger" @click="restoreBackup">Restore Latest Backup</button>
+        <button type="button" class="soft" @click="exportWorkspacePackage">Export Workspace Package</button>
       </div>
       <p class="settings-note">Status: {{ appStore.saveStatus }}</p>
       <p class="settings-note">Last saved: {{ fmt(appStore.lastSavedAt) }}</p>
@@ -118,10 +131,13 @@
 import { ref, watch } from 'vue';
 import { useAppStore } from '../stores/appStore';
 import { useSettingsStore } from '../stores/settingsStore';
-import { createBackup, restoreLatestBackup } from '../services/backupService';
+import { useDataStore } from '../stores/dataStore';
+import { createBackup, listBackups, restoreLatestBackup } from '../services/backupService';
+import { saveTextExport } from '../services/exportService';
 
 const appStore = useAppStore();
 const settings = useSettingsStore();
+const dataStore = useDataStore();
 const categoryDraft = ref('');
 const showPerformanceInfo = ref(false);
 
@@ -148,6 +164,13 @@ watch(
   { deep: true }
 );
 
+watch(
+  () => settings.chartGoalValue,
+  (value) => {
+    settings.chartGoalValue = Number.isFinite(Number(value)) ? Number(value) : 0;
+  }
+);
+
 function saveNow() {
   if (window.__CUTIEPIE_PERSIST_STATE) window.__CUTIEPIE_PERSIST_STATE();
   if (window.__CUTIEPIE_PERSIST_SETTINGS) window.__CUTIEPIE_PERSIST_SETTINGS();
@@ -171,6 +194,35 @@ async function restoreBackup() {
 
   appStore.saveStatus = `Backup restored (${result.fileName})`;
   window.location.reload();
+}
+
+async function exportWorkspacePackage() {
+  const backupResult = await listBackups();
+  const workspace = dataStore.activeWorkspace;
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    workspaceId: dataStore.activeWorkspaceId,
+    workspaceName: workspace?.name || 'Unknown Workspace',
+    workspace,
+    settings: {
+      roleView: settings.roleView,
+      performanceMode: settings.performanceMode,
+      dashboardHistoryLimit: settings.dashboardHistoryLimit,
+      alertThresholds: settings.normalizedAlertThresholds,
+      chartGoalEnabled: settings.chartGoalEnabled,
+      chartGoalValue: settings.chartGoalValue
+    },
+    backupMetadata: backupResult?.ok ? backupResult.backups : []
+  };
+
+  const result = await saveTextExport({
+    content: JSON.stringify(payload, null, 2),
+    defaultName: `cutiepie-workspace-${String(workspace?.name || 'workspace').replace(/[^a-z0-9_-]+/gi, '-').toLowerCase()}.json`,
+    filters: [{ name: 'JSON', extensions: ['json'] }]
+  });
+  appStore.saveStatus = result?.ok
+    ? `Workspace package exported (${result.fileName})`
+    : (result?.canceled ? 'Workspace package export canceled' : 'Workspace package export failed');
 }
 
 function addCategory() {

@@ -25,6 +25,7 @@
         </label>
 
         <button type="button" :disabled="!canApply" @click="applyFormula">Apply Formula Field</button>
+        <button type="button" class="soft" :disabled="!dataStore.formulaExecutionPlan.length" @click="recalculateFormulas">Recalculate Formula Fields</button>
       </div>
 
       <div v-if="currentFormula" class="wizard-grid">
@@ -86,6 +87,7 @@
           <button type="button" @click="removeCustomFormula(formula.id)">x</button>
         </div>
       </div>
+      <p class="settings-note">Dependency order: formula fields recalculate in creation order for explicit, predictable execution.</p>
     </div>
 
     <p v-if="status" class="settings-note">{{ status }}</p>
@@ -244,6 +246,15 @@ function removeCustomFormula(formulaId) {
     selectedFormulaId.value = formulas[0]?.id || '';
   }
   status.value = 'Custom formula removed.';
+}
+
+function recalculateFormulas() {
+  const result = dataStore.recalculateFormulaFields();
+  if (!result?.ok) {
+    status.value = 'Formula recalculation failed.';
+    return;
+  }
+  status.value = `Recalculated ${result.count} formula field definitions.`;
 }
 
 watch(

@@ -13,7 +13,7 @@
       <button type="button" :disabled="isExporting" @click="exportReportPdf">
         {{ isExporting ? 'Exporting PDF...' : 'Export Report PDF' }}
       </button>
-      <button type="button" class="soft danger" :disabled="reportExportCount === 0" @click="clearReportCounter">
+      <button type="button" class="soft danger" :disabled="dataStore.reportExportCount === 0" @click="clearReportCounter">
         Clear Report Counter
       </button>
     </div>
@@ -39,7 +39,7 @@
       </article>
       <article class="track-card">
         <h3>Report Exports</h3>
-        <p class="kpi-value">{{ reportExportCount }}</p>
+        <p class="kpi-value">{{ dataStore.reportExportCount }}</p>
       </article>
     </div>
 
@@ -58,13 +58,14 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useChartStore } from '../stores/chartStore';
+import { useDataStore } from '../stores/dataStore';
 import { exportCurrentPagePdf } from '../services/pdfService';
 
 const chartStore = useChartStore();
+const dataStore = useDataStore();
 const pinnedOnly = ref(false);
 const isExporting = ref(false);
 const exportStatus = ref('');
-const reportExportCount = ref(0);
 
 const nowText = computed(() => `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`);
 
@@ -78,7 +79,7 @@ async function exportReportPdf() {
   isExporting.value = true;
   const result = await exportCurrentPagePdf('reports');
   if (result?.ok) {
-    reportExportCount.value += 1;
+    dataStore.incrementReportExportCount();
     exportStatus.value = `PDF exported: ${result.fileName}`;
   } else if (result?.canceled) {
     exportStatus.value = 'PDF export canceled.';
@@ -89,7 +90,7 @@ async function exportReportPdf() {
 }
 
 function clearReportCounter() {
-  reportExportCount.value = 0;
+  dataStore.clearReportExportCount();
   exportStatus.value = 'Report export counter reset.';
 }
 

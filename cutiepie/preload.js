@@ -29,12 +29,16 @@ contextBridge.exposeInMainWorld('cutiepieDesktop', {
   },
   backup: {
     create: () => ipcRenderer.invoke('cutiepie:backup:create'),
-    restoreLatest: () => ipcRenderer.invoke('cutiepie:backup:restoreLatest')
+    restoreLatest: () => ipcRenderer.invoke('cutiepie:backup:restoreLatest'),
+    list: () => ipcRenderer.invoke('cutiepie:backup:list')
   },
   pdf: {
     exportCurrentPage: (payload) => ipcRenderer.invoke('cutiepie:pdf:exportCurrentPage', payload)
   },
   export: {
     saveText: (payload) => ipcRenderer.invoke('cutiepie:export:saveText', payload)
+  },
+  diagnostics: {
+    get: () => ipcRenderer.invoke('cutiepie:diagnostics:get')
   }
 });
