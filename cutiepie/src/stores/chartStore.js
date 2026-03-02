@@ -75,6 +75,34 @@ export const useChartStore = defineStore('chart', {
     clearGeneratedTracks() {
       this.generatedTracks = [];
     },
+    snapshotForWorkspace() {
+      return {
+        chartState: {
+          chartType: this.chartType,
+          selectedLabelFieldId: this.selectedLabelFieldId,
+          selectedValueFieldId: this.selectedValueFieldId,
+          selectedSecondaryValueFieldId: this.selectedSecondaryValueFieldId,
+          selectedSeriesFieldId: this.selectedSeriesFieldId
+        },
+        generatedTracks: this.generatedTracks.map((track) => ({ ...track }))
+      };
+    },
+    applyWorkspaceSnapshot(chartState, fields, generatedTracks) {
+      const state = chartState && typeof chartState === 'object' ? chartState : {};
+      this.hydrateFromState(state, fields || []);
+      this.generatedTracks = Array.isArray(generatedTracks)
+        ? generatedTracks.map((track) => ({
+            id: typeof track.id === 'string' && track.id ? track.id : crypto.randomUUID(),
+            generatedAt: typeof track.generatedAt === 'string' ? track.generatedAt : new Date().toISOString(),
+            chartType: typeof track.chartType === 'string' ? track.chartType : 'unknown',
+            labelsCount: Number.isFinite(track.labelsCount) ? track.labelsCount : 0,
+            pointsCount: Number.isFinite(track.pointsCount) ? track.pointsCount : 0,
+            title: typeof track.title === 'string' && track.title ? track.title : 'Chart',
+            pinned: track.pinned === true,
+            note: typeof track.note === 'string' ? track.note : ''
+          }))
+        : [];
+    },
     setTrackPinned(trackId, next) {
       const track = this.generatedTracks.find((item) => item.id === trackId);
       if (!track) return;

@@ -1,22 +1,71 @@
 import { defineStore } from 'pinia';
+import { formulaMap } from '../formulas';
+
+const FIELD_TYPES = new Set(['text', 'number', 'date']);
 
 const makeField = (name, type) => ({ id: crypto.randomUUID(), name, type });
-const FIELD_TYPES = new Set(['text', 'number', 'date']);
+
+function createDefaultDataset() {
+  const day = makeField('Day', 'date');
+  const category = makeField('Category', 'text');
+  const value = makeField('Value', 'number');
+  return {
+    fields: [day, category, value],
+    rows: [{}, {}, {}],
+    draftRows: [{}, {}, {}],
+    templates: []
+  };
+}
+
+function createDefaultWorkspace(name = 'Default Workspace') {
+  const dataset = createDefaultDataset();
+  return {
+    id: crypto.randomUUID(),
+    name,
+    fields: dataset.fields,
+    rows: dataset.rows,
+    draftRows: dataset.draftRows,
+    templates: dataset.templates,
+    chartState: null,
+    generatedTracks: []
+  };
+}
+
+function toFiniteNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function normalizeOutputName(base, fields) {
+  const trimmed = String(base || '').trim() || 'Formula Result';
+  const existing = new Set(fields.map((field) => field.name.toLowerCase()));
+  if (!existing.has(trimmed.toLowerCase())) return trimmed;
+
+  let i = 2;
+  while (existing.has(`${trimmed} ${i}`.toLowerCase())) i += 1;
+  return `${trimmed} ${i}`;
+}
+
+function roundNumber(value) {
+  return Math.round(value * 10000) / 10000;
+}
 
 export const useDataStore = defineStore('data', {
   state: () => {
-    const day = makeField('Day', 'date');
-    const category = makeField('Category', 'text');
-    const value = makeField('Value', 'number');
-
+    const workspace = createDefaultWorkspace();
     return {
-      fields: [day, category, value],
-      rows: [{}, {}, {}],
-      draftRows: [{}, {}, {}],
-      templates: []
+      workspaces: [workspace],
+      activeWorkspaceId: workspace.id,
+      fields: workspace.fields,
+      rows: workspace.rows,
+      draftRows: workspace.draftRows,
+      templates: workspace.templates
     };
   },
   getters: {
+    activeWorkspace(state) {
+      return state.workspaces.find((workspace) => workspace.id === state.activeWorkspaceId) || null;
+    },
     numericFields(state) {
       return state.fields.filter((field) => field.type === 'number');
     },
@@ -25,6 +74,9 @@ export const useDataStore = defineStore('data', {
     },
     sortedNumericFields() {
       return this.sortedFields.filter((field) => field.type === 'number');
+    },
+    sortedWorkspaces(state) {
+      return [...state.workspaces].sort((a, b) => a.name.localeCompare(b.name));
     }
   },
   actions: {
@@ -81,17 +133,121 @@ export const useDataStore = defineStore('data', {
           };
         });
     },
+    sanitizeWorkspace(workspace) {
+      if (!workspace || typeof workspace !== 'object') return null;
+      const fields = this.sanitizeFields(workspace.fields);
+      if (!fields.length) return null;
+      const rows = this.sanitizeRows(workspace.rows, fields);
+      const draftRows = this.sanitizeRows(workspace.draftRows, fields);
+      return {
+        id: typeof workspace.id === 'string' && workspace.id ? workspace.id : crypto.randomUUID(),
+        name: String(workspace.name || '').trim() || 'Workspace',
+        fields,
+        rows: rows.length ? rows : [{}],
+        draftRows: draftRows.length ? draftRows : (rows.length ? rows : [{}]).map((row) => ({ ...row })),
+        templates: this.sanitizeTemplates(workspace.templates),
+        chartState: workspace.chartState && typeof workspace.chartState === 'object'
+          ? {
+              chartType: String(workspace.chartState.chartType || ''),
+              selectedLabelFieldId: String(workspace.chartState.selectedLabelFieldId || ''),
+              selectedValueFieldId: String(workspace.chartState.selectedValueFieldId || ''),
+              selectedSecondaryValueFieldId: String(workspace.chartState.selectedSecondaryValueFieldId || ''),
+              selectedSeriesFieldId: String(workspace.chartState.selectedSeriesFieldId || '')
+            }
+          : null,
+        generatedTracks: Array.isArray(workspace.generatedTracks) ? workspace.generatedTracks : []
+      };
+    },
     hydrateFromState(state) {
-      const fields = this.sanitizeFields(state.fields);
-      if (fields.length > 0) this.fields = fields;
+      const rawWorkspaces = Array.isArray(state.workspaces)
+        ? state.workspaces.map((workspace) => this.sanitizeWorkspace(workspace)).filter(Boolean)
+        : [];
 
-      const rows = this.sanitizeRows(state.rows, this.fields);
-      this.rows = rows.length > 0 ? rows : [{}, {}, {}];
+      if (!rawWorkspaces.length) {
+        const workspace = createDefaultWorkspace();
+        this.workspaces = [workspace];
+        this.activeWorkspaceId = workspace.id;
+        this.fields = workspace.fields;
+        this.rows = workspace.rows;
+        this.draftRows = workspace.draftRows;
+        this.templates = workspace.templates;
+        return;
+      }
 
-      const drafts = this.sanitizeRows(state.draftRows, this.fields);
-      this.draftRows = drafts.length > 0 ? drafts : this.rows.map((row) => ({ ...row }));
+      this.workspaces = rawWorkspaces;
+      this.activeWorkspaceId = this.workspaces.some((item) => item.id === state.activeWorkspaceId)
+        ? state.activeWorkspaceId
+        : this.workspaces[0].id;
 
-      this.templates = this.sanitizeTemplates(state.templates);
+      this.loadActiveWorkspace();
+    },
+    loadActiveWorkspace() {
+      const workspace = this.activeWorkspace;
+      if (!workspace) return;
+      this.fields = workspace.fields.map((field) => ({ ...field }));
+      this.rows = workspace.rows.map((row) => ({ ...row }));
+      this.draftRows = workspace.draftRows.map((row) => ({ ...row }));
+      this.templates = workspace.templates.map((template) => ({
+        ...template,
+        fields: template.fields.map((field) => ({ ...field })),
+        rows: template.rows.map((row) => ({ ...row })),
+        draftRows: template.draftRows.map((row) => ({ ...row }))
+      }));
+    },
+    syncActiveWorkspace(extra = {}) {
+      const index = this.workspaces.findIndex((workspace) => workspace.id === this.activeWorkspaceId);
+      if (index < 0) return;
+
+      const current = this.workspaces[index];
+      this.workspaces[index] = {
+        ...current,
+        fields: this.fields.map((field) => ({ ...field })),
+        rows: this.rows.map((row) => ({ ...row })),
+        draftRows: this.draftRows.map((row) => ({ ...row })),
+        templates: this.templates.map((template) => ({
+          ...template,
+          fields: template.fields.map((field) => ({ ...field })),
+          rows: template.rows.map((row) => ({ ...row })),
+          draftRows: template.draftRows.map((row) => ({ ...row }))
+        })),
+        chartState: extra.chartState ? { ...extra.chartState } : current.chartState,
+        generatedTracks: Array.isArray(extra.generatedTracks)
+          ? extra.generatedTracks.map((track) => ({ ...track }))
+          : current.generatedTracks
+      };
+    },
+    setActiveWorkspace(workspaceId) {
+      if (!this.workspaces.some((workspace) => workspace.id === workspaceId)) return null;
+      this.activeWorkspaceId = workspaceId;
+      this.loadActiveWorkspace();
+      return this.activeWorkspace;
+    },
+    createWorkspace(name) {
+      const trimmed = String(name || '').trim() || `Workspace ${this.workspaces.length + 1}`;
+      const workspace = createDefaultWorkspace(trimmed);
+      this.workspaces.push(workspace);
+      this.activeWorkspaceId = workspace.id;
+      this.loadActiveWorkspace();
+      return workspace.id;
+    },
+    renameWorkspace(workspaceId, name) {
+      const trimmed = String(name || '').trim();
+      if (!trimmed) return;
+      const workspace = this.workspaces.find((item) => item.id === workspaceId);
+      if (!workspace) return;
+      workspace.name = trimmed;
+    },
+    deleteWorkspace(workspaceId) {
+      if (this.workspaces.length <= 1) return false;
+      const index = this.workspaces.findIndex((workspace) => workspace.id === workspaceId);
+      if (index < 0) return false;
+      this.workspaces.splice(index, 1);
+
+      if (this.activeWorkspaceId === workspaceId) {
+        this.activeWorkspaceId = this.workspaces[0].id;
+        this.loadActiveWorkspace();
+      }
+      return true;
     },
     addField(name, type) {
       const trimmed = String(name || '').trim();
@@ -183,6 +339,48 @@ export const useDataStore = defineStore('data', {
         draftRows: template.draftRows
       });
       return template.chartSelection || null;
+    },
+    applyFormula({ formulaId, outputName, inputFieldIds }) {
+      const formula = formulaMap.get(formulaId);
+      if (!formula) return { ok: false, error: 'formula_not_found' };
+
+      const ids = Array.isArray(inputFieldIds) ? inputFieldIds : [];
+      if (ids.length !== formula.inputs.length || ids.some((id) => !id)) {
+        return { ok: false, error: 'invalid_formula_inputs' };
+      }
+
+      const fieldName = normalizeOutputName(outputName || formula.name, this.fields);
+      const outputField = makeField(fieldName, 'number');
+
+      const applyToRows = (rows) => rows.map((row, rowIndex, allRows) => {
+        const next = { ...row };
+        const value = formula.compute({
+          row,
+          rowIndex,
+          rows: allRows,
+          inputFieldIds: ids,
+          numberAt(inputIndex, targetRowIndex = rowIndex) {
+            const fieldId = ids[inputIndex];
+            if (!fieldId) return null;
+            const targetRow = allRows[targetRowIndex];
+            if (!targetRow) return null;
+            return toFiniteNumber(targetRow[fieldId]);
+          }
+        });
+
+        if (Number.isFinite(value)) {
+          next[outputField.id] = String(roundNumber(value));
+        } else {
+          next[outputField.id] = '';
+        }
+
+        return next;
+      });
+
+      this.fields.push(outputField);
+      this.rows = applyToRows(this.rows);
+      this.draftRows = applyToRows(this.draftRows);
+      return { ok: true, fieldId: outputField.id, fieldName: outputField.name };
     }
   }
 });

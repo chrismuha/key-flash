@@ -1,7 +1,9 @@
 <template>
   <div class="page-grid">
+    <WorkspaceManager />
     <FieldBuilder />
     <DataEntryTable />
+    <FormulaBuilder />
     <TemplateManager />
     <DataExchangePanel />
     <ChartControls @generate="generate" />
@@ -11,8 +13,10 @@
 
 <script setup>
 import { onMounted, ref, watch } from 'vue';
+import WorkspaceManager from '../components/WorkspaceManager.vue';
 import FieldBuilder from '../components/FieldBuilder.vue';
 import DataEntryTable from '../components/DataEntryTable.vue';
+import FormulaBuilder from '../components/FormulaBuilder.vue';
 import TemplateManager from '../components/TemplateManager.vue';
 import DataExchangePanel from '../components/DataExchangePanel.vue';
 import ChartControls from '../components/ChartControls.vue';

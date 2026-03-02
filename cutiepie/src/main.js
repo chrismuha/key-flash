@@ -24,19 +24,16 @@ const chartStore = useChartStore();
 let stateSaveTimer = null;
 let settingsSaveTimer = null;
 
+function syncWorkspaceSnapshot() {
+  dataStore.syncActiveWorkspace(chartStore.snapshotForWorkspace());
+}
+
 function buildStatePayload() {
+  syncWorkspaceSnapshot();
   return {
-    version: 2,
-    fields: dataStore.fields,
-    rows: dataStore.rows,
-    draftRows: dataStore.draftRows,
-    templates: dataStore.templates,
-    chartType: chartStore.chartType,
-    selectedLabelFieldId: chartStore.selectedLabelFieldId,
-    selectedValueFieldId: chartStore.selectedValueFieldId,
-    selectedSecondaryValueFieldId: chartStore.selectedSecondaryValueFieldId,
-    selectedSeriesFieldId: chartStore.selectedSeriesFieldId,
-    generatedTracks: chartStore.generatedTracks,
+    version: 3,
+    workspaces: dataStore.workspaces,
+    activeWorkspaceId: dataStore.activeWorkspaceId,
     updatedAt: new Date().toISOString()
   };
 }
@@ -60,13 +57,15 @@ function buildComparableSnapshot() {
     fields: dataStore.fields,
     rows: dataStore.rows,
     draftRows: dataStore.draftRows,
+    templates: dataStore.templates,
     chartType: chartStore.chartType,
     selectedLabelFieldId: chartStore.selectedLabelFieldId,
     selectedValueFieldId: chartStore.selectedValueFieldId,
     selectedSecondaryValueFieldId: chartStore.selectedSecondaryValueFieldId,
     selectedSeriesFieldId: chartStore.selectedSeriesFieldId,
-    templates: dataStore.templates,
     generatedTracks: chartStore.generatedTracks,
+    workspaces: dataStore.workspaces,
+    activeWorkspaceId: dataStore.activeWorkspaceId,
     roleView: settingsStore.roleView,
     dashboardHistoryLimit: settingsStore.dashboardHistoryLimit,
     performanceMode: settingsStore.performanceMode
@@ -127,7 +126,11 @@ async function hydrate() {
   const loadedState = await loadState();
   if (loadedState.ok && loadedState.state) {
     dataStore.hydrateFromState(loadedState.state);
-    chartStore.hydrateFromState(loadedState.state, dataStore.fields);
+    chartStore.applyWorkspaceSnapshot(
+      dataStore.activeWorkspace?.chartState,
+      dataStore.fields,
+      dataStore.activeWorkspace?.generatedTracks
+    );
     const savedAt = typeof loadedState.state.updatedAt === 'string' ? loadedState.state.updatedAt : null;
     appStore.markSaved(savedAt, buildComparableSnapshot());
     appStore.saveStatus = 'Loaded saved data';
@@ -145,6 +148,8 @@ watch(
     dataStore.rows,
     dataStore.draftRows,
     dataStore.templates,
+    dataStore.workspaces,
+    dataStore.activeWorkspaceId,
     chartStore.chartType,
     chartStore.selectedLabelFieldId,
     chartStore.selectedValueFieldId,
