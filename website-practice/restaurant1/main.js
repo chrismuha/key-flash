@@ -4192,15 +4192,6 @@
 
   function initSummaryHandlers() {
     const summaries = Array.from(document.querySelectorAll('summary.menu-summary'));
-    const allowToggleCheckbox = () => {
-      try {
-        const lbl = document.querySelector('.setting-label-selects');
-        const ttl = document.querySelector('.setting-title-selects');
-        const lblOn = lbl ? !!lbl.checked : true;
-        const ttlOn = ttl ? !!ttl.checked : true;
-        return lblOn || ttlOn;
-      } catch { return true; }
-    };
     const isTitleToggleEnabled = () => {
       try { return !!titleSelects; } catch { return true; }
     };
