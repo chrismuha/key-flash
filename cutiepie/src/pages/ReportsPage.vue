@@ -18,18 +18,6 @@
       </button>
     </div>
     <p v-if="exportStatus" class="settings-note print-hide">{{ exportStatus }}</p>
-    <div class="settings-actions print-hide">
-      <button
-        type="button"
-        class="builder-info-btn"
-        title="KPI info"
-        aria-label="KPI info"
-        @click="showKpiInfo = !showKpiInfo"
-      >
-        <i class="bi bi-info-lg" aria-hidden="true"></i>
-      </button>
-    </div>
-    <p v-if="showKpiInfo" class="settings-note print-hide">KPI means Key Performance Indicator. It is a tracked metric used to quickly measure performance.</p>
 
     <header class="report-header">
       <h1>CutiePie Chart Report</h1>
@@ -77,7 +65,6 @@ const pinnedOnly = ref(false);
 const isExporting = ref(false);
 const exportStatus = ref('');
 const reportExportCount = ref(0);
-const showKpiInfo = ref(false);
 
 const nowText = computed(() => `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`);
 
