@@ -329,7 +329,6 @@
   let confirmDialogInstance = null;
 
   function $(sel, ctx = document) { return ctx.querySelector(sel); }
-  function $all(sel, ctx = document) { return Array.from((ctx || document).querySelectorAll(sel)); }
 
   function ensureCustomConfirmDialog() {
     if (confirmDialogInstance) return confirmDialogInstance;
