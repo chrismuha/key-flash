@@ -2258,7 +2258,7 @@
           wrap.style.display = active ? 'inline-flex' : 'none';
         };
         const getStoredQty = () => {
-          let stored = sectionDefaultQty;
+          let stored;
           try {
             const qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
             const hasStored = Object.prototype.hasOwnProperty.call(qs, sec);
