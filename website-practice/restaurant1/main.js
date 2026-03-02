@@ -3791,7 +3791,7 @@
                 li.appendChild(controlsRow);
               } else {
                 const qKey = `${group}|${normValue}`;
-                let qv = 1;
+                let qv;
                 try { qv = Math.max(1, Math.min(4, parseInt(qtyMap[qKey] || '1', 10) || 1)); } catch { qv = 1; }
                 if (qv > 1) {
                   const suffix = qtyLabelMap[qv] || `x${qv}`;
