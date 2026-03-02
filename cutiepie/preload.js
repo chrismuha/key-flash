@@ -33,5 +33,8 @@ contextBridge.exposeInMainWorld('cutiepieDesktop', {
   },
   pdf: {
     exportCurrentPage: (payload) => ipcRenderer.invoke('cutiepie:pdf:exportCurrentPage', payload)
+  },
+  export: {
+    saveText: (payload) => ipcRenderer.invoke('cutiepie:export:saveText', payload)
   }
 });

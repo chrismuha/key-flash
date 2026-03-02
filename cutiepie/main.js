@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs/promises');
 const fsSync = require('fs');
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 
 const STATE_FILE_NAME = 'cutiepie-state.json';
 const SETTINGS_FILE_NAME = 'cutiepie-settings.json';
@@ -21,6 +21,10 @@ function getBackupDirPath() {
 
 function getExportsDirPath() {
   return path.join(app.getPath('downloads'), EXPORTS_DIR_NAME);
+}
+
+function getDefaultExportFilePath(fileName) {
+  return path.join(getExportsDirPath(), fileName);
 }
 
 function buildBackupFileName() {
@@ -188,19 +192,58 @@ ipcMain.handle('cutiepie:pdf:exportCurrentPage', async (_event, payload) => {
     const safePageName = pageName || 'page';
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const fileName = `cutiepie-${safePageName}-${timestamp}.pdf`;
-    const dirPath = getExportsDirPath();
-    const filePath = path.join(dirPath, fileName);
+    const defaultPath = getDefaultExportFilePath(fileName);
+    await fs.mkdir(path.dirname(defaultPath), { recursive: true });
 
-    await fs.mkdir(dirPath, { recursive: true });
+    const saveDialog = await dialog.showSaveDialog(win, {
+      title: 'Save PDF Export',
+      defaultPath,
+      filters: [{ name: 'PDF', extensions: ['pdf'] }]
+    });
+
+    if (saveDialog.canceled || !saveDialog.filePath) {
+      return { ok: false, canceled: true };
+    }
+
     const buffer = await win.webContents.printToPDF({
       printBackground: true,
       preferCSSPageSize: true
     });
-    await fs.writeFile(filePath, buffer);
+    await fs.writeFile(saveDialog.filePath, buffer);
 
-    return { ok: true, fileName, filePath };
+    return { ok: true, fileName: path.basename(saveDialog.filePath), filePath: saveDialog.filePath };
   } catch (_error) {
     return { ok: false, error: 'pdf_export_failed' };
+  }
+});
+
+ipcMain.handle('cutiepie:export:saveText', async (_event, payload) => {
+  try {
+    const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+    if (!win || win.isDestroyed()) {
+      return { ok: false, error: 'window_unavailable' };
+    }
+
+    const content = String(payload?.content ?? '');
+    const defaultName = String(payload?.defaultName || 'cutiepie-export.txt');
+    const filters = Array.isArray(payload?.filters) ? payload.filters : [{ name: 'Text', extensions: ['txt'] }];
+    const defaultPath = getDefaultExportFilePath(defaultName);
+
+    await fs.mkdir(path.dirname(defaultPath), { recursive: true });
+    const saveDialog = await dialog.showSaveDialog(win, {
+      title: 'Save Export',
+      defaultPath,
+      filters
+    });
+
+    if (saveDialog.canceled || !saveDialog.filePath) {
+      return { ok: false, canceled: true };
+    }
+
+    await fs.writeFile(saveDialog.filePath, content, 'utf8');
+    return { ok: true, fileName: path.basename(saveDialog.filePath), filePath: saveDialog.filePath };
+  } catch (_error) {
+    return { ok: false, error: 'export_save_failed' };
   }
 });
 

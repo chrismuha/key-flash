@@ -159,6 +159,7 @@ import { useRoute } from 'vue-router';
 import { useDataStore } from '../stores/dataStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import { exportCurrentPagePdf } from '../services/pdfService';
+import { saveTextExport } from '../services/exportService';
 
 const route = useRoute();
 const dataStore = useDataStore();
@@ -356,16 +357,6 @@ function toCsvCell(value) {
   return text;
 }
 
-function downloadBlob(fileName, content, mime) {
-  const blob = new Blob([content], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = fileName;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 function applyImport() {
   if (!canApplyImport.value || !settings.canEditData) return;
 
@@ -413,8 +404,12 @@ async function runExport() {
       const headers = dataStore.sortedFields.map((field) => field.name);
       const body = exportRows.value.map((row) => dataStore.sortedFields.map((field) => toCsvCell(row[field.id] || '')).join(','));
       const csv = [headers.join(','), ...body].join('\n');
-      downloadBlob(buildFileName('cutiepie-export', 'csv'), csv, 'text/csv;charset=utf-8');
-      status.value = 'CSV export complete.';
+      const result = await saveTextExport({
+        content: csv,
+        defaultName: buildFileName('cutiepie-export', 'csv'),
+        filters: [{ name: 'CSV', extensions: ['csv'] }]
+      });
+      status.value = result?.ok ? `CSV export complete: ${result.fileName}` : (result?.canceled ? 'CSV export canceled.' : 'CSV export failed.');
     } else if (exportType.value === 'json') {
       const payload = {
         exportedAt: new Date().toISOString(),
@@ -422,12 +417,16 @@ async function runExport() {
         rows: exportRows.value,
         source: exportRowsSource.value
       };
-      downloadBlob(buildFileName('cutiepie-export', 'json'), JSON.stringify(payload, null, 2), 'application/json;charset=utf-8');
-      status.value = 'JSON export complete.';
+      const result = await saveTextExport({
+        content: JSON.stringify(payload, null, 2),
+        defaultName: buildFileName('cutiepie-export', 'json'),
+        filters: [{ name: 'JSON', extensions: ['json'] }]
+      });
+      status.value = result?.ok ? `JSON export complete: ${result.fileName}` : (result?.canceled ? 'JSON export canceled.' : 'JSON export failed.');
     } else {
       const pageName = String(route.path || 'page').replaceAll('/', '-') || 'page';
       const result = await exportCurrentPagePdf(pageName);
-      status.value = result?.ok ? `PDF export complete: ${result.fileName}` : 'PDF export failed.';
+      status.value = result?.ok ? `PDF export complete: ${result.fileName}` : (result?.canceled ? 'PDF export canceled.' : 'PDF export failed.');
     }
   } catch (_error) {
     status.value = 'Export failed.';

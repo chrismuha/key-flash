@@ -1,6 +1,7 @@
 <template>
   <div>
     <QuitModal />
+    <RoleStartupModal :open="showRoleStartup" @close="showRoleStartup = false" />
 
     <div class="ambient ambient-a"></div>
     <div class="ambient ambient-b"></div>
@@ -18,7 +19,7 @@
               <RouterLink to="/about">About</RouterLink>
             </nav>
             <button type="button" class="hero-export-btn" :disabled="isExporting" @click="exportPagePdf">
-              {{ isExporting ? 'Exporting PDF...' : 'Export This Page PDF' }}
+              {{ isExporting ? 'Exporting PDF...' : 'Export Page as PDF' }}
             </button>
           </div>
         </div>
@@ -36,11 +37,13 @@
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import QuitModal from './components/QuitModal.vue';
+import RoleStartupModal from './components/RoleStartupModal.vue';
 import { exportCurrentPagePdf } from './services/pdfService';
 
 const route = useRoute();
 const isExporting = ref(false);
 const exportStatus = ref('');
+const showRoleStartup = ref(true);
 
 async function exportPagePdf() {
   if (isExporting.value) return;
@@ -50,6 +53,8 @@ async function exportPagePdf() {
 
   if (result?.ok) {
     exportStatus.value = `PDF exported: ${result.fileName}`;
+  } else if (result?.canceled) {
+    exportStatus.value = 'PDF export canceled.';
   } else {
     exportStatus.value = 'PDF export failed.';
   }

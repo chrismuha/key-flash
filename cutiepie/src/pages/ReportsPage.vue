@@ -10,8 +10,11 @@
         <input v-model="pinnedOnly" type="checkbox" />
         Include only pinned charts
       </label>
-      <button type="button" @click="printReport">Print / Save PDF</button>
+      <button type="button" :disabled="isExporting" @click="exportReportPdf">
+        {{ isExporting ? 'Exporting PDF...' : 'Export Report PDF' }}
+      </button>
     </div>
+    <p v-if="exportStatus" class="settings-note print-hide">{{ exportStatus }}</p>
 
     <header class="report-header">
       <h1>CutiePie Chart Report</h1>
@@ -48,9 +51,12 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useChartStore } from '../stores/chartStore';
+import { exportCurrentPagePdf } from '../services/pdfService';
 
 const chartStore = useChartStore();
 const pinnedOnly = ref(false);
+const isExporting = ref(false);
+const exportStatus = ref('');
 
 const nowText = computed(() => `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`);
 
@@ -59,8 +65,18 @@ const tracksForReport = computed(() => {
   return chartStore.generatedTracks.filter((track) => track.pinned === true);
 });
 
-function printReport() {
-  window.print();
+async function exportReportPdf() {
+  if (isExporting.value) return;
+  isExporting.value = true;
+  const result = await exportCurrentPagePdf('reports');
+  if (result?.ok) {
+    exportStatus.value = `PDF exported: ${result.fileName}`;
+  } else if (result?.canceled) {
+    exportStatus.value = 'PDF export canceled.';
+  } else {
+    exportStatus.value = 'PDF export failed.';
+  }
+  isExporting.value = false;
 }
 
 function fmt(value) {

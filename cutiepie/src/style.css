@@ -69,8 +69,34 @@ body {
 .nav-tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 .nav-tabs a { color: var(--hero-white); text-decoration: none; border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; padding: 0.38rem 0.62rem; font-size: 0.88rem; }
 .nav-tabs a.router-link-active { background: rgba(255,255,255,0.2); }
-.hero-export-btn { width: auto; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.16); color: var(--hero-white); padding: 0.4rem 0.68rem; border-radius: 10px; font-size: 0.84rem; }
-.hero-export-btn:hover, .hero-export-btn:focus { background: rgba(255,255,255,0.26); }
+.hero-export-btn {
+  width: auto;
+  border: 1px solid rgba(255, 255, 255, 0.46);
+  background: linear-gradient(135deg, rgba(31, 156, 194, 0.92), rgba(95, 124, 255, 0.92));
+  color: var(--hero-white);
+  padding: 0.46rem 0.82rem;
+  border-radius: 12px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(13, 27, 54, 0.28);
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+}
+.hero-export-btn:hover,
+.hero-export-btn:focus {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(13, 27, 54, 0.33);
+}
+.hero-export-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 14px rgba(13, 27, 54, 0.26);
+}
+.hero-export-btn:disabled {
+  opacity: 0.72;
+  filter: saturate(0.65);
+  transform: none;
+  box-shadow: none;
+}
 .hero-status { margin: 0.55rem 0 0; font-size: 0.88rem; color: rgba(255, 255, 255, 0.92); }
 
 .panel { background: var(--panel); border: 1px solid var(--stroke); border-radius: 16px; padding: 1rem; backdrop-filter: blur(8px); box-shadow: var(--shadow); }
@@ -149,6 +175,12 @@ label { display: grid; gap: 0.3rem; font-weight: 600; color: var(--label-ink); }
 .quit-actions { display: flex; justify-content: flex-end; gap: 0.55rem; margin-top: 0.9rem; }
 .quit-now { width: auto; background: var(--quit-now-bg); color: var(--quit-now-ink); }
 .quit-now:hover, .quit-now:focus { background: var(--quit-now-hover-bg); }
+.role-modal { width: min(560px, 96%); }
+.role-options { display: grid; gap: 0.55rem; margin-top: 0.8rem; }
+.role-option { margin-top: 0; text-align: left; display: grid; gap: 0.15rem; background: var(--soft-btn-bg); border: 1px solid var(--stroke); }
+.role-option strong { font-size: 0.92rem; color: var(--ink); }
+.role-option span { font-size: 0.84rem; color: var(--muted); }
+.role-option.active { border-color: var(--accent-2); box-shadow: 0 0 0 2px rgba(31, 156, 194, 0.16); }
 
 .pictograph-row { display:flex; align-items:center; gap:10px; margin:8px 0; }
 .pictograph-row strong { width: 150px; }
