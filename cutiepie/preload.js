@@ -30,5 +30,8 @@ contextBridge.exposeInMainWorld('cutiepieDesktop', {
   backup: {
     create: () => ipcRenderer.invoke('cutiepie:backup:create'),
     restoreLatest: () => ipcRenderer.invoke('cutiepie:backup:restoreLatest')
+  },
+  pdf: {
+    exportCurrentPage: (payload) => ipcRenderer.invoke('cutiepie:pdf:exportCurrentPage', payload)
   }
 });

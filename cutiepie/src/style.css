@@ -63,11 +63,15 @@ body {
 
 .hero { background: linear-gradient(140deg, var(--hero-grad-a), var(--hero-grad-b)); color: var(--hero-white); border-radius: 20px; padding: 1.2rem 1.5rem; box-shadow: var(--shadow); }
 .hero-top { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; }
+.hero-actions { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; justify-content: flex-end; }
 .eyebrow { margin: 0; letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.75rem; opacity: 0.72; }
 .hero h1 { margin: 0.55rem 0 0; font-family: Fraunces, serif; line-height: 1.2; font-size: clamp(1.2rem, 2.4vw, 1.8rem); }
 .nav-tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 .nav-tabs a { color: var(--hero-white); text-decoration: none; border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; padding: 0.38rem 0.62rem; font-size: 0.88rem; }
 .nav-tabs a.router-link-active { background: rgba(255,255,255,0.2); }
+.hero-export-btn { width: auto; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.16); color: var(--hero-white); padding: 0.4rem 0.68rem; border-radius: 10px; font-size: 0.84rem; }
+.hero-export-btn:hover, .hero-export-btn:focus { background: rgba(255,255,255,0.26); }
+.hero-status { margin: 0.55rem 0 0; font-size: 0.88rem; color: rgba(255, 255, 255, 0.92); }
 
 .panel { background: var(--panel); border: 1px solid var(--stroke); border-radius: 16px; padding: 1rem; backdrop-filter: blur(8px); box-shadow: var(--shadow); }
 .panel-head h2 { margin: 0; font-size: 1.08rem; }

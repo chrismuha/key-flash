@@ -7,6 +7,7 @@ const STATE_FILE_NAME = 'cutiepie-state.json';
 const SETTINGS_FILE_NAME = 'cutiepie-settings.json';
 const BACKUP_DIR_NAME = 'backups';
 const BACKUP_FILE_PREFIX = 'cutiepie-backup-';
+const EXPORTS_DIR_NAME = 'exports';
 let isQuitting = false;
 let quitPromptPending = false;
 
@@ -16,6 +17,10 @@ function getDataFilePath(fileName) {
 
 function getBackupDirPath() {
   return path.join(app.getPath('userData'), BACKUP_DIR_NAME);
+}
+
+function getExportsDirPath() {
+  return path.join(app.getPath('downloads'), EXPORTS_DIR_NAME);
 }
 
 function buildBackupFileName() {
@@ -169,6 +174,33 @@ ipcMain.handle('cutiepie:backup:restoreLatest', async () => {
     };
   } catch (error) {
     return { ok: false, error: 'backup_restore_failed' };
+  }
+});
+
+ipcMain.handle('cutiepie:pdf:exportCurrentPage', async (_event, payload) => {
+  try {
+    const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+    if (!win || win.isDestroyed()) {
+      return { ok: false, error: 'window_unavailable' };
+    }
+
+    const pageName = String(payload?.pageName || 'page').trim().toLowerCase().replace(/[^a-z0-9_-]+/g, '-');
+    const safePageName = pageName || 'page';
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const fileName = `cutiepie-${safePageName}-${timestamp}.pdf`;
+    const dirPath = getExportsDirPath();
+    const filePath = path.join(dirPath, fileName);
+
+    await fs.mkdir(dirPath, { recursive: true });
+    const buffer = await win.webContents.printToPDF({
+      printBackground: true,
+      preferCSSPageSize: true
+    });
+    await fs.writeFile(filePath, buffer);
+
+    return { ok: true, fileName, filePath };
+  } catch (_error) {
+    return { ok: false, error: 'pdf_export_failed' };
   }
 });
 
