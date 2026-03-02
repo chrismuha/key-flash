@@ -19,6 +19,7 @@
               <select
                 v-if="shouldUseCategoryDropdown(field)"
                 class="table-input"
+                :disabled="!settings.canEditData"
                 :value="row[field.id] || ''"
                 @change="dataStore.updateDraftCell(rowIndex, field.id, $event.target.value)"
               >
@@ -32,14 +33,15 @@
                 class="table-input"
                 :type="field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'"
                 :placeholder="field.name"
+                :disabled="!settings.canEditData"
                 :value="row[field.id] || ''"
                 @input="dataStore.updateDraftCell(rowIndex, field.id, $event.target.value)"
               />
             </td>
             <td>
               <div class="row-actions">
-                <button type="button" class="row-action-btn row-apply" @click="applyRow(rowIndex)">Apply</button>
-                <button type="button" class="row-action-btn row-delete" @click="dataStore.deleteRow(rowIndex)">
+                <button type="button" class="row-action-btn row-apply" :disabled="!settings.canEditData" @click="applyRow(rowIndex)">Apply</button>
+                <button type="button" class="row-action-btn row-delete" :disabled="!settings.canEditData" @click="dataStore.deleteRow(rowIndex)">
                   <i class="bi bi-trash-fill text-white" aria-hidden="true"></i>
                 </button>
               </div>
@@ -50,9 +52,10 @@
     </div>
 
     <div class="settings-actions">
-      <button type="button" class="soft" @click="dataStore.addRow">Add Row</button>
-      <button type="button" class="soft" @click="dataStore.applyAllRows">Apply All</button>
+      <button type="button" class="soft" :disabled="!settings.canEditData" @click="dataStore.addRow">Add Row</button>
+      <button type="button" class="soft" :disabled="!settings.canEditData" @click="dataStore.applyAllRows">Apply All</button>
     </div>
+    <p v-if="!settings.canEditData" class="settings-note">Current role is read-only for row data editing.</p>
   </section>
 </template>
 
@@ -64,6 +67,7 @@ const dataStore = useDataStore();
 const settings = useSettingsStore();
 
 function applyRow(index) {
+  if (!settings.canEditData) return;
   dataStore.applyRow(index);
 }
 

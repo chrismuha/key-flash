@@ -12,6 +12,7 @@
           <nav class="nav-tabs">
             <RouterLink to="/builder">Builder</RouterLink>
             <RouterLink to="/dashboard">Dashboard</RouterLink>
+            <RouterLink to="/reports">Reports</RouterLink>
             <RouterLink to="/settings">Settings</RouterLink>
             <RouterLink to="/about">About</RouterLink>
           </nav>

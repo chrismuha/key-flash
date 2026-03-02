@@ -26,26 +26,31 @@ let settingsSaveTimer = null;
 
 function buildStatePayload() {
   return {
-    version: 1,
+    version: 2,
     fields: dataStore.fields,
     rows: dataStore.rows,
     draftRows: dataStore.draftRows,
+    templates: dataStore.templates,
     chartType: chartStore.chartType,
     selectedLabelFieldId: chartStore.selectedLabelFieldId,
     selectedValueFieldId: chartStore.selectedValueFieldId,
     selectedSecondaryValueFieldId: chartStore.selectedSecondaryValueFieldId,
     selectedSeriesFieldId: chartStore.selectedSeriesFieldId,
+    generatedTracks: chartStore.generatedTracks,
     updatedAt: new Date().toISOString()
   };
 }
 
 function buildSettingsPayload() {
   return {
-    version: 1,
+    version: 2,
     autoSave: settingsStore.autoSave,
     subtleSeparators: settingsStore.subtleSeparators,
     useSavedCategoriesDropdown: settingsStore.useSavedCategoriesDropdown,
     savedCategories: settingsStore.sortedSavedCategories,
+    roleView: settingsStore.roleView,
+    dashboardHistoryLimit: settingsStore.dashboardHistoryLimit,
+    performanceMode: settingsStore.performanceMode,
     updatedAt: new Date().toISOString()
   };
 }
@@ -59,7 +64,12 @@ function buildComparableSnapshot() {
     selectedLabelFieldId: chartStore.selectedLabelFieldId,
     selectedValueFieldId: chartStore.selectedValueFieldId,
     selectedSecondaryValueFieldId: chartStore.selectedSecondaryValueFieldId,
-    selectedSeriesFieldId: chartStore.selectedSeriesFieldId
+    selectedSeriesFieldId: chartStore.selectedSeriesFieldId,
+    templates: dataStore.templates,
+    generatedTracks: chartStore.generatedTracks,
+    roleView: settingsStore.roleView,
+    dashboardHistoryLimit: settingsStore.dashboardHistoryLimit,
+    performanceMode: settingsStore.performanceMode
   });
 }
 
@@ -95,9 +105,18 @@ async function hydrate() {
 
   const loadedSettings = await loadSettings();
   if (loadedSettings.ok && loadedSettings.settings) {
-    settingsStore.autoSave = loadedSettings.settings.autoSave !== false;
+    settingsStore.autoSave = loadedSettings.settings.autoSave === true;
     settingsStore.subtleSeparators = loadedSettings.settings.subtleSeparators !== false;
     settingsStore.useSavedCategoriesDropdown = loadedSettings.settings.useSavedCategoriesDropdown === true;
+    settingsStore.roleView = ['analyst', 'editor', 'manager', 'viewer'].includes(loadedSettings.settings.roleView)
+      ? loadedSettings.settings.roleView
+      : 'editor';
+    settingsStore.dashboardHistoryLimit = Number.isFinite(loadedSettings.settings.dashboardHistoryLimit)
+      ? Math.max(5, Math.min(200, Math.round(loadedSettings.settings.dashboardHistoryLimit)))
+      : 40;
+    settingsStore.performanceMode = ['balanced', 'fast', 'quality'].includes(loadedSettings.settings.performanceMode)
+      ? loadedSettings.settings.performanceMode
+      : 'balanced';
     settingsStore.savedCategories = Array.isArray(loadedSettings.settings.savedCategories)
       ? loadedSettings.settings.savedCategories
           .map((item) => String(item || '').trim())
@@ -125,11 +144,13 @@ watch(
     dataStore.fields,
     dataStore.rows,
     dataStore.draftRows,
+    dataStore.templates,
     chartStore.chartType,
     chartStore.selectedLabelFieldId,
     chartStore.selectedValueFieldId,
     chartStore.selectedSecondaryValueFieldId,
-    chartStore.selectedSeriesFieldId
+    chartStore.selectedSeriesFieldId,
+    chartStore.generatedTracks
   ],
   () => {
     if (appStore.isHydrating) return;
@@ -144,7 +165,10 @@ watch(
     settingsStore.autoSave,
     settingsStore.subtleSeparators,
     settingsStore.useSavedCategoriesDropdown,
-    settingsStore.savedCategories
+    settingsStore.savedCategories,
+    settingsStore.roleView,
+    settingsStore.dashboardHistoryLimit,
+    settingsStore.performanceMode
   ],
   () => {
     if (appStore.isHydrating) return;

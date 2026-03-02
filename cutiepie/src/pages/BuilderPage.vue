@@ -2,6 +2,8 @@
   <div class="page-grid">
     <FieldBuilder />
     <DataEntryTable />
+    <TemplateManager />
+    <DataExchangePanel />
     <ChartControls @generate="generate" />
     <ChartSurface ref="surfaceRef" />
   </div>
@@ -11,12 +13,17 @@
 import { onMounted, ref, watch } from 'vue';
 import FieldBuilder from '../components/FieldBuilder.vue';
 import DataEntryTable from '../components/DataEntryTable.vue';
+import TemplateManager from '../components/TemplateManager.vue';
+import DataExchangePanel from '../components/DataExchangePanel.vue';
 import ChartControls from '../components/ChartControls.vue';
 import ChartSurface from '../components/ChartSurface.vue';
 import { useChartStore } from '../stores/chartStore';
+import { useSettingsStore } from '../stores/settingsStore';
 
 const chartStore = useChartStore();
+const settings = useSettingsStore();
 const surfaceRef = ref(null);
+let liveTimer = null;
 
 function generate() {
   if (surfaceRef.value?.render) {
@@ -33,7 +40,13 @@ watch(
     chartStore.selectedSeriesFieldId
   ],
   () => {
-    if (!chartStore.manualRefreshRequired) generate();
+    if (chartStore.manualRefreshRequired) return;
+
+    if (liveTimer) clearTimeout(liveTimer);
+    const delay = settings.performanceMode === 'fast' ? 80 : settings.performanceMode === 'quality' ? 260 : 150;
+    liveTimer = setTimeout(() => {
+      generate();
+    }, delay);
   }
 );
 

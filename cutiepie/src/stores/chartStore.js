@@ -14,6 +14,11 @@ export const useChartStore = defineStore('chart', {
     renderedCategoryLabels: [],
     generatedTracks: []
   }),
+  getters: {
+    pinnedTracks(state) {
+      return state.generatedTracks.filter((track) => track.pinned === true);
+    }
+  },
   actions: {
     hydrateFromState(state, fields) {
       if (chartTypes.has(state.chartType)) this.chartType = state.chartType;
@@ -25,6 +30,21 @@ export const useChartStore = defineStore('chart', {
       if (hasNumeric(state.selectedValueFieldId)) this.selectedValueFieldId = state.selectedValueFieldId;
       if (hasNumeric(state.selectedSecondaryValueFieldId)) this.selectedSecondaryValueFieldId = state.selectedSecondaryValueFieldId;
       if (hasField(state.selectedSeriesFieldId)) this.selectedSeriesFieldId = state.selectedSeriesFieldId;
+
+      if (Array.isArray(state.generatedTracks)) {
+        this.generatedTracks = state.generatedTracks
+          .filter((track) => track && typeof track === 'object')
+          .map((track) => ({
+            id: typeof track.id === 'string' && track.id ? track.id : crypto.randomUUID(),
+            generatedAt: typeof track.generatedAt === 'string' ? track.generatedAt : new Date().toISOString(),
+            chartType: typeof track.chartType === 'string' ? track.chartType : 'unknown',
+            labelsCount: Number.isFinite(track.labelsCount) ? track.labelsCount : 0,
+            pointsCount: Number.isFinite(track.pointsCount) ? track.pointsCount : 0,
+            title: typeof track.title === 'string' && track.title ? track.title : 'Chart',
+            pinned: track.pinned === true,
+            note: typeof track.note === 'string' ? track.note : ''
+          }));
+      }
     },
     requireManualRefresh(text) {
       this.manualRefreshRequired = true;
@@ -42,13 +62,28 @@ export const useChartStore = defineStore('chart', {
         chartType: this.chartType,
         labelsCount: Array.isArray(labels) ? labels.length : 0,
         pointsCount: Number.isFinite(meta.pointsCount) ? meta.pointsCount : 0,
-        title: meta.title || this.chartType
+        title: meta.title || this.chartType,
+        pinned: false,
+        note: ''
       };
 
       this.generatedTracks.unshift(track);
       if (this.generatedTracks.length > 100) {
         this.generatedTracks.length = 100;
       }
+    },
+    clearGeneratedTracks() {
+      this.generatedTracks = [];
+    },
+    setTrackPinned(trackId, next) {
+      const track = this.generatedTracks.find((item) => item.id === trackId);
+      if (!track) return;
+      track.pinned = Boolean(next);
+    },
+    setTrackNote(trackId, note) {
+      const track = this.generatedTracks.find((item) => item.id === trackId);
+      if (!track) return;
+      track.note = String(note || '');
     }
   }
 });

@@ -18,6 +18,30 @@
         Use saved categories dropdown in text fields
       </label>
 
+      <label>
+        Role View
+        <select v-model="settings.roleView">
+          <option value="analyst">Analyst</option>
+          <option value="editor">Editor</option>
+          <option value="manager">Manager</option>
+          <option value="viewer">Viewer</option>
+        </select>
+      </label>
+
+      <label>
+        Dashboard History Limit
+        <input v-model.number="settings.dashboardHistoryLimit" type="number" min="5" max="200" />
+      </label>
+
+      <label>
+        Performance Mode
+        <select v-model="settings.performanceMode">
+          <option value="balanced">Balanced</option>
+          <option value="fast">Fast updates</option>
+          <option value="quality">Quality rendering</option>
+        </select>
+      </label>
+
       <div class="field-form">
         <input
           v-model.trim="categoryDraft"
@@ -48,7 +72,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useAppStore } from '../stores/appStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import { createBackup, restoreLatestBackup } from '../services/backupService';
@@ -56,6 +80,17 @@ import { createBackup, restoreLatestBackup } from '../services/backupService';
 const appStore = useAppStore();
 const settings = useSettingsStore();
 const categoryDraft = ref('');
+
+watch(
+  () => settings.dashboardHistoryLimit,
+  (value) => {
+    if (!Number.isFinite(value)) {
+      settings.dashboardHistoryLimit = 40;
+      return;
+    }
+    settings.dashboardHistoryLimit = Math.max(5, Math.min(200, Math.round(value)));
+  }
+);
 
 function saveNow() {
   if (window.__CUTIEPIE_PERSIST_STATE) window.__CUTIEPIE_PERSIST_STATE();

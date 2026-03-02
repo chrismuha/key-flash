@@ -9,7 +9,6 @@
 
 <script setup>
 import { onBeforeUnmount, ref } from 'vue';
-import Chart from 'chart.js/auto';
 import { useDataStore } from '../stores/dataStore';
 import { useChartStore } from '../stores/chartStore';
 
@@ -20,6 +19,7 @@ const canvasRef = ref(null);
 const plotRef = ref(null);
 const chartInstance = ref(null);
 const renderer = ref('canvas');
+let ChartLib = null;
 
 const palette = ['#e44f6b', '#1f9cc2', '#f7a541', '#5f7cff', '#5abf90', '#8d63c7', '#ec6f4c'];
 const hoverPalette = ['#cb3f59', '#177d9c', '#de8f2f', '#4e68df', '#47a778', '#744db4', '#d45f3f'];
@@ -87,7 +87,14 @@ function clear() {
   }
 }
 
-function render() {
+async function ensureChartLib() {
+  if (ChartLib) return ChartLib;
+  const mod = await import('chart.js/auto');
+  ChartLib = mod.default;
+  return ChartLib;
+}
+
+async function render() {
   const points = getPoints();
   if (!points.length) {
     chartStore.message = 'Add at least one valid row before generating a chart.';
@@ -127,6 +134,7 @@ function render() {
   };
 
   if (chartJsMap[type]) {
+    const Chart = await ensureChartLib();
     renderer.value = 'canvas';
     let config = {
       type: chartJsMap[type],

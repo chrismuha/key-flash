@@ -1,15 +1,12 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
-import BuilderPage from '../pages/BuilderPage.vue';
-import DashboardPage from '../pages/DashboardPage.vue';
-import SettingsPage from '../pages/SettingsPage.vue';
-import AboutPage from '../pages/AboutPage.vue';
 
 const routes = [
   { path: '/', redirect: '/builder' },
-  { path: '/builder', component: BuilderPage },
-  { path: '/dashboard', component: DashboardPage },
-  { path: '/settings', component: SettingsPage },
-  { path: '/about', component: AboutPage }
+  { path: '/builder', component: () => import('../pages/BuilderPage.vue') },
+  { path: '/dashboard', component: () => import('../pages/DashboardPage.vue') },
+  { path: '/reports', component: () => import('../pages/ReportsPage.vue') },
+  { path: '/settings', component: () => import('../pages/SettingsPage.vue') },
+  { path: '/about', component: () => import('../pages/AboutPage.vue') }
 ];
 
 export default createRouter({
