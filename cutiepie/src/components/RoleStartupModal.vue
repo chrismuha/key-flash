@@ -2,8 +2,25 @@
   <div v-if="open" class="quit-overlay" role="dialog" aria-modal="true" aria-labelledby="role-title">
     <div class="quit-modal role-modal">
       <p class="quit-kicker">Startup Role</p>
-      <h2 id="role-title">Choose Active Role</h2>
+      <div class="panel-title-row role-title-row">
+        <h2 id="role-title">Choose Active Role</h2>
+        <button
+          type="button"
+          class="builder-info-btn"
+          title="Role permissions info"
+          aria-label="Role permissions info"
+          @click="showRoleInfo = !showRoleInfo"
+        >
+          <i class="bi bi-info-lg" aria-hidden="true"></i>
+        </button>
+      </div>
       <p class="quit-text">Set role access for this session. You can change it later in Settings.</p>
+      <div v-if="showRoleInfo" class="role-info">
+        <p class="settings-note"><strong>Viewer:</strong> Read-only. Cannot edit fields/rows or generate charts.</p>
+        <p class="settings-note"><strong>Analyst = Viewer +</strong> chart generation, pinning, and chart notes.</p>
+        <p class="settings-note"><strong>Manager = Analyst +</strong> row data editing (add/apply/delete rows).</p>
+        <p class="settings-note"><strong>Editor = Manager +</strong> field structure editing (add/remove fields).</p>
+      </div>
 
       <div class="role-options">
         <button
@@ -48,11 +65,13 @@ const roles = [
 ];
 
 const selectedRole = ref(settings.roleView);
+const showRoleInfo = ref(false);
 
 watch(
   () => props.open,
   () => {
     selectedRole.value = settings.roleView;
+    showRoleInfo.value = false;
   }
 );
 

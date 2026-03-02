@@ -176,6 +176,8 @@ label { display: grid; gap: 0.3rem; font-weight: 600; color: var(--label-ink); }
 .quit-now { width: auto; background: var(--quit-now-bg); color: var(--quit-now-ink); }
 .quit-now:hover, .quit-now:focus { background: var(--quit-now-hover-bg); }
 .role-modal { width: min(560px, 96%); }
+.role-title-row { justify-content: flex-start; }
+.role-info { margin-top: 0.6rem; padding: 0.6rem; border: 1px solid var(--stroke); border-radius: 10px; background: rgba(255, 255, 255, 0.8); display: grid; gap: 0.3rem; }
 .role-options { display: grid; gap: 0.55rem; margin-top: 0.8rem; }
 .role-option { margin-top: 0; text-align: left; display: grid; gap: 0.15rem; background: var(--soft-btn-bg); border: 1px solid var(--stroke); }
 .role-option strong { font-size: 0.92rem; color: var(--ink); }
