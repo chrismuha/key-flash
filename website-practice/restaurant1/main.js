@@ -1669,7 +1669,6 @@
 
     // Live validation utilities for delivery form
     function validateDeliveryForm(form) {
-      const errEl = document.getElementById('delivery-error');
       const name = form.querySelector('#delivery-name');
       const phoneEl = form.querySelector('#delivery-phone');
       const addr = form.querySelector('#delivery-address');
