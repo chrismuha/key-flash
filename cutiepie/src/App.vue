@@ -16,7 +16,8 @@
             <RouterLink to="/about">About</RouterLink>
           </nav>
         </div>
-        <h1>Business chart studio with separated Vue pages and components.</h1>
+        <h1>Chart Studio</h1>
+        <p>CutiePie is a chart-building workspace that helps manage your business by automating chart creation from custom data fields, so you can quickly track performance, compare results, and make decisions with up-to-date visuals.</p>
       </header>
 
       <RouterView />

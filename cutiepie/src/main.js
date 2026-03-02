@@ -44,6 +44,8 @@ function buildSettingsPayload() {
     version: 1,
     autoSave: settingsStore.autoSave,
     subtleSeparators: settingsStore.subtleSeparators,
+    useSavedCategoriesDropdown: settingsStore.useSavedCategoriesDropdown,
+    savedCategories: settingsStore.sortedSavedCategories,
     updatedAt: new Date().toISOString()
   };
 }
@@ -95,6 +97,12 @@ async function hydrate() {
   if (loadedSettings.ok && loadedSettings.settings) {
     settingsStore.autoSave = loadedSettings.settings.autoSave !== false;
     settingsStore.subtleSeparators = loadedSettings.settings.subtleSeparators !== false;
+    settingsStore.useSavedCategoriesDropdown = loadedSettings.settings.useSavedCategoriesDropdown === true;
+    settingsStore.savedCategories = Array.isArray(loadedSettings.settings.savedCategories)
+      ? loadedSettings.settings.savedCategories
+          .map((item) => String(item || '').trim())
+          .filter(Boolean)
+      : [];
   }
 
   const loadedState = await loadState();
@@ -132,7 +140,12 @@ watch(
 );
 
 watch(
-  () => [settingsStore.autoSave, settingsStore.subtleSeparators],
+  () => [
+    settingsStore.autoSave,
+    settingsStore.subtleSeparators,
+    settingsStore.useSavedCategoriesDropdown,
+    settingsStore.savedCategories
+  ],
   () => {
     if (appStore.isHydrating) return;
     scheduleSettingsSave();
@@ -156,3 +169,4 @@ hydrate().finally(() => {
 });
 
 window.__CUTIEPIE_PERSIST_STATE = () => persistState(true);
+window.__CUTIEPIE_PERSIST_SETTINGS = () => saveSettings(buildSettingsPayload());

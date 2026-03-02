@@ -16,7 +16,19 @@
         <tbody>
           <tr v-for="(row, rowIndex) in dataStore.draftRows" :key="rowIndex">
             <td v-for="field in dataStore.sortedFields" :key="field.id">
+              <select
+                v-if="shouldUseCategoryDropdown(field)"
+                class="table-input"
+                :value="row[field.id] || ''"
+                @change="dataStore.updateDraftCell(rowIndex, field.id, $event.target.value)"
+              >
+                <option value="">Select category</option>
+                <option v-for="category in categoryOptions(row[field.id])" :key="`${field.id}-${category}`" :value="category">
+                  {{ category }}
+                </option>
+              </select>
               <input
+                v-else
                 class="table-input"
                 :type="field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'"
                 :placeholder="field.name"
@@ -53,5 +65,16 @@ const settings = useSettingsStore();
 
 function applyRow(index) {
   dataStore.applyRow(index);
+}
+
+function shouldUseCategoryDropdown(field) {
+  return settings.useSavedCategoriesDropdown && field.type === 'text';
+}
+
+function categoryOptions(currentValue) {
+  const base = settings.sortedSavedCategories;
+  const current = String(currentValue || '').trim();
+  if (!current || base.includes(current)) return base;
+  return [...base, current].sort((a, b) => a.localeCompare(b));
 }
 </script>
