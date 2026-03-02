@@ -24,6 +24,39 @@ const chartInstance = ref(null);
 const renderer = ref('canvas');
 
 const palette = ['#e44f6b', '#1f9cc2', '#f7a541', '#5f7cff', '#5abf90', '#8d63c7', '#ec6f4c'];
+const chartTitleMap = {
+  bar: 'Bar Chart',
+  column: 'Column Chart',
+  stacked_bar: 'Stacked Bar Chart',
+  treemap: 'Treemap',
+  pareto: 'Pareto Chart',
+  radar: 'Radar Chart',
+  line: 'Line Chart',
+  area: 'Area Chart',
+  step: 'Step Chart',
+  candlestick: 'Candlestick Chart',
+  sparkline: 'Sparkline',
+  pie: 'Pie Chart',
+  donut: 'Donut Chart',
+  funnel: 'Funnel Chart',
+  waterfall: 'Waterfall Chart',
+  stacked_area: 'Stacked Area Chart',
+  scatter: 'Scatter Plot',
+  bubble: 'Bubble Chart',
+  sankey: 'Sankey Diagram',
+  histogram: 'Histogram',
+  boxplot: 'Box Plot',
+  dot: 'Dot Plot',
+  geo_map: 'Geo Map',
+  bubble_map: 'Bubble Map',
+  heatmap_map: 'Heatmap Map',
+  gantt: 'Gantt Chart',
+  pictograph: 'Pictograph',
+  heatmap: 'Heatmap',
+  bump: 'Bump Chart',
+  slope: 'Slope Chart',
+  chord: 'Chord Diagram'
+};
 
 function getPoints() {
   return dataStore.rows
@@ -241,7 +274,13 @@ function render() {
     plotRef.value.appendChild(svg.node());
   }
 
-  chartStore.completeRender([...new Set(points.map((p) => String(p.label)))]);
+    chartStore.completeRender(
+      [...new Set(points.map((p) => String(p.label)))],
+      {
+        title: chartTitleMap[type] || type,
+        pointsCount: points.length
+      }
+    );
 }
 
 defineExpose({ render });

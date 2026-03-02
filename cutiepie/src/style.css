@@ -105,6 +105,9 @@ label { display: grid; gap: 0.3rem; font-weight: 600; color: var(--label-ink); }
 .settings-toggle input { width: auto; }
 .settings-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
 .settings-note { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.tracks-grid { display: grid; gap: 0.7rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); margin-top: 0.6rem; }
+.track-card { border: 1px solid var(--stroke); border-radius: 12px; background: var(--white); padding: 0.7rem; }
+.track-card h3 { margin: 0 0 0.35rem; font-size: 1rem; }
 
 .quit-overlay { position: fixed; inset: 0; background: var(--quit-overlay-bg); z-index: 90; display: grid; place-items: center; padding: 1rem; }
 .quit-modal { width: min(480px, 96%); background: var(--quit-modal-bg); border: 1px solid var(--quit-modal-border); border-radius: 18px; box-shadow: var(--shadow); padding: 1rem; }

@@ -11,7 +11,8 @@ export const useChartStore = defineStore('chart', {
     message: '',
     manualRefreshRequired: false,
     hasRenderedChart: false,
-    renderedCategoryLabels: []
+    renderedCategoryLabels: [],
+    generatedTracks: []
   }),
   actions: {
     hydrateFromState(state, fields) {
@@ -29,11 +30,25 @@ export const useChartStore = defineStore('chart', {
       this.manualRefreshRequired = true;
       this.message = text;
     },
-    completeRender(labels) {
+    completeRender(labels, meta = {}) {
       this.manualRefreshRequired = false;
       this.message = '';
       this.hasRenderedChart = true;
       this.renderedCategoryLabels = labels;
+
+      const track = {
+        id: crypto.randomUUID(),
+        generatedAt: new Date().toISOString(),
+        chartType: this.chartType,
+        labelsCount: Array.isArray(labels) ? labels.length : 0,
+        pointsCount: Number.isFinite(meta.pointsCount) ? meta.pointsCount : 0,
+        title: meta.title || this.chartType
+      };
+
+      this.generatedTracks.unshift(track);
+      if (this.generatedTracks.length > 100) {
+        this.generatedTracks.length = 100;
+      }
     }
   }
 });
