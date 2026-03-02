@@ -6,11 +6,11 @@
     </div>
 
     <div class="kpi-grid">
-      <article class="track-card">
+      <article class="track-card" :class="{ 'alert-card': chartStore.generatedTracks.length < thresholds.minGeneratedCharts }">
         <h3>Total Generated</h3>
         <p class="kpi-value">{{ chartStore.generatedTracks.length }}</p>
       </article>
-      <article class="track-card">
+      <article class="track-card" :class="{ 'alert-card': chartStore.pinnedTracks.length < thresholds.minPinnedCharts }">
         <h3>Pinned Charts</h3>
         <p class="kpi-value">{{ chartStore.pinnedTracks.length }}</p>
       </article>
@@ -22,6 +22,10 @@
         <h3>Last Generated</h3>
         <p class="kpi-value kpi-date">{{ lastGenerated }}</p>
       </article>
+    </div>
+    <div v-if="alerts.length" class="threshold-alerts">
+      <p class="settings-note"><strong>Threshold Alerts</strong></p>
+      <p v-for="(alert, index) in alerts" :key="`alert-${index}`" class="settings-note">{{ alert }}</p>
     </div>
 
     <div class="settings-actions">
@@ -87,6 +91,7 @@ import { useSettingsStore } from '../stores/settingsStore';
 const chartStore = useChartStore();
 const settings = useSettingsStore();
 const showClearInfo = ref(false);
+const thresholds = computed(() => settings.normalizedAlertThresholds);
 
 const visibleTracks = computed(() => {
   const ordered = [...chartStore.generatedTracks].sort((a, b) => {
@@ -111,6 +116,30 @@ const mostUsedType = computed(() => {
 const lastGenerated = computed(() => {
   const first = chartStore.generatedTracks[0];
   return first ? fmt(first.generatedAt) : 'N/A';
+});
+
+const alerts = computed(() => {
+  const next = [];
+  if (chartStore.generatedTracks.length < thresholds.value.minGeneratedCharts) {
+    next.push(`KPI alert: Total Generated is below threshold (${chartStore.generatedTracks.length} < ${thresholds.value.minGeneratedCharts}).`);
+  }
+  if (chartStore.pinnedTracks.length < thresholds.value.minPinnedCharts) {
+    next.push(`KPI alert: Pinned Charts is below threshold (${chartStore.pinnedTracks.length} < ${thresholds.value.minPinnedCharts}).`);
+  }
+
+  visibleTracks.value.forEach((track) => {
+    if (track.pointsCount < thresholds.value.minRowsPerChart) {
+      next.push(`Chart alert: ${track.title} has too few rows (${track.pointsCount} < ${thresholds.value.minRowsPerChart}).`);
+    }
+    if (track.pointsCount > thresholds.value.maxRowsPerChart) {
+      next.push(`Chart alert: ${track.title} exceeds max rows (${track.pointsCount} > ${thresholds.value.maxRowsPerChart}).`);
+    }
+    if (track.labelsCount < thresholds.value.minLabelsPerChart) {
+      next.push(`Chart alert: ${track.title} has too few labels (${track.labelsCount} < ${thresholds.value.minLabelsPerChart}).`);
+    }
+  });
+
+  return next.slice(0, 12);
 });
 
 function fmt(value) {

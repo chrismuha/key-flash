@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { formulaMap } from '../formulas';
+import { evaluateCustomExpression } from '../formulas/customFormulaTools';
 
 const FIELD_TYPES = new Set(['text', 'number', 'date']);
 
@@ -13,7 +14,8 @@ function createDefaultDataset() {
     fields: [day, category, value],
     rows: [{}, {}, {}],
     draftRows: [{}, {}, {}],
-    templates: []
+    templates: [],
+    customFormulas: []
   };
 }
 
@@ -26,6 +28,7 @@ function createDefaultWorkspace(name = 'Default Workspace') {
     rows: dataset.rows,
     draftRows: dataset.draftRows,
     templates: dataset.templates,
+    customFormulas: dataset.customFormulas,
     chartState: null,
     generatedTracks: []
   };
@@ -59,7 +62,8 @@ export const useDataStore = defineStore('data', {
       fields: workspace.fields,
       rows: workspace.rows,
       draftRows: workspace.draftRows,
-      templates: workspace.templates
+      templates: workspace.templates,
+      customFormulas: workspace.customFormulas
     };
   },
   getters: {
@@ -133,6 +137,22 @@ export const useDataStore = defineStore('data', {
           };
         });
     },
+    sanitizeCustomFormulas(formulas) {
+      if (!Array.isArray(formulas)) return [];
+      return formulas
+        .filter((formula) => formula && typeof formula === 'object')
+        .map((formula) => ({
+          id: typeof formula.id === 'string' && formula.id ? formula.id : `custom:${crypto.randomUUID()}`,
+          name: String(formula.name || '').trim() || 'Custom Formula',
+          expression: String(formula.expression || '').trim(),
+          inputLabels: Array.isArray(formula.inputLabels) && formula.inputLabels.length
+            ? formula.inputLabels.slice(0, 8).map((item, index) => String(item || '').trim() || `Value ${index + 1}`)
+            : ['Value 1'],
+          createdAt: typeof formula.createdAt === 'string' ? formula.createdAt : new Date().toISOString(),
+          updatedAt: typeof formula.updatedAt === 'string' ? formula.updatedAt : new Date().toISOString()
+        }))
+        .filter((formula) => formula.expression);
+    },
     sanitizeWorkspace(workspace) {
       if (!workspace || typeof workspace !== 'object') return null;
       const fields = this.sanitizeFields(workspace.fields);
@@ -146,6 +166,7 @@ export const useDataStore = defineStore('data', {
         rows: rows.length ? rows : [{}],
         draftRows: draftRows.length ? draftRows : (rows.length ? rows : [{}]).map((row) => ({ ...row })),
         templates: this.sanitizeTemplates(workspace.templates),
+        customFormulas: this.sanitizeCustomFormulas(workspace.customFormulas),
         chartState: workspace.chartState && typeof workspace.chartState === 'object'
           ? {
               chartType: String(workspace.chartState.chartType || ''),
@@ -171,6 +192,7 @@ export const useDataStore = defineStore('data', {
         this.rows = workspace.rows;
         this.draftRows = workspace.draftRows;
         this.templates = workspace.templates;
+        this.customFormulas = workspace.customFormulas;
         return;
       }
 
@@ -193,13 +215,17 @@ export const useDataStore = defineStore('data', {
         rows: template.rows.map((row) => ({ ...row })),
         draftRows: template.draftRows.map((row) => ({ ...row }))
       }));
+      this.customFormulas = workspace.customFormulas.map((formula) => ({
+        ...formula,
+        inputLabels: [...formula.inputLabels]
+      }));
     },
     syncActiveWorkspace(extra = {}) {
       const index = this.workspaces.findIndex((workspace) => workspace.id === this.activeWorkspaceId);
       if (index < 0) return;
 
       const current = this.workspaces[index];
-      this.workspaces[index] = {
+      const nextWorkspace = {
         ...current,
         fields: this.fields.map((field) => ({ ...field })),
         rows: this.rows.map((row) => ({ ...row })),
@@ -210,11 +236,37 @@ export const useDataStore = defineStore('data', {
           rows: template.rows.map((row) => ({ ...row })),
           draftRows: template.draftRows.map((row) => ({ ...row }))
         })),
+        customFormulas: this.customFormulas.map((formula) => ({
+          ...formula,
+          inputLabels: [...formula.inputLabels]
+        })),
         chartState: extra.chartState ? { ...extra.chartState } : current.chartState,
         generatedTracks: Array.isArray(extra.generatedTracks)
           ? extra.generatedTracks.map((track) => ({ ...track }))
           : current.generatedTracks
       };
+
+      const currentComparable = JSON.stringify({
+        fields: current.fields,
+        rows: current.rows,
+        draftRows: current.draftRows,
+        templates: current.templates,
+        customFormulas: current.customFormulas,
+        chartState: current.chartState,
+        generatedTracks: current.generatedTracks
+      });
+      const nextComparable = JSON.stringify({
+        fields: nextWorkspace.fields,
+        rows: nextWorkspace.rows,
+        draftRows: nextWorkspace.draftRows,
+        templates: nextWorkspace.templates,
+        customFormulas: nextWorkspace.customFormulas,
+        chartState: nextWorkspace.chartState,
+        generatedTracks: nextWorkspace.generatedTracks
+      });
+
+      if (currentComparable === nextComparable) return;
+      this.workspaces[index] = nextWorkspace;
     },
     setActiveWorkspace(workspaceId) {
       if (!this.workspaces.some((workspace) => workspace.id === workspaceId)) return null;
@@ -342,31 +394,40 @@ export const useDataStore = defineStore('data', {
     },
     applyFormula({ formulaId, outputName, inputFieldIds }) {
       const formula = formulaMap.get(formulaId);
-      if (!formula) return { ok: false, error: 'formula_not_found' };
+      const customFormula = this.customFormulas.find((item) => item.id === formulaId);
+      if (!formula && !customFormula) return { ok: false, error: 'formula_not_found' };
+      const inputCount = formula ? formula.inputs.length : customFormula.inputLabels.length;
 
       const ids = Array.isArray(inputFieldIds) ? inputFieldIds : [];
-      if (ids.length !== formula.inputs.length || ids.some((id) => !id)) {
+      if (ids.length !== inputCount || ids.some((id) => !id)) {
         return { ok: false, error: 'invalid_formula_inputs' };
       }
 
-      const fieldName = normalizeOutputName(outputName || formula.name, this.fields);
+      const fieldName = normalizeOutputName(outputName || (formula ? formula.name : customFormula.name), this.fields);
       const outputField = makeField(fieldName, 'number');
 
       const applyToRows = (rows) => rows.map((row, rowIndex, allRows) => {
         const next = { ...row };
-        const value = formula.compute({
-          row,
-          rowIndex,
-          rows: allRows,
-          inputFieldIds: ids,
-          numberAt(inputIndex, targetRowIndex = rowIndex) {
-            const fieldId = ids[inputIndex];
-            if (!fieldId) return null;
-            const targetRow = allRows[targetRowIndex];
-            if (!targetRow) return null;
-            return toFiniteNumber(targetRow[fieldId]);
-          }
-        });
+        let value = null;
+        if (formula) {
+          value = formula.compute({
+            row,
+            rowIndex,
+            rows: allRows,
+            inputFieldIds: ids,
+            numberAt(inputIndex, targetRowIndex = rowIndex) {
+              const fieldId = ids[inputIndex];
+              if (!fieldId) return null;
+              const targetRow = allRows[targetRowIndex];
+              if (!targetRow) return null;
+              return toFiniteNumber(targetRow[fieldId]);
+            }
+          });
+        } else {
+          const values = ids.map((id) => toFiniteNumber(row[id]));
+          const result = evaluateCustomExpression(customFormula.expression, values, rowIndex);
+          value = result.ok ? result.value : null;
+        }
 
         if (Number.isFinite(value)) {
           next[outputField.id] = String(roundNumber(value));
@@ -381,6 +442,23 @@ export const useDataStore = defineStore('data', {
       this.rows = applyToRows(this.rows);
       this.draftRows = applyToRows(this.draftRows);
       return { ok: true, fieldId: outputField.id, fieldName: outputField.name };
+    },
+    upsertCustomFormula(formula) {
+      const normalized = this.sanitizeCustomFormulas([formula])[0];
+      if (!normalized) return { ok: false, error: 'invalid_custom_formula' };
+
+      const existingIndex = this.customFormulas.findIndex((item) => item.id === normalized.id);
+      if (existingIndex >= 0) {
+        normalized.createdAt = this.customFormulas[existingIndex].createdAt;
+        normalized.updatedAt = new Date().toISOString();
+        this.customFormulas.splice(existingIndex, 1, normalized);
+      } else {
+        this.customFormulas.push(normalized);
+      }
+      return { ok: true, formula: normalized };
+    },
+    deleteCustomFormula(formulaId) {
+      this.customFormulas = this.customFormulas.filter((formula) => formula.id !== formulaId);
     }
   }
 });

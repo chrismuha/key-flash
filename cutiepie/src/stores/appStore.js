@@ -28,6 +28,10 @@ export const useAppStore = defineStore('app', {
       } else {
         this.hasUnsavedChanges = snapshot !== this.lastSavedSnapshot;
       }
+    },
+    markSettingsSaved(savedAt) {
+      this.lastSavedAt = savedAt || new Date().toISOString();
+      this.saveStatus = 'Settings saved to disk';
     }
   }
 });

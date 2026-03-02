@@ -13,8 +13,23 @@
       <button type="button" :disabled="isExporting" @click="exportReportPdf">
         {{ isExporting ? 'Exporting PDF...' : 'Export Report PDF' }}
       </button>
+      <button type="button" class="soft danger" :disabled="reportExportCount === 0" @click="clearReportCounter">
+        Clear Report Counter
+      </button>
     </div>
     <p v-if="exportStatus" class="settings-note print-hide">{{ exportStatus }}</p>
+    <div class="settings-actions print-hide">
+      <button
+        type="button"
+        class="builder-info-btn"
+        title="KPI info"
+        aria-label="KPI info"
+        @click="showKpiInfo = !showKpiInfo"
+      >
+        <i class="bi bi-info-lg" aria-hidden="true"></i>
+      </button>
+    </div>
+    <p v-if="showKpiInfo" class="settings-note print-hide">KPI means Key Performance Indicator. It is a tracked metric used to quickly measure performance.</p>
 
     <header class="report-header">
       <h1>CutiePie Chart Report</h1>
@@ -33,6 +48,10 @@
       <article class="track-card">
         <h3>Pinned</h3>
         <p class="kpi-value">{{ chartStore.pinnedTracks.length }}</p>
+      </article>
+      <article class="track-card">
+        <h3>Report Exports</h3>
+        <p class="kpi-value">{{ reportExportCount }}</p>
       </article>
     </div>
 
@@ -57,6 +76,8 @@ const chartStore = useChartStore();
 const pinnedOnly = ref(false);
 const isExporting = ref(false);
 const exportStatus = ref('');
+const reportExportCount = ref(0);
+const showKpiInfo = ref(false);
 
 const nowText = computed(() => `${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`);
 
@@ -70,6 +91,7 @@ async function exportReportPdf() {
   isExporting.value = true;
   const result = await exportCurrentPagePdf('reports');
   if (result?.ok) {
+    reportExportCount.value += 1;
     exportStatus.value = `PDF exported: ${result.fileName}`;
   } else if (result?.canceled) {
     exportStatus.value = 'PDF export canceled.';
@@ -77,6 +99,11 @@ async function exportReportPdf() {
     exportStatus.value = 'PDF export failed.';
   }
   isExporting.value = false;
+}
+
+function clearReportCounter() {
+  reportExportCount.value = 0;
+  exportStatus.value = 'Report export counter reset.';
 }
 
 function fmt(value) {

@@ -1,5 +1,15 @@
 import { defineStore } from 'pinia';
 
+function defaultThresholds() {
+  return {
+    minGeneratedCharts: 1,
+    minPinnedCharts: 1,
+    minRowsPerChart: 2,
+    minLabelsPerChart: 2,
+    maxRowsPerChart: 500
+  };
+}
+
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
     autoSave: false,
@@ -8,7 +18,8 @@ export const useSettingsStore = defineStore('settings', {
     savedCategories: [],
     roleView: 'editor',
     dashboardHistoryLimit: 40,
-    performanceMode: 'balanced'
+    performanceMode: 'balanced',
+    alertThresholds: defaultThresholds()
   }),
   getters: {
     sortedSavedCategories(state) {
@@ -25,6 +36,16 @@ export const useSettingsStore = defineStore('settings', {
     },
     canAnnotateCharts(state) {
       return state.roleView !== 'viewer';
+    },
+    normalizedAlertThresholds(state) {
+      const raw = state.alertThresholds || {};
+      return {
+        minGeneratedCharts: Math.max(0, Math.round(Number(raw.minGeneratedCharts) || 0)),
+        minPinnedCharts: Math.max(0, Math.round(Number(raw.minPinnedCharts) || 0)),
+        minRowsPerChart: Math.max(0, Math.round(Number(raw.minRowsPerChart) || 0)),
+        minLabelsPerChart: Math.max(0, Math.round(Number(raw.minLabelsPerChart) || 0)),
+        maxRowsPerChart: Math.max(1, Math.round(Number(raw.maxRowsPerChart) || 1))
+      };
     }
   },
   actions: {

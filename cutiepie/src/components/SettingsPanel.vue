@@ -34,13 +34,56 @@
       </label>
 
       <label>
-        Performance Mode
+        <span class="panel-title-row">
+          <span>Performance Mode</span>
+          <button
+            type="button"
+            class="builder-info-btn"
+            title="Performance mode info"
+            aria-label="Performance mode info"
+            @click="showPerformanceInfo = !showPerformanceInfo"
+          >
+            <i class="bi bi-info-lg" aria-hidden="true"></i>
+          </button>
+        </span>
         <select v-model="settings.performanceMode">
           <option value="balanced">Balanced</option>
           <option value="fast">Fast updates</option>
           <option value="quality">Quality rendering</option>
         </select>
       </label>
+      <div v-if="showPerformanceInfo" class="role-info">
+        <p class="settings-note">
+          Performance Mode controls how quickly live charts re-render after changes in Builder.
+        </p>
+        <p class="settings-note"><strong>Fast updates:</strong> shortest delay before re-render (more immediate, more CPU activity).</p>
+        <p class="settings-note"><strong>Balanced:</strong> middle delay (default tradeoff).</p>
+        <p class="settings-note"><strong>Quality rendering:</strong> longest delay (fewer redraws, smoother/stabler on heavier datasets).</p>
+      </div>
+
+      <div class="wizard-grid">
+        <p class="settings-note"><strong>Threshold Alerts</strong></p>
+        <label>
+          Min Generated Charts (KPI)
+          <input v-model.number="settings.alertThresholds.minGeneratedCharts" type="number" min="0" />
+        </label>
+        <label>
+          Min Pinned Charts (KPI)
+          <input v-model.number="settings.alertThresholds.minPinnedCharts" type="number" min="0" />
+        </label>
+        <label>
+          Min Rows Per Chart
+          <input v-model.number="settings.alertThresholds.minRowsPerChart" type="number" min="0" />
+        </label>
+        <label>
+          Min Labels Per Chart
+          <input v-model.number="settings.alertThresholds.minLabelsPerChart" type="number" min="0" />
+        </label>
+        <label>
+          Max Rows Per Chart
+          <input v-model.number="settings.alertThresholds.maxRowsPerChart" type="number" min="1" />
+        </label>
+      </div>
 
       <div class="field-form">
         <input
@@ -80,6 +123,7 @@ import { createBackup, restoreLatestBackup } from '../services/backupService';
 const appStore = useAppStore();
 const settings = useSettingsStore();
 const categoryDraft = ref('');
+const showPerformanceInfo = ref(false);
 
 watch(
   () => settings.dashboardHistoryLimit,
@@ -90,6 +134,18 @@ watch(
     }
     settings.dashboardHistoryLimit = Math.max(5, Math.min(200, Math.round(value)));
   }
+);
+
+watch(
+  () => settings.alertThresholds,
+  (value) => {
+    settings.alertThresholds.minGeneratedCharts = Math.max(0, Math.round(Number(value.minGeneratedCharts) || 0));
+    settings.alertThresholds.minPinnedCharts = Math.max(0, Math.round(Number(value.minPinnedCharts) || 0));
+    settings.alertThresholds.minRowsPerChart = Math.max(0, Math.round(Number(value.minRowsPerChart) || 0));
+    settings.alertThresholds.minLabelsPerChart = Math.max(0, Math.round(Number(value.minLabelsPerChart) || 0));
+    settings.alertThresholds.maxRowsPerChart = Math.max(1, Math.round(Number(value.maxRowsPerChart) || 1));
+  },
+  { deep: true }
 );
 
 function saveNow() {

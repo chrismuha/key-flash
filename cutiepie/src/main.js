@@ -48,6 +48,7 @@ function buildSettingsPayload() {
     roleView: settingsStore.roleView,
     dashboardHistoryLimit: settingsStore.dashboardHistoryLimit,
     performanceMode: settingsStore.performanceMode,
+    alertThresholds: settingsStore.normalizedAlertThresholds,
     updatedAt: new Date().toISOString()
   };
 }
@@ -58,6 +59,7 @@ function buildComparableSnapshot() {
     rows: dataStore.rows,
     draftRows: dataStore.draftRows,
     templates: dataStore.templates,
+    customFormulas: dataStore.customFormulas,
     chartType: chartStore.chartType,
     selectedLabelFieldId: chartStore.selectedLabelFieldId,
     selectedValueFieldId: chartStore.selectedValueFieldId,
@@ -68,7 +70,8 @@ function buildComparableSnapshot() {
     activeWorkspaceId: dataStore.activeWorkspaceId,
     roleView: settingsStore.roleView,
     dashboardHistoryLimit: settingsStore.dashboardHistoryLimit,
-    performanceMode: settingsStore.performanceMode
+    performanceMode: settingsStore.performanceMode,
+    alertThresholds: settingsStore.normalizedAlertThresholds
   });
 }
 
@@ -84,6 +87,17 @@ async function persistState(force = false) {
   }
 }
 
+async function persistSettings() {
+  const payload = buildSettingsPayload();
+  const result = await saveSettings(payload);
+  if (result?.ok) {
+    appStore.markSettingsSaved(payload.updatedAt);
+  } else {
+    appStore.saveStatus = 'Settings save failed';
+  }
+  return result;
+}
+
 function scheduleStateSave() {
   if (!settingsStore.autoSave) return;
   if (stateSaveTimer) clearTimeout(stateSaveTimer);
@@ -94,8 +108,8 @@ function scheduleStateSave() {
 
 function scheduleSettingsSave() {
   if (settingsSaveTimer) clearTimeout(settingsSaveTimer);
-  settingsSaveTimer = setTimeout(async () => {
-    await saveSettings(buildSettingsPayload());
+  settingsSaveTimer = setTimeout(() => {
+    persistSettings();
   }, 140);
 }
 
@@ -116,6 +130,12 @@ async function hydrate() {
     settingsStore.performanceMode = ['balanced', 'fast', 'quality'].includes(loadedSettings.settings.performanceMode)
       ? loadedSettings.settings.performanceMode
       : 'balanced';
+    settingsStore.alertThresholds = {
+      ...settingsStore.alertThresholds,
+      ...(loadedSettings.settings.alertThresholds && typeof loadedSettings.settings.alertThresholds === 'object'
+        ? loadedSettings.settings.alertThresholds
+        : {})
+    };
     settingsStore.savedCategories = Array.isArray(loadedSettings.settings.savedCategories)
       ? loadedSettings.settings.savedCategories
           .map((item) => String(item || '').trim())
@@ -148,6 +168,7 @@ watch(
     dataStore.rows,
     dataStore.draftRows,
     dataStore.templates,
+    dataStore.customFormulas,
     dataStore.workspaces,
     dataStore.activeWorkspaceId,
     chartStore.chartType,
@@ -173,7 +194,8 @@ watch(
     settingsStore.savedCategories,
     settingsStore.roleView,
     settingsStore.dashboardHistoryLimit,
-    settingsStore.performanceMode
+    settingsStore.performanceMode,
+    settingsStore.alertThresholds
   ],
   () => {
     if (appStore.isHydrating) return;
@@ -198,4 +220,4 @@ hydrate().finally(() => {
 });
 
 window.__CUTIEPIE_PERSIST_STATE = () => persistState(true);
-window.__CUTIEPIE_PERSIST_SETTINGS = () => saveSettings(buildSettingsPayload());
+window.__CUTIEPIE_PERSIST_SETTINGS = () => persistSettings();
