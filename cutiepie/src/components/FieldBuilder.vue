@@ -15,7 +15,7 @@
     </form>
 
     <div class="field-list">
-      <div v-for="field in store.fields" :key="field.id" class="field-pill">
+      <div v-for="field in store.sortedFields" :key="field.id" class="field-pill">
         <span>{{ field.name }} ({{ field.type }})</span>
         <button type="button" @click="remove(field.id)">x</button>
       </div>

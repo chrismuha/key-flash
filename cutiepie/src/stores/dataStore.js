@@ -18,6 +18,12 @@ export const useDataStore = defineStore('data', {
   getters: {
     numericFields(state) {
       return state.fields.filter((field) => field.type === 'number');
+    },
+    sortedFields(state) {
+      return [...state.fields].sort((a, b) => a.name.localeCompare(b.name));
+    },
+    sortedNumericFields() {
+      return this.sortedFields.filter((field) => field.type === 'number');
     }
   },
   actions: {

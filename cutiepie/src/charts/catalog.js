@@ -4,71 +4,71 @@ export const chartGroups = [
     options: [
       ['bar', 'Bar Chart'],
       ['column', 'Column Chart'],
-      ['stacked_bar', 'Stacked Bar Chart'],
-      ['treemap', 'Treemap'],
       ['pareto', 'Pareto Chart'],
-      ['radar', 'Radar Chart']
-    ]
+      ['radar', 'Radar Chart'],
+      ['stacked_bar', 'Stacked Bar Chart'],
+      ['treemap', 'Treemap']
+    ].sort((a, b) => a[1].localeCompare(b[1]))
   },
   {
     label: 'Trend & Time-Series Charts',
     options: [
-      ['line', 'Line Chart'],
       ['area', 'Area Chart'],
-      ['step', 'Step Chart'],
       ['candlestick', 'Candlestick Chart'],
-      ['sparkline', 'Sparkline']
-    ]
+      ['line', 'Line Chart (Growth Chart)'],
+      ['sparkline', 'Sparkline'],
+      ['step', 'Step Chart']
+    ].sort((a, b) => a[1].localeCompare(b[1]))
   },
   {
     label: 'Part-to-Whole Charts',
     options: [
-      ['pie', 'Pie Chart'],
       ['donut', 'Donut Chart'],
       ['funnel', 'Funnel Chart'],
+      ['pie', 'Pie Chart'],
       ['waterfall', 'Waterfall Chart'],
       ['stacked_area', 'Stacked Area Chart']
-    ]
+    ].sort((a, b) => a[1].localeCompare(b[1]))
   },
   {
     label: 'Relationship & Correlation Charts',
     options: [
-      ['scatter', 'Scatter Plot'],
       ['bubble', 'Bubble Chart'],
+      ['scatter', 'Scatter Plot'],
       ['sankey', 'Sankey Diagram']
-    ]
+    ].sort((a, b) => a[1].localeCompare(b[1]))
   },
   {
     label: 'Distribution Charts',
     options: [
-      ['histogram', 'Histogram'],
       ['boxplot', 'Box Plot'],
-      ['dot', 'Dot Plot']
-    ]
+      ['dot', 'Dot Plot'],
+      ['histogram', 'Histogram']
+    ].sort((a, b) => a[1].localeCompare(b[1]))
   },
   {
     label: 'Geographic Charts',
     options: [
-      ['geo_map', 'Geo Map'],
       ['bubble_map', 'Bubble Map'],
+      ['geo_map', 'Geo Map'],
       ['heatmap_map', 'Heatmap Map']
-    ]
+    ].sort((a, b) => a[1].localeCompare(b[1]))
   },
   {
     label: 'Operational & Project Charts',
     options: [
       ['gantt', 'Gantt Chart'],
+      ['heatmap', 'Heatmap'],
       ['pictograph', 'Pictograph'],
-      ['heatmap', 'Heatmap']
-    ]
+    ].sort((a, b) => a[1].localeCompare(b[1]))
   },
   {
     label: 'Less Common but Powerful Business Charts',
     options: [
       ['bump', 'Bump Chart'],
-      ['slope', 'Slope Chart'],
-      ['chord', 'Chord Diagram']
-    ]
+      ['chord', 'Chord Diagram'],
+      ['slope', 'Slope Chart']
+    ].sort((a, b) => a[1].localeCompare(b[1]))
   }
 ];
 

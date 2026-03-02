@@ -8,10 +8,8 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, ref } from 'vue';
+import { onBeforeUnmount, ref } from 'vue';
 import Chart from 'chart.js/auto';
-import Plotly from 'plotly.js-dist-min';
-import * as d3 from 'd3';
 import { useDataStore } from '../stores/dataStore';
 import { useChartStore } from '../stores/chartStore';
 
@@ -24,6 +22,7 @@ const chartInstance = ref(null);
 const renderer = ref('canvas');
 
 const palette = ['#e44f6b', '#1f9cc2', '#f7a541', '#5f7cff', '#5abf90', '#8d63c7', '#ec6f4c'];
+const hoverPalette = ['#cb3f59', '#177d9c', '#de8f2f', '#4e68df', '#47a778', '#744db4', '#d45f3f'];
 const chartTitleMap = {
   bar: 'Bar Chart',
   column: 'Column Chart',
@@ -81,7 +80,9 @@ function clear() {
     chartInstance.value = null;
   }
   if (plotRef.value) {
-    Plotly.purge(plotRef.value);
+    if (window.Plotly?.purge) {
+      window.Plotly.purge(plotRef.value);
+    }
     plotRef.value.innerHTML = '';
   }
 }
@@ -136,6 +137,10 @@ function render() {
           data: agg.map((x) => x.value),
           borderColor: '#1f9cc2',
           backgroundColor: agg.map((_, i) => palette[i % palette.length]),
+          hoverBackgroundColor: agg.map((_, i) => hoverPalette[i % hoverPalette.length]),
+          hoverBorderColor: '#192033',
+          borderWidth: 1,
+          hoverBorderWidth: 2,
           fill: type === 'area'
         }]
       },
@@ -181,10 +186,19 @@ function render() {
   }
 
   renderer.value = type === 'chord' ? 'd3' : 'plotly';
+  const Plotly = window.Plotly;
 
   if (type === 'treemap') {
+    if (!Plotly) {
+      chartStore.message = 'Plotly did not load.';
+      return;
+    }
     Plotly.newPlot(plotRef.value, [{ type: 'treemap', labels: points.map((p) => String(p.label)), parents: points.map(() => ''), values: points.map((p) => p.value) }], { margin: { l: 10, r: 10, t: 20, b: 10 } });
   } else if (type === 'candlestick') {
+    if (!Plotly) {
+      chartStore.message = 'Plotly did not load.';
+      return;
+    }
     const x = points.map((p) => String(p.label));
     const close = points.map((p) => p.value);
     const open = points.map((p, i) => Number.isFinite(p.secondary) ? p.secondary : (i ? close[i - 1] : p.value));
@@ -192,6 +206,10 @@ function render() {
     const low = close.map((c, i) => Math.min(c, open[i]) - 1);
     Plotly.newPlot(plotRef.value, [{ type: 'candlestick', x, open, high, low, close }], { margin: { l: 40, r: 12, t: 20, b: 36 } });
   } else if (type === 'sankey') {
+    if (!Plotly) {
+      chartStore.message = 'Plotly did not load.';
+      return;
+    }
     if (!chartStore.selectedSeriesFieldId) {
       chartStore.message = 'Sankey needs Series / Group field.';
       return;
@@ -200,6 +218,10 @@ function render() {
     const nodeIndex = new Map(nodes.map((n, i) => [n, i]));
     Plotly.newPlot(plotRef.value, [{ type: 'sankey', node: { label: nodes }, link: { source: points.map((p) => nodeIndex.get(String(p.label))), target: points.map((p) => nodeIndex.get(String(p.series || 'Series'))), value: points.map((p) => p.value) } }], { margin: { l: 12, r: 12, t: 24, b: 12 } });
   } else if (type === 'boxplot') {
+    if (!Plotly) {
+      chartStore.message = 'Plotly did not load.';
+      return;
+    }
     const grouped = new Map();
     points.forEach((p) => {
       const key = String(p.label);
@@ -209,12 +231,24 @@ function render() {
     const traces = [...grouped.entries()].map(([label, vals]) => ({ type: 'box', name: label, y: vals, boxpoints: 'outliers' }));
     Plotly.newPlot(plotRef.value, traces, { margin: { l: 40, r: 12, t: 20, b: 36 } });
   } else if (type === 'geo_map' || type === 'heatmap_map') {
+    if (!Plotly) {
+      chartStore.message = 'Plotly did not load.';
+      return;
+    }
     const states = aggregate(points).map((p) => ({ code: String(p.label || '').toUpperCase(), value: p.value })).filter((p) => /^[A-Z]{2}$/.test(p.code));
     Plotly.newPlot(plotRef.value, [{ type: 'choropleth', locationmode: 'USA-states', locations: states.map((s) => s.code), z: states.map((s) => s.value), colorscale: type === 'heatmap_map' ? 'YlOrRd' : 'Blues' }], { geo: { scope: 'usa' }, margin: { l: 8, r: 8, t: 20, b: 8 } });
   } else if (type === 'bubble_map') {
+    if (!Plotly) {
+      chartStore.message = 'Plotly did not load.';
+      return;
+    }
     const states = aggregate(points).map((p) => ({ code: String(p.label || '').toUpperCase(), value: p.value })).filter((p) => /^[A-Z]{2}$/.test(p.code));
     Plotly.newPlot(plotRef.value, [{ type: 'scattergeo', locationmode: 'USA-states', locations: states.map((s) => s.code), mode: 'markers', marker: { size: states.map((s) => Math.max(8, Math.min(40, s.value))), color: states.map((s) => s.value), colorscale: 'Viridis' } }], { geo: { scope: 'usa' }, margin: { l: 8, r: 8, t: 20, b: 8 } });
   } else if (type === 'gantt') {
+    if (!Plotly) {
+      chartStore.message = 'Plotly did not load.';
+      return;
+    }
     if (!chartStore.selectedSeriesFieldId) {
       chartStore.message = 'Gantt needs Series / Group as start date field.';
       return;
@@ -237,6 +271,10 @@ function render() {
       plotRef.value.appendChild(line);
     });
   } else if (type === 'heatmap') {
+    if (!Plotly) {
+      chartStore.message = 'Plotly did not load.';
+      return;
+    }
     if (!chartStore.selectedSeriesFieldId) {
       chartStore.message = 'Heatmap needs Series / Group field.';
       return;
@@ -248,6 +286,11 @@ function render() {
   } else if (type === 'chord') {
     if (!chartStore.selectedSeriesFieldId) {
       chartStore.message = 'Chord needs Series / Group field.';
+      return;
+    }
+    const d3 = window.d3;
+    if (!d3) {
+      chartStore.message = 'D3 did not load.';
       return;
     }
     plotRef.value.innerHTML = '';

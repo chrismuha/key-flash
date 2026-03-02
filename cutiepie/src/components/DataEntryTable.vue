@@ -9,13 +9,13 @@
       <table>
         <thead>
           <tr>
-            <th v-for="field in dataStore.fields" :key="field.id">{{ field.name }}</th>
+            <th v-for="field in dataStore.sortedFields" :key="field.id">{{ field.name }}</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(row, rowIndex) in dataStore.draftRows" :key="rowIndex">
-            <td v-for="field in dataStore.fields" :key="field.id">
+            <td v-for="field in dataStore.sortedFields" :key="field.id">
               <input
                 class="table-input"
                 :type="field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'"

@@ -18,14 +18,14 @@
       <label>
         Label / X Axis
         <select v-model="chartStore.selectedLabelFieldId">
-          <option v-for="field in dataStore.fields" :key="field.id" :value="field.id">{{ field.name }} ({{ field.type }})</option>
+          <option v-for="field in dataStore.sortedFields" :key="field.id" :value="field.id">{{ field.name }} ({{ field.type }})</option>
         </select>
       </label>
 
       <label>
         Value / Y Axis
         <select v-model="chartStore.selectedValueFieldId">
-          <option v-for="field in dataStore.numericFields" :key="field.id" :value="field.id">{{ field.name }} ({{ field.type }})</option>
+          <option v-for="field in dataStore.sortedNumericFields" :key="field.id" :value="field.id">{{ field.name }} ({{ field.type }})</option>
         </select>
       </label>
 
@@ -33,7 +33,7 @@
         Secondary Value
         <select v-model="chartStore.selectedSecondaryValueFieldId">
           <option value="">None</option>
-          <option v-for="field in dataStore.numericFields" :key="`secondary-${field.id}`" :value="field.id">{{ field.name }} ({{ field.type }})</option>
+          <option v-for="field in dataStore.sortedNumericFields" :key="`secondary-${field.id}`" :value="field.id">{{ field.name }} ({{ field.type }})</option>
         </select>
       </label>
 
@@ -41,7 +41,7 @@
         Series / Group
         <select v-model="chartStore.selectedSeriesFieldId">
           <option value="">None</option>
-          <option v-for="field in dataStore.fields" :key="`series-${field.id}`" :value="field.id">{{ field.name }} ({{ field.type }})</option>
+          <option v-for="field in dataStore.sortedFields" :key="`series-${field.id}`" :value="field.id">{{ field.name }} ({{ field.type }})</option>
         </select>
       </label>
 
