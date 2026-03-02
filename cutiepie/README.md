@@ -70,6 +70,8 @@ Example hierarchy statement: **Editor has everything Manager has**, plus field-s
 - Export wizard supports CSV, JSON, and PDF.
 - All exports open a **Save As** location picker before writing files.
 - Header `Export Page as PDF` exports the current visible page.
+- Compatibility reference: `docs/import-export-compatibility.md`
+- Example files: `samples/import-sample.csv`, `samples/import-sample-array.json`, `samples/import-sample-export-style.json`, `samples/export-sample.csv`, `samples/export-sample.json`, `samples/export-sample-report.pdf`, `samples/export-sample-page.pdf`
 
 ## Local Storage
 

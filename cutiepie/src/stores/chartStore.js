@@ -12,7 +12,13 @@ export const useChartStore = defineStore('chart', {
     manualRefreshRequired: false,
     hasRenderedChart: false,
     renderedCategoryLabels: [],
-    generatedTracks: []
+    generatedTracks: [],
+    renderTelemetry: {
+      totalRenders: 0,
+      lastRenderMs: 0,
+      averageRenderMs: 0,
+      lastPointsCount: 0
+    }
   }),
   getters: {
     pinnedTracks(state) {
@@ -71,6 +77,15 @@ export const useChartStore = defineStore('chart', {
       if (this.generatedTracks.length > 100) {
         this.generatedTracks.length = 100;
       }
+
+      const renderMs = Number.isFinite(meta.renderMs) ? Math.max(0, meta.renderMs) : 0;
+      this.renderTelemetry.totalRenders += 1;
+      this.renderTelemetry.lastRenderMs = renderMs;
+      this.renderTelemetry.lastPointsCount = Number.isFinite(meta.pointsCount) ? meta.pointsCount : 0;
+      const total = this.renderTelemetry.totalRenders;
+      this.renderTelemetry.averageRenderMs = total <= 1
+        ? renderMs
+        : (((this.renderTelemetry.averageRenderMs * (total - 1)) + renderMs) / total);
     },
     clearGeneratedTracks() {
       this.generatedTracks = [];

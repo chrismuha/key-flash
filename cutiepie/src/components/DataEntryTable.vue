@@ -25,6 +25,7 @@
                 v-if="shouldUseCategoryDropdown(field)"
                 class="table-input"
                 :disabled="!settings.canEditData"
+                :aria-label="`${field.name} row ${rowIndex + 1}`"
                 :value="row[field.id] || ''"
                 @change="dataStore.updateDraftCell(rowIndex, field.id, $event.target.value)"
               >
@@ -39,6 +40,7 @@
                 :type="field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'"
                 :placeholder="field.name"
                 :disabled="!settings.canEditData"
+                :aria-label="`${field.name} row ${rowIndex + 1}`"
                 :value="row[field.id] || ''"
                 @input="dataStore.updateDraftCell(rowIndex, field.id, $event.target.value)"
               />

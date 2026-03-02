@@ -25,6 +25,7 @@
 
     <div class="settings-actions">
       <button type="button" class="soft" @click="cloneWorkspace">Clone Active</button>
+      <button type="button" class="soft danger" @click="resetWorkspace">Reset Active</button>
       <button type="button" class="soft" @click="renameWorkspace">Rename Active</button>
       <button
         type="button"
@@ -99,6 +100,7 @@ function renameWorkspace() {
 }
 
 function deleteWorkspace() {
+  if (!window.confirm('Delete the active workspace? This cannot be undone.')) return;
   syncCurrentWorkspace();
   const deleted = dataStore.deleteWorkspace(dataStore.activeWorkspaceId);
   if (!deleted) {
@@ -107,6 +109,18 @@ function deleteWorkspace() {
   }
   applyWorkspace(dataStore.activeWorkspace);
   status.value = `Workspace deleted. Active: ${dataStore.activeWorkspace?.name || 'Unknown'}`;
+}
+
+function resetWorkspace() {
+  if (!window.confirm('Reset active workspace data (fields, rows, templates, formulas, tracks)?')) return;
+  syncCurrentWorkspace();
+  const ok = dataStore.resetActiveWorkspace();
+  if (!ok) {
+    status.value = 'Unable to reset workspace.';
+    return;
+  }
+  applyWorkspace(dataStore.activeWorkspace);
+  status.value = 'Active workspace reset.';
 }
 
 function undo() {

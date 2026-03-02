@@ -18,6 +18,7 @@
               <RouterLink to="/reports">Reports</RouterLink>
               <RouterLink to="/settings">Settings</RouterLink>
               <RouterLink to="/diagnostics">Diagnostics</RouterLink>
+              <RouterLink to="/changelog">Changelog</RouterLink>
               <RouterLink to="/about">About</RouterLink>
             </nav>
             <button type="button" class="hero-export-btn" :disabled="isExporting" @click="exportPagePdf">
@@ -36,18 +37,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import QuitModal from './components/QuitModal.vue';
 import RoleStartupModal from './components/RoleStartupModal.vue';
 import OnboardingTourModal from './components/OnboardingTourModal.vue';
 import { exportCurrentPagePdf } from './services/pdfService';
 import { useSettingsStore } from './stores/settingsStore';
+import { useDataStore } from './stores/dataStore';
 
 const route = useRoute();
 const isExporting = ref(false);
 const exportStatus = ref('');
 const settings = useSettingsStore();
+const dataStore = useDataStore();
 const showRoleStartup = ref(true);
 const showOnboarding = ref(false);
 
@@ -74,4 +77,36 @@ async function exportPagePdf() {
 
   isExporting.value = false;
 }
+
+function onKeydown(event) {
+  const isMod = event.metaKey || event.ctrlKey;
+  if (!isMod) return;
+  const key = String(event.key || '').toLowerCase();
+
+  if (key === 's') {
+    event.preventDefault();
+    if (window.__CUTIEPIE_PERSIST_STATE) window.__CUTIEPIE_PERSIST_STATE();
+    if (window.__CUTIEPIE_PERSIST_SETTINGS) window.__CUTIEPIE_PERSIST_SETTINGS();
+    return;
+  }
+
+  if (key === 'z' && !event.shiftKey) {
+    event.preventDefault();
+    dataStore.undo();
+    return;
+  }
+
+  if ((key === 'z' && event.shiftKey) || key === 'y') {
+    event.preventDefault();
+    dataStore.redo();
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeydown);
+});
 </script>

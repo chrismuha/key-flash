@@ -33,7 +33,7 @@
         type="button"
         class="soft danger"
         :disabled="!chartStore.generatedTracks.length"
-        @click="chartStore.clearGeneratedTracks()"
+        @click="clearHistory"
       >
         Clear History
       </button>
@@ -147,5 +147,10 @@ function fmt(value) {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return 'Unknown';
   return `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+}
+
+function clearHistory() {
+  if (!window.confirm('Clear generated chart history for this workspace dashboard?')) return;
+  chartStore.clearGeneratedTracks();
 }
 </script>

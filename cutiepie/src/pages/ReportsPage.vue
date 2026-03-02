@@ -90,6 +90,7 @@ async function exportReportPdf() {
 }
 
 function clearReportCounter() {
+  if (!window.confirm('Reset report export counter for this workspace?')) return;
   dataStore.clearReportExportCount();
   exportStatus.value = 'Report export counter reset.';
 }

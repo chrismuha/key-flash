@@ -1,61 +1,14 @@
 import { defineStore } from 'pinia';
 import { formulaMap } from '../formulas';
 import { evaluateCustomExpression } from '../formulas/customFormulaTools';
-
-const FIELD_TYPES = new Set(['text', 'number', 'date']);
-
-const makeField = (name, type) => ({ id: crypto.randomUUID(), name, type });
-
-function createDefaultDataset() {
-  const day = makeField('Day', 'date');
-  const category = makeField('Category', 'text');
-  const value = makeField('Value', 'number');
-  return {
-    fields: [day, category, value],
-    rows: [{}, {}, {}],
-    draftRows: [{}, {}, {}],
-    templates: [],
-    customFormulas: [],
-    formulaFields: [],
-    reportExportCount: 0
-  };
-}
-
-function createDefaultWorkspace(name = 'Default Workspace') {
-  const dataset = createDefaultDataset();
-  return {
-    id: crypto.randomUUID(),
-    name,
-    fields: dataset.fields,
-    rows: dataset.rows,
-    draftRows: dataset.draftRows,
-    templates: dataset.templates,
-    customFormulas: dataset.customFormulas,
-    formulaFields: dataset.formulaFields,
-    reportExportCount: dataset.reportExportCount,
-    chartState: null,
-    generatedTracks: []
-  };
-}
-
-function toFiniteNumber(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
-
-function normalizeOutputName(base, fields) {
-  const trimmed = String(base || '').trim() || 'Formula Result';
-  const existing = new Set(fields.map((field) => field.name.toLowerCase()));
-  if (!existing.has(trimmed.toLowerCase())) return trimmed;
-
-  let i = 2;
-  while (existing.has(`${trimmed} ${i}`.toLowerCase())) i += 1;
-  return `${trimmed} ${i}`;
-}
-
-function roundNumber(value) {
-  return Math.round(value * 10000) / 10000;
-}
+import {
+  FIELD_TYPES,
+  createDefaultWorkspace,
+  makeField,
+  normalizeOutputName,
+  roundNumber,
+  toFiniteNumber
+} from './modules/dataHelpers';
 
 export const useDataStore = defineStore('data', {
   state: () => {
@@ -378,6 +331,15 @@ export const useDataStore = defineStore('data', {
 
       this.workspaces.push(clone);
       return clone.id;
+    },
+    resetActiveWorkspace() {
+      const current = this.activeWorkspace;
+      if (!current) return false;
+      const reset = createDefaultWorkspace(current.name);
+      reset.id = current.id;
+      this.workspaces = this.workspaces.map((workspace) => (workspace.id === current.id ? reset : workspace));
+      this.loadActiveWorkspace();
+      return true;
     },
     snapshotForUndo() {
       return {

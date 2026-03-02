@@ -10,6 +10,7 @@ import { useChartStore } from './stores/chartStore';
 import { loadState, saveState } from './services/stateService';
 import { loadSettings, saveSettings } from './services/settingsService';
 import { subscribeQuitRequests } from './services/quitService';
+import { migrateSettings, migrateState } from './services/migrationService';
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -43,7 +44,7 @@ function buildStatePayload() {
 
 function buildSettingsPayload() {
   return {
-    version: 2,
+    version: 3,
     autoSave: settingsStore.autoSave,
     subtleSeparators: settingsStore.subtleSeparators,
     useSavedCategoriesDropdown: settingsStore.useSavedCategoriesDropdown,
@@ -66,6 +67,8 @@ function buildComparableSnapshot() {
     draftRows: dataStore.draftRows,
     templates: dataStore.templates,
     customFormulas: dataStore.customFormulas,
+    formulaFields: dataStore.formulaFields,
+    reportExportCount: dataStore.reportExportCount,
     chartType: chartStore.chartType,
     selectedLabelFieldId: chartStore.selectedLabelFieldId,
     selectedValueFieldId: chartStore.selectedValueFieldId,
@@ -127,31 +130,32 @@ async function hydrate() {
 
   const loadedSettings = await loadSettings();
   if (loadedSettings.ok && loadedSettings.settings) {
-    settingsStore.autoSave = loadedSettings.settings.autoSave === true;
-    settingsStore.subtleSeparators = loadedSettings.settings.subtleSeparators !== false;
-    settingsStore.useSavedCategoriesDropdown = loadedSettings.settings.useSavedCategoriesDropdown === true;
-    settingsStore.roleView = ['analyst', 'editor', 'manager', 'viewer'].includes(loadedSettings.settings.roleView)
-      ? loadedSettings.settings.roleView
+    const settings = migrateSettings(loadedSettings.settings);
+    settingsStore.autoSave = settings.autoSave === true;
+    settingsStore.subtleSeparators = settings.subtleSeparators !== false;
+    settingsStore.useSavedCategoriesDropdown = settings.useSavedCategoriesDropdown === true;
+    settingsStore.roleView = ['analyst', 'editor', 'manager', 'viewer'].includes(settings.roleView)
+      ? settings.roleView
       : 'editor';
-    settingsStore.dashboardHistoryLimit = Number.isFinite(loadedSettings.settings.dashboardHistoryLimit)
-      ? Math.max(5, Math.min(200, Math.round(loadedSettings.settings.dashboardHistoryLimit)))
+    settingsStore.dashboardHistoryLimit = Number.isFinite(settings.dashboardHistoryLimit)
+      ? Math.max(5, Math.min(200, Math.round(settings.dashboardHistoryLimit)))
       : 40;
-    settingsStore.performanceMode = ['balanced', 'fast', 'quality'].includes(loadedSettings.settings.performanceMode)
-      ? loadedSettings.settings.performanceMode
+    settingsStore.performanceMode = ['balanced', 'fast', 'quality'].includes(settings.performanceMode)
+      ? settings.performanceMode
       : 'balanced';
-    settingsStore.chartGoalEnabled = loadedSettings.settings.chartGoalEnabled === true;
-    settingsStore.chartGoalValue = Number.isFinite(Number(loadedSettings.settings.chartGoalValue))
-      ? Number(loadedSettings.settings.chartGoalValue)
+    settingsStore.chartGoalEnabled = settings.chartGoalEnabled === true;
+    settingsStore.chartGoalValue = Number.isFinite(Number(settings.chartGoalValue))
+      ? Number(settings.chartGoalValue)
       : 100;
-    settingsStore.onboardingCompleted = loadedSettings.settings.onboardingCompleted === true;
+    settingsStore.onboardingCompleted = settings.onboardingCompleted === true;
     settingsStore.alertThresholds = {
       ...settingsStore.alertThresholds,
-      ...(loadedSettings.settings.alertThresholds && typeof loadedSettings.settings.alertThresholds === 'object'
-        ? loadedSettings.settings.alertThresholds
+      ...(settings.alertThresholds && typeof settings.alertThresholds === 'object'
+        ? settings.alertThresholds
         : {})
     };
-    settingsStore.savedCategories = Array.isArray(loadedSettings.settings.savedCategories)
-      ? loadedSettings.settings.savedCategories
+    settingsStore.savedCategories = Array.isArray(settings.savedCategories)
+      ? settings.savedCategories
           .map((item) => String(item || '').trim())
           .filter(Boolean)
       : [];
@@ -159,13 +163,14 @@ async function hydrate() {
 
   const loadedState = await loadState();
   if (loadedState.ok && loadedState.state) {
-    dataStore.hydrateFromState(loadedState.state);
+    const state = migrateState(loadedState.state);
+    dataStore.hydrateFromState(state);
     chartStore.applyWorkspaceSnapshot(
       dataStore.activeWorkspace?.chartState,
       dataStore.fields,
       dataStore.activeWorkspace?.generatedTracks
     );
-    const savedAt = typeof loadedState.state.updatedAt === 'string' ? loadedState.state.updatedAt : null;
+    const savedAt = typeof state.updatedAt === 'string' ? state.updatedAt : null;
     appStore.markSaved(savedAt, buildComparableSnapshot());
     appStore.saveStatus = 'Loaded saved data';
   } else {
@@ -183,6 +188,8 @@ watch(
     dataStore.draftRows,
     dataStore.templates,
     dataStore.customFormulas,
+    dataStore.formulaFields,
+    dataStore.reportExportCount,
     dataStore.workspaces,
     dataStore.activeWorkspaceId,
     chartStore.chartType,

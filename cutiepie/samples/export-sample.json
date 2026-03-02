@@ -1,0 +1,27 @@
+{
+  "exportedAt": "2026-03-02T12:00:00.000Z",
+  "fields": [
+    {"id": "field-day", "name": "Day", "type": "date"},
+    {"id": "field-category", "name": "Category", "type": "text"},
+    {"id": "field-revenue", "name": "Revenue", "type": "number"},
+    {"id": "field-cost", "name": "Cost", "type": "number"},
+    {"id": "field-units", "name": "Units", "type": "number"}
+  ],
+  "rows": [
+    {
+      "field-day": "2026-03-01",
+      "field-category": "Retail",
+      "field-revenue": "1200",
+      "field-cost": "700",
+      "field-units": "34"
+    },
+    {
+      "field-day": "2026-03-02",
+      "field-category": "Wholesale",
+      "field-revenue": "1800",
+      "field-cost": "950",
+      "field-units": "52"
+    }
+  ],
+  "source": "applied"
+}

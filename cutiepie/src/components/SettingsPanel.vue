@@ -186,6 +186,7 @@ async function backupNow() {
 }
 
 async function restoreBackup() {
+  if (!window.confirm('Restore latest backup? Current local state/settings will be replaced.')) return;
   const result = await restoreLatestBackup();
   if (!result?.ok) {
     appStore.saveStatus = result?.error === 'no_backup_found' ? 'No backup found' : 'Restore failed';

@@ -97,6 +97,7 @@ async function ensureChartLib() {
 }
 
 async function render() {
+  const renderStart = performance.now();
   const points = getPoints();
   if (!points.length) {
     chartStore.message = 'Add at least one valid row before generating a chart.';
@@ -210,7 +211,10 @@ async function render() {
     }
 
     chartInstance.value = new Chart(canvasRef.value, config);
-    chartStore.completeRender([...new Set(points.map((p) => String(p.label)))]);
+    chartStore.completeRender([...new Set(points.map((p) => String(p.label)))], {
+      pointsCount: points.length,
+      renderMs: performance.now() - renderStart
+    });
     return;
   }
 
@@ -350,7 +354,8 @@ async function render() {
       [...new Set(points.map((p) => String(p.label)))],
       {
         title: chartTitleMap[type] || type,
-        pointsCount: points.length
+        pointsCount: points.length,
+        renderMs: performance.now() - renderStart
       }
     );
 }

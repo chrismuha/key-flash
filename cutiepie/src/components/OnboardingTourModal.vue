@@ -1,5 +1,5 @@
 <template>
-  <div v-if="open" class="quit-overlay" role="dialog" aria-modal="true" aria-labelledby="onboard-title">
+  <div v-if="open" class="quit-overlay" role="dialog" aria-modal="true" aria-labelledby="onboard-title" tabindex="0" @keydown="onKeydown">
     <div class="quit-modal role-modal">
       <p class="quit-kicker">First Launch Tour</p>
       <h2 id="onboard-title">{{ steps[index].title }}</h2>
@@ -68,5 +68,30 @@ function finish() {
 
 function skip() {
   closeTour(dontShowAgain.value);
+}
+
+function onKeydown(event) {
+  const key = String(event.key || '').toLowerCase();
+  if (key === 'arrowright') {
+    event.preventDefault();
+    if (index.value < steps.length - 1) next();
+    else finish();
+    return;
+  }
+  if (key === 'arrowleft') {
+    event.preventDefault();
+    prev();
+    return;
+  }
+  if (key === 'escape') {
+    event.preventDefault();
+    skip();
+    return;
+  }
+  if (key === 'enter') {
+    event.preventDefault();
+    if (index.value < steps.length - 1) next();
+    else finish();
+  }
 }
 </script>
