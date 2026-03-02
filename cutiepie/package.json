@@ -1,6 +1,6 @@
 {
   "name": "cutiepie",
-  "version": "1.0.0",
+  "version": "1.4.0",
   "description": "CutiePie is a chart-building workspace that helps manage your business by automating chart creation from custom data fields, so you can quickly track performance, compare results, and make decisions with up-to-date visuals.",
   "main": "main.js",
   "scripts": {

@@ -22,6 +22,10 @@
         <h3>v1.1 - Workspaces + Templates</h3>
         <p class="settings-note">Added multiple workspaces, template manager, and import/export wizard foundation.</p>
       </article>
+      <article class="track-card">
+        <h3>v1.0 - Initial Release</h3>
+        <p class="settings-note">First CutiePie version shipped in commit 71d6b5f on March 1, 2026 (9:14:41 PM -0500).</p>
+      </article>
     </div>
   </section>
 </template>
