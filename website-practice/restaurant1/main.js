@@ -694,7 +694,6 @@
     const themeChoiceBtns = document.querySelectorAll('.theme-choice');
     const themeViews = document.querySelectorAll('[data-theme-view]');
     const boxifyGrid = document.getElementById('boxify-inventory');
-    const boxifyResetBtn = document.querySelector('.boxify-reset');
     let boxifyInitialized = false;
     let currentThemeChoice = 'restaurant';
     const docEl = document.documentElement;
