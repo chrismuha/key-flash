@@ -56,6 +56,13 @@
             <div data-theme="light">Light</div>
             <div data-theme="dark">Dark</div>
         </div>
+        <button type="button" id="settings-toggle" aria-expanded="false" aria-controls="settings-panel">Settings</button>
+        <div id="settings-panel" hidden>
+            <label for="auto-tab-toggle" class="settings-checkbox">
+                <input type="checkbox" id="auto-tab-toggle">
+                Auto-tab at character limit
+            </label>
+        </div>
         <br>
 
         <label for="username">Username:</label>
@@ -67,12 +74,12 @@
         <br>
 
         <label for="email">Email:</label>
-        <input type="email" id="email" placeholder="user@gmail.com">
+        <input type="email" id="email" placeholder="user@gmail.com" maxlength="254">
         <br>
 <div class="container">
 <div class="input-wrapper">
         <label for="phone">Phone #:</label>
-        <input type="text" id="phone" name="phone" data-mobile-keypad="numeric" oninput="formatPhoneNumber(this); validateInput(event);" maxlength="12" placeholder="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
+        <input type="text" id="phone" name="phone" data-mobile-keypad="numeric" maxlength="12" placeholder="123-456-7890" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
         <p id="error-message">Only numbers are allowed!</p>
         <br>
 
@@ -81,7 +88,7 @@
         <br>
 
         <label for="quantity">Quantity:</label>
-        <input type="number" id="quantity" min="0" max="99" value="1">
+        <input type="number" id="quantity" min="0" max="99" value="1" data-maxlength="2">
         <br>
 
         <div class="horizontal">
@@ -187,7 +194,7 @@
         </div>
 
         <label for="comment">Comment:</label>
-        <textarea id="comment"></textarea>
+        <textarea id="comment" maxlength="500"></textarea>
         <br>
 
         <label class="file-upload" for="file">File:</label>

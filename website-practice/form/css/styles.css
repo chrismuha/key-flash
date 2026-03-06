@@ -175,6 +175,19 @@ form input:is([type="reset"], [type="submit"]) {
     /* Prevents text breaking/cutting off */
 }
 
+form input[type="reset"],
+form input[type="submit"],
+#exportButton,
+#settings-toggle {
+    width: 25rem !important;
+    min-width: 25rem;
+    max-width: 25rem;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 body.dark-mode form input:is([type="reset"], [type="submit"]) {
     background-color: darkblue;
     border: none;
@@ -222,22 +235,61 @@ body.dark-mode #exportButton {
     /* Prevents text breaking/cutting off */
 }
 
+#settings-toggle {
+    color: white;
+    padding: 0.5rem 1rem;
+    height: 2rem;
+    background-color: red;
+    border: none;
+    border-radius: 0.2rem;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+    font-weight: 400;
+    white-space: nowrap;
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+}
+
+body.dark-mode #settings-toggle {
+    background-color: darkblue;
+}
+
+#settings-panel {
+    background: whitesmoke;
+    border: 1px solid #ccc;
+    border-radius: 0.2rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+body.dark-mode #settings-panel {
+    background: #1E1E1E;
+    border-color: #444;
+}
+
+.settings-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+}
+
 /* Horizontal Form Section */
 form .horizontal {
     display: flex;
     flex-wrap: wrap;
-    gap: 2rem;
-    width: 100%;
-    overflow: hidden;
-    /* Prevents overflow in horizontal form */
+    gap: 1rem;
+    width: auto;
+    overflow: visible;
 }
 
 form .horizontal>div {
-    background-color: red;
-    color: white;
-    padding: 0.5rem;
-    min-width: 12rem;
-    flex: 1 1 12rem;
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    min-width: 250px;
+    flex: 0 0 250px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -245,11 +297,12 @@ form .horizontal>div {
 }
 
 body.dark-mode form .horizontal>div {
-    background-color: darkblue;
-    color: white;
-    padding: 0.5rem;
-    min-width: 12rem;
-    flex: 1 1 12rem;
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    min-width: 250px;
+    flex: 0 0 250px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -289,13 +342,11 @@ form #payment-method {
     color: white;
     border: none;
     margin-top: 0.5rem;
-    padding: 0;
+    padding: 0.5rem;
     border-radius: 0.2rem;
     width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    height: 2.5rem;
+    display: block;
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
     font-weight: 400;
@@ -306,16 +357,36 @@ body.dark-mode form #payment-method {
     color: white;
     border: none;
     margin-top: 0.5rem;
-    padding: 0;
+    padding: 0.5rem;
     border-radius: 0.2rem;
     width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    height: 2.5rem;
+    display: block;
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
     font-weight: 400;
+}
+
+form #title-honorific,
+form #title-credentials,
+form #title-suffix {
+    background-color: red;
+    color: white;
+    width: 100%;
+    max-width: 100%;
+    padding: 0.5rem;
+    height: 2.5rem;
+    display: block;
+    font-family: 'Aptos', Arial, sans-serif;
+    font-size: 12pt;
+    font-weight: 400;
+}
+
+body.dark-mode form #title-honorific,
+body.dark-mode form #title-credentials,
+body.dark-mode form #title-suffix {
+    background-color: darkblue;
+    color: white;
 }
 
 form #payment>label {
@@ -673,6 +744,26 @@ input {
     margin: 0;
     outline: none !important;
     /* Forces removal of any browser default outline */
+}
+
+/* Keep all editable form fields aligned to the same width. */
+form #username,
+form #password,
+form #email,
+form #phone,
+form #bday,
+form #quantity,
+form #title-honorific,
+form #title-credentials,
+form #title-suffix,
+form #payment-method,
+form #card-number,
+form #card-exp,
+form #card-cvv,
+form #comment,
+form #file {
+    width: 250px;
+    max-width: 250px;
 }
 
 /* Fixes double outline on focus */

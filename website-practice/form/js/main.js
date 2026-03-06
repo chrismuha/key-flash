@@ -40,15 +40,58 @@ systemColorScheme.addEventListener('change', () => {
 setActiveThemeOption(selectedThemeMode);
 applyThemeMode(selectedThemeMode);
 
+// Section: Settings Panel + Auto-Tab Preference
+const settingsToggleButton = document.getElementById("settings-toggle");
+const settingsPanel = document.getElementById("settings-panel");
+const autoTabToggle = document.getElementById("auto-tab-toggle");
+const AUTO_TAB_STORAGE_KEY = "testForm.autoTabEnabled";
+let autoTabEnabled = false;
+
+function loadAutoTabPreference() {
+    try {
+        return localStorage.getItem(AUTO_TAB_STORAGE_KEY) === "true";
+    } catch (error) {
+        return false;
+    }
+}
+
+function saveAutoTabPreference(enabled) {
+    try {
+        localStorage.setItem(AUTO_TAB_STORAGE_KEY, String(enabled));
+    } catch (error) {
+        // Ignore storage failures.
+    }
+}
+
+autoTabEnabled = loadAutoTabPreference();
+if (autoTabToggle) {
+    autoTabToggle.checked = autoTabEnabled;
+    autoTabToggle.addEventListener("change", function () {
+        autoTabEnabled = this.checked;
+        saveAutoTabPreference(autoTabEnabled);
+    });
+}
+
+if (settingsToggleButton && settingsPanel) {
+    settingsToggleButton.addEventListener("click", function () {
+        const shouldOpen = settingsPanel.hidden;
+        settingsPanel.hidden = !shouldOpen;
+        settingsToggleButton.setAttribute("aria-expanded", String(shouldOpen));
+    });
+}
+
 // Section: Quantity Input Styling
 document.addEventListener("DOMContentLoaded", function () {
     let quantityInput = document.getElementById("quantity");
+    if (!quantityInput) return;
 
     if (quantityInput.value.trim() !== "") {
         quantityInput.style.color = "gray"; // Light Mode default text color
     }
 
     quantityInput.addEventListener("input", function () {
+        this.value = this.value.replace(/[^\d]/g, "").slice(0, 2);
+        if (this.value !== "" && Number(this.value) > 99) this.value = "99";
         this.style.color = "black"; // Change color when user types
     });
 
@@ -60,6 +103,65 @@ document.addEventListener("DOMContentLoaded", function () {
             this.style.color = "white";
         });
     }
+});
+
+// Section: Auto-Tab at Character Limit
+function getFieldCharacterLimit(field) {
+    const nativeLimit = field.maxLength;
+    if (nativeLimit > 0) return nativeLimit;
+
+    const customLimit = Number.parseInt(field.dataset.maxlength || "", 10);
+    return Number.isFinite(customLimit) && customLimit > 0 ? customLimit : 0;
+}
+
+function getFieldCharacterCount(field) {
+    if (field instanceof HTMLInputElement && field.type === "number") {
+        return field.value.replace(/[^\d]/g, "").length;
+    }
+    return field.value.length;
+}
+
+function findNextAutoTabTarget(currentField) {
+    const form = currentField.closest("form");
+    if (!form) return null;
+
+    const fields = Array.from(form.querySelectorAll("input, textarea, select"));
+    const availableFields = fields.filter((field) => {
+        if (!(field instanceof HTMLElement)) return false;
+        if (field.hidden || field.disabled) return false;
+        if (field.offsetParent === null) return false;
+        if (field instanceof HTMLInputElement && ["hidden", "file", "checkbox", "radio", "button", "submit", "reset"].includes(field.type)) {
+            return false;
+        }
+        return true;
+    });
+
+    const currentIndex = availableFields.indexOf(currentField);
+    if (currentIndex === -1) return null;
+    return availableFields[currentIndex + 1] || null;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("form");
+    if (!form) return;
+
+    form.addEventListener("input", function (event) {
+        if (!autoTabEnabled) return;
+        if (!(event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)) return;
+        if (event.isComposing) return;
+        if (typeof event.inputType === "string" && event.inputType.startsWith("delete")) return;
+
+        const targetField = event.target;
+        const fieldLimit = getFieldCharacterLimit(targetField);
+        if (!fieldLimit) return;
+
+        const charCount = getFieldCharacterCount(targetField);
+        if (charCount < fieldLimit) return;
+
+        const nextField = findNextAutoTabTarget(targetField);
+        if (!nextField) return;
+        nextField.focus();
+    });
 });
 
 // Section: Mobile Keypads (Phone, DOB, Credit Card)
@@ -82,7 +184,7 @@ let errorTimeout; // Stores the timeout reference
 
 document.getElementById("phone").addEventListener("input", function (event) {
     let input = event.target;
-    let value = input.value.replace(/\D/g, ''); // Remove all non-numeric characters
+    let value = input.value.replace(/\D/g, '').slice(0, 10); // Keep max 10 digits
     let formattedValue = '';
 
     // Auto-format as user types
@@ -112,7 +214,7 @@ document.getElementById("phone").addEventListener("input", function (event) {
 // Prevent users from pasting invalid input
 document.getElementById("phone").addEventListener("paste", function (event) {
     event.preventDefault();
-    let pastedData = (event.clipboardData || window.clipboardData).getData("text").replace(/\D/g, ''); // Remove non-numeric
+    let pastedData = (event.clipboardData || window.clipboardData).getData("text").replace(/\D/g, '').slice(0, 10); // Keep max 10 digits
     let formattedValue = '';
 
     if (pastedData.length > 3 && pastedData.length <= 6) {
@@ -152,7 +254,7 @@ if (bdayInput) {
 const cardNumberInput = document.getElementById("card-number");
 
 function formatCardNumberValue(rawValue) {
-    const digits = rawValue.replace(/\D/g, '').slice(0, 19);
+    const digits = rawValue.replace(/\D/g, '').slice(0, 16);
     return digits.replace(/(.{4})/g, '$1 ').trim();
 }
 
