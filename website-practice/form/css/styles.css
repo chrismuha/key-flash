@@ -177,13 +177,12 @@ form input:is([type="reset"], [type="submit"]) {
 
 form input[type="reset"],
 form input[type="submit"],
-#exportButton,
-#settings-toggle {
-    width: 25rem !important;
-    min-width: 25rem;
-    max-width: 25rem;
+#exportButton {
+    width: 100% !important;
+    min-width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
 }
@@ -236,6 +235,9 @@ body.dark-mode #exportButton {
 }
 
 #settings-toggle {
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
     color: white;
     padding: 0.5rem 1rem;
     height: 2rem;
@@ -260,6 +262,8 @@ body.dark-mode #settings-toggle {
     border-radius: 0.2rem;
     padding: 0.5rem 0.75rem;
     margin-bottom: 0.5rem;
+    width: 250px;
+    max-width: 250px;
 }
 
 body.dark-mode #settings-panel {
@@ -270,8 +274,16 @@ body.dark-mode #settings-panel {
 .settings-checkbox {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+}
+
+#settings-panel .settings-checkbox input[type="checkbox"] {
     margin: 0;
+    flex: 0 0 auto;
 }
 
 /* Horizontal Form Section */
@@ -701,10 +713,10 @@ select {
 }
 
 .container {
-    display: inline-block;
+    display: block;
     flex-direction: column;
     align-items: flex-start;
-    width: fit-content;
+    width: 100%;
     margin: 0;
     /* Fixes extra padding above fields */
     padding: 0;
@@ -733,7 +745,7 @@ label {
 }
 
 input {
-    width: 250px;
+    width: 100%;
     padding: 8px;
     font-size: 12pt;
     border: 1px solid #ccc;
@@ -762,8 +774,8 @@ form #card-exp,
 form #card-cvv,
 form #comment,
 form #file {
-    width: 250px;
-    max-width: 250px;
+    width: 100%;
+    max-width: 100%;
 }
 
 /* Fixes double outline on focus */
@@ -787,7 +799,7 @@ input:active {
     border: 1px solid red;
     border-radius: 0px;
     box-sizing: border-box;
-    width: 250px;
+    width: 100%;
     /* Adjust width to match input perfectly */
     left: 0%;
 }
@@ -843,6 +855,89 @@ a.btn {
 }
 
 @media (max-width: 700px) {
+  form {
+    align-items: center;
+  }
+
+  form input:not([type="checkbox"]),
+  form select,
+  form textarea,
+  #settings-toggle,
+  form #username,
+  form #password,
+  form #email,
+  form #phone,
+  form #bday,
+  form #quantity,
+  form #title-honorific,
+  form #title-credentials,
+  form #title-suffix,
+  form #payment-method,
+  form #card-number,
+  form #card-exp,
+  form #card-cvv,
+  form #comment,
+  form #file {
+    width: 100% !important;
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  form .horizontal {
+    display: block;
+    justify-content: center;
+    width: 100%;
+  }
+
+  form .horizontal > div {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+    padding: 0;
+  }
+
+  form #title-honorific,
+  form #title-credentials,
+  form #title-suffix {
+    width: 100% !important;
+    min-width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: block !important;
+    field-sizing: fixed;
+  }
+
+  form label,
+  form input,
+  form select,
+  form textarea,
+  #settings-toggle,
+  #exportButton {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  form #payment,
+  form #credit-card-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  form #payment > label {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+
+  form .exam-attempt {
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+  }
+
   body {
     overflow-x: hidden;
   }

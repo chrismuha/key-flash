@@ -49,9 +49,12 @@ let autoTabEnabled = false;
 
 function loadAutoTabPreference() {
     try {
-        return localStorage.getItem(AUTO_TAB_STORAGE_KEY) === "true";
+        const savedPreference = localStorage.getItem(AUTO_TAB_STORAGE_KEY);
+        if (savedPreference === "true") return true;
+        if (savedPreference === "false") return false;
+        return !window.matchMedia("(max-width: 700px)").matches;
     } catch (error) {
-        return false;
+        return !window.matchMedia("(max-width: 700px)").matches;
     }
 }
 
