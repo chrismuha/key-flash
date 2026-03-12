@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;800&display=swap');
+
 /* Section: CSS Variables */
 :root {
     --gap: 12px;
@@ -122,7 +124,7 @@ body {
     height: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-family: system-ui, sans-serif;
+    font-family: "Roboto";
     font-size: 12pt;
     /* Keep both for dynamic viewport units (mobile) while still supporting older browsers */
     min-height: 100vh;
@@ -3435,7 +3437,7 @@ body.theme-dark .close-overlay:focus-visible {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: system-ui, sans-serif;
+    font-family: "Roboto";
     font-weight: 600;
     user-select: none;
     align-self: center;
