@@ -3704,7 +3704,7 @@ body.theme-dark .close-overlay:focus-visible {
     min-width: 132px;
     max-width: 132px;
     line-height: 1;
-    font-size: 18pt;
+    font-size: 14pt;
     padding: 0 14px;
     flex-shrink: 0;
     margin-top: 0;
@@ -3719,6 +3719,32 @@ body.theme-dark .close-overlay:focus-visible {
     max-width: 52px;
     padding: 0;
     font-size: 18pt;
+    position: relative;
+    overflow: visible;
+}
+
+.left-rail .box.nav-cart .nav-cart-count {
+    position: absolute;
+    top: -7px;
+    right: -7px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-danger-accent);
+    color: var(--color-white);
+    border: 1px solid var(--color-white);
+    font-size: 8.5pt;
+    font-weight: 800;
+    line-height: 1;
+    box-shadow: 0 4px 10px var(--shadow-medium);
+}
+
+body.theme-dark .left-rail .box.nav-cart .nav-cart-count {
+    border-color: var(--surface-dark-strong);
 }
 
 /* Section: Focus Styles */

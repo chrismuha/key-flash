@@ -752,7 +752,11 @@
 
   function saveOrderItemsToStorage(items) {
     try {
-      localStorage.setItem(STORAGE_KEYS.orderItems, JSON.stringify(Array.isArray(items) ? items : []));
+      const normalized = Array.isArray(items) ? items : [];
+      localStorage.setItem(STORAGE_KEYS.orderItems, JSON.stringify(normalized));
+      window.dispatchEvent(new CustomEvent('restaurant:order-items-changed', {
+        detail: { count: normalized.length }
+      }));
     } catch { /* ignore */ }
   }
 
@@ -1294,6 +1298,17 @@
       refreshOrderPrompts(type);
     };
 
+    const updateCartBadge = () => {
+      const orderItems = loadOrderItemsFromStorage();
+      const count = Array.isArray(orderItems)
+        ? orderItems.reduce((total, item) => total + Math.max(1, parseInt(item && item.sectionQty, 10) || 1), 0)
+        : 0;
+      document.querySelectorAll('.nav-cart-count').forEach((badge) => {
+        badge.textContent = count > 99 ? '99+' : String(count);
+        badge.hidden = count <= 0;
+      });
+    };
+
     const updatePage3NavState = () => {
       const {
         okType,
@@ -1346,6 +1361,7 @@
 
       page3NavEnabled = enablePage3;
       page3NavBlockedMessage = generalMessage;
+      updateCartBadge();
       updateFooterNextState();
     }
 
@@ -4033,6 +4049,11 @@
       bindRapidToggleButton(navToggleBtn, toggleNavMode);
     }
 
+    window.addEventListener('storage', (event) => {
+      if (event.key === STORAGE_KEYS.orderItems) updateCartBadge();
+    });
+    window.addEventListener('restaurant:order-items-changed', updateCartBadge);
+
     if (themeModeBtns.length) {
       themeModeBtns.forEach((btn) => bindRapidToggleButton(btn, toggleThemeMode));
     }
@@ -4048,6 +4069,7 @@
     updateThemeModeLabel();
     updateNavToggleLabel();
     updatePage3NavState();
+    updateCartBadge();
     updateOrderTypeChip();
     syncOverlayUiLock();
 
