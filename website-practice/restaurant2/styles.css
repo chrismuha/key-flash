@@ -379,7 +379,7 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     border-radius: 999px;
     font-weight: 700;
     line-height: 1.1;
-    font-size: 12pt;
+    font-size: 16pt;
     margin-left: 0;
     width: 100%;
     white-space: normal;
@@ -401,19 +401,20 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
 .order-type-chip__value {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    font-size: 11.5pt;
+    gap: 4px;
+    font-size: 16pt;
     line-height: 1.1;
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
     min-width: 0;
     align-self: start;
+    text-align: left;
 }
 
 .order-type-chip__primary::before {
     content: "Order Type ";
-    font-size: 9pt;
+    font-size: 10pt;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     white-space: nowrap;
@@ -421,16 +422,19 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
 }
 
 .order-type-chip__primary {
-    display: block;
-    font-size: 10.25pt;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    font-size: 13pt;
     line-height: 1.1;
 }
 
 .order-type-chip__detail {
     display: block;
-    font-size: 11.5pt;
+    font-size: 16pt;
     font-weight: 600;
-    line-height: 1.35;
+    line-height: 1.2;
 }
 
 @media (min-width: 1024px) {
@@ -442,7 +446,7 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
 
 @media (max-width: 768px) {
     .order-type-chip {
-        font-size: 12pt;
+        font-size: 16pt;
         width: 100%;
         margin-left: 0;
         margin-right: 0;
@@ -450,10 +454,11 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
     }
 
     .order-type-chip__value {
-        font-size: 11.5pt;
+        font-size: 16pt;
         white-space: normal;
         min-width: 0;
         align-self: start;
+        text-align: left;
     }
 
 }
@@ -890,7 +895,7 @@ body:not(.nav-enabled) .left-rail > *:not(.box.nav-cart) {
 
 body:not(.nav-enabled) .left-rail .box.nav-cart {
     display: inline-flex !important;
-    margin: 0;
+    margin: 18px 0 0;
     pointer-events: auto;
 }
 
@@ -2793,7 +2798,7 @@ body.order-type .order-card svg {
 }
 
 body.order-type .order-label {
-    font-size: 13.5pt;
+    font-size: 11.5pt;
     line-height: 1.2;
     text-align: center;
 }
