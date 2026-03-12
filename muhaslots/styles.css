@@ -35,16 +35,23 @@ body,
 }
 
 /* Page Layout */
+html,
 body {
     margin: 0;
+    min-height: 100%;
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+body {
     background: radial-gradient(1200px 700px at 70% -10%, #16223a 0%, #0b0f17 60%) fixed;
     color: var(--text);
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
     display: block;
     min-height: 100vh;
+    height: auto;
     padding: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
     touch-action: auto;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -458,22 +465,6 @@ body {
     flex: 0 0 auto;
 }
 
-/* Shared control ordering across breakpoints */
-.left .stat:has(#balance) { order: 1; }
-.left .select:has(#sessionStatDisplay) { order: 2; }
-.left .stat-box,
-.left #sessionWinningsBox,
-.left #sessionLossesBox,
-.left #netSessionWinningsBox,
-.left #netSessionLossesBox,
-.left #actualSessionWinningsBox,
-.left #actualSessionLossesBox { order: 3; }
-.left .credit-controls { order: 4; margin-top: 0; }
-.left .stat:has(#totalBet) { order: 5; }
-.left .select:has(#denom) { order: 6; }
-.left .select:has(#lines) { order: 7; }
-.left .select:has(#bet) { order: 8; }
-
 /* Grouped control blocks */
 .stat,
 .select {
@@ -755,12 +746,6 @@ button:focus-visible,
     padding-bottom: 4px;
 }
 
-.stat:has(#totalBet),
-.select:has(#denom) {
-    padding-top: 4px;
-    padding-bottom: 4px;
-}
-
 #session-winnings strong {
     font-weight: 700;
 }
@@ -962,17 +947,6 @@ a.btn {
 }
 
 @media (max-width: 700px) and (orientation: portrait) {
-  html,
-  body {
-    width: 100vw;
-    min-height: 100dvh;
-    height: auto;
-    margin: 0;
-    padding: 0;
-    overflow: auto;
-    overscroll-behavior: none;
-  }
-
   .game {
     position: relative;
     top: auto;
@@ -1422,77 +1396,5 @@ body.overlay-open {
     min-width: 36px;
     width: 36px;
     padding: 0;
-  }
-}
-
-/* Uniform 6px whitespace overrides (all screen sizes). */
-#sessionWinningsBox,
-#sessionLossesBox,
-#netSessionWinningsBox,
-#netSessionLossesBox,
-#actualSessionWinningsBox,
-#actualSessionLossesBox,
-.stat:has(#balance),
-.stat:has(#totalBet),
-.select:has(#denom),
-.credit-controls {
-  padding: 6px !important;
-  margin-top: 6px !important;
-  margin-bottom: 6px !important;
-}
-
-.credit-controls label {
-  margin-bottom: 6px !important;
-}
-
-.credit-controls .credit-row {
-  row-gap: 6px !important;
-}
-
-.left {
-  row-gap: 6px !important;
-}
-
-.left > * {
-  align-self: stretch !important;
-}
-
-.hud {
-  row-gap: 6px !important;
-}
-
-.reels-wrap {
-  row-gap: 6px !important;
-  padding-bottom: 6px !important;
-}
-
-.right {
-  margin-top: 6px !important;
-}
-
-.message {
-  margin-top: 6px !important;
-  min-height: 6px !important;
-}
-
-.right .message {
-  margin-top: 0 !important;
-  min-height: 44px !important;
-}
-
-@media (max-width: 1200px) {
-  .left .stat:has(#balance),
-  .left .stat:has(#totalBet),
-  .left .select:has(#sessionStatDisplay),
-  .left .select:has(#denom),
-  .left .select:has(#lines),
-  .left .select:has(#bet) {
-    height: 86px !important;
-    min-height: 86px !important;
-    max-height: 86px !important;
-  }
-
-  .left .stat:has(#balance) {
-    margin-top: -1px !important;
   }
 }
