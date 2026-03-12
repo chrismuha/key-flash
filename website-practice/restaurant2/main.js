@@ -23,6 +23,7 @@
     settingsAutoDisableSection: 'restaurant.settings.autoDisableSection',
     settingsPillArrowOnly: 'restaurant.settings.pillArrowOnly',
     settingsNextClosesOverlay: 'restaurant.settings.nextClosesOverlay',
+    settingsHideOverlayChrome: 'restaurant.settings.hideOverlayChrome',
     settingsQuantityCanDisable: 'restaurant.settings.quantityCanDisable',
     settingsToastEnabled: 'restaurant.settings.toastEnabled',
     settingsToastPage2Long: 'restaurant.settings.toastPage2Long',
@@ -1076,6 +1077,7 @@
     const settingQuantityCanDisable = document.getElementById('setting-quantity-can-disable') || document.querySelector('.setting-quantity-can-disable');
     const settingPillArrowOnly = document.getElementById('setting-pill-arrow-only') || document.querySelector('.setting-pill-arrow-only');
     const settingNextClosesOverlay = document.getElementById('setting-next-closes-overlay') || document.querySelector('.setting-next-closes-overlay');
+    const settingHideOverlayChrome = document.getElementById('setting-hide-overlay-chrome') || document.querySelector('.setting-hide-overlay-chrome');
     const settingToastEnabled = document.getElementById('setting-toast-enabled');
     const settingToastPage2Long = document.getElementById('setting-toast-page2-long');
     const settingsResetBtn = document.getElementById('settings-reset') || document.querySelector('.settings-reset');
@@ -1092,6 +1094,9 @@
       if (!nav) return;
       const h = nav.offsetHeight || 0;
       document.documentElement.style.setProperty('--nav-offset', `${h}px`);
+    };
+    const applyOverlayChromeSettingState = (enabled) => {
+      body.classList.toggle('hide-overlay-chrome', !!enabled);
     };
     window.addEventListener('resize', updateNavOffset);
 
@@ -1468,6 +1473,15 @@
     } catch { nextClosesOverlay = false; }
     if (settingNextClosesOverlay) settingNextClosesOverlay.checked = nextClosesOverlay;
 
+    // Hide page chrome while ingredient overlay is open: default ON
+    let hideOverlayChrome = true;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsHideOverlayChrome);
+      hideOverlayChrome = v === null ? true : v === 'true';
+    } catch { hideOverlayChrome = true; }
+    if (settingHideOverlayChrome) settingHideOverlayChrome.checked = hideOverlayChrome;
+    applyOverlayChromeSettingState(hideOverlayChrome);
+
     // Next arrow toggle: default OFF
     // Ensure the settings overlay has a deterministic initial hidden state.
     // If you want the settings to persist open between reloads, implement a storage key.
@@ -1607,6 +1621,7 @@
         localStorage.setItem(STORAGE_KEYS.settingsQuantityCanDisable, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, 'false');
+        localStorage.setItem(STORAGE_KEYS.settingsHideOverlayChrome, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsToastEnabled, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsToastPage2Long, 'true');
       } catch { }
@@ -1619,8 +1634,10 @@
       if (settingQuantityCanDisable) settingQuantityCanDisable.checked = true;
       if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
       if (settingNextClosesOverlay) settingNextClosesOverlay.checked = false;
+      if (settingHideOverlayChrome) settingHideOverlayChrome.checked = true;
       if (settingToastEnabled) settingToastEnabled.checked = true;
       if (settingToastPage2Long) settingToastPage2Long.checked = true;
+      applyOverlayChromeSettingState(true);
       if (typeof applyQuantitySettingState === 'function') applyQuantitySettingState();
     };
 
@@ -2394,7 +2411,7 @@
           noteInput.maxLength = SECTION_NOTE_MAX_CHARS;
           noteInput.rows = 4;
           noteInput.cols = SECTION_NOTE_MAX_CHARS;
-          noteInput.placeholder = 'Optional note (max 210 chars)';
+          noteInput.placeholder = 'Optional Note (max 210 characters)';
           noteInput.value = getSectionNote(sec);
           const noteWarning = document.createElement('span');
           noteWarning.className = 'section-note-limit-warning';
@@ -3781,6 +3798,13 @@
       settingNextClosesOverlay.addEventListener('change', () => {
         nextClosesOverlay = !!settingNextClosesOverlay.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, String(nextClosesOverlay)); } catch { }
+      });
+    }
+    if (settingHideOverlayChrome) {
+      settingHideOverlayChrome.addEventListener('change', () => {
+        hideOverlayChrome = !!settingHideOverlayChrome.checked;
+        applyOverlayChromeSettingState(hideOverlayChrome);
+        try { localStorage.setItem(STORAGE_KEYS.settingsHideOverlayChrome, String(hideOverlayChrome)); } catch { }
       });
     }
     if (settingToastEnabled) {

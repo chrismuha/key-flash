@@ -1562,6 +1562,12 @@ body.page2 .page-footer .footer-reset {
     min-height: 48px;
 }
 
+body.page2.menu-overlay-open.hide-overlay-chrome .page-footer,
+body.page2.menu-overlay-open.hide-overlay-chrome .nav-theme-controls,
+body.page2.menu-overlay-open.hide-overlay-chrome .go-back {
+    display: none;
+}
+
 body.theme-dark .page-footer .footer-reset {
     background: var(--color-porcelain);
     color: var(--color-black);
@@ -3336,25 +3342,28 @@ body.theme-dark.page3 .summary-divider {
     inset: 0;
     background: var(--overlay-soft);
     display: none;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 64px 12px 240px;
-    overflow: auto;
+    place-items: center;
+    padding: 12px;
+    overflow: hidden;
     z-index: 10;
 }
 
 .menu-overlay:not([hidden]) {
-    display: flex;
+    display: grid;
 }
 
 .menu-overlay-card {
     position: relative;
     width: min(960px, 100%);
+    max-width: 100%;
+    max-height: calc(100dvh - 24px);
     background: var(--color-white);
     color: var(--color-black);
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 10px 30px var(--shadow-layer);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 body.theme-dark .menu-overlay-card {
