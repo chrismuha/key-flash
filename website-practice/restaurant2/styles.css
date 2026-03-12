@@ -1342,7 +1342,12 @@ body.menu-overlay-open .back-to-menu {
 
 /* Keep cart UI out of ingredient overlays */
 body.menu-overlay-open .left-rail .box.nav-cart,
+body.menu-overlay-open .left-rail .nav-logo,
 body.menu-overlay-open .cart-toast {
+    display: none !important;
+}
+
+body.has-go-back.menu-overlay-open:not(.nav-enabled) .left-rail .nav-logo {
     display: none !important;
 }
 
@@ -1365,6 +1370,7 @@ body.page3.overlay-ui-lock {
 body.page3.overlay-ui-lock .left-rail,
 body.page3.overlay-ui-lock .nav-theme-controls,
 body.page3.overlay-ui-lock .go-back,
+body.page3.overlay-ui-lock .left-rail .nav-logo,
 body.page3.overlay-ui-lock .left-rail .box.nav-cart,
 body.page3.overlay-ui-lock .cart-toast {
     display: none !important;
@@ -1586,7 +1592,8 @@ body.page2 .page-footer .footer-reset {
 
 body.page2.menu-overlay-open.hide-overlay-chrome .page-footer,
 body.page2.menu-overlay-open.hide-overlay-chrome .nav-theme-controls,
-body.page2.menu-overlay-open.hide-overlay-chrome .go-back {
+body.page2.menu-overlay-open.hide-overlay-chrome .go-back,
+body.page2.menu-overlay-open.hide-overlay-chrome .left-rail .nav-logo {
     display: none;
 }
 
