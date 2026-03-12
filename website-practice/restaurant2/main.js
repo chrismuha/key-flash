@@ -26,6 +26,7 @@
     settingsHideOverlayChrome: 'restaurant.settings.hideOverlayChrome',
     settingsQuantityCanDisable: 'restaurant.settings.quantityCanDisable',
     settingsDoneAddsToCart: 'restaurant.settings.doneAddsToCart',
+    settingsPromptAddsToCart: 'restaurant.settings.promptAddsToCart',
     settingsToastEnabled: 'restaurant.settings.toastEnabled',
     settingsToastPage2Long: 'restaurant.settings.toastPage2Long',
     redirectReason: 'restaurant.redirectReason',
@@ -783,14 +784,6 @@
     };
   }
 
-  function buildOrderItemsFromActiveSelections() {
-    const activeSections = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {}) || {};
-    return Object.entries(activeSections)
-      .filter(([, isActive]) => !!isActive)
-      .map(([section]) => buildOrderItemFromSection(section))
-      .filter(Boolean);
-  }
-
   // Delivery helpers
   function readDeliveryData() {
     const data = {
@@ -1129,10 +1122,12 @@
     const settingNextClosesOverlay = document.getElementById('setting-next-closes-overlay') || document.querySelector('.setting-next-closes-overlay');
     const settingHideOverlayChrome = document.getElementById('setting-hide-overlay-chrome') || document.querySelector('.setting-hide-overlay-chrome');
     const settingDoneAddsToCart = document.getElementById('setting-done-adds-to-cart') || document.querySelector('.setting-done-adds-to-cart');
+    const settingPromptAddsToCart = document.getElementById('setting-prompt-adds-to-cart') || document.querySelector('.setting-prompt-adds-to-cart');
     const settingToastEnabled = document.getElementById('setting-toast-enabled');
     const settingToastPage2Long = document.getElementById('setting-toast-page2-long');
     const settingsResetBtn = document.getElementById('settings-reset') || document.querySelector('.settings-reset');
     doneAddsToCart = false;
+    let promptAddsToCart = true;
 
     const navToggleBtn = document.getElementById('nav-toggle-btn') || document.querySelector('.nav-toggle');
     const themeModeBtns = Array.from(document.querySelectorAll('.theme-mode-btn, .theme-mode-toggle'));
@@ -1230,8 +1225,7 @@
     }
     function hasMenuSelection() {
       const orderItems = loadOrderItemsFromStorage();
-      if (Array.isArray(orderItems) && orderItems.length > 0) return true;
-      return !doneAddsToCart && buildOrderItemsFromActiveSelections().length > 0;
+      return Array.isArray(orderItems) && orderItems.length > 0;
     }
     const updateOrderTypeChip = () => {
       let type = '';
@@ -1541,6 +1535,12 @@
     } catch { doneAddsToCart = false; }
     if (settingDoneAddsToCart) settingDoneAddsToCart.checked = doneAddsToCart;
 
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsPromptAddsToCart);
+      promptAddsToCart = v === null ? true : v === 'true';
+    } catch { promptAddsToCart = true; }
+    if (settingPromptAddsToCart) settingPromptAddsToCart.checked = promptAddsToCart;
+
     // Next arrow toggle: default OFF
     // Ensure the settings overlay has a deterministic initial hidden state.
     // If you want the settings to persist open between reloads, implement a storage key.
@@ -1669,6 +1669,7 @@
       pillArrowOnly = false;
       nextClosesOverlay = false;
       doneAddsToCart = false;
+      promptAddsToCart = true;
       toastEnabled = true;
       toastPage2Long = true;
       try {
@@ -1683,6 +1684,7 @@
         localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsHideOverlayChrome, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsDoneAddsToCart, 'false');
+        localStorage.setItem(STORAGE_KEYS.settingsPromptAddsToCart, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsToastEnabled, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsToastPage2Long, 'true');
       } catch { }
@@ -1697,6 +1699,7 @@
       if (settingNextClosesOverlay) settingNextClosesOverlay.checked = false;
       if (settingHideOverlayChrome) settingHideOverlayChrome.checked = true;
       if (settingDoneAddsToCart) settingDoneAddsToCart.checked = false;
+      if (settingPromptAddsToCart) settingPromptAddsToCart.checked = true;
       if (settingToastEnabled) settingToastEnabled.checked = true;
       if (settingToastPage2Long) settingToastPage2Long.checked = true;
       applyOverlayChromeSettingState(true);
@@ -2227,9 +2230,6 @@
           window.alert('You have an active menu item that is not added yet.\n\nOpen that item and tap Done to add it to your order, or turn it off/reset it before continuing.');
         };
         const proceedToNextPage = () => {
-          if (!doneAddsToCart) {
-            saveOrderItemsToStorage(buildOrderItemsFromActiveSelections());
-          }
           const href = footerNext.getAttribute('href');
           if (!href) return;
           window.location.href = href;
@@ -3164,9 +3164,7 @@
           `Save your changes to ${sectionLabel}? ${declineText}`,
           (approved) => {
             if (approved) {
-              const doneBtn = document.querySelector(`.section-done[data-section="${section}"]`);
-              if (doneBtn) doneBtn.click();
-              else closeOverlay(overlay);
+              completeSectionDone(section, { forceAddToCart: promptAddsToCart, closeAfter: true });
               if (typeof options.onAfterClose === 'function') options.onAfterClose();
               return;
             }
@@ -3546,33 +3544,38 @@
           updateSectionDoneState(section);
         }
       };
+      const completeSectionDone = (section, options = {}) => {
+        const { forceAddToCart = null, closeAfter = true } = options || {};
+        if (!section) return;
+        if (overlaySession.section === section) overlaySession.dirty = false;
+        const item = buildOrderItemFromSection(section);
+        if (!item) {
+          updateSectionDoneState(section);
+          if (closeAfter) closeOverlay(section);
+          return;
+        }
+        const shouldAddToCart = forceAddToCart == null ? doneAddsToCart : !!forceAddToCart;
+        if (!shouldAddToCart) {
+          if (closeAfter) closeOverlay(section);
+          updateBuilderError();
+          updatePage3NavState();
+          updateSectionDoneState(section);
+          return;
+        }
+        const orderItems = loadOrderItemsFromStorage();
+        orderItems.push(item);
+        saveOrderItemsToStorage(orderItems);
+        showCartToast(section, true, `${SECTION_LABELS[section] || section} added to cart`);
+        clearSectionOnPage2AfterDone(section);
+        if (closeAfter) closeOverlay(section);
+        updateSectionDoneState(section);
+      };
       sectionDoneButtons.forEach((btn) => {
         btn.addEventListener('click', (evt) => {
           evt.stopPropagation();
           evt.preventDefault();
           const section = btn.dataset.section;
-          if (!section) return;
-          if (overlaySession.section === section) overlaySession.dirty = false;
-          const item = buildOrderItemFromSection(section);
-          if (!item) {
-            updateSectionDoneState(section);
-            closeOverlay(section);
-            return;
-          }
-          if (!doneAddsToCart) {
-            closeOverlay(section);
-            updateBuilderError();
-            updatePage3NavState();
-            updateSectionDoneState(section);
-            return;
-          }
-          const orderItems = loadOrderItemsFromStorage();
-          orderItems.push(item);
-          saveOrderItemsToStorage(orderItems);
-          showCartToast(section, true, `${SECTION_LABELS[section] || section} added to cart`);
-          clearSectionOnPage2AfterDone(section);
-          closeOverlay(section);
-          updateSectionDoneState(section);
+          completeSectionDone(section);
         });
       });
 
@@ -3844,10 +3847,13 @@
       settingDoneAddsToCart.addEventListener('change', () => {
         doneAddsToCart = !!settingDoneAddsToCart.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsDoneAddsToCart, String(doneAddsToCart)); } catch { }
-        if (!doneAddsToCart) {
-          saveOrderItemsToStorage(buildOrderItemsFromActiveSelections());
-        }
         if (typeof updatePage3NavState === 'function') updatePage3NavState();
+      });
+    }
+    if (settingPromptAddsToCart) {
+      settingPromptAddsToCart.addEventListener('change', () => {
+        promptAddsToCart = !!settingPromptAddsToCart.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsPromptAddsToCart, String(promptAddsToCart)); } catch { }
       });
     }
     if (settingToastEnabled) {
@@ -3976,9 +3982,6 @@
     if (body.classList.contains('page3')) {
       const container = document.getElementById('order-summary');
       if (!container) return;
-      if (!doneAddsToCart) {
-        saveOrderItemsToStorage(buildOrderItemsFromActiveSelections());
-      }
 
       function redirectIfNoActiveSections() {
         if (!document.body.classList.contains('page3')) return false;
