@@ -1041,8 +1041,8 @@
     const orderTypeEditButtons = Array.from(document.querySelectorAll('.order-type-chip__edit'));
     const orderTypeHeading = document.querySelector('body.order-type main h1');
     const orderNoteEl = document.querySelector('body.order-type .order-note');
-    const orderHeadingDefaultText = orderTypeHeading ? orderTypeHeading.textContent.trim() : 'Select your order type';
-    const orderNoteDefaultText = orderNoteEl ? (orderNoteEl.textContent.trim() || 'Select your order type') : 'Select your order type';
+    const orderHeadingDefaultText = orderTypeHeading ? orderTypeHeading.textContent.trim() : '';
+    const orderNoteDefaultText = orderNoteEl ? orderNoteEl.textContent.trim() : '';
     const refreshOrderPrompts = (type) => {
       if (orderTypeHeading) {
         const hideHeading = type === 'delivery';
