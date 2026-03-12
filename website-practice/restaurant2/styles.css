@@ -233,18 +233,27 @@ body.page3.nav-enabled .left-rail .box.nav-cart {
     min-width: 0;
     overflow: visible;
     margin-top: calc(var(--gap) * 0.5);
-    width: calc(100% + var(--gap) * 2);
-    margin-left: calc(var(--gap) * -1);
-    margin-right: calc(var(--gap) * -1);
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
     order: 98;
-    background: var(--color-white);
+    background: transparent;
     border-radius: 0;
     padding: 2px 8px 6px;
     min-height: 48px;
-    box-shadow: 0 6px 20px var(--shadow-soft);
+    box-shadow: none;
     position: relative;
     z-index: 0;
     --slider-visible-count: 4;
+}
+
+.mobile-menu-swiper::before {
+    content: "";
+    position: absolute;
+    inset: 0 calc(var(--gap) * -1);
+    background: var(--color-white);
+    box-shadow: 0 6px 20px var(--shadow-soft);
+    z-index: -1;
 }
 
 .mobile-menu-swiper .swiper-track {
@@ -344,8 +353,33 @@ body.theme-dark .mobile-menu-swiper .swiper-chip.menu-launch-active {
     -webkit-text-fill-color: var(--color-black);
     -webkit-appearance: none;
     appearance: none;
-    font-size: 18pt;
-    line-height: 1;
+    font-size: 0;
+    line-height: 0;
+    position: relative;
+    padding: 0;
+    text-indent: -9999px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.mobile-menu-swiper .swiper-arrow::before {
+    content: "";
+    width: 14px;
+    height: 14px;
+    border-top: 4px solid currentColor;
+    border-right: 4px solid currentColor;
+    display: block;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+}
+
+.mobile-menu-swiper .swiper-arrow-prev::before {
+    transform: rotate(-135deg);
+}
+
+.mobile-menu-swiper .swiper-arrow-next::before {
+    transform: rotate(45deg);
 }
 
 body.theme-dark .mobile-menu-swiper .swiper-arrow {
@@ -1056,9 +1090,9 @@ body.page3 main {
 
     .mobile-menu-swiper {
         display: inline-flex;
-        width: calc(100% + var(--gap) * 2);
-        margin-left: calc(var(--gap) * -1);
-        margin-right: calc(var(--gap) * -1);
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
         flex: 1 0 100%;
         order: 4;
         margin-top: 2px;
@@ -1225,13 +1259,6 @@ body.theme-dark .nav-theme-controls .theme-option .theme-icon {
 
     .nav-theme-controls .theme-icon {
         font-size: 17pt;
-    }
-
-    .mobile-menu-swiper .swiper-arrow {
-        width: 48px;
-        height: 48px;
-        min-width: 48px;
-        font-size: 20pt;
     }
 
 }
