@@ -25,6 +25,7 @@
     settingsNextClosesOverlay: 'restaurant.settings.nextClosesOverlay',
     settingsHideOverlayChrome: 'restaurant.settings.hideOverlayChrome',
     settingsQuantityCanDisable: 'restaurant.settings.quantityCanDisable',
+    settingsDoneAddsToCart: 'restaurant.settings.doneAddsToCart',
     settingsToastEnabled: 'restaurant.settings.toastEnabled',
     settingsToastPage2Long: 'restaurant.settings.toastPage2Long',
     redirectReason: 'restaurant.redirectReason',
@@ -741,6 +742,55 @@
     } catch { /* ignore */ }
   }
 
+  function buildOrderItemFromSection(section) {
+    const groups = Array.isArray(SECTION_INGREDIENT_GROUPS[section]) ? SECTION_INGREDIENT_GROUPS[section] : [];
+    if (!groups.length) return null;
+    const ingredientsState = loadIngredientsFromStorage();
+    const qtyMapLocal = safeParseJSON(localStorage.getItem(STORAGE_KEYS.quantities), {}) || {};
+    const qtyLabelMap = { '2': 'Light', '3': 'Extra', '4': 'x3' };
+    const resolveIngredientValue = (raw) => {
+      if (raw == null) return '';
+      if (typeof raw === 'string' || typeof raw === 'number' || typeof raw === 'boolean') return normalizeJalapenoValue(String(raw));
+      if (typeof raw === 'object') {
+        return normalizeJalapenoValue(String(raw.value ?? raw.key ?? raw.name ?? raw.label ?? raw.text ?? ''));
+      }
+      return '';
+    };
+    const ingredientRows = [];
+    groups.forEach((group) => {
+      const values = Array.isArray(ingredientsState[group]) ? ingredientsState[group] : [];
+      values.forEach((raw) => {
+        const value = resolveIngredientValue(raw);
+        if (!value) return;
+        const mapKey = `${group}|${value}`;
+        const label = normalizeJalapenoLabel(INGREDIENT_LABELS[mapKey] || titleCase(String(value).replace(/_/g, ' ')));
+        const qRaw = qtyMapLocal[mapKey];
+        const qStr = qRaw == null || qRaw === '' ? '1' : String(qRaw);
+        const qtyLabel = qStr === '1' ? 'Regular' : (qtyLabelMap[qStr] || `x${qStr}`);
+        ingredientRows.push({ group, value, label, qtyLabel });
+      });
+    });
+    if (!ingredientRows.length) return null;
+    const sectionQty = Math.max(SECTION_QUANTITY_DEFAULT_MIN, clampSectionQuantity(getSectionQuantity(section)));
+    return {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      section,
+      sectionLabel: SECTION_LABELS[section] || titleCase(String(section || '').replace(/_/g, ' ')),
+      note: getSectionNote(section),
+      sectionQty,
+      pizzaSize: section === 'pizza' ? loadPizzaSize() : '',
+      ingredients: ingredientRows
+    };
+  }
+
+  function buildOrderItemsFromActiveSelections() {
+    const activeSections = safeParseJSON(localStorage.getItem(STORAGE_KEYS.activeSections), {}) || {};
+    return Object.entries(activeSections)
+      .filter(([, isActive]) => !!isActive)
+      .map(([section]) => buildOrderItemFromSection(section))
+      .filter(Boolean);
+  }
+
   // Delivery helpers
   function readDeliveryData() {
     const data = {
@@ -1078,9 +1128,11 @@
     const settingPillArrowOnly = document.getElementById('setting-pill-arrow-only') || document.querySelector('.setting-pill-arrow-only');
     const settingNextClosesOverlay = document.getElementById('setting-next-closes-overlay') || document.querySelector('.setting-next-closes-overlay');
     const settingHideOverlayChrome = document.getElementById('setting-hide-overlay-chrome') || document.querySelector('.setting-hide-overlay-chrome');
+    const settingDoneAddsToCart = document.getElementById('setting-done-adds-to-cart') || document.querySelector('.setting-done-adds-to-cart');
     const settingToastEnabled = document.getElementById('setting-toast-enabled');
     const settingToastPage2Long = document.getElementById('setting-toast-page2-long');
     const settingsResetBtn = document.getElementById('settings-reset') || document.querySelector('.settings-reset');
+    doneAddsToCart = false;
 
     const navToggleBtn = document.getElementById('nav-toggle-btn') || document.querySelector('.nav-toggle');
     const themeModeBtns = Array.from(document.querySelectorAll('.theme-mode-btn, .theme-mode-toggle'));
@@ -1178,7 +1230,8 @@
     }
     function hasMenuSelection() {
       const orderItems = loadOrderItemsFromStorage();
-      return Array.isArray(orderItems) && orderItems.length > 0;
+      if (Array.isArray(orderItems) && orderItems.length > 0) return true;
+      return !doneAddsToCart && buildOrderItemsFromActiveSelections().length > 0;
     }
     const updateOrderTypeChip = () => {
       let type = '';
@@ -1480,6 +1533,14 @@
     if (settingHideOverlayChrome) settingHideOverlayChrome.checked = hideOverlayChrome;
     applyOverlayChromeSettingState(hideOverlayChrome);
 
+    // Done button cart behavior: default OFF
+    doneAddsToCart = false;
+    try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsDoneAddsToCart);
+      doneAddsToCart = v === 'true';
+    } catch { doneAddsToCart = false; }
+    if (settingDoneAddsToCart) settingDoneAddsToCart.checked = doneAddsToCart;
+
     // Next arrow toggle: default OFF
     // Ensure the settings overlay has a deterministic initial hidden state.
     // If you want the settings to persist open between reloads, implement a storage key.
@@ -1607,6 +1668,7 @@
       quantityCanDisable = true;
       pillArrowOnly = false;
       nextClosesOverlay = false;
+      doneAddsToCart = false;
       toastEnabled = true;
       toastPage2Long = true;
       try {
@@ -1620,6 +1682,7 @@
         localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsHideOverlayChrome, 'true');
+        localStorage.setItem(STORAGE_KEYS.settingsDoneAddsToCart, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsToastEnabled, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsToastPage2Long, 'true');
       } catch { }
@@ -1633,6 +1696,7 @@
       if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
       if (settingNextClosesOverlay) settingNextClosesOverlay.checked = false;
       if (settingHideOverlayChrome) settingHideOverlayChrome.checked = true;
+      if (settingDoneAddsToCart) settingDoneAddsToCart.checked = false;
       if (settingToastEnabled) settingToastEnabled.checked = true;
       if (settingToastPage2Long) settingToastPage2Long.checked = true;
       applyOverlayChromeSettingState(true);
@@ -2154,6 +2218,7 @@
       bindSliderArrow(sliderNext, 1);
       if (footerNext) {
         const hasActiveUndoneSection = () => {
+          if (!doneAddsToCart) return false;
           const hasDoneItems = hasMenuSelection();
           const hasActiveSection = !!document.querySelector('.section-toggle[data-section]:checked:not(:disabled)');
           return !hasDoneItems && hasActiveSection;
@@ -2162,6 +2227,9 @@
           window.alert('You have an active menu item that is not added yet.\n\nOpen that item and tap Done to add it to your order, or turn it off/reset it before continuing.');
         };
         const proceedToNextPage = () => {
+          if (!doneAddsToCart) {
+            saveOrderItemsToStorage(buildOrderItemsFromActiveSelections());
+          }
           const href = footerNext.getAttribute('href');
           if (!href) return;
           window.location.href = href;
@@ -3453,46 +3521,6 @@
 
       const sectionDoneButtons = Array.from(document.querySelectorAll('.section-done[data-section]'));
       let suppressSectionToast = '';
-      const qtyLabelMapForDone = { '2': 'Light', '3': 'Extra', '4': 'x3' };
-      const resolveIngredientValue = (raw) => {
-        if (raw == null) return '';
-        if (typeof raw === 'string' || typeof raw === 'number' || typeof raw === 'boolean') return normalizeJalapenoValue(String(raw));
-        if (typeof raw === 'object') {
-          return normalizeJalapenoValue(String(raw.value ?? raw.key ?? raw.name ?? raw.label ?? raw.text ?? ''));
-        }
-        return '';
-      };
-      const buildOrderItemFromSection = (section) => {
-        const groups = Array.isArray(SECTION_INGREDIENT_GROUPS[section]) ? SECTION_INGREDIENT_GROUPS[section] : [];
-        if (!groups.length) return null;
-        const ingredientsState = loadIngredientsFromStorage();
-        const qtyMapLocal = safeParseJSON(localStorage.getItem(STORAGE_KEYS.quantities), {}) || {};
-        const ingredientRows = [];
-        groups.forEach((group) => {
-          const values = Array.isArray(ingredientsState[group]) ? ingredientsState[group] : [];
-          values.forEach((raw) => {
-            const value = resolveIngredientValue(raw);
-            if (!value) return;
-            const mapKey = `${group}|${value}`;
-            const label = normalizeJalapenoLabel(INGREDIENT_LABELS[mapKey] || titleCase(String(value).replace(/_/g, ' ')));
-            const qRaw = qtyMapLocal[mapKey];
-            const qStr = qRaw == null || qRaw === '' ? '1' : String(qRaw);
-            const qtyLabel = qStr === '1' ? 'Regular' : (qtyLabelMapForDone[qStr] || `x${qStr}`);
-            ingredientRows.push({ group, value, label, qtyLabel });
-          });
-        });
-        if (!ingredientRows.length) return null;
-        const sectionQty = Math.max(SECTION_QUANTITY_DEFAULT_MIN, clampSectionQuantity(getSectionQuantity(section)));
-        return {
-          id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-          section,
-          sectionLabel: SECTION_LABELS[section] || titleCase(String(section || '').replace(/_/g, ' ')),
-          note: getSectionNote(section),
-          sectionQty,
-          pizzaSize: section === 'pizza' ? loadPizzaSize() : '',
-          ingredients: ingredientRows
-        };
-      };
       const clearSectionOnPage2AfterDone = (section) => {
         if (!section) return;
         suppressSectionToast = section;
@@ -3529,6 +3557,13 @@
           if (!item) {
             updateSectionDoneState(section);
             closeOverlay(section);
+            return;
+          }
+          if (!doneAddsToCart) {
+            closeOverlay(section);
+            updateBuilderError();
+            updatePage3NavState();
+            updateSectionDoneState(section);
             return;
           }
           const orderItems = loadOrderItemsFromStorage();
@@ -3805,6 +3840,16 @@
         try { localStorage.setItem(STORAGE_KEYS.settingsHideOverlayChrome, String(hideOverlayChrome)); } catch { }
       });
     }
+    if (settingDoneAddsToCart) {
+      settingDoneAddsToCart.addEventListener('change', () => {
+        doneAddsToCart = !!settingDoneAddsToCart.checked;
+        try { localStorage.setItem(STORAGE_KEYS.settingsDoneAddsToCart, String(doneAddsToCart)); } catch { }
+        if (!doneAddsToCart) {
+          saveOrderItemsToStorage(buildOrderItemsFromActiveSelections());
+        }
+        if (typeof updatePage3NavState === 'function') updatePage3NavState();
+      });
+    }
     if (settingToastEnabled) {
       settingToastEnabled.addEventListener('change', () => {
         toastEnabled = !!settingToastEnabled.checked;
@@ -3931,6 +3976,9 @@
     if (body.classList.contains('page3')) {
       const container = document.getElementById('order-summary');
       if (!container) return;
+      if (!doneAddsToCart) {
+        saveOrderItemsToStorage(buildOrderItemsFromActiveSelections());
+      }
 
       function redirectIfNoActiveSections() {
         if (!document.body.classList.contains('page3')) return false;
