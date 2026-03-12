@@ -895,7 +895,7 @@ body:not(.nav-enabled) .left-rail > *:not(.box.nav-cart) {
 
 body:not(.nav-enabled) .left-rail .box.nav-cart {
     display: inline-flex !important;
-    margin: 18px 0 0;
+    margin: 40px 0 0;
     pointer-events: auto;
 }
 
@@ -1059,7 +1059,7 @@ body.page3 main {
         margin-top: 0;
     }
 
-    .left-rail .box.nav-cart {
+    body.mobile-ui.nav-enabled .left-rail .box.nav-cart {
         margin-top: 0;
     }
 
