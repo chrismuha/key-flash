@@ -444,7 +444,7 @@ body.theme-dark .mobile-menu-swiper .swiper-arrow {
 }
 
 .order-type-chip__primary::before {
-    content: "Order Type ";
+    content: "Pickup/Delivery ";
     font-size: 10pt;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -2477,7 +2477,7 @@ body.order-type main {
 
 /* Keep the order-type heading clear of the expanded fixed nav */
 body.order-type.nav-enabled main {
-    padding-top: calc(var(--nav-offset) + var(--gap) * 2);
+    padding-top: calc(var(--nav-offset) + var(--gap) * 4);
 }
 
 @media (min-width: 769px) {

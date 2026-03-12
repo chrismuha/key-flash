@@ -1269,7 +1269,7 @@
     const updateOrderTypeChip = () => {
       let type = '';
       try { type = localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { type = ''; }
-      let primary = 'Not selected';
+      let primary = 'Choose one';
       let detail = '';
       if (type === 'delivery') {
         primary = 'Delivery';
@@ -1432,7 +1432,7 @@
       });
     }
 
-    // Go Back button (pages 2/3)
+    // Back button (pages 2/3)
     let backBtn = document.querySelector('.go-back');
     if (!backBtn && body.classList.contains('page3')) {
       const host = document.querySelector('body.page3 main .wrapper') || document.querySelector('body.page3 main');
@@ -1440,8 +1440,8 @@
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'go-back';
-        btn.setAttribute('aria-label', 'Go back');
-        btn.textContent = 'Go Back';
+        btn.setAttribute('aria-label', 'Back');
+        btn.textContent = 'Back';
         host.insertAdjacentElement('afterbegin', btn);
         backBtn = btn;
       }
@@ -2324,7 +2324,7 @@
           return !hasDoneItems && hasActiveSection;
         };
         const showActiveUndoneWarning = () => {
-          window.alert('You have an active menu item that is not added yet.\n\nOpen that item and tap Done to add it to your order, or turn it off/reset it before continuing.');
+          window.alert('You have an active menu item that is not added yet.\n\nOpen that item and tap Save Item to add it to your order, or turn it off/reset it before continuing.');
         };
         const proceedToNextPage = () => {
           const href = footerNext.getAttribute('href');
@@ -2342,7 +2342,7 @@
               showActiveUndoneWarning();
               if (builderError) {
                 builderError.hidden = false;
-                builderError.textContent = 'Finish active items with Done, or disable/reset them before continuing.';
+                builderError.textContent = 'Finish active items with Save Item, or disable/reset them before continuing.';
                 if (typeof ensureBuilderErrorVisible === 'function') ensureBuilderErrorVisible();
               }
             }
@@ -2367,7 +2367,7 @@
             if (builderError) {
               builderError.hidden = false;
               builderError.textContent = hasActiveUndoneSection()
-                ? 'Finish active items with Done, or disable/reset them before continuing.'
+                ? 'Finish active items with Save Item, or disable/reset them before continuing.'
                 : (page3NavBlockedMessage || 'Please choose at least one menu item.');
               if (typeof ensureBuilderErrorVisible === 'function') {
                 ensureBuilderErrorVisible();
@@ -4354,7 +4354,7 @@
         if (orderType) {
           const typeBlock = createSummaryBlock();
           const h3 = document.createElement('h3');
-          h3.textContent = 'Order Type';
+          h3.textContent = 'Pickup or Delivery';
           typeBlock.appendChild(h3);
           const p = document.createElement('p');
           p.textContent = orderType === 'delivery' ? 'Delivery' : 'Dine In/Carryout';

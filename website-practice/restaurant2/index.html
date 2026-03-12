@@ -19,13 +19,13 @@
     <!-- Left rail (Site Navigation) -->
     <nav class="left-rail">
         <img src="logo.webp" alt="" class="nav-logo" aria-hidden="true">
-        <a class="box active" href="index.html" aria-current="page">Order Type</a>
-        <a class="box" href="page2.html">Menu Selections</a>
+        <a class="box active" href="index.html" aria-current="page">Pickup or Delivery</a>
+        <a class="box" href="page2.html">Menu</a>
         <a class="box nav-cart" href="page3.html" aria-label="Cart" title="Cart"><i class="bi bi-cart3"
                 aria-hidden="true"></i><span class="nav-cart-count" aria-hidden="true" hidden>0</span></a>
         <div class="order-type-chip" aria-live="polite" data-empty="true">
-            <span class="order-type-chip__label">Order Type</span>
-            <span class="order-type-chip__value">Not selected</span>
+            <span class="order-type-chip__label">Pickup or Delivery</span>
+            <span class="order-type-chip__value">Choose one</span>
             <button type="button" class="order-type-chip__edit" aria-label="Edit order type">
                 ✎
             </button>
@@ -39,60 +39,59 @@
                 <button type="button" class="settings-close" aria-label="Close settings">✕</button>
             </div>
             <div class="settings-panel" id="settings-panel">
-                <label title="Clicking an ingredient label also toggles its checkbox">
+                <label title="Ingredient label toggles checkbox">
                     <input type="checkbox" class="setting-label-selects" checked>
-                    Ingredient label toggles checkbox
+                    Easy ingredient tapping
                 </label>
-                <label title="Clicking a section title (e.g., Pizza/Burger/Sauces) toggles its section checkbox">
+                <label title="Section title toggles checkbox">
                     <input type="checkbox" class="setting-title-selects" checked>
-                    Section title toggles checkbox
+                    Easy menu item tapping
                 </label>
-                <label title="Menu item reset buttons also disable the item and clear its selections">
+                <label title="Menu item reset button disables item">
                     <input type="checkbox" class="setting-reset-disables">
-                    Menu item reset button disables item
+                    Reset turns item off
                 </label>
-                <label title="When a menu item reset disables an item, keep the section open">
+                <label title="Keep section open after menu item reset">
                     <input type="checkbox" class="setting-reset-keep-open">
-                    Keep section open after menu item reset
+                    Keep item open after reset
                 </label>
-                <label title="If you uncheck all optional ingredients, the section will auto-disable">
+                <label title="Auto-disable section when all optional ingredients are off">
                     <input type="checkbox" class="setting-auto-disable-empty">
-                    Auto-disable section when all optional ingredients are off
+                    Turn off empty items
                 </label>
-                <label title="When you manually turn off a section, also disable it fully">
+                <label title="Auto-disable section on manual disable">
                     <input type="checkbox" class="setting-auto-disable-section">
-                    Auto-disable section on manual disable
+                    Clear items when turned off
                 </label>
-                <label title="Allow quantity controls to reduce a section to zero and disable it">
+                <label title="Quantity zero disables section">
                     <input type="checkbox" class="setting-quantity-can-disable" checked>
-                    Quantity zero disables section
+                    Quantity can remove item
                 </label>
-                <label title="Menu pills only expand/collapse when their arrow is clicked">
+                <label title="Menu pills expand on arrow only">
                     <input type="checkbox" class="setting-pill-arrow-only">
-                    Menu pills expand on arrow only
+                    Arrow opens item details
                 </label>
-                <label title="When an overlay is open, the footer Next button closes it">
+                <label title="Footer Next closes overlay first">
                     <input type="checkbox" class="setting-next-closes-overlay">
-                    Footer Next closes overlay first
+                    Footer button closes open item
                 </label>
-                <label title="Hide page chrome while an ingredient selector is open">
+                <label title="Hide footer, theme pill, and Back in ingredient selector">
                     <input type="checkbox" class="setting-hide-overlay-chrome" checked>
-                    Hide footer, theme pill, and Go Back in ingredient selector
+                    Focus mode while editing items
                 </label>
-                <label title="When off, Done only finishes the item; when on, Done immediately adds it to the cart">
+                <label title="Save Item button adds item to cart">
                     <input type="checkbox" id="setting-done-adds-to-cart" class="setting-done-adds-to-cart">
-                    Done button adds item to cart
+                    Save Item adds to order
                 </label>
-                <label title="When on, approving a close or Back to menu save prompt adds the item to the cart">
+                <label title="Save prompts add item to cart">
                     <input type="checkbox" id="setting-prompt-adds-to-cart" class="setting-prompt-adds-to-cart" checked>
-                    Save prompts add item to cart
+                    Save prompts add to order
                 </label>
-                <label title="Show toast when menu sections change">
+                <label title="Show cart toast notifications">
                     <input type="checkbox" id="setting-toast-enabled" checked>
-                    Show cart toast notifications
+                    Show add-to-order messages
                 </label>
-                <button type="button" class="settings-reset" aria-label="Reset settings to defaults">Reset to
-                    defaults</button>
+                <button type="button" class="settings-reset" aria-label="Reset settings to defaults">Reset settings</button>
             </div>
         </div>
     </div>
