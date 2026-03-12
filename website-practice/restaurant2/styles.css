@@ -2394,6 +2394,12 @@ body.order-type.nav-enabled main {
     padding-top: calc(var(--nav-offset) + var(--gap) * 2);
 }
 
+@media (min-width: 769px) {
+    body.order-type:not(.nav-enabled) main {
+        padding-top: calc(var(--nav-height) + var(--gap) * 2);
+    }
+}
+
 body.order-type main h1 {
     font-size: 24pt;
     line-height: 48px;
