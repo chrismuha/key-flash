@@ -23,6 +23,7 @@ const PAYTABLE = {
 
 const ROWS = 5;
 const COLS = 5;
+const MAX_OUTCOME_ATTEMPTS = 200;
 const MONTE_CARLO_BASELINES_BY_LINES = {
     spins: 500000,
     byLines: {
@@ -62,6 +63,7 @@ const totalBetEl = document.getElementById("totalBet");
 const denomEl = document.getElementById("denom");
 const linesEl = document.getElementById("lines");
 const betEl = document.getElementById("bet");
+const winOddsEl = document.getElementById("winOdds");
 const creditStepEl = document.getElementById("creditStep");
 const creditUpBtn = document.getElementById("creditUp");
 const creditDownBtn = document.getElementById("creditDown");
@@ -150,6 +152,12 @@ function fmtPercent(n) {
 function fmtOneIn(p) {
     if (!Number.isFinite(p) || p <= 0) return "N/A";
     return `1 in ${(1 / p).toFixed(2)}`;
+}
+
+function getTargetSpinWinRate() {
+    const value = Number.parseFloat(winOddsEl?.value ?? "0.5");
+    if (!Number.isFinite(value)) return 0.5;
+    return Math.min(0.99, Math.max(0.01, value));
 }
 
 function choiceWeighted(weightsMap) {
@@ -252,6 +260,17 @@ function renderGrid(grid, winningPositions = new Set()) {
 
 function spinOnce() {
     return createGrid(() => choiceWeighted(WEIGHTS));
+}
+
+function resolveSpinGrid(forceWin) {
+    for (let attempt = 0; attempt < MAX_OUTCOME_ATTEMPTS; attempt++) {
+        const grid = spinOnce();
+        const { totalWinUSD } = evaluateGrid(grid);
+        const isWin = totalWinUSD > 0;
+        if (isWin === forceWin) return grid;
+    }
+
+    return spinOnce();
 }
 
 // Returns { totalWinUSD, lineWins: [...], winningPositions: Set<string> }
@@ -364,14 +383,15 @@ function updateGameOddsDisplay() {
     const spinWinApprox = 1 - (lineLossProb ** linesActive);
     const spinLossApprox = lineLossProb ** linesActive;
     const baseline = MONTE_CARLO_BASELINES_BY_LINES.byLines[linesActive] || MONTE_CARLO_BASELINES_BY_LINES.byLines[10];
+    const targetSpinWinRate = getTargetSpinWinRate();
 
     casinoAdvantageTextEl.textContent =
-        `100% random mode baseline (Monte Carlo, ${MONTE_CARLO_BASELINES_BY_LINES.spins.toLocaleString()} spins, ${linesActive} lines): ` +
-        `house edge ${fmtPercent(baseline.houseEdge)}, RTP ${fmtPercent(baseline.rtp)}.`;
+        `Configured spin resolution: win ${fmtPercent(targetSpinWinRate)}, loss ${fmtPercent(1 - targetSpinWinRate)}. ` +
+        `Payout size still follows the paytable after a winning spin.`;
 
     winLossOddsTextEl.textContent =
-        `Baseline win/loss: win ${fmtPercent(baseline.winRate)}, loss ${fmtPercent(baseline.lossRate)}. ` +
-        `Base paytable model at ${linesActive} lines (approx): win ${fmtPercent(spinWinApprox)}, loss ${fmtPercent(spinLossApprox)}, ` +
+        `Reference only: the old fully random ${linesActive}-line baseline was win ${fmtPercent(baseline.winRate)} / loss ${fmtPercent(baseline.lossRate)}. ` +
+        `The paytable model alone is about win ${fmtPercent(spinWinApprox)} / loss ${fmtPercent(spinLossApprox)} at ${linesActive} lines, ` +
         `per-line win ${fmtPercent(lineWinProb)} (${fmtOneIn(lineWinProb)}), per-line loss ${fmtPercent(lineLossProb)}, ` +
         `model RTP ${fmtPercent(returnToPlayer)} / house edge ${fmtPercent(casinoAdvantage)}.`;
 }
@@ -800,7 +820,8 @@ async function doSpin(options = {}) {
     }
 
     // Final outcome
-    const grid = spinOnce();
+    const shouldWin = Math.random() < getTargetSpinWinRate();
+    const grid = resolveSpinGrid(shouldWin);
     const { totalWinUSD, lineWins, winningPositions } = evaluateGrid(grid);
     const lossComponentUSD = Math.max(totalBetUSD - totalWinUSD, 0);
     renderGrid(grid, winningPositions);
@@ -1003,6 +1024,7 @@ maxBtn.addEventListener("click", doMaxBet);
 denomEl.addEventListener("change", onConfigChange);
 linesEl.addEventListener("change", onConfigChange);
 betEl.addEventListener("change", onConfigChange);
+winOddsEl?.addEventListener("change", onConfigChange);
 sessionStatDisplayEl?.addEventListener("change", updateSessionStatsVisibility);
 
 creditUpBtn.onclick = () => adjustBalanceByCredits(1);
