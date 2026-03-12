@@ -162,7 +162,7 @@ body.page2 {
 /* Section: Left Rail Navigation */
 .left-rail {
     display: grid;
-    grid-template-columns: 132px 132px minmax(0, 1fr) 48px;
+    grid-template-columns: 132px 132px minmax(0, 1fr) 52px;
     grid-template-areas:
         "page1 page2 . cart"
         "pill pill pill pill"
@@ -170,7 +170,7 @@ body.page2 {
     align-items: center;
     column-gap: var(--page-button-gap);
     row-gap: 4px;
-    padding: calc(var(--gap) * 3) var(--gap) 0 calc(var(--gap) / 2);
+    padding: calc(var(--gap) * 4.5) var(--gap) 0 calc(var(--gap) / 2);
     width: 100%;
     position: fixed;
     top: 0;
@@ -1019,8 +1019,8 @@ body.page3 main {
 
 @media (max-width: 768px) {
     .left-rail {
-        grid-template-columns: 132px 132px minmax(0, 1fr) 48px;
-        padding: calc(var(--gap) * 3) var(--gap) 0 calc(var(--gap) / 2);
+        grid-template-columns: 132px 132px minmax(0, 1fr) 52px;
+        padding: calc(var(--gap) * 4.5) var(--gap) 0 calc(var(--gap) / 2);
         column-gap: var(--page-button-gap);
         row-gap: 4px;
         overflow: hidden;
@@ -1098,9 +1098,9 @@ body.page3 main {
     right: 18px;
     display: flex;
     flex-direction: row;
-    gap: 3px;
+    gap: 2px;
     align-items: center;
-    padding: 2px 6px;
+    padding: 1px 5px;
     border-radius: 999px;
     border: 1px solid var(--color-black);
     background: var(--color-porcelain);
@@ -1119,12 +1119,12 @@ body.page3 main {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 46px;
-    height: 46px;
-    min-width: 46px;
-    min-height: 46px;
-    max-width: 46px;
-    max-height: 46px;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    min-height: 42px;
+    max-width: 42px;
+    max-height: 42px;
     -webkit-appearance: none;
     appearance: none;
     color: var(--color-black);
@@ -1132,7 +1132,7 @@ body.page3 main {
 }
 
 .nav-theme-controls .theme-option .theme-icon {
-    font-size: 17pt;
+    font-size: 15pt;
     line-height: 1;
     color: inherit;
     -webkit-text-fill-color: currentColor;
@@ -1172,21 +1172,21 @@ body.theme-dark .nav-theme-controls .theme-option .theme-icon {
     .nav-theme-controls {
         top: 3px;
         right: 18px;
-        padding: 2px 6px;
-        gap: 3px;
+        padding: 1px 5px;
+        gap: 2px;
     }
 
     .nav-theme-controls .theme-option {
-        width: 46px;
-        height: 46px;
-        min-width: 46px;
-        min-height: 46px;
-        max-width: 46px;
-        max-height: 46px;
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        min-height: 42px;
+        max-width: 42px;
+        max-height: 42px;
     }
 
     .nav-theme-controls .theme-icon {
-        font-size: 17pt;
+        font-size: 15pt;
     }
 
 }
@@ -1226,9 +1226,9 @@ body.theme-dark main fieldset {
 /* Go Back button (fixed, next to theme toggle) */
 .go-back {
     position: fixed;
-    top: -6px;
+    top: 6px;
     left: 4px;
-    padding: 2px 10px;
+    padding: 1px 10px;
     font-weight: 700;
     font-size: 11pt;
     border: 0.5px solid currentColor;
@@ -3481,14 +3481,14 @@ body.theme-dark .close-overlay:focus-visible {
 }
 
 .left-rail .box.nav-cart {
-    height: 40px;
-    width: 48px;
-    min-height: 40px;
-    min-width: 48px;
-    max-height: 40px;
-    max-width: 48px;
+    height: 44px;
+    width: 52px;
+    min-height: 44px;
+    min-width: 52px;
+    max-height: 44px;
+    max-width: 52px;
     padding: 0;
-    font-size: 16.5pt;
+    font-size: 18pt;
 }
 
 /* Section: Focus Styles */
