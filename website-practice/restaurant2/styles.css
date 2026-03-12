@@ -333,33 +333,22 @@ body.theme-dark .mobile-menu-swiper .swiper-chip.menu-launch-active {
     -webkit-text-fill-color: var(--color-black);
     -webkit-appearance: none;
     appearance: none;
-    font-size: 0;
-    line-height: 0;
-    position: relative;
+    font-size: 18pt;
+    line-height: 1;
     padding: 0;
-    text-indent: -9999px;
-    overflow: hidden;
-    white-space: nowrap;
 }
 
-.mobile-menu-swiper .swiper-arrow::before {
-    content: "";
-    width: 14px;
-    height: 14px;
-    border-top: 4px solid currentColor;
-    border-right: 4px solid currentColor;
-    display: block;
-    position: absolute;
-    inset: 0;
-    margin: auto;
+.mobile-menu-swiper .swiper-arrow .bi {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18pt;
+    line-height: 1;
+    font-weight: 700;
 }
 
-.mobile-menu-swiper .swiper-arrow-prev::before {
-    transform: rotate(-135deg);
-}
-
-.mobile-menu-swiper .swiper-arrow-next::before {
-    transform: rotate(45deg);
+.mobile-menu-swiper .swiper-arrow:disabled .bi {
+    opacity: 0.9;
 }
 
 body.theme-dark .mobile-menu-swiper .swiper-arrow {
@@ -745,7 +734,7 @@ body.theme-dark .custom-confirm-modal {
 
 .custom-confirm-modal h2 {
     margin: 0 0 10px;
-    font-size: 1.05rem;
+    font-size: 12pt;
 }
 
 .custom-confirm-message {
