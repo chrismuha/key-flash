@@ -1,8 +1,10 @@
 // Config
-const SYMBOLS = ["💎", "🍀", "⭐", "🔔", "🍋", "🍒"];
+const WILD_SYMBOL = "🃏";
+const SYMBOLS = [WILD_SYMBOL, "💎", "🍀", "⭐", "🔔", "🍋", "🍒"];
 
 // Weights (higher = more common)
 const WEIGHTS = {
+    [WILD_SYMBOL]: 1,
     "💎": 1,
     "🍀": 3,
     "⭐": 4,
@@ -13,6 +15,7 @@ const WEIGHTS = {
 
 // Paytable (multipliers) for 3/4/5 in a row from the left
 const PAYTABLE = {
+    [WILD_SYMBOL]: { 3: 500, 4: 2500, 5: 10000 },
     "💎": { 3: 250, 4: 1000, 5: 5000 },
     "🍀": { 3: 100, 4: 400, 5: 2000 },
     "⭐": { 3: 50, 4: 200, 5: 1000 },
@@ -263,6 +266,22 @@ function spinOnce() {
     return createGrid(() => choiceWeighted(WEIGHTS));
 }
 
+function getLineMatchResult(path, grid) {
+    const lineSymbols = path.map((row, col) => grid[row][col]);
+    const baseSymbol = lineSymbols.find((symbol) => symbol !== WILD_SYMBOL) || WILD_SYMBOL;
+
+    let count = 0;
+    for (const symbol of lineSymbols) {
+        if (symbol === baseSymbol || symbol === WILD_SYMBOL) {
+            count += 1;
+            continue;
+        }
+        break;
+    }
+
+    return { count, symbol: baseSymbol };
+}
+
 function resolveSpinGrid(forceWin) {
     for (let attempt = 0; attempt < MAX_OUTCOME_ATTEMPTS; attempt++) {
         const grid = spinOnce();
@@ -286,22 +305,14 @@ function evaluateGrid(grid) {
 
     for (let li = 0; li < linesActive; li++) {
         const path = PAYLINES[li];
-        const firstRow = path[0];
-        const firstSym = grid[firstRow][0];
+        const { count, symbol } = getLineMatchResult(path, grid);
 
-        let count = 1;
-        for (let col = 1; col < COLS; col++) {
-            const row = path[col];
-            if (grid[row][col] === firstSym) count++;
-            else break;
-        }
-
-        if (count >= 3 && PAYTABLE[firstSym]?.[count]) {
-            const multiplier = PAYTABLE[firstSym][count];
+        if (count >= 3 && PAYTABLE[symbol]?.[count]) {
+            const multiplier = PAYTABLE[symbol][count];
             const winUSD = multiplier * betPerLine * denom;
             totalWinUSD += winUSD;
 
-            lineWins.push({ lineIndex: li + 1, count, symbol: firstSym, winUSD });
+            lineWins.push({ lineIndex: li + 1, count, symbol, winUSD });
 
             for (let c = 0; c < count; c++) {
                 const r = path[c];
@@ -389,7 +400,8 @@ function updateGameOddsDisplay() {
 
     winLossOddsTextEl.textContent =
         `Current ${linesActive}-line paytable model: per-line win ${fmtPercent(lineWinProb)} (${fmtOneIn(lineWinProb)}), ` +
-        `per-line loss ${fmtPercent(lineLossProb)}, model RTP ${fmtPercent(returnToPlayer)} / house edge ${fmtPercent(casinoAdvantage)}.`;
+        `per-line loss ${fmtPercent(lineLossProb)}, model RTP ${fmtPercent(returnToPlayer)} / house edge ${fmtPercent(casinoAdvantage)}. ` +
+        `Wild substitution increases actual hit frequency beyond this rough model.`;
 }
 
 
