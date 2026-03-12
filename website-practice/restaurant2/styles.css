@@ -1471,6 +1471,8 @@ body.page2 .page-footer {
     background: var(--surface-strong);
     box-shadow: 0 -6px 22px var(--shadow-deep);
     padding: 16px clamp(16px, 4vw, 40px);
+    min-height: 80px;
+    box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     gap: 10px;
@@ -1537,7 +1539,7 @@ body.theme-dark .page-footer .footer-reset {
 
 @media (max-width: 640px) {
     body.page2 .page-footer {
-        padding: 10px 8px;
+        padding: 16px 8px;
         gap: 6px;
     }
 
@@ -1546,8 +1548,8 @@ body.theme-dark .page-footer .footer-reset {
         min-width: 0;
         box-sizing: border-box;
         padding: 8px 6px;
-        font-size: 10.5pt;
-        line-height: 1.1;
+        font-size: 12pt;
+        line-height: 1.2;
     }
 
     body.page2 .page-footer .footer-reset {
@@ -1561,6 +1563,8 @@ body.order-type .page-footer {
     background: var(--surface-strong);
     box-shadow: 0 -6px 22px var(--shadow-deep);
     padding: 16px clamp(16px, 4vw, 40px);
+    min-height: 80px;
+    box-sizing: border-box;
     display: flex;
     justify-content: stretch;
     gap: 10px;
@@ -1611,7 +1615,7 @@ body.order-type .page-footer .action-button[aria-disabled="true"] {
 
 @media (max-width: 640px) {
     body.order-type .page-footer {
-        padding: 10px 8px;
+        padding: 16px 8px;
         gap: 6px;
     }
 
@@ -1620,8 +1624,8 @@ body.order-type .page-footer .action-button[aria-disabled="true"] {
         min-width: 0;
         box-sizing: border-box;
         padding: 8px 6px;
-        font-size: 10.5pt;
-        line-height: 1.1;
+        font-size: 12pt;
+        line-height: 1.2;
     }
 }
 
@@ -2367,13 +2371,14 @@ body.order-type main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: var(--gap);
+    justify-content: flex-start;
+    gap: 20px;
     min-height: calc(100vh - var(--nav-offset));
     height: 100%;
     width: 100%;
     max-width: none;
     margin-inline: 0;
+    padding-top: clamp(32px, 7vh, 72px);
     padding-bottom: calc(220px + var(--safe-area-bottom));
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -2381,41 +2386,175 @@ body.order-type main {
 
 /* Keep the order-type heading clear of the expanded fixed nav */
 body.order-type.nav-enabled main {
-    justify-content: flex-start;
     padding-top: calc(var(--nav-offset) + var(--gap) * 2);
-}
-
-@media (max-width: 768px) {
-    body.order-type main {
-        width: 100%;
-        height: 100%;
-        margin-inline: 0;
-        padding-inline: var(--gap);
-    }
-}
-
-@media (max-width: 1024px) {
-    body.order-type main {
-        padding-inline: var(--gap);
-    }
 }
 
 body.order-type main h1 {
     font-size: 24pt;
     line-height: 48px;
     font-weight: 700;
-    margin-bottom: 28px;
+    margin: 0;
     text-align: center;
 }
 
+@media (max-width: 768px) {
+    body.order-type main h1 {
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+
+    body.order-type .business-location-picker,
+    body.order-type .order-options,
+    body.order-type .order-note {
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+body.order-type .business-location-picker {
+    width: min(720px, 100%);
+    max-width: 100%;
+    margin: 0 auto;
+    display: grid;
+    gap: 8px;
+    text-align: center;
+    align-self: center;
+}
+
+body.order-type .business-location-picker label {
+    font-size: 10.5pt;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+body.order-type .business-location-dropdown {
+    position: relative;
+    display: grid;
+    gap: 10px;
+}
+
+body.order-type .business-location-trigger {
+    width: 100%;
+    padding: 12px 52px 12px 18px;
+    min-height: 60px;
+    height: 60px;
+    border: 2px solid var(--color-black);
+    border-radius: 999px;
+    background: var(--color-white);
+    color: var(--color-black);
+    font: inherit;
+    font-size: 12pt;
+    font-weight: 700;
+    line-height: 1.2;
+    box-shadow: 0 10px 24px var(--shadow-soft);
+    cursor: pointer;
+    text-align: center;
+    position: relative;
+}
+
+body.order-type .business-location-trigger::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 22px;
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-65%) rotate(45deg);
+    pointer-events: none;
+}
+
+body.order-type .business-location-trigger-text {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.order-type .business-location-options {
+    display: grid;
+    gap: 6px;
+    padding: 10px;
+    border: 2px solid var(--color-black);
+    border-radius: 18px;
+    background: var(--color-white);
+    box-shadow: 0 16px 36px var(--shadow-medium);
+    width: 100%;
+}
+
+body.order-type .business-location-options[hidden] {
+    display: none;
+}
+
+body.order-type .business-location-option {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--color-black);
+    border-radius: 999px;
+    background: var(--color-white);
+    color: var(--color-black);
+    font: inherit;
+    font-size: 11pt;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+}
+
+body.order-type .business-location-option[aria-selected="true"] {
+    background: var(--box-bg);
+    color: var(--color-white);
+    border-color: var(--border-strong);
+}
+
+body.theme-dark.order-type .business-location-trigger,
+body.theme-dark.order-type .business-location-options,
+body.theme-dark.order-type .business-location-option {
+    background: var(--surface);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+}
+
+body.theme-dark.order-type .business-location-trigger {
+    box-shadow: 0 10px 24px var(--shadow-strong);
+}
+
+body.theme-dark.order-type .business-location-option[aria-selected="true"] {
+    background: var(--box-bg-dark);
+    color: var(--text-dark);
+}
+
+body.order-type .business-location-trigger:focus-visible,
+body.order-type .business-location-option:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+    body.order-type .business-location-picker {
+        margin-bottom: 0;
+    }
+
+    body.order-type .business-location-trigger {
+        padding: 12px 46px 12px 16px;
+    }
+}
+
 body.order-type .order-options {
+    --order-card-gap: clamp(12px, 4vw, 24px);
     display: flex;
     justify-content: center;
     align-items: center;
     flex-wrap: nowrap;
-    gap: 24px;
-    margin: 16px 0 8px;
+    gap: var(--order-card-gap);
+    margin: 0;
     overflow: visible;
+    width: min(456px, calc(100vw - 32px));
+    min-width: 0;
+    max-width: 456px;
 }
 
 body.order-type .order-type-chip {
@@ -2621,9 +2760,10 @@ body.order-type .delivery-details .delivery-clear {
 }
 
 body.order-type .order-card {
-    width: 216px;
-    height: 216px;
-    flex: 0 0 auto;
+    width: calc((100% - var(--order-card-gap)) / 2);
+    height: auto;
+    flex: 0 0 calc((100% - var(--order-card-gap)) / 2);
+    aspect-ratio: 1 / 1;
     border: 2px solid var(--color-black);
     border-radius: 100%;
     display: flex;
@@ -2661,6 +2801,11 @@ body.order-type .order-label {
 body.order-type .order-note {
     color: inherit;
     margin-top: 18px;
+    width: min(456px, calc(100vw - 32px));
+    min-width: 0;
+    max-width: 456px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 body.order-type .order-links,
@@ -2676,12 +2821,20 @@ body.order-type .order-powered a {
 /* Section: Order Type Responsive */
 @media (max-width: 600px) {
     body.order-type .order-options {
-        gap: 12px;
-        overflow: hidden;
+        padding-bottom: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    body.order-type .business-location-picker {
+        margin-left: auto;
+        margin-right: auto;
     }
 
-    body.order-type .order-label {
-        font-size: 12pt;
+    body.order-type .order-options,
+    body.order-type .order-note {
+        margin-left: auto;
+        margin-right: auto;
     }
 }
 

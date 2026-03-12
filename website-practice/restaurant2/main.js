@@ -29,6 +29,7 @@
     settingsPromptAddsToCart: 'restaurant.settings.promptAddsToCart',
     settingsToastEnabled: 'restaurant.settings.toastEnabled',
     settingsToastPage2Long: 'restaurant.settings.toastPage2Long',
+    businessLocation: 'restaurant.businessLocation',
     redirectReason: 'restaurant.redirectReason',
     quantities: 'restaurant.quantities',
     quantitiesSections: 'restaurant.quantitiesSections',
@@ -169,6 +170,18 @@
     'sauces_ingredients[]|mustard': 'Mustard',
     'sauces_ingredients[]|ranch': 'Ranch'
   };
+
+  const BUSINESS_LOCATIONS = {
+    default: {
+      id: 'default',
+      label: 'John Doe | 123 Placeholder Ave | Sampletown, NY 10000',
+      name: 'John Doe',
+      address: '123 Placeholder Ave',
+      cityStateZip: 'Sampletown, NY 10000',
+      phone: '(315) 555-0101'
+    }
+  };
+  const DEFAULT_BUSINESS_LOCATION_ID = 'default';
 
   const JALAPENO_VALUE = 'jalapenos';
   const JALAPENO_LABEL_RE = /jalapenos|jalapeños/i;
@@ -741,6 +754,28 @@
     try {
       localStorage.setItem(STORAGE_KEYS.orderItems, JSON.stringify(Array.isArray(items) ? items : []));
     } catch { /* ignore */ }
+  }
+
+  function getBusinessLocationById(id) {
+    const normalized = String(id || DEFAULT_BUSINESS_LOCATION_ID).trim();
+    return BUSINESS_LOCATIONS[normalized] || BUSINESS_LOCATIONS[DEFAULT_BUSINESS_LOCATION_ID];
+  }
+
+  function readBusinessLocation() {
+    try {
+      const storedId = localStorage.getItem(STORAGE_KEYS.businessLocation);
+      return getBusinessLocationById(storedId || DEFAULT_BUSINESS_LOCATION_ID);
+    } catch {
+      return getBusinessLocationById(DEFAULT_BUSINESS_LOCATION_ID);
+    }
+  }
+
+  function saveBusinessLocation(id) {
+    const location = getBusinessLocationById(id);
+    try {
+      localStorage.setItem(STORAGE_KEYS.businessLocation, location.id);
+    } catch { /* ignore */ }
+    return location;
   }
 
   function buildOrderItemFromSection(section) {
@@ -1527,12 +1562,12 @@
     if (settingHideOverlayChrome) settingHideOverlayChrome.checked = hideOverlayChrome;
     applyOverlayChromeSettingState(hideOverlayChrome);
 
-    // Done button cart behavior: default OFF
-    doneAddsToCart = false;
+    // Done button cart behavior: default ON
+    doneAddsToCart = true;
     try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsDoneAddsToCart);
-      doneAddsToCart = v === 'true';
-    } catch { doneAddsToCart = false; }
+      doneAddsToCart = v === null ? true : v === 'true';
+    } catch { doneAddsToCart = true; }
     if (settingDoneAddsToCart) settingDoneAddsToCart.checked = doneAddsToCart;
 
     try {
@@ -1668,7 +1703,7 @@
       quantityCanDisable = true;
       pillArrowOnly = false;
       nextClosesOverlay = false;
-      doneAddsToCart = false;
+      doneAddsToCart = true;
       promptAddsToCart = true;
       toastEnabled = true;
       toastPage2Long = true;
@@ -1683,7 +1718,7 @@
         localStorage.setItem(STORAGE_KEYS.settingsPillArrowOnly, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsNextClosesOverlay, 'false');
         localStorage.setItem(STORAGE_KEYS.settingsHideOverlayChrome, 'true');
-        localStorage.setItem(STORAGE_KEYS.settingsDoneAddsToCart, 'false');
+        localStorage.setItem(STORAGE_KEYS.settingsDoneAddsToCart, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsPromptAddsToCart, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsToastEnabled, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsToastPage2Long, 'true');
@@ -1698,7 +1733,7 @@
       if (settingPillArrowOnly) settingPillArrowOnly.checked = false;
       if (settingNextClosesOverlay) settingNextClosesOverlay.checked = false;
       if (settingHideOverlayChrome) settingHideOverlayChrome.checked = true;
-      if (settingDoneAddsToCart) settingDoneAddsToCart.checked = false;
+      if (settingDoneAddsToCart) settingDoneAddsToCart.checked = true;
       if (settingPromptAddsToCart) settingPromptAddsToCart.checked = true;
       if (settingToastEnabled) settingToastEnabled.checked = true;
       if (settingToastPage2Long) settingToastPage2Long.checked = true;
@@ -1755,6 +1790,9 @@
       const dFormInit = document.getElementById('delivery-details');
       const deliveryError = document.getElementById('delivery-error');
       const deliveryClearBtn = document.querySelector('.delivery-clear');
+      const businessLocationTrigger = document.getElementById('business-location-select');
+      const businessLocationOptions = document.getElementById('business-location-options');
+      const businessLocationOptionButtons = Array.from(document.querySelectorAll('.business-location-option[data-value]'));
       const deliveryFields = {
         name: document.getElementById('delivery-name'),
         phone: document.getElementById('delivery-phone'),
@@ -1883,6 +1921,49 @@
         if (errEl) errEl.hidden = true;
         populateDeliveryFieldsFromStorage();
         installPhoneFormatter();
+      }
+      if (businessLocationTrigger && businessLocationOptions && businessLocationOptionButtons.length) {
+        const currentBusinessLocation = readBusinessLocation();
+        const triggerText = businessLocationTrigger.querySelector('.business-location-trigger-text');
+        const setBusinessLocationUi = (id) => {
+          const nextLocation = getBusinessLocationById(id);
+          if (triggerText) triggerText.textContent = nextLocation.label;
+          businessLocationOptionButtons.forEach((btn) => {
+            btn.setAttribute('aria-selected', String(btn.dataset.value === nextLocation.id));
+          });
+          saveBusinessLocation(nextLocation.id);
+        };
+        const closeBusinessLocationMenu = () => {
+          businessLocationOptions.hidden = true;
+          businessLocationTrigger.setAttribute('aria-expanded', 'false');
+        };
+        const openBusinessLocationMenu = () => {
+          businessLocationOptions.hidden = false;
+          businessLocationTrigger.setAttribute('aria-expanded', 'true');
+        };
+        setBusinessLocationUi(currentBusinessLocation.id);
+        businessLocationTrigger.addEventListener('click', () => {
+          const isOpen = businessLocationTrigger.getAttribute('aria-expanded') === 'true';
+          if (isOpen) closeBusinessLocationMenu();
+          else openBusinessLocationMenu();
+        });
+        businessLocationOptionButtons.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            setBusinessLocationUi(btn.dataset.value);
+            closeBusinessLocationMenu();
+          });
+        });
+        document.addEventListener('click', (evt) => {
+          const target = evt.target;
+          if (!(target instanceof Node)) return;
+          if (businessLocationTrigger.contains(target) || businessLocationOptions.contains(target)) return;
+          closeBusinessLocationMenu();
+        });
+        document.addEventListener('keydown', (evt) => {
+          if (evt.key === 'Escape') closeBusinessLocationMenu();
+        });
+      } else {
+        saveBusinessLocation(DEFAULT_BUSINESS_LOCATION_ID);
       }
 
       const cards = document.querySelectorAll('.order-card');
@@ -4160,6 +4241,7 @@
           container.appendChild(frag);
           applyIngredientCaseExceptions(container);
         };
+        const businessLocation = readBusinessLocation();
         const orderItems = loadOrderItemsFromStorage();
         const d = readDeliveryData();
         const orderType = (() => { try { return localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { return ''; } })();
@@ -4199,7 +4281,7 @@
           heading.className = 'summary-location-title';
           heading.textContent = title;
           pane.appendChild(heading);
-          lines.forEach((lineText) => {
+          lines.filter((lineText) => String(lineText || '').trim()).forEach((lineText) => {
             const line = document.createElement('div');
             line.className = 'summary-location-line';
             line.textContent = lineText;
@@ -4215,12 +4297,34 @@
         };
         locationBlock.appendChild(createLocationPane(
           'Business Location',
-          ['John Doe', '123 Placeholder Ave', 'Sampletown, NY 10000', '(315) 555-0101'],
+          [
+            businessLocation.name,
+            businessLocation.address,
+            businessLocation.cityStateZip,
+            businessLocation.phone
+          ],
           'summary-location-change-store'
         ));
+        const yourLocationLines = [];
+        if (d.name || d.type) {
+          yourLocationLines.push(d.type ? `${d.name} (${d.type})` : d.name);
+        }
+        if (d.phone) {
+          yourLocationLines.push(formatPhone(d.phone) || d.phone);
+        }
+        if (d.address) {
+          yourLocationLines.push(d.address);
+        }
+        if (d.suite) {
+          yourLocationLines.push(d.suite);
+        }
+        {
+          const cityZip = [d.city, d.zip].filter(Boolean).join(' ');
+          if (cityZip) yourLocationLines.push(cityZip);
+        }
         locationBlock.appendChild(createLocationPane(
           'Your Location',
-          ['Jane Doe', '456 Commerce Blvd', 'Mocksville, NY 10101', '(315) 555-0199'],
+          yourLocationLines.length ? yourLocationLines : ['No delivery details entered'],
           'summary-location-change-user'
         ));
         frag.appendChild(locationBlock);

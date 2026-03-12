@@ -117,6 +117,20 @@
         <!-- Page title -->
         <h1>Select your order type:</h1>
 
+        <section class="business-location-picker" aria-label="Business location">
+            <label for="business-location-select">Business Location</label>
+            <div class="business-location-dropdown">
+                <button type="button" id="business-location-select" class="business-location-trigger"
+                    aria-haspopup="listbox" aria-expanded="false" aria-controls="business-location-options">
+                    <span class="business-location-trigger-text">John Doe | 123 Placeholder Ave | Sampletown, NY 10000</span>
+                </button>
+                <div id="business-location-options" class="business-location-options" role="listbox" hidden>
+                    <button type="button" class="business-location-option" role="option" data-value="default"
+                        aria-selected="true">John Doe | 123 Placeholder Ave | Sampletown, NY 10000</button>
+                </div>
+            </div>
+        </section>
+
         <!-- Order type chooser cards -->
         <div class="order-options" role="list">
             <a class="order-card" href="page2.html" role="listitem" aria-label="Dine In or Carryout" data-type="dine">
