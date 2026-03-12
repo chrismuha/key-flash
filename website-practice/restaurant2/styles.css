@@ -1594,7 +1594,7 @@ body.order-type .page-footer {
     box-shadow: 0 -6px 22px var(--shadow-deep);
     padding: 16px clamp(16px, 4vw, 40px);
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 10px;
     align-items: center;
     z-index: 1000;
@@ -1604,7 +1604,7 @@ body.order-type .page-footer .action-button {
     padding: 8px 14px;
     border-radius: 999px;
     font-weight: 700;
-    border: none;
+    border: 4px solid var(--footer-button-border);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
@@ -1614,6 +1614,10 @@ body.order-type .page-footer .action-button {
     background: var(--box-bg);
     color: var(--color-white);
     flex: 0 0 auto;
+    min-width: 110px;
+    min-height: 48px;
+    font-size: 12pt;
+    line-height: 1.2;
 }
 
 body.order-type .page-footer .action-button:hover {
@@ -1628,6 +1632,28 @@ body.order-type .page-footer .footer-back-button {
     background: var(--danger);
     color: var(--color-white);
     border-color: var(--border-strong);
+}
+
+body.order-type .page-footer .action-button[aria-disabled="true"] {
+    opacity: 0.65;
+    cursor: not-allowed;
+    pointer-events: auto;
+}
+
+@media (max-width: 640px) {
+    body.order-type .page-footer {
+        padding: 10px 8px;
+        gap: 6px;
+    }
+
+    body.order-type .page-footer .action-button {
+        flex: 1 1 0;
+        min-width: 0;
+        box-sizing: border-box;
+        padding: 8px 6px;
+        font-size: 10.5pt;
+        line-height: 1.1;
+    }
 }
 
 /* Section: Main Spacing Helpers */

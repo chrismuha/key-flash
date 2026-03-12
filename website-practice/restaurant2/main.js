@@ -1082,7 +1082,8 @@
 
     const navToggleBtn = document.getElementById('nav-toggle-btn') || document.querySelector('.nav-toggle');
     const themeModeBtns = Array.from(document.querySelectorAll('.theme-mode-btn, .theme-mode-toggle'));
-    const footerNext = document.querySelector('.next-button');
+    const footerNext = document.querySelector('body.page2 .next-button');
+    const orderTypeProceedBtn = document.querySelector('body.order-type .proceed-order-type');
     let page3NavEnabled = false;
     let page3NavBlockedMessage = '';
 
@@ -1210,6 +1211,8 @@
 
     const updatePage3NavState = () => {
       const {
+        okType,
+        okDelivery,
         enablePage2,
         enablePage3,
         typeNow,
@@ -1235,6 +1238,22 @@
         const tip = enablePage2 ? '' : (typeNow === 'delivery' ? 'Complete delivery details to enable Page 2' : 'Select an order type to enable Page 2');
         lockAnchor(a, enablePage2, tip);
       });
+
+      if (orderTypeProceedBtn) {
+        if (okType) {
+          orderTypeProceedBtn.removeAttribute('aria-disabled');
+          orderTypeProceedBtn.classList.remove('next-disabled');
+          if (typeNow === 'delivery' && !okDelivery) {
+            orderTypeProceedBtn.setAttribute('title', 'Complete delivery details to proceed');
+          } else {
+            orderTypeProceedBtn.removeAttribute('title');
+          }
+        } else {
+          orderTypeProceedBtn.setAttribute('aria-disabled', 'true');
+          orderTypeProceedBtn.classList.add('next-disabled');
+          orderTypeProceedBtn.setAttribute('title', 'Select an order type to proceed');
+        }
+      }
 
       document.querySelectorAll('.left-rail a[href$="page3.html"]').forEach((a) => {
         lockAnchor(a, enablePage3, tooltip);
@@ -1720,6 +1739,7 @@
         if (!dFormInit) return;
         dFormInit.hidden = !show;
         if (!show && deliveryError) deliveryError.hidden = true;
+        if (orderNoteEl) orderNoteEl.hidden = !!show;
         body.classList.toggle('delivery-open', !!show);
       };
 
@@ -1786,6 +1806,35 @@
       const cards = document.querySelectorAll('.order-card');
       const deliveryCloseBtn = document.querySelector('.delivery-close-button');
       const clearCardSelection = () => cards.forEach((c) => c.classList.remove('selected'));
+      const proceedToPage2 = () => {
+        window.location.href = 'page2.html';
+      };
+      const handleOrderTypeProceed = () => {
+        const type = getOrderType();
+        if (!type) {
+          updatePage3NavState();
+          return;
+        }
+        if (type === 'delivery') {
+          const { ok, message } = validateDeliveryDetails();
+          if (!ok) {
+            deliveryFailCount += 1;
+            if (deliveryError) {
+              deliveryError.textContent = message;
+              deliveryError.hidden = false;
+            }
+            showDeliveryForm(true);
+            focusFirstDeliveryField();
+            updatePage3NavState();
+            return;
+          }
+          if (deliveryError) deliveryError.hidden = true;
+          saveDeliveryDetails();
+          setOrderType('delivery');
+        }
+        updatePage3NavState();
+        proceedToPage2();
+      };
 
       if (deliveryCloseBtn) {
         deliveryCloseBtn.addEventListener('click', () => {
@@ -1819,8 +1868,6 @@
           showDeliveryForm(isDelivery);
           if (isDelivery) {
             focusFirstDeliveryField();
-          } else {
-            window.location.href = 'page2.html';
           }
         });
       });
@@ -1855,20 +1902,27 @@
       if (dFormInit) {
         dFormInit.addEventListener('submit', (evt) => {
           evt.preventDefault();
-          const { ok, message } = validateDeliveryDetails();
-          if (!ok) {
-            deliveryFailCount += 1;
-            if (deliveryError) {
-              deliveryError.textContent = message;
-              deliveryError.hidden = false;
+          handleOrderTypeProceed();
+        });
+      }
+
+      if (orderTypeProceedBtn) {
+        orderTypeProceedBtn.addEventListener('click', (evt) => {
+          const disabled = orderTypeProceedBtn.getAttribute('aria-disabled') === 'true'
+            || orderTypeProceedBtn.classList.contains('next-disabled')
+            || orderTypeProceedBtn.matches(':disabled');
+          if (disabled) {
+            evt.preventDefault();
+            const type = getOrderType();
+            if (type === 'delivery') {
+              showDeliveryForm(true);
+              focusFirstDeliveryField();
             }
+            updatePage3NavState();
             return;
           }
-          if (deliveryError) deliveryError.hidden = true;
-          saveDeliveryDetails();
-          setOrderType('delivery');
-          updatePage3NavState();
-          window.location.href = 'page2.html';
+          evt.preventDefault();
+          handleOrderTypeProceed();
         });
       }
 
