@@ -308,15 +308,15 @@ body.theme-dark .mobile-menu-swiper .swiper-chip.menu-launch-active {
 .mobile-menu-swiper .swiper-chip.menu-launch-active::after {
     content: "";
     position: absolute;
-    /* left: 12px; */
+    left: 50%;
     right: auto;
-    /* width: min(68px, calc(100% - 24px)); */
-    width: 60%;
-    bottom: 6px;
-    height: 3px;
-    background: var(--color-linen);
+    width: 83px;
+    bottom: 2px;
+    height: 5px;
+    background: var(--accent);
     border-radius: 999px;
     pointer-events: none;
+    transform: translateX(-50%);
 }
 
 .mobile-menu-swiper .swiper-arrow {
