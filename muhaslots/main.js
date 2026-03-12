@@ -13,12 +13,12 @@ const WEIGHTS = {
 
 // Paytable (multipliers) for 3/4/5 in a row from the left
 const PAYTABLE = {
-    "💎": { 3: 50, 4: 200, 5: 1000 },
-    "🍀": { 3: 20, 4: 100, 5: 400 },
-    "⭐": { 3: 10, 4: 40, 5: 200 },
-    "🔔": { 3: 6, 4: 20, 5: 100 },
-    "🍋": { 3: 4, 4: 12, 5: 60 },
-    "🍒": { 3: 2, 4: 6, 5: 30 },
+    "💎": { 3: 250, 4: 1000, 5: 5000 },
+    "🍀": { 3: 100, 4: 400, 5: 2000 },
+    "⭐": { 3: 50, 4: 200, 5: 1000 },
+    "🔔": { 3: 25, 4: 100, 5: 500 },
+    "🍋": { 3: 15, 4: 60, 5: 300 },
+    "🍒": { 3: 10, 4: 40, 5: 200 },
 };
 
 const ROWS = 5;
@@ -140,6 +140,21 @@ function fmtOneIn(p) {
     return `1 in ${(1 / p).toFixed(2)}`;
 }
 
+function roundUSD(value) {
+    return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+}
+
+function snapBalanceToDenomination(value) {
+    const denom = getDenominationValue();
+    const steps = Math.round(roundUSD(value) / denom);
+    return roundUSD(Math.max(0, steps * denom));
+}
+
+function normalizeCreditStepValue(rawValue) {
+    const parsed = Number.parseInt(String(rawValue ?? ""), 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
 function getTargetSpinWinRate() {
     const value = Number.parseFloat(winOddsEl?.value ?? "0.5");
     if (!Number.isFinite(value)) return 0.5;
@@ -176,7 +191,7 @@ function getTotalBet() {
     const betPerLine = parseFloat(betEl.value);
     const denom = getDenominationValue();
     // Total bet shown in dollars to user (lines * bet credits * denom)
-    return lines * betPerLine * denom;
+    return roundUSD(lines * betPerLine * denom);
 }
 
 function updateTotals() {
@@ -682,9 +697,10 @@ function updateAllSessionDisplays() {
 }
 
 function adjustBalanceByCredits(creditDelta) {
-    const step = parseFloat(creditStepEl.value) || 0;
+    const step = normalizeCreditStepValue(creditStepEl.value);
+    creditStepEl.value = String(step);
     const denom = getDenominationValue();
-    balance = Math.max(0, balance + (step * denom * creditDelta));
+    balance = snapBalanceToDenomination(balance + (step * denom * creditDelta));
     updateTotals();
     updateRealtimeCreditMessage();
 }
@@ -761,7 +777,7 @@ async function doSpin(options = {}) {
     clearMessage();
 
     // Deduct bet up front
-    balance -= totalBetUSD;
+    balance = snapBalanceToDenomination(balance - totalBetUSD);
     updateTotals();
 
     const instantSpin = Boolean(options.instant);
@@ -783,7 +799,7 @@ async function doSpin(options = {}) {
 
     // Payout
     if (totalWinUSD > 0) {
-        balance += totalWinUSD;
+        balance = snapBalanceToDenomination(balance + totalWinUSD);
         addSessionWinnings(totalWinUSD);
         addNetSessionWinnings(totalWinUSD);
         subtractNetSessionLosses(totalWinUSD);
@@ -876,7 +892,7 @@ creditUpBtn.onclick = () => adjustBalanceByCredits(1);
 creditDownBtn.onclick = () => adjustBalanceByCredits(-1);
 
 creditStepEl.addEventListener("input", () => {
-    if (parseFloat(creditStepEl.value) < 0) creditStepEl.value = "0";
+    creditStepEl.value = String(normalizeCreditStepValue(creditStepEl.value));
 });
 
 creditStepEl.addEventListener("keydown", (e) => {
@@ -892,7 +908,7 @@ creditStepEl.addEventListener("keydown", (e) => {
     }
     if (e.key === "Enter") {
         e.preventDefault();
-        if (parseFloat(creditStepEl.value) < 0) creditStepEl.value = "0";
+        creditStepEl.value = String(normalizeCreditStepValue(creditStepEl.value));
         creditUpBtn.click();
     }
 });
@@ -948,6 +964,7 @@ document.addEventListener("keydown", (e) => {
     applyOverlayPage(0);
 
     ensureSessionStatsUI();
+    creditStepEl.value = String(normalizeCreditStepValue(creditStepEl.value));
     updateAllSessionDisplays();
     updateSessionStatsVisibility();
     updateRealtimeCreditMessage();
