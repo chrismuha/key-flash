@@ -1183,32 +1183,30 @@
     const updateOrderTypeChip = () => {
       let type = '';
       try { type = localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { type = ''; }
-      let label = 'Not selected';
+      let primary = 'Not selected';
+      let detail = '';
       if (type === 'delivery') {
-        label = 'Delivery';
+        primary = 'Delivery';
         const d = readDeliveryData();
         const parts = [d.name, d.address, d.suite, [d.city, d.zip].filter(Boolean).join(' ')].filter(Boolean);
         if (parts.length) {
-          const inline = `${label} --- ${parts.join(', ')}`;
-          const stacked = `${label}\n${parts.join('\n')}`;
-          const primaryChip = orderTypeChips[0];
-          let needsStacked = isMobileView();
-          if (!needsStacked && primaryChip) {
-            const primaryValueEl = primaryChip.querySelector('.order-type-chip__value');
-            if (primaryValueEl) {
-              primaryValueEl.textContent = inline;
-              needsStacked = primaryChip.scrollWidth > primaryChip.clientWidth;
-            }
-          }
-          label = needsStacked ? stacked : inline;
+          detail = parts.join(' | ');
         }
       } else if (type === 'dine') {
-        label = 'Dine In/Carryout';
+        primary = 'Dine In/Carryout';
       }
       const empty = !type;
       orderTypeChips.forEach((chip) => {
         const valueEl = chip.querySelector('.order-type-chip__value');
-        if (valueEl) valueEl.textContent = label;
+        if (valueEl) {
+          const primaryEl = valueEl.querySelector('.order-type-chip__primary');
+          const detailEl = valueEl.querySelector('.order-type-chip__detail');
+          if (primaryEl) primaryEl.textContent = primary;
+          if (detailEl) {
+            detailEl.textContent = detail;
+            detailEl.hidden = !detail;
+          }
+        }
         chip.dataset.empty = empty ? 'true' : 'false';
       });
       refreshOrderPrompts(type);
