@@ -7,6 +7,8 @@
     --page-button-row-offset: 12px;
     --logo-w: 120px;
     --logo-h: 80px;
+    --nav-logo-expanded-h: 84px;
+    --nav-logo-floating-h: var(--nav-logo-expanded-h);
     --swiper-arrow-size: 44px;
     --nav-height: calc(var(--logo-h) + var(--gap) * 2);
     --nav-offset: var(--nav-height);
@@ -166,13 +168,14 @@ body.page2 {
     display: grid;
     grid-template-columns: 132px 132px minmax(0, 1fr) 52px;
     grid-template-areas:
+        "logo logo . cart"
         "page1 page2 . cart"
         "pill pill pill pill"
         "swiper swiper swiper swiper";
     align-items: center;
     column-gap: var(--page-button-gap);
     row-gap: 4px;
-    padding: calc(var(--gap) * 4.5) var(--gap) 0 calc(var(--gap) / 2);
+    padding: calc(var(--gap) * 2) var(--gap) 0 calc(var(--gap) / 2);
     width: 100%;
     position: fixed;
     top: 0;
@@ -188,6 +191,15 @@ body.page2 {
 /* Left-rail logo occupies the padded space above links */
 .left-rail .nav-logo {
     display: none;
+    grid-area: logo;
+    width: auto;
+    height: var(--nav-logo-expanded-h);
+    max-width: min(220px, calc(100vw - 24px));
+    object-fit: contain;
+    object-position: left center;
+    justify-self: start;
+    align-self: start;
+    margin-top: -18px;
 }
 
 .left-rail > .box:nth-of-type(1) {
@@ -889,7 +901,7 @@ body:not(.nav-enabled) .left-rail {
     pointer-events: none;
 }
 
-body:not(.nav-enabled) .left-rail > *:not(.box.nav-cart) {
+body:not(.nav-enabled) .left-rail > *:not(.box.nav-cart):not(.nav-logo) {
     display: none !important;
 }
 
@@ -899,8 +911,29 @@ body:not(.nav-enabled) .left-rail .box.nav-cart {
     pointer-events: auto;
 }
 
+body:not(.nav-enabled) .left-rail .nav-logo {
+    display: none !important;
+}
+
 body.nav-enabled .left-rail {
     display: grid;
+    min-height: calc(var(--nav-logo-expanded-h) + var(--box-height) + 32px);
+}
+
+body.nav-enabled .left-rail .nav-logo {
+    display: block;
+}
+
+body.has-go-back:not(.nav-enabled) .left-rail .nav-logo {
+    display: block !important;
+    position: fixed;
+    top: 20px;
+    left: 4px;
+    height: var(--nav-logo-floating-h);
+    width: auto;
+    max-width: 180px;
+    z-index: 1000;
+    pointer-events: none;
 }
 
 .left-rail::before {
@@ -1041,6 +1074,8 @@ body.page3 main {
 
     body.mobile-ui.nav-enabled .left-rail {
         display: grid !important;
+        padding: calc(var(--gap) * 2) var(--gap) 0 calc(var(--gap) / 2);
+        min-height: calc(var(--nav-logo-expanded-h) + var(--box-height) + 32px);
     }
 
     .mobile-menu-swiper {
@@ -1239,17 +1274,25 @@ body.theme-dark main fieldset {
 /* Go Back button (fixed, next to theme toggle) */
 .go-back {
     position: fixed;
-    top: 6px;
+    top: -14px;
     left: 4px;
-    padding: 1px 10px;
+    padding: 1px 7.5px;
     font-weight: 700;
-    font-size: 11pt;
+    font-size: 9.3pt;
     border: 0.5px solid currentColor;
     background: transparent;
     color: var(--color-black);
     border-radius: 999px;
     cursor: pointer;
     z-index: 1000;
+}
+
+body.has-go-back:not(.nav-enabled) .go-back {
+    top: calc(var(--nav-logo-floating-h) + 2px);
+}
+
+body.nav-enabled .go-back {
+    display: none !important;
 }
 
 body.theme-dark .go-back {
