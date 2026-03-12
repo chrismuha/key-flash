@@ -81,9 +81,6 @@ const overlayPageEls = Array.from(document.querySelectorAll("[data-info-page]"))
 const casinoAdvantageTextEl = document.getElementById("casinoAdvantageText");
 const winLossOddsTextEl = document.getElementById("winLossOddsText");
 const sessionStatDisplayEl = document.getElementById("sessionStatDisplay");
-const desktopAutoFitQuery = window.matchMedia("(min-width: 841px)");
-const KNOWN_SESSION_BOX_SELECTOR =
-    "#sessionWinningsBox, #sessionLossesBox, #netSessionWinningsBox, #netSessionLossesBox, #actualSessionWinningsBox, #actualSessionLossesBox";
 const SESSION_STAT_CLEANUP_SELECTORS = [
     "#sessionWinningsBox",
     "#sessionLossesBox",
@@ -98,17 +95,6 @@ const SESSION_STAT_CLEANUP_SELECTORS = [
     "#actualSessionWinnings",
     "#actualSessionLosses",
 ];
-const ORPHAN_SESSION_LABELS = new Set([
-    "session winnings",
-    "session losses",
-    "session losses total",
-    "net session winnings",
-    "net session losses",
-    "actual net session winnings",
-    "actual net session losses",
-    "actual session winnings",
-    "actual session losses",
-]);
 const SESSION_VISIBILITY_BY_MODE = {
     both: { winnings: true, losses: true, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: false },
     winnings: { winnings: true, losses: false, netWinnings: false, netLosses: false, actualWinnings: false, actualLosses: false },
@@ -380,9 +366,6 @@ function updateGameOddsDisplay() {
 
     const { lineWinProb, lineLossProb, returnToPlayer, casinoAdvantage } = getPerLineOddsAndReturn();
     const linesActive = Math.min(10, Math.max(1, parseInt(linesEl.value, 10) || 1));
-    const spinWinApprox = 1 - (lineLossProb ** linesActive);
-    const spinLossApprox = lineLossProb ** linesActive;
-    const baseline = MONTE_CARLO_BASELINES_BY_LINES.byLines[linesActive] || MONTE_CARLO_BASELINES_BY_LINES.byLines[10];
     const targetSpinWinRate = getTargetSpinWinRate();
 
     casinoAdvantageTextEl.textContent =
@@ -390,10 +373,8 @@ function updateGameOddsDisplay() {
         `Payout size still follows the paytable after a winning spin.`;
 
     winLossOddsTextEl.textContent =
-        `Reference only: the old fully random ${linesActive}-line baseline was win ${fmtPercent(baseline.winRate)} / loss ${fmtPercent(baseline.lossRate)}. ` +
-        `The paytable model alone is about win ${fmtPercent(spinWinApprox)} / loss ${fmtPercent(spinLossApprox)} at ${linesActive} lines, ` +
-        `per-line win ${fmtPercent(lineWinProb)} (${fmtOneIn(lineWinProb)}), per-line loss ${fmtPercent(lineLossProb)}, ` +
-        `model RTP ${fmtPercent(returnToPlayer)} / house edge ${fmtPercent(casinoAdvantage)}.`;
+        `Current ${linesActive}-line paytable model: per-line win ${fmtPercent(lineWinProb)} (${fmtOneIn(lineWinProb)}), ` +
+        `per-line loss ${fmtPercent(lineLossProb)}, model RTP ${fmtPercent(returnToPlayer)} / house edge ${fmtPercent(casinoAdvantage)}.`;
 }
 
 
@@ -483,7 +464,7 @@ function handleEsc(e) {
 // Session Winnings UI (match Available Credits, DELETE duplicates hard + orphans)
 // -----------------------------
 
-const BOX_SELECTOR = ".credits-box, .available-box, .stat-box, .box, .tile, .panel, .balance-box";
+const BOX_SELECTOR = ".credits-box, .available-box, .stat-box, .box, .tile, .panel, .balance-box, .stat";
 
 /* Locate the Available Credits box containing the balance value. */
 function findAvailableCreditsBox() {
@@ -515,60 +496,32 @@ function matchValueTypography(srcValueEl, destValueEl) {
     destValueEl.style.textShadow = cs.textShadow;
 }
 
-/** Remove orphan labels for session stat boxes when not inside known stat containers. */
-function removeOrphanSessionLabels() {
-    const candidates = document.querySelectorAll(
-        'button, .label, [data-label], label, .chip, .tag, .pill, .badge, span, div'
-    );
-    candidates.forEach(el => {
-        const txt = (el.textContent || "").trim().toLowerCase();
-        const inKnownBox = el.closest(KNOWN_SESSION_BOX_SELECTOR);
-        if (ORPHAN_SESSION_LABELS.has(txt) && !inKnownBox) {
-            el.remove();
-        }
-    });
-}
-
 function createSessionStatBox({ availBox, boxId, valueId, labelText }) {
-    const clone = availBox.cloneNode(true);
-    clone.id = boxId;
+    const statBox = document.createElement("div");
+    statBox.className = availBox.className || "stat";
+    statBox.id = boxId;
 
-    let cloneLabel = clone.querySelector(".label, [data-label], label") || clone.firstElementChild;
-    if (!cloneLabel) {
-        cloneLabel = document.createElement("div");
-        cloneLabel.className = "label";
-        clone.insertBefore(cloneLabel, clone.firstChild);
-    }
-    cloneLabel.textContent = labelText;
+    const label = document.createElement("span");
+    label.className = "muted";
+    label.textContent = `${labelText}:`;
 
-    let cloneValue =
-        clone.querySelector("#balance") ||
-        clone.querySelector(".value, [data-value]");
-    if (!cloneValue) {
-        cloneValue = document.createElement("div");
-        cloneValue.className = "value";
-        clone.appendChild(cloneValue);
-    }
-    cloneValue.id = valueId;
-    cloneValue.textContent = fmtUSD(0);
-    cloneValue.setAttribute?.("aria-label", labelText);
+    const value = document.createElement("b");
+    value.id = valueId;
+    value.textContent = fmtUSD(0);
+    value.setAttribute("aria-label", labelText);
 
-    const availValue =
-        availBox.querySelector("#balance") ||
-        availBox.querySelector(".value, [data-value]") ||
-        balanceEl;
-    matchValueTypography(availValue, cloneValue);
+    matchValueTypography(balanceEl, value);
 
-    return clone;
+    statBox.append(label, document.createTextNode(" "), value);
+    return statBox;
 }
 
 /* Ensure session stat boxes exist, matching Available Credits. */
 function ensureSessionStatsUI() {
-    // HARD DELETE existing session stat containers/values and orphan labels
+    // HARD DELETE existing session stat containers/values
     SESSION_STAT_CLEANUP_SELECTORS.forEach((selector) => {
         document.querySelectorAll(selector).forEach((n) => n.remove());
     });
-    removeOrphanSessionLabels();
 
     const availBox = findAvailableCreditsBox();
     if (!availBox) return;
@@ -620,8 +573,6 @@ function ensureSessionStatsUI() {
         labelText: "Actual Net Session Losses",
     });
     actualWinningsBox.insertAdjacentElement("afterend", actualLossesBox);
-
-    removeOrphanSessionLabels();
 }
 
 function updateSessionDisplay(valueId, amountUSD) {
@@ -854,7 +805,6 @@ async function doSpin(options = {}) {
     isSpinning = false;
     updateTotals();
 
-    removeOrphanSessionLabels();
     updateAllSessionDisplays();
     return { completed: true, totalWinUSD };
 }
@@ -865,72 +815,6 @@ function doMaxBet() {
     ).value;
     linesEl.value = "10";
     onConfigChange();
-}
-
-function applyDesktopAutoFit() {
-    const gameEl = document.querySelector(".game");
-    if (!gameEl) return;
-    const cardEl = gameEl.querySelector(".card");
-    if (!cardEl) return;
-
-    if (!desktopAutoFitQuery.matches) {
-        document.body.classList.remove("desktop-autofit");
-        document.documentElement.style.setProperty("--desktop-fit-scale", "1");
-        return;
-    }
-
-    // Measure natural content size first, without auto-fit.
-    document.body.classList.remove("desktop-autofit");
-    document.documentElement.style.setProperty("--desktop-fit-scale", "1");
-    gameEl.style.transform = "none";
-
-    const prevGameHeight = gameEl.style.height;
-    const prevCardHeight = cardEl.style.height;
-    gameEl.style.height = "auto";
-    cardEl.style.height = "auto";
-
-    const contentWidth = Math.max(
-        cardEl.scrollWidth,
-        cardEl.offsetWidth,
-        gameEl.scrollWidth,
-        gameEl.offsetWidth,
-        1
-    );
-    const contentHeight = Math.max(
-        cardEl.scrollHeight,
-        cardEl.offsetHeight,
-        gameEl.scrollHeight,
-        gameEl.offsetHeight,
-        1
-    );
-
-    gameEl.style.height = prevGameHeight;
-    cardEl.style.height = prevCardHeight;
-    const viewportWidth = window.visualViewport?.width || window.innerWidth;
-    const viewportHeight = window.visualViewport?.height || window.innerHeight;
-
-    // Keep a larger vertical safety buffer on shorter desktop heights to avoid bottom clipping.
-    const horizontalPadding = viewportWidth >= 1400 ? 22 : 18;
-    const verticalPadding = viewportHeight <= 860 ? 56 : 38;
-    const availableWidth = Math.max(viewportWidth - horizontalPadding, 1);
-    const availableHeight = Math.max(viewportHeight - verticalPadding, 1);
-    const rawScale = Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight);
-
-    document.body.classList.add("desktop-autofit");
-    // Keep a little extra headroom so controls don't clip on shorter desktops.
-    const scale = Math.max(0.5, Math.min(0.95, rawScale * 0.95));
-
-    document.documentElement.style.setProperty("--desktop-fit-scale", String(scale));
-    gameEl.style.transform = "";
-}
-
-let desktopFitRaf = 0;
-function scheduleDesktopAutoFit() {
-    if (desktopFitRaf) cancelAnimationFrame(desktopFitRaf);
-    desktopFitRaf = requestAnimationFrame(() => {
-        desktopFitRaf = 0;
-        applyDesktopAutoFit();
-    });
 }
 
 function bindSpinHold() {
@@ -979,45 +863,6 @@ function onConfigChange() {
     updateGameOddsDisplay();
     updateAutoSpinControls();
     updateRealtimeCreditMessage();
-    scheduleDesktopAutoFit();
-}
-
-function disableDoubleTapZoom() {
-    let lastTouchEnd = 0;
-
-    const getInteractiveTarget = (target) => {
-        if (!(target instanceof Element)) return null;
-        return target.closest("button, input, select, textarea, label, a, [role='button']");
-    };
-
-    document.addEventListener("touchend", (e) => {
-        const now = Date.now();
-        const isRapidDoubleTap = now - lastTouchEnd <= 300;
-        if (isRapidDoubleTap && e.cancelable) {
-            e.preventDefault();
-
-            // Preserve responsiveness for controls while blocking Safari double-tap zoom.
-            const interactive = getInteractiveTarget(e.target);
-            if (interactive && typeof interactive.click === "function") {
-                interactive.click();
-            }
-        }
-        lastTouchEnd = now;
-    }, { passive: false });
-
-    document.addEventListener("gesturestart", (e) => {
-        if (e.cancelable) e.preventDefault();
-    }, { passive: false });
-
-    document.addEventListener("touchstart", (e) => {
-        if (e.touches && e.touches.length > 1 && e.cancelable) {
-            e.preventDefault();
-        }
-    }, { passive: false });
-
-    document.addEventListener("dblclick", (e) => {
-        if (e.cancelable) e.preventDefault();
-    }, { passive: false });
 }
 
 maxBtn.addEventListener("click", doMaxBet);
@@ -1105,16 +950,6 @@ document.addEventListener("keydown", (e) => {
     ensureSessionStatsUI();
     updateAllSessionDisplays();
     updateSessionStatsVisibility();
-    removeOrphanSessionLabels();
     updateRealtimeCreditMessage();
-    disableDoubleTapZoom();
     bindSpinHold();
-    applyDesktopAutoFit();
 })();
-
-window.addEventListener("resize", scheduleDesktopAutoFit, { passive: true });
-desktopAutoFitQuery.addEventListener("change", scheduleDesktopAutoFit);
-window.visualViewport?.addEventListener("resize", scheduleDesktopAutoFit, { passive: true });
-window.visualViewport?.addEventListener("scroll", scheduleDesktopAutoFit, { passive: true });
-window.addEventListener("load", scheduleDesktopAutoFit);
-document.fonts?.ready?.then(scheduleDesktopAutoFit);

@@ -43,8 +43,9 @@ body {
     display: block;
     min-height: 100vh;
     padding: 0;
-    overflow: hidden;
-    touch-action: manipulation;
+    overflow-x: hidden;
+    overflow-y: auto;
+    touch-action: auto;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
@@ -52,8 +53,9 @@ body {
 
 /* Game Grid */
 .game {
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    min-height: 100vh;
+    height: auto;
     display: grid;
     gap: 0;
     grid-template-columns: 1fr;
@@ -127,31 +129,6 @@ body {
 }
 
 @media (min-width:841px) {
-    html,
-    body.desktop-autofit {
-        overflow: hidden;
-    }
-
-    body.desktop-autofit {
-        width: 100vw;
-        height: 100vh;
-        padding: 0;
-        overflow: hidden;
-    }
-
-    body.desktop-autofit .game {
-        position: fixed;
-        top: 0;
-        left: 50%;
-        width: 100vw;
-        height: 100vh;
-        max-width: none;
-        gap: 0;
-        margin: 0;
-        transform-origin: top center;
-        transform: translateX(-50%) scale(var(--desktop-fit-scale, 1));
-    }
-
     .reels {
         --reel-row-h: 36px;
         --reel-row-gap: 3px;
@@ -275,7 +252,7 @@ body {
 }
 
 @media (min-width: 1500px) and (min-height: 900px) {
-  body.desktop-autofit .reels {
+  .reels {
     --reel-row-h: 38px;
     --reel-row-gap: 5px;
   }
@@ -297,7 +274,8 @@ body {
     border-radius: 0;
     box-shadow: var(--shadow);
     padding: 16px;
-    height: 100%;
+    min-height: 100vh;
+    height: auto;
 }
 
 /* Title / Header */
@@ -1421,41 +1399,7 @@ body.overlay-open {
   min-width: 90px;
 }
 
-/* Final desktop-autofit overrides: keep controls in 2 columns so content can scale larger. */
 @media (min-width: 841px) {
-  body.desktop-autofit .hud {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 5px;
-    margin-top: 4px;
-  }
-
-  body.desktop-autofit .left {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    width: 100%;
-    gap: 5px;
-    align-items: start;
-  }
-
-  body.desktop-autofit .left > * {
-    min-width: 0;
-    width: 100%;
-  }
-
-  body.desktop-autofit .stat,
-  body.desktop-autofit .select {
-    padding: 6px 8px;
-  }
-
-  body.desktop-autofit .right {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-  }
-
   .credit-controls {
     width: 100%;
     grid-column: 1 / -1;
