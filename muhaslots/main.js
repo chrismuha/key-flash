@@ -202,7 +202,7 @@ function updateTotals() {
     totalBetEl.textContent = fmtUSD(totalBet);
     balanceEl.textContent = fmtUSD(balance);
     const canAfford = balance >= totalBet;
-    spinBtn.disabled = !canAfford || isSpinning || autoSpinRunning;
+    spinBtn.disabled = autoSpinRunning ? false : (!canAfford || isSpinning);
     maxBtn.disabled = isSpinning || autoSpinRunning;
 }
 
@@ -743,13 +743,18 @@ async function runAutoSpin() {
     autoSpinRunning = true;
     autoSpinStopRequested = false;
     autoSpinRemaining = 0;
+    let stoppedForInsufficientCredits = false;
     updateAutoSpinControls();
     updateAutoSpinHint();
     updateTotals();
 
     while (!autoSpinStopRequested) {
         const result = await doSpin({ silentNoWin: true });
-        if (!result?.completed) break;
+        if (!result?.completed) {
+            stoppedForInsufficientCredits = true;
+            break;
+        }
+        if (autoSpinStopRequested) break;
         autoSpinRemaining += 1;
         updateAutoSpinHint();
 
@@ -766,8 +771,12 @@ async function runAutoSpin() {
 
     if (wasStopped) {
         setMessage("Auto spin canceled.");
+    } else if (stoppedForInsufficientCredits) {
+        updateRealtimeCreditMessage();
     } else if (spinsCompleted > 0) {
         setMessage(`Auto spin ended after ${spinsCompleted} spin${spinsCompleted === 1 ? "" : "s"}.`);
+    } else {
+        clearMessage();
     }
 
     updateAutoSpinControls();
