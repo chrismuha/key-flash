@@ -755,13 +755,18 @@ async function runAutoSpin() {
     while (!autoSpinStopRequested) {
         const result = await doSpin({ silentNoWin: true });
         if (!result?.completed) {
-            updateRealtimeCreditMessage();
-            updateAutoSpinHint();
-            while (!autoSpinStopRequested && balance < getTotalBet()) {
-                await new Promise((resolve) => setTimeout(resolve, 250));
+            if (result?.reason === "insufficient_credits") {
+                updateRealtimeCreditMessage();
+                updateAutoSpinHint();
+                while (!autoSpinStopRequested && balance < getTotalBet()) {
+                    await new Promise((resolve) => setTimeout(resolve, 250));
+                }
+                if (autoSpinStopRequested) break;
+                updateAutoSpinHint();
+                continue;
             }
-            if (autoSpinStopRequested) break;
-            updateAutoSpinHint();
+
+            await new Promise((resolve) => setTimeout(resolve, 100));
             continue;
         }
         if (autoSpinStopRequested) break;
@@ -774,15 +779,12 @@ async function runAutoSpin() {
     }
 
     const wasStopped = autoSpinStopRequested;
-    const spinsCompleted = autoSpinRemaining;
     autoSpinRunning = false;
     autoSpinStopRequested = false;
     autoSpinRemaining = 0;
 
     if (wasStopped) {
         setMessage("Auto spin canceled.");
-    } else if (spinsCompleted > 0) {
-        setMessage(`Auto spin ended after ${spinsCompleted} spin${spinsCompleted === 1 ? "" : "s"}.`);
     } else {
         clearMessage();
     }
@@ -794,11 +796,13 @@ async function runAutoSpin() {
 
 // Main Spin Flow
 async function doSpin(options = {}) {
-    if (isSpinning) return;
+    if (isSpinning) {
+        return { completed: false, reason: "busy", totalWinUSD: 0 };
+    }
     const totalBetUSD = getTotalBet();
     if (balance < totalBetUSD) {
         updateRealtimeCreditMessage();
-        return { completed: false, totalWinUSD: 0 };
+        return { completed: false, reason: "insufficient_credits", totalWinUSD: 0 };
     }
 
     isSpinning = true;
