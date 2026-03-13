@@ -725,6 +725,11 @@ function updateAutoSpinControls() {
 function updateAutoSpinHint() {
     if (!autoSpinHintEl) return;
     if (autoSpinRunning) {
+        const totalBetUSD = getTotalBet();
+        if (balance < totalBetUSD) {
+            autoSpinHintEl.textContent = `Auto spin paused. Add credits or tap Cancel to stop.`;
+            return;
+        }
         autoSpinHintEl.textContent = `Auto spin running (${autoSpinRemaining} spins). Tap Cancel to stop.`;
         return;
     }
@@ -743,7 +748,6 @@ async function runAutoSpin() {
     autoSpinRunning = true;
     autoSpinStopRequested = false;
     autoSpinRemaining = 0;
-    let stoppedForInsufficientCredits = false;
     updateAutoSpinControls();
     updateAutoSpinHint();
     updateTotals();
@@ -751,8 +755,14 @@ async function runAutoSpin() {
     while (!autoSpinStopRequested) {
         const result = await doSpin({ silentNoWin: true });
         if (!result?.completed) {
-            stoppedForInsufficientCredits = true;
-            break;
+            updateRealtimeCreditMessage();
+            updateAutoSpinHint();
+            while (!autoSpinStopRequested && balance < getTotalBet()) {
+                await new Promise((resolve) => setTimeout(resolve, 250));
+            }
+            if (autoSpinStopRequested) break;
+            updateAutoSpinHint();
+            continue;
         }
         if (autoSpinStopRequested) break;
         autoSpinRemaining += 1;
@@ -771,8 +781,6 @@ async function runAutoSpin() {
 
     if (wasStopped) {
         setMessage("Auto spin canceled.");
-    } else if (stoppedForInsufficientCredits) {
-        updateRealtimeCreditMessage();
     } else if (spinsCompleted > 0) {
         setMessage(`Auto spin ended after ${spinsCompleted} spin${spinsCompleted === 1 ? "" : "s"}.`);
     } else {
