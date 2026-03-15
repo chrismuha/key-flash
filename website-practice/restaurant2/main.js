@@ -242,6 +242,48 @@
     sauces: ['sauces_ingredients[]']
   };
 
+  /**
+   * Optional category groups per section. Edit this object to add/remove/rename categories.
+   * If a section has no categories or an empty array, the overlay will remain category-less.
+   * Category filters are based on ingredient values (input value attribute). Items with no matching category remain visible in "All".
+   */
+  const SECTION_INGREDIENT_CATEGORIES = {
+    pizza: [
+      { id: 'cheese', label: 'Cheese & Toppings', values: ['cheese', 'bacon', 'cherry_peppers', 'feta_cheese', 'green_peppers', 'ham', 'jalapenos', 'lettuce', 'mushrooms', 'olives', 'onion', 'pickles', 'pineapple', 'roasted_peppers', 'spinach', 'tomatoes'] },
+      { id: 'sauce', label: 'Sauce & Crust', values: ['tomato_sauce', 'well_done', 'thin_crust'] }
+    ],
+    burger: [
+      { id: 'protein', label: 'Protein', values: ['patty', 'bacon', 'medium_well', 'rare', 'well_done'] },
+      { id: 'vegetables', label: 'Vegetables', values: ['lettuce', 'mushrooms', 'olives', 'onion', 'tomatoes', 'pickles', 'jalapenos'] },
+      { id: 'base', label: 'Base', values: ['bun', 'tomato_sauce', 'cheese'] }
+    ],
+    calzone: [
+      { id: 'cheese', label: 'Cheese', values: ['cheddar_cheese', 'feta_cheese', 'grated_parmesan_or_pecorino', 'ricotta_cheese', 'shredded_mozzarella', 'swiss_cheese', 'american_cheese'] },
+      { id: 'meats', label: 'Meats', values: ['ham', 'meatballs', 'pepperoni', 'salami', 'steak'] },
+      { id: 'veggies', label: 'Vegetables', values: ['broccoli', 'eggplant', 'greens', 'jalapenos', 'onion', 'roasted_red_peppers', 'spinach', 'tomatoes'] }
+    ],
+    chicken_wings: [
+      { id: 'sauces', label: 'Sauces', values: ['butter_sauce', 'hot_and_spicy_barbecue_sauce', 'hot_sauce', 'medium_sauce', 'mild_sauce', 'mustard', 'extra_hot_sauce', 'spicy_garlic_parm_sauce'] },
+      { id: 'base', label: 'Base', values: ['plain'] }
+    ],
+    salad: [
+      { id: 'greens', label: 'Greens', values: ['cucumbers', 'lettuce', 'tomato', 'red_onion', 'red_peppers'] },
+      { id: 'protein', label: 'Protein', values: ['ham', 'salami', 'provolone_cheese'] },
+      { id: 'dressings', label: 'Dressings', values: ['italian_dressing', 'olives', 'banana_peppers'] }
+    ],
+    sub: [
+      { id: 'bread', label: 'Bread', values: ['white', 'wheat', 'toasted'] },
+      { id: 'meat', label: 'Meat', values: ['bacon', 'bologna', 'cheese', 'ham', 'pepperoni', 'salami', 'turkey'] },
+      { id: 'veggies', label: 'Vegetables', values: ['jalapenos', 'lettuce', 'mushrooms', 'olives', 'onion', 'pickles', 'tomatoes'] }
+    ],
+    wrap: [
+      { id: 'tortilla', label: 'Tortilla', values: ['white', 'wheat', 'tomato_basil', 'spinach'] },
+      { id: 'meat', label: 'Meat', values: ['bacon', 'bologna', 'ham', 'pepperoni', 'salami', 'turkey'] },
+      { id: 'extras', label: 'Extras', values: ['cheese', 'jalapenos', 'lettuce', 'mushrooms', 'olives', 'onion', 'pickles', 'tomatoes'] }
+    ],
+    sauces: []
+  };
+
   const SECTION_LABELS = {
     pizza: 'Pizza',
     burger: 'Burger',
@@ -322,6 +364,175 @@
       catalog[section].push({ group, value, label, required });
     });
     return catalog;
+  }
+
+  function getIngredientCategoriesForSection(section) {
+    const categories = Array.isArray(SECTION_INGREDIENT_CATEGORIES[section]) ? SECTION_INGREDIENT_CATEGORIES[section] : [];
+    if (!categories.length) return null;
+    return categories.map((category) => {
+      if (!category || typeof category !== 'object') return null;
+      const id = String(category.id || category.label || '').trim().toLowerCase().replace(/[^a-z0-9_\-]+/g, '_') || null;
+      const label = String(category.label || category.id || '').trim() || 'Category';
+      const values = Array.isArray(category.values) ? category.values.map((v) => String(v).trim()) : [];
+      if (!id || !label) return null;
+      return { id, label, values };
+    }).filter((category) => category && category.id && category.label);
+  }
+
+  function setIngredientCategoryVisibility(section, selectedCategoryId) {
+    const sectionEl = document.getElementById(section);
+    if (!sectionEl) return;
+    const showAll = !selectedCategoryId || selectedCategoryId === 'all';
+    const items = Array.from(sectionEl.querySelectorAll('.ingredient-category-item'));
+    items.forEach((item) => {
+      const categoryForItem = item.dataset.ingredientCategory || '';
+      const show = showAll || categoryForItem === selectedCategoryId;
+      item.style.display = show ? '' : 'none';
+      const next = item.nextElementSibling;
+      if (next && next.tagName === 'BR') {
+        next.style.display = show ? '' : 'none';
+      }
+    });
+  }
+
+  function getOverlayCategoryUiRoot(section) {
+    const overlay = document.querySelector(`.menu-overlay[data-section="${section}"]`);
+    if (!overlay) return null;
+    const menuSection = overlay.querySelector('.menu-section');
+    return menuSection;
+  }
+
+  function getSelectedCategoryForSection(section) {
+    const sectionEl = getOverlayCategoryUiRoot(section);
+    if (!sectionEl) return '';
+    return sectionEl.dataset.selectedCategory || '';
+  }
+
+  function getSelectedCategoryLabelForSection(section) {
+    const selectedId = getSelectedCategoryForSection(section);
+    if (!selectedId) return '';
+    if (selectedId === 'all') return 'All';
+    const categories = getIngredientCategoriesForSection(section);
+    const match = (categories || []).find((c) => c.id === selectedId);
+    return match ? match.label : titleCase(String(selectedId).replace(/[_\-]/g, ' '));
+  }
+
+  function renderIngredientCategoryTabs(section) {
+    const sectionEl = document.getElementById(section);
+    if (!sectionEl) return;
+    const categories = getIngredientCategoriesForSection(section);
+    const container = sectionEl.querySelector('.ingredient-category-tabs');
+    if (!categories || !categories.length) {
+      if (container) container.remove();
+      sectionEl.dataset.selectedCategory = '';
+      const allItems = sectionEl.querySelectorAll('.ingredient-category-item');
+      allItems.forEach((item) => { item.hidden = false; });
+      return;
+    }
+
+    let tabRoot = container;
+    if (!tabRoot) {
+      tabRoot = document.createElement('div');
+      tabRoot.className = 'ingredient-category-tabs';
+      sectionEl.insertBefore(tabRoot, sectionEl.querySelector('form'));
+    } else {
+      tabRoot.textContent = '';
+    }
+
+    const allTab = document.createElement('button');
+    allTab.type = 'button';
+    allTab.className = 'ingredient-category-tab';
+    allTab.dataset.categoryId = 'all';
+    allTab.textContent = 'All';
+    tabRoot.appendChild(allTab);
+
+    categories.forEach((cat) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ingredient-category-tab';
+      btn.dataset.categoryId = cat.id;
+      btn.textContent = cat.label;
+      tabRoot.appendChild(btn);
+    });
+
+    const inputs = sectionEl.querySelectorAll('input[type="checkbox"][name$="_ingredients[]"]');
+    inputs.forEach((input) => {
+      const label = input.closest('label');
+      if (!label) return;
+      const value = String(input.value || '').trim();
+      let matchedCategory = '';
+      categories.some((cat) => {
+        if (cat.values.includes(value)) {
+          matchedCategory = cat.id;
+          return true;
+        }
+        return false;
+      });
+      label.classList.add('ingredient-category-item');
+      label.dataset.ingredientCategory = matchedCategory;
+    });
+
+    // Also map stand-alone labels with inputs by 
+
+    const categoryButtons = Array.from(tabRoot.querySelectorAll('.ingredient-category-tab'));
+    const selectCategory = (categoryId) => {
+      sectionEl.dataset.selectedCategory = categoryId;
+      categoryButtons.forEach((btn) => {
+        btn.classList.toggle('active', btn.dataset.categoryId === categoryId);
+      });
+      setIngredientCategoryVisibility(section, categoryId);
+    };
+
+    categoryButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        selectCategory(btn.dataset.categoryId || 'all');
+      });
+    });
+
+    const initial = sectionEl.dataset.selectedCategory || 'all';
+    selectCategory(initial);
+  }
+
+  function ensureIngredientCategories() {
+    Object.keys(SECTION_INGREDIENT_GROUPS).forEach((section) => {
+      const categorySections = getIngredientCategoriesForSection(section);
+      const sectionEl = document.getElementById(section);
+      if (!sectionEl) return;
+      // If section has categories configured, render tabs and apply visibility. Otherwise show all.
+      if (categorySections && categorySections.length) {
+        renderIngredientCategoryTabs(section);
+      } else {
+        renderIngredientCategoryTabs(section); // this function handles empty
+      }
+    });
+  }
+
+  function getSelectedCategoryForCartSection(section) {
+    const overlay = document.querySelector(`.menu-overlay[data-section="${section}"]`);
+    const sectionEl = overlay ? overlay.querySelector('.menu-section') : null;
+    return sectionEl ? sectionEl.dataset.selectedCategory || '' : '';
+  }
+
+  function addCategoryLabelToOrderItem(orderItem) {
+    const selected = getSelectedCategoryForCartSection(orderItem.section);
+    if (!selected) return orderItem;
+    const selectedLabel = getSelectedCategoryLabelForSection(orderItem.section);
+    return { ...orderItem, selectedCategory: selectedLabel };
+  }
+
+  function saveAllIngredientSelections() {
+    const data = {};
+    document.querySelectorAll('input[type="checkbox"][name]').forEach((i) => {
+      const nm = i.getAttribute('name');
+      data[nm] = data[nm] || [];
+      if (i.checked) {
+        const labelEl = i.closest('label');
+        const selectEl = labelEl ? labelEl.querySelector('select.ingredient-qty[data-no-qty="true"]') : null;
+        const rawValue = (selectEl && selectEl.value) ? selectEl.value : i.value;
+        data[nm].push(normalizeJalapenoValue(rawValue));
+      }
+    });
+    saveIngredientsToStorage(data);
   }
 
   function saveIngredientCatalogFromDOM() {
@@ -816,6 +1027,7 @@
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       section,
       sectionLabel: SECTION_LABELS[section] || titleCase(String(section || '').replace(/_/g, ' ')),
+      selectedCategory: getSelectedCategoryLabelForSection(section) || '',
       note: getSectionNote(section),
       sectionQty,
       pizzaSize: section === 'pizza' ? loadPizzaSize() : '',
@@ -2169,6 +2381,7 @@
     // Page 2: menu overlays + pills
     if (body.classList.contains('page2')) {
       saveIngredientCatalogFromDOM();
+      ensureIngredientCategories();
       const overlays = Array.from(document.querySelectorAll('.menu-overlay[data-section]'));
       const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
       const backToMenuBtn = document.querySelector('.back-to-menu');
@@ -3336,6 +3549,7 @@
         syncOverlayUiLock();
         moveBackButtonToOverlay(overlay);
         setOverlaySessionForSection(section);
+        ensureIngredientCategories();
         updateSectionDoneState(section);
         updateFooterBackState();
         const focusable = overlay.querySelector('input, button, select, [tabindex]:not([tabindex="-1"])');
@@ -4493,6 +4707,12 @@
             sectionDisplayCounts[sectionKey] = nextSectionCount;
             title.textContent = `${sectionLabel} #${nextSectionCount}`;
             header.appendChild(title);
+            if (item.selectedCategory) {
+              const category = document.createElement('div');
+              category.className = 'summary-section-category';
+              category.textContent = `Category: ${item.selectedCategory}`;
+              header.appendChild(category);
+            }
 
             const actions = document.createElement('div');
             actions.className = 'summary-section-actions';

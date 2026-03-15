@@ -3041,6 +3041,45 @@ main .section-actions .reset-group {
     justify-self: end;
 }
 
+.ingredient-category-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-bottom: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.ingredient-category-tab {
+    border: 1px solid #999;
+    background: #fff;
+    color: #222;
+    border-radius: 999px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.ingredient-category-tab.active {
+    background: #222;
+    color: #fff;
+    border-color: #222;
+}
+
+.ingredient-category-item {
+    display: block;
+}
+
+.summary-section-category {
+    display: block;
+    font-size: 10pt;
+    margin-top: 2px;
+    color: #555;
+    font-weight: 600;
+}
+
 main .menu-summary-label {
     font-size: inherit;
     line-height: inherit;
