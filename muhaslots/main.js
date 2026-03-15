@@ -120,6 +120,7 @@ let autoSpinStopRequested = false;
 let autoSpinRemaining = 0;
 let spinHoldTimer = 0;
 let suppressSpinClick = false;
+let lastTouchEndAt = 0;
 
 // Session Winnings State
 let sessionWinningsUSD = 0;
@@ -127,6 +128,22 @@ let sessionLossesUSD = 0;
 let netSessionWinningsUSD = 0;
 let netSessionLossesUSD = 0;
 let actualSessionNetUSD = 0;
+
+document.addEventListener("gesturestart", (e) => e.preventDefault());
+document.addEventListener("gesturechange", (e) => e.preventDefault());
+document.addEventListener("gestureend", (e) => e.preventDefault());
+document.addEventListener("touchmove", (e) => {
+    if (e.touches.length > 1) {
+        e.preventDefault();
+    }
+}, { passive: false });
+document.addEventListener("touchend", (e) => {
+    const now = Date.now();
+    if (now - lastTouchEndAt < 300) {
+        e.preventDefault();
+    }
+    lastTouchEndAt = now;
+}, { passive: false });
 
 
 // Utilities
@@ -153,9 +170,30 @@ function snapBalanceToDenomination(value) {
     return roundUSD(Math.max(0, steps * denom));
 }
 
+function isValidCreditStepValue(rawValue) {
+    return /^[1-9]\d*$/.test(String(rawValue ?? "").trim());
+}
+
 function normalizeCreditStepValue(rawValue) {
-    const parsed = Number.parseInt(String(rawValue ?? ""), 10);
+    if (!isValidCreditStepValue(rawValue)) return 1;
+    const parsed = Number.parseInt(String(rawValue).trim(), 10);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+}
+
+function getNextInputValue(input, insertedText) {
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+    return `${input.value.slice(0, start)}${insertedText}${input.value.slice(end)}`;
+}
+
+function syncCreditStepInput(rawValue) {
+    if (isValidCreditStepValue(rawValue)) {
+        const normalized = String(normalizeCreditStepValue(rawValue));
+        creditStepEl.value = normalized;
+        creditStepEl.dataset.lastValidValue = normalized;
+        return;
+    }
+    creditStepEl.value = creditStepEl.dataset.lastValidValue || "1";
 }
 
 function getTargetSpinWinRate() {
@@ -924,8 +962,26 @@ sessionStatDisplayEl?.addEventListener("change", updateSessionStatsVisibility);
 creditUpBtn.onclick = () => adjustBalanceByCredits(1);
 creditDownBtn.onclick = () => adjustBalanceByCredits(-1);
 
+creditStepEl.dataset.lastValidValue = String(normalizeCreditStepValue(creditStepEl.value));
+
+creditStepEl.addEventListener("beforeinput", (e) => {
+    if (e.inputType.startsWith("delete")) return;
+    if (e.inputType === "insertFromPaste" && !isValidCreditStepValue(getNextInputValue(creditStepEl, e.data ?? ""))) {
+        e.preventDefault();
+        return;
+    }
+    if (e.data == null) return;
+    if (!isValidCreditStepValue(getNextInputValue(creditStepEl, e.data))) {
+        e.preventDefault();
+    }
+});
+
 creditStepEl.addEventListener("input", () => {
-    creditStepEl.value = String(normalizeCreditStepValue(creditStepEl.value));
+    syncCreditStepInput(creditStepEl.value);
+});
+
+creditStepEl.addEventListener("blur", () => {
+    syncCreditStepInput(creditStepEl.value);
 });
 
 creditStepEl.addEventListener("keydown", (e) => {

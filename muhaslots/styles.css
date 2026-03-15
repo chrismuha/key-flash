@@ -52,10 +52,22 @@ body {
     min-height: 100vh;
     height: auto;
     padding: 0;
-    touch-action: auto;
+    touch-action: manipulation;
+    -ms-touch-action: manipulation;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
+    -webkit-text-size-adjust: 100%;
     user-select: none;
+}
+
+html,
+body,
+button,
+input,
+select,
+.game,
+.card {
+    touch-action: manipulation;
 }
 
 /* Game Grid */
