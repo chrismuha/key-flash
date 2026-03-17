@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "env -u ELECTRON_RUN_AS_NODE electron .",
     "test": "find . -name '*.js' -not -path './node_modules/*' -exec node --check {} \\;"
   },
   "devDependencies": {
