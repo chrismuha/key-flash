@@ -1,12 +1,17 @@
 {
   "name": "boxify",
   "version": "1.0.0",
-  "main": "public/main.js",
+  "description": "Desktop Boxify app built with Electron.",
+  "main": "main.js",
   "scripts": {
+    "start": "env -u ELECTRON_RUN_AS_NODE electron .",
     "test": "find . -name '*.js' -not -path './node_modules/*' -exec node --check {} \\;"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^40.6.1"
+  }
 }
