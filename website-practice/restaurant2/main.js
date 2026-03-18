@@ -43,8 +43,9 @@
   // Pretty labels for summary display (keyed by `${name}|${value}`)
   const INGREDIENT_LABELS = {
     'pizza_ingredients[]|bacon': 'Bacon',
+    'pizza_ingredients[]|boneless_chicken_wings': 'Boneless chicken wings',
     'pizza_ingredients[]|broccoli': 'Broccoli',
-    'pizza_ingredients[]|chicken': 'Chicken',
+    'pizza_ingredients[]|chicken': 'Grilled chicken strips',
     'pizza_ingredients[]|cheese': 'Cheese',
     'pizza_ingredients[]|garlic': 'Garlic',
     'pizza_ingredients[]|jalapenos': 'Jalapeños',
@@ -92,7 +93,7 @@
     'calzone_ingredients[]|bacon_bits': 'Bacon bits',
     'calzone_ingredients[]|meatballs': 'Meatballs',
     'calzone_ingredients[]|broccoli': 'Broccoli',
-    'calzone_ingredients[]|chicken': 'Chicken',
+    'calzone_ingredients[]|chicken': 'Grilled chicken strips',
     'calzone_ingredients[]|onion': 'Onion',
     'calzone_ingredients[]|steak': 'Steak',
     'calzone_ingredients[]|hot_peppers': 'Hot peppers',
@@ -155,7 +156,7 @@
     'sub_ingredients[]|bologna': 'Bologna',
     'sub_ingredients[]|buffalo_sauce': 'Buffalo sauce',
     'sub_ingredients[]|cheese': 'Cheese',
-    'sub_ingredients[]|chicken': 'Chicken',
+    'sub_ingredients[]|chicken': 'Grilled chicken strips',
     'sub_ingredients[]|ham': 'Ham',
     'sub_ingredients[]|jalapenos': 'Jalapeños',
     'sub_ingredients[]|lettuce': 'Lettuce',
@@ -280,7 +281,7 @@
    */
   const SECTION_INGREDIENT_CATEGORIES = {
     pizza: [
-      { id: 'cheese', label: 'Cheese & Toppings', values: ['cheese', 'bacon', 'broccoli', 'cherry_peppers', 'chicken', 'feta_cheese', 'garlic', 'green_peppers', 'ham', 'jalapenos', 'lettuce', 'meatballs', 'mild_sauce', 'mushrooms', 'olives', 'onion', 'pepperoni', 'pickles', 'pineapple', 'ranch', 'ricotta_cheese', 'roasted_peppers', 'sausage', 'spinach', 'tomatoes'] },
+      { id: 'cheese', label: 'Cheese & Toppings', values: ['cheese', 'bacon', 'boneless_chicken_wings', 'broccoli', 'cherry_peppers', 'chicken', 'feta_cheese', 'garlic', 'green_peppers', 'ham', 'jalapenos', 'lettuce', 'meatballs', 'mild_sauce', 'mushrooms', 'olives', 'onion', 'pepperoni', 'pickles', 'pineapple', 'ranch', 'ricotta_cheese', 'roasted_peppers', 'sausage', 'spinach', 'tomatoes'] },
       { id: 'sauce', label: 'Sauce & Crust', values: ['tomato_sauce', 'well_done', 'thin_crust'] }
     ],
     burger: [
@@ -511,7 +512,7 @@
         description: 'White bread, chicken, cheese, lettuce, tomatoes'
       },
       {
-        id: 'buff_chick_sub',
+        id: 'buffalo_chicken_sub',
         name: 'Buffalo Chicken Sub',
         price: '$0',
         ingredients: ['white', 'chicken', 'buffalo_sauce', 'cheese', 'lettuce'],
@@ -651,8 +652,8 @@
         id: 'chkn_wing_pizza',
         name: 'Chkn Wing Pizza',
         price: '$0',
-        ingredients: ['chicken', 'mild_sauce', 'cheese'],
-        description: 'Chicken, mild sauce, cheese'
+        ingredients: ['boneless_chicken_wings', 'mild_sauce', 'cheese', 'ranch'],
+        description: 'Boneless chicken wings, mild sauce, cheese, ranch'
       }
     ],
     dinner: [
@@ -850,6 +851,29 @@
     const categories = getIngredientCategoriesForSection(section);
     const match = (categories || []).find((c) => c.id === selectedId);
     return match ? match.label : titleCase(String(selectedId).replace(/[_\-]/g, ' '));
+  }
+
+  const MIXED_SUB_MIN_MEATS = 3;
+  const SUB_MEAT_VALUES = new Set(['bacon', 'bologna', 'chicken', 'ham', 'pepperoni', 'salami', 'tuna', 'turkey']);
+
+  function countMixedSubMeats(values) {
+    return (Array.isArray(values) ? values : []).reduce((total, value) => total + (SUB_MEAT_VALUES.has(String(value || '')) ? 1 : 0), 0);
+  }
+
+  function getMixedSubValidationState() {
+    const sectionEl = document.getElementById('sub');
+    const selectedPresetId = sectionEl ? String(sectionEl.dataset.selectedPresetId || '') : '';
+    if (selectedPresetId !== 'mixed_sub') {
+      return { applies: false, ok: true, meatCount: 0 };
+    }
+    const ingredients = loadIngredientsFromStorage();
+    const selected = Array.isArray(ingredients['sub_ingredients[]']) ? ingredients['sub_ingredients[]'] : [];
+    const meatCount = countMixedSubMeats(selected);
+    return {
+      applies: true,
+      ok: meatCount >= MIXED_SUB_MIN_MEATS,
+      meatCount
+    };
   }
 
   function renderIngredientCategoryTabs(section) {
@@ -4374,6 +4398,13 @@
             return;
           }
         }
+        const mixedSubState = getMixedSubValidationState();
+        if (mixedSubState.applies && !mixedSubState.ok) {
+          builderError.hidden = false;
+          builderError.textContent = `Mixed Sub requires at least ${MIXED_SUB_MIN_MEATS} meats.`;
+          ensureBuilderErrorVisible();
+          return;
+        }
         builderError.hidden = true;
         builderError.textContent = '';
       };
@@ -4394,7 +4425,11 @@
         if (!section) return;
         const doneBtn = document.querySelector(`.section-done[data-section="${section}"]`);
         if (!doneBtn) return;
-        const canUseDone = isSectionActive(section) && getSectionSelectedIngredientCount(section) > 0;
+        let canUseDone = isSectionActive(section) && getSectionSelectedIngredientCount(section) > 0;
+        if (section === 'sub') {
+          const mixedSubState = getMixedSubValidationState();
+          if (mixedSubState.applies && !mixedSubState.ok) canUseDone = false;
+        }
         doneBtn.disabled = !canUseDone;
         if (canUseDone) doneBtn.removeAttribute('aria-disabled');
         else doneBtn.setAttribute('aria-disabled', 'true');
@@ -4566,6 +4601,18 @@
       const completeSectionDone = (section, options = {}) => {
         const { forceAddToCart = null, closeAfter = true } = options || {};
         if (!section) return;
+        if (section === 'sub') {
+          const mixedSubState = getMixedSubValidationState();
+          if (mixedSubState.applies && !mixedSubState.ok) {
+            if (builderError) {
+              builderError.hidden = false;
+              builderError.textContent = `Mixed Sub requires at least ${MIXED_SUB_MIN_MEATS} meats.`;
+              ensureBuilderErrorVisible();
+            }
+            updateSectionDoneState(section);
+            return;
+          }
+        }
         if (overlaySession.section === section) overlaySession.dirty = false;
         const item = buildOrderItemFromSection(section);
         if (!item) {
@@ -5680,6 +5727,14 @@
                   qtyLabel: qtyValueToLabel(qStr)
                 });
               });
+              if (item.section === 'sub' && item.preset && item.preset.id === 'mixed_sub') {
+                const mixedSubMeatCount = countMixedSubMeats(updatedIngredients.map((row) => row && row.value));
+                if (mixedSubMeatCount < MIXED_SUB_MIN_MEATS) {
+                  window.alert(`Mixed Sub requires at least ${MIXED_SUB_MIN_MEATS} meats.`);
+                  renderOrderSummary();
+                  return;
+                }
+              }
               try { localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMapNext)); } catch { /* ignore */ }
               const next = loadOrderItemsFromStorage().map((it) => {
                 if (!it || it.id !== item.id) return it;
@@ -5997,6 +6052,15 @@
                 qtyMapNext[rowKey] = qStr;
                 next.push(value);
               });
+              const secSectionEl = document.getElementById(sec);
+              const selectedPresetId = secSectionEl ? String(secSectionEl.dataset.selectedPresetId || '') : '';
+              if (sec === 'sub' && selectedPresetId === 'mixed_sub') {
+                const mixedSubMeatCount = countMixedSubMeats(next);
+                if (mixedSubMeatCount < MIXED_SUB_MIN_MEATS) {
+                  window.alert(`Mixed Sub requires at least ${MIXED_SUB_MIN_MEATS} meats.`);
+                  return;
+                }
+              }
               try {
                 const ing = normalizeIngredientData(readJSON(STORAGE_KEYS.ingredients, {})) || {};
                 ing[group] = next;
