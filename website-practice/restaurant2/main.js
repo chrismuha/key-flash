@@ -91,7 +91,9 @@
     'calzone_ingredients[]|cheddar_cheese': 'Cheddar cheese',
     'calzone_ingredients[]|feta_cheese': 'Feta cheese',
     'calzone_ingredients[]|greens': 'Greens',
+    'calzone_ingredients[]|green_peppers': 'Green peppers',
     'calzone_ingredients[]|jalapenos': 'Jalapeño',
+    'calzone_ingredients[]|mushrooms': 'Mushrooms',
     'calzone_ingredients[]|roasted_red_peppers': 'Roasted red peppers',
     'calzone_ingredients[]|pineapple': 'Pineapple',
     'calzone_ingredients[]|spinach': 'Spinach',
@@ -100,6 +102,7 @@
     'calzone_ingredients[]|tomatoes': 'Tomatoes',
     'calzone_ingredients[]|pepperoni': 'Pepperoni',
     'calzone_ingredients[]|salami': 'Salami',
+    'calzone_ingredients[]|sausage': 'Sausage',
     'calzone_ingredients[]|ham': 'Ham',
 
     'chicken_wings_ingredients[]|garlic': 'Garlic',
@@ -259,18 +262,20 @@
     ],
     calzone: [
       { id: 'cheese', label: 'Cheese', values: ['american_cheese', 'cheddar_cheese', 'feta_cheese', 'grated_parmesan_or_pecorino', 'ricotta_cheese', 'shredded_mozzarella', 'swiss_cheese'] },
-      { id: 'meats', label: 'Meats', values: ['bacon_bits', 'ham', 'meatballs', 'pepperoni', 'salami', 'steak'] },
-      { id: 'vegetables', label: 'Vegetables', values: ['banana_peppers', 'broccoli', 'eggplant', 'greens', 'hot_peppers', 'jalapenos', 'onion', 'pineapple', 'roasted_red_peppers', 'spinach', 'tomatoes'] },
+      { id: 'meats', label: 'Meats', values: ['bacon_bits', 'ham', 'meatballs', 'pepperoni', 'salami', 'sausage', 'steak'] },
+      { id: 'veggies', label: 'Vegetables', values: ['banana_peppers', 'broccoli', 'eggplant', 'green_peppers', 'greens', 'hot_peppers', 'jalapenos', 'mushrooms', 'onion', 'pineapple', 'roasted_red_peppers', 'spinach', 'tomatoes'] },
       { id: 'seasonings', label: 'Seasonings', values: ['black_pepper', 'garlic_powder', 'italian_seasoning', 'olive_oil', 'salt'] }
     ],
     chicken_wings: [
       { id: 'sauces', label: 'Sauces', values: ['butter_sauce', 'hot_and_spicy_barbecue_sauce', 'hot_sauce', 'medium_sauce', 'mild_sauce', 'mustard', 'extra_hot_sauce', 'spicy_garlic_parm_sauce'] },
+      { id: 'extras', label: 'Extras', values: ['garlic', 'honey'] },
       { id: 'base', label: 'Base', values: ['plain'] }
     ],
     salad: [
-      { id: 'greens', label: 'Greens', values: ['cucumbers', 'lettuce', 'tomato', 'red_onion', 'red_peppers'] },
-      { id: 'protein', label: 'Protein', values: ['ham', 'salami', 'provolone_cheese'] },
-      { id: 'dressings', label: 'Dressings', values: ['italian_dressing', 'olives', 'banana_peppers'] }
+      { id: 'greens', label: 'Greens', values: ['cucumbers', 'green_peppers', 'red_onion', 'red_peppers', 'tomato'] },
+      { id: 'protein', label: 'Protein', values: ['ham', 'provolone_cheese', 'salami'] },
+      { id: 'extras', label: 'Extras', values: ['banana_peppers', 'olives'] },
+      { id: 'dressings', label: 'Dressings', values: ['italian_dressing'] }
     ],
     sub: [
       { id: 'bread', label: 'Bread', values: ['white', 'wheat', 'toasted'] },
@@ -282,7 +287,11 @@
       { id: 'meat', label: 'Meat', values: ['bacon', 'bologna', 'ham', 'pepperoni', 'salami', 'turkey'] },
       { id: 'extras', label: 'Extras', values: ['cheese', 'jalapenos', 'lettuce', 'mushrooms', 'olives', 'onion', 'pickles', 'tomatoes'] }
     ],
-    sauces: []
+    sauces: [
+      { id: 'dressings', label: 'Dressings', values: ['butter_milk_ranch', 'mayonnaise', 'ranch'] },
+      { id: 'savory', label: 'Savory', values: ['bbq', 'mustard'] },
+      { id: 'sweet_tangy', label: 'Sweet & Tangy', values: ['honey_bbq', 'honey_mustard'] }
+    ]
   };
 
   const PRESETS_BY_SECTION = {
@@ -290,21 +299,21 @@
       {
         id: 'large_burger',
         name: 'Large Burger',
-        price: '$9.99',
+        price: '$0',
         ingredients: ['bun', 'patty', 'cheese', 'lettuce', 'tomatoes', 'bacon'],
         description: 'Bun, patty, cheese, lettuce, tomatoes, bacon'
       },
       {
         id: 'small_burger',
         name: 'Small Burger',
-        price: '$6.99',
+        price: '$0',
         ingredients: ['bun', 'patty', 'cheese', 'lettuce', 'tomatoes'],
         description: 'Bun, patty, cheese, lettuce, tomatoes'
       },
       {
         id: 'veggie_burger',
         name: 'Only Vegetable Burger',
-        price: '$7.50',
+        price: '$0',
         ingredients: ['bun', 'cheese', 'lettuce', 'tomatoes', 'mushrooms', 'olives'],
         description: 'Bun, cheese, lettuce, tomatoes, mushrooms, olives'
       }
@@ -313,30 +322,37 @@
       {
         id: 'meat_calzone',
         name: 'Meaty Calzone',
-        price: '$10.99',
+        price: '$0',
         ingredients: ['american_cheese', 'ham', 'pepperoni', 'meatballs'],
         description: 'American cheese, ham, pepperoni, meatballs'
       },
       {
         id: 'garden_calzone',
         name: 'Garden Calzone',
-        price: '$9.49',
+        price: '$0',
         ingredients: ['broccoli', 'eggplant', 'spinach', 'onion', 'tomatoes'],
         description: 'Broccoli, eggplant, spinach, onion, tomatoes'
+      },
+      {
+        id: 'everything_calzone',
+        name: 'Everything Calzone',
+        price: '$0',
+        ingredients: ['green_peppers', 'shredded_mozzarella', 'mushrooms', 'pepperoni', 'sausage'],
+        description: 'Green peppers, shredded mozzarella, mushrooms, pepperoni, sausage'
       }
     ],
     chicken_wings: [
       {
         id: 'hot_wings',
         name: 'Hot Wing Set',
-        price: '$8.99',
+        price: '$0',
         ingredients: ['plain', 'hot_sauce', 'extra_hot_sauce'],
         description: 'Plain wings, hot sauce, extra hot sauce'
       },
       {
         id: 'mild_wings',
         name: 'Mild Wings',
-        price: '$8.49',
+        price: '$0',
         ingredients: ['plain', 'mild_sauce'],
         description: 'Plain wings, mild sauce'
       }
@@ -345,14 +361,14 @@
       {
         id: 'classic_salad',
         name: 'Classic Salad',
-        price: '$7.99',
+        price: '$0',
         ingredients: ['lettuce', 'tomato', 'cucumbers', 'italian_dressing'],
         description: 'Lettuce, tomato, cucumbers, Italian dressing'
       },
       {
         id: 'protein_salad',
         name: 'Protein Salad',
-        price: '$9.99',
+        price: '$0',
         ingredients: ['lettuce', 'tomato', 'ham', 'salami', 'provolone_cheese'],
         description: 'Lettuce, tomato, ham, salami, provolone cheese'
       }
@@ -361,14 +377,14 @@
       {
         id: 'bbq_combo',
         name: 'BBQ Combo',
-        price: '$2.99',
+        price: '$0',
         ingredients: ['bbq', 'honey_mustard'],
         description: 'BBQ, honey mustard'
       },
       {
         id: 'ranch_combo',
         name: 'Ranch Combo',
-        price: '$2.49',
+        price: '$0',
         ingredients: ['ranch', 'mayonnaise'],
         description: 'Ranch, mayonnaise'
       }
@@ -377,14 +393,14 @@
       {
         id: 'italian_sub',
         name: 'Italian Sub',
-        price: '$8.25',
+        price: '$0',
         ingredients: ['white', 'salami', 'ham', 'cheese', 'lettuce', 'tomatoes'],
         description: 'White bread, salami, ham, cheese, lettuce, tomatoes'
       },
       {
         id: 'turkey_sub',
         name: 'Turkey Sub',
-        price: '$8.75',
+        price: '$0',
         ingredients: ['white', 'turkey', 'lettuce', 'onion', 'tomatoes'],
         description: 'White bread, turkey, lettuce, onion, tomatoes'
       }
@@ -393,14 +409,14 @@
       {
         id: 'chicken_wrap',
         name: 'Chicken Wrap',
-        price: '$8.50',
+        price: '$0',
         ingredients: ['white', 'turkey', 'lettuce', 'cheese', 'tomatoes'],
         description: 'Tortilla, turkey, lettuce, cheese, tomatoes'
       },
       {
         id: 'veggie_wrap',
         name: 'Veggie Wrap',
-        price: '$7.75',
+        price: '$0',
         ingredients: ['spinach', 'lettuce', 'mushrooms', 'olives', 'tomatoes'],
         description: 'Spinach tortilla, lettuce, mushrooms, olives, tomatoes'
       }
