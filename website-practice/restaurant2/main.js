@@ -43,14 +43,23 @@
   // Pretty labels for summary display (keyed by `${name}|${value}`)
   const INGREDIENT_LABELS = {
     'pizza_ingredients[]|bacon': 'Bacon',
+    'pizza_ingredients[]|broccoli': 'Broccoli',
+    'pizza_ingredients[]|chicken': 'Chicken',
     'pizza_ingredients[]|cheese': 'Cheese',
+    'pizza_ingredients[]|garlic': 'Garlic',
     'pizza_ingredients[]|jalapenos': 'Jalapeños',
     'pizza_ingredients[]|lettuce': 'Lettuce',
+    'pizza_ingredients[]|meatballs': 'Meatballs',
+    'pizza_ingredients[]|mild_sauce': 'Mild sauce',
     'pizza_ingredients[]|mushrooms': 'Mushrooms',
     'pizza_ingredients[]|olives': 'Olives',
     'pizza_ingredients[]|onion': 'Onion',
+    'pizza_ingredients[]|pepperoni': 'Pepperoni',
     'pizza_ingredients[]|pickles': 'Pickles',
     'pizza_ingredients[]|pineapple': 'Pineapples',
+    'pizza_ingredients[]|ranch': 'Ranch',
+    'pizza_ingredients[]|ricotta_cheese': 'Ricotta cheese',
+    'pizza_ingredients[]|sausage': 'Sausage',
     'pizza_ingredients[]|thin_crust': 'Thin crust',
     'pizza_ingredients[]|tomatoes': 'Tomatoes',
     'pizza_ingredients[]|tomato_sauce': 'Tomato Sauce (Required)',
@@ -83,6 +92,7 @@
     'calzone_ingredients[]|bacon_bits': 'Bacon bits',
     'calzone_ingredients[]|meatballs': 'Meatballs',
     'calzone_ingredients[]|broccoli': 'Broccoli',
+    'calzone_ingredients[]|chicken': 'Chicken',
     'calzone_ingredients[]|onion': 'Onion',
     'calzone_ingredients[]|steak': 'Steak',
     'calzone_ingredients[]|hot_peppers': 'Hot peppers',
@@ -118,6 +128,7 @@
     'chicken_wings_ingredients[]|spicy_garlic_parm_sauce': 'Spicy garlic parm sauce',
 
     'salad_ingredients[]|cucumbers': 'Cucumbers',
+    'salad_ingredients[]|croutons': 'Croutons',
     'salad_ingredients[]|italian_dressing': 'Italian dressing',
     'salad_ingredients[]|red_onion': 'Red onion',
     'salad_ingredients[]|tomato': 'Tomato',
@@ -129,9 +140,21 @@
     'salad_ingredients[]|green_peppers': 'Green peppers',
     'salad_ingredients[]|red_peppers': 'Red peppers',
 
+    'dinner_ingredients[]|baked_ziti': 'Baked Ziti',
+    'dinner_ingredients[]|chicken_parmigiana': 'Chicken Parmigiana',
+    'dinner_ingredients[]|chicken_riggies': 'Chicken Riggies',
+    'dinner_ingredients[]|house_italian_dressing': 'House Italian Dressing',
+    'dinner_ingredients[]|lasagna': 'Lasagna',
+    'dinner_ingredients[]|manicotti': 'Manicotti',
+    'dinner_ingredients[]|spaghetti': 'Spaghetti',
+    'dinner_ingredients[]|stuffed_shells': 'Stuffed Shells',
+    'dinner_ingredients[]|vodka_riggies': 'Vodka Riggies',
+
     'sub_ingredients[]|bacon': 'Bacon',
     'sub_ingredients[]|bologna': 'Bologna',
+    'sub_ingredients[]|buffalo_sauce': 'Buffalo sauce',
     'sub_ingredients[]|cheese': 'Cheese',
+    'sub_ingredients[]|chicken': 'Chicken',
     'sub_ingredients[]|ham': 'Ham',
     'sub_ingredients[]|jalapenos': 'Jalapeños',
     'sub_ingredients[]|lettuce': 'Lettuce',
@@ -144,6 +167,7 @@
     'sub_ingredients[]|tomatoes': 'Tomatoes',
     'sub_ingredients[]|toasted': 'Toasted',
     'sub_ingredients[]|white': 'Bread: White (Required)',
+    'sub_ingredients[]|tuna': 'Tuna',
     'sub_ingredients[]|wheat': 'Bread: Wheat (Required)',
 
     'wrap_ingredients[]|bacon': 'Bacon',
@@ -220,7 +244,8 @@
   const PIZZA_SIZE_LABELS = {
     small: 'Small',
     medium: 'Medium',
-    large: 'Large'
+    large: 'Large',
+    sheet: 'Sheet'
   };
 
   const INGREDIENT_GROUPS = [
@@ -229,6 +254,7 @@
     'calzone_ingredients[]',
     'chicken_wings_ingredients[]',
     'salad_ingredients[]',
+    'dinner_ingredients[]',
     'sub_ingredients[]',
     'wrap_ingredients[]',
     'sauces_ingredients[]'
@@ -240,6 +266,7 @@
     calzone: ['calzone_ingredients[]'],
     chicken_wings: ['chicken_wings_ingredients[]'],
     salad: ['salad_ingredients[]'],
+    dinner: ['dinner_ingredients[]'],
     sub: ['sub_ingredients[]'],
     wrap: ['wrap_ingredients[]'],
     sauces: ['sauces_ingredients[]']
@@ -252,7 +279,7 @@
    */
   const SECTION_INGREDIENT_CATEGORIES = {
     pizza: [
-      { id: 'cheese', label: 'Cheese & Toppings', values: ['cheese', 'bacon', 'cherry_peppers', 'feta_cheese', 'green_peppers', 'ham', 'jalapenos', 'lettuce', 'mushrooms', 'olives', 'onion', 'pickles', 'pineapple', 'roasted_peppers', 'spinach', 'tomatoes'] },
+      { id: 'cheese', label: 'Cheese & Toppings', values: ['cheese', 'bacon', 'broccoli', 'cherry_peppers', 'chicken', 'feta_cheese', 'garlic', 'green_peppers', 'ham', 'jalapenos', 'lettuce', 'meatballs', 'mild_sauce', 'mushrooms', 'olives', 'onion', 'pepperoni', 'pickles', 'pineapple', 'ranch', 'ricotta_cheese', 'roasted_peppers', 'sausage', 'spinach', 'tomatoes'] },
       { id: 'sauce', label: 'Sauce & Crust', values: ['tomato_sauce', 'well_done', 'thin_crust'] }
     ],
     burger: [
@@ -262,7 +289,7 @@
     ],
     calzone: [
       { id: 'cheese', label: 'Cheese', values: ['american_cheese', 'cheddar_cheese', 'feta_cheese', 'grated_parmesan_or_pecorino', 'ricotta_cheese', 'shredded_mozzarella', 'swiss_cheese'] },
-      { id: 'meats', label: 'Meats', values: ['bacon_bits', 'ham', 'meatballs', 'pepperoni', 'salami', 'sausage', 'steak'] },
+      { id: 'meats', label: 'Meats', values: ['bacon_bits', 'chicken', 'ham', 'meatballs', 'pepperoni', 'salami', 'sausage', 'steak'] },
       { id: 'veggies', label: 'Vegetables', values: ['banana_peppers', 'broccoli', 'eggplant', 'green_peppers', 'greens', 'hot_peppers', 'jalapenos', 'mushrooms', 'onion', 'pineapple', 'roasted_red_peppers', 'spinach', 'tomatoes'] },
       { id: 'seasonings', label: 'Seasonings', values: ['black_pepper', 'garlic_powder', 'italian_seasoning', 'olive_oil', 'salt'] }
     ],
@@ -274,13 +301,19 @@
     salad: [
       { id: 'greens', label: 'Greens', values: ['cucumbers', 'green_peppers', 'red_onion', 'red_peppers', 'tomato'] },
       { id: 'protein', label: 'Protein', values: ['ham', 'provolone_cheese', 'salami'] },
-      { id: 'extras', label: 'Extras', values: ['banana_peppers', 'olives'] },
+      { id: 'extras', label: 'Extras', values: ['banana_peppers', 'croutons', 'olives'] },
       { id: 'dressings', label: 'Dressings', values: ['italian_dressing'] }
+    ],
+    dinner: [
+      { id: 'pasta', label: 'Pasta', values: ['baked_ziti', 'lasagna', 'manicotti', 'spaghetti', 'stuffed_shells', 'vodka_riggies'] },
+      { id: 'chicken', label: 'Chicken', values: ['chicken_parmigiana', 'chicken_riggies'] },
+      { id: 'dressings', label: 'Dressings', values: ['house_italian_dressing'] }
     ],
     sub: [
       { id: 'bread', label: 'Bread', values: ['white', 'wheat', 'toasted'] },
-      { id: 'meat', label: 'Meat', values: ['bacon', 'bologna', 'cheese', 'ham', 'pepperoni', 'salami', 'turkey'] },
-      { id: 'veggies', label: 'Vegetables', values: ['jalapenos', 'lettuce', 'mushrooms', 'olives', 'onion', 'pickles', 'tomatoes'] }
+      { id: 'meat', label: 'Meat', values: ['bacon', 'bologna', 'chicken', 'cheese', 'ham', 'pepperoni', 'salami', 'tuna', 'turkey'] },
+      { id: 'veggies', label: 'Vegetables', values: ['jalapenos', 'lettuce', 'mushrooms', 'olives', 'onion', 'pickles', 'tomatoes'] },
+      { id: 'extras', label: 'Extras', values: ['buffalo_sauce'] }
     ],
     wrap: [
       { id: 'tortilla', label: 'Tortilla', values: ['white', 'wheat', 'tomato_basil', 'spinach'] },
@@ -348,6 +381,20 @@
         price: '$0',
         ingredients: ['broccoli', 'eggplant', 'spinach', 'onion', 'tomatoes'],
         description: 'Broccoli, eggplant, spinach, onion, tomatoes'
+      },
+      {
+        id: 'lasagna_calzone',
+        name: 'Lasagna Calzone',
+        price: '$0',
+        ingredients: ['meatballs', 'shredded_mozzarella', 'ricotta_cheese', 'sausage'],
+        description: 'Meatballs, shredded mozzarella, ricotta cheese, sausage'
+      },
+      {
+        id: 'chicken_wing_calzone',
+        name: 'Chicken Wing Calzone',
+        price: '$0',
+        ingredients: ['chicken', 'shredded_mozzarella'],
+        description: 'Chicken, shredded mozzarella'
       },
       {
         id: 'everything_calzone',
@@ -425,11 +472,67 @@
         description: 'White bread, salami, ham, cheese, lettuce, tomatoes'
       },
       {
+        id: 'chicken_sub',
+        name: 'Chicken Sub',
+        price: '$0',
+        ingredients: ['white', 'chicken', 'cheese', 'lettuce', 'tomatoes'],
+        description: 'White bread, chicken, cheese, lettuce, tomatoes'
+      },
+      {
+        id: 'buff_chick_sub',
+        name: 'Buff Chick Sub',
+        price: '$0',
+        ingredients: ['white', 'chicken', 'buffalo_sauce', 'cheese', 'lettuce'],
+        description: 'White bread, chicken, buffalo sauce, cheese, lettuce'
+      },
+      {
+        id: 'salami_sub',
+        name: 'Salami',
+        price: '$0',
+        ingredients: ['white', 'salami', 'cheese', 'lettuce', 'tomatoes'],
+        description: 'White bread, salami, cheese, lettuce, tomatoes'
+      },
+      {
+        id: 'tuna_sub',
+        name: 'Tuna',
+        price: '$0',
+        ingredients: ['white', 'tuna', 'lettuce', 'tomatoes'],
+        description: 'White bread, tuna, lettuce, tomatoes'
+      },
+      {
+        id: 'ham_cheese_sub',
+        name: 'Ham & Cheese',
+        price: '$0',
+        ingredients: ['white', 'ham', 'cheese', 'lettuce', 'tomatoes'],
+        description: 'White bread, ham, cheese, lettuce, tomatoes'
+      },
+      {
         id: 'turkey_sub',
         name: 'Turkey Sub',
         price: '$0',
         ingredients: ['white', 'turkey', 'lettuce', 'onion', 'tomatoes'],
         description: 'White bread, turkey, lettuce, onion, tomatoes'
+      },
+      {
+        id: 'mixed_sub',
+        name: 'Mixed',
+        price: '$0',
+        ingredients: ['white', 'bologna', 'ham', 'salami', 'cheese', 'lettuce', 'tomatoes'],
+        description: 'White bread, bologna, ham, salami, cheese, lettuce, tomatoes'
+      },
+      {
+        id: 'blt_sub',
+        name: 'BLT',
+        price: '$0',
+        ingredients: ['white', 'bacon', 'lettuce', 'tomatoes'],
+        description: 'White bread, bacon, lettuce, tomatoes'
+      },
+      {
+        id: 'veggie_sub',
+        name: 'Veggie',
+        price: '$0',
+        ingredients: ['white', 'cheese', 'lettuce', 'mushrooms', 'olives', 'onion', 'pickles', 'tomatoes'],
+        description: 'White bread, cheese, lettuce, mushrooms, olives, onion, pickles, tomatoes'
       }
     ],
     wrap: [
@@ -448,7 +551,136 @@
         description: 'Spinach tortilla, lettuce, mushrooms, olives, tomatoes'
       }
     ],
-    pizza: []
+    pizza: [
+      {
+        id: 'cheese_pizza',
+        name: 'Cheese Pizza',
+        price: '$0',
+        ingredients: ['cheese', 'tomato_sauce'],
+        description: 'Cheese, tomato sauce'
+      },
+      {
+        id: 'hawaiian_pizza',
+        name: 'Hawaiian Pizza',
+        price: '$0',
+        ingredients: ['ham', 'cheese', 'pineapple', 'tomato_sauce'],
+        description: 'Ham, cheese, pineapple, tomato sauce'
+      },
+      {
+        id: 'garlic_pizza',
+        name: 'Garlic Pizza',
+        price: '$0',
+        ingredients: ['cheese', 'garlic', 'tomato_sauce'],
+        description: 'Cheese, garlic, tomato sauce'
+      },
+      {
+        id: 'lasagna_pizza',
+        name: 'Lasagna Pizza',
+        price: '$0',
+        ingredients: ['meatballs', 'cheese', 'tomato_sauce', 'ricotta_cheese', 'sausage'],
+        description: 'Meatballs, cheese, tomato sauce, ricotta cheese, sausage'
+      },
+      {
+        id: 'pepperoni_pizza',
+        name: 'Pepperoni Pizza',
+        price: '$0',
+        ingredients: ['cheese', 'pepperoni', 'tomato_sauce'],
+        description: 'Cheese, pepperoni, tomato sauce'
+      },
+      {
+        id: 'chkn_bacon_ranch_pizza',
+        name: 'Chkn Bacon Ranch Pizza',
+        price: '$0',
+        ingredients: ['bacon', 'chicken', 'cheese', 'ranch'],
+        description: 'Bacon, chicken, cheese, ranch'
+      },
+      {
+        id: 'vegetarian_pizza',
+        name: 'Vegetarian Pizza',
+        price: '$0',
+        ingredients: ['broccoli', 'green_peppers', 'cheese', 'mushrooms', 'onion', 'tomato_sauce'],
+        description: 'Broccoli, green peppers, cheese, mushrooms, onion, tomato sauce'
+      },
+      {
+        id: 'supreme_pizza',
+        name: 'Supreme Pizza',
+        price: '$0',
+        ingredients: ['cheese', 'pepperoni', 'green_peppers', 'mushrooms', 'onion', 'tomato_sauce'],
+        description: 'Cheese, pepperoni, green peppers, mushrooms, onion, tomato sauce'
+      },
+      {
+        id: 'stuffed_pizza',
+        name: 'Stuffed Pizza',
+        price: '$0',
+        ingredients: ['green_peppers', 'cheese', 'mushrooms', 'pepperoni', 'tomato_sauce', 'sausage'],
+        description: 'Green peppers, cheese, mushrooms, pepperoni, tomato sauce, sausage'
+      },
+      {
+        id: 'chkn_wing_pizza',
+        name: 'Chkn Wing Pizza',
+        price: '$0',
+        ingredients: ['chicken', 'mild_sauce', 'cheese'],
+        description: 'Chicken, mild sauce, cheese'
+      }
+    ],
+    dinner: [
+      {
+        id: 'manicotti_dinner',
+        name: 'Manicotti',
+        price: '$0',
+        ingredients: ['manicotti', 'house_italian_dressing'],
+        description: 'Manicotti, house Italian dressing'
+      },
+      {
+        id: 'stuffed_shells_dinner',
+        name: 'Stuffed Shells',
+        price: '$0',
+        ingredients: ['stuffed_shells', 'house_italian_dressing'],
+        description: 'Stuffed shells, house Italian dressing'
+      },
+      {
+        id: 'baked_ziti_dinner',
+        name: 'Baked Ziti',
+        price: '$0',
+        ingredients: ['baked_ziti', 'house_italian_dressing'],
+        description: 'Baked ziti, house Italian dressing'
+      },
+      {
+        id: 'spaghetti_dinner',
+        name: 'Spaghetti',
+        price: '$0',
+        ingredients: ['spaghetti', 'house_italian_dressing'],
+        description: 'Spaghetti, house Italian dressing'
+      },
+      {
+        id: 'lasagna_dinner',
+        name: 'Lasagna',
+        price: '$0',
+        ingredients: ['lasagna', 'house_italian_dressing'],
+        description: 'Lasagna, house Italian dressing'
+      },
+      {
+        id: 'chicken_parmigiana_dinner',
+        name: 'Chicken Parmigiana',
+        price: '$0',
+        ingredients: ['chicken_parmigiana', 'house_italian_dressing'],
+        description: 'Chicken Parmigiana, house Italian dressing'
+      },
+      {
+        id: 'chicken_riggies_dinner',
+        name: 'Chicken Riggies',
+        price: '$0',
+        ingredients: ['chicken_riggies', 'house_italian_dressing'],
+        description: 'Chicken riggies, house Italian dressing'
+      },
+      {
+        id: 'vodka_riggies_dinner',
+        name: 'Vodka Riggies',
+        price: '$0',
+        ingredients: ['vodka_riggies', 'house_italian_dressing'],
+        description: 'Vodka riggies, house Italian dressing'
+      }
+    ]
   };
 
   const SECTION_LABELS = {
@@ -457,6 +689,7 @@
     calzone: 'Calzone',
     chicken_wings: 'Chicken Wings',
     salad: 'Salad',
+    dinner: 'Dinner',
     sub: 'Sub',
     wrap: 'Wrap',
     sauces: 'Sauces',
@@ -465,7 +698,7 @@
 
   const SECTION_QUANTITY_DEFAULT_MIN = 1;
   const SECTION_QUANTITY_MAX = 12;
-  const SECTION_QUANTITY_SECTIONS = ['pizza', 'burger', 'calzone', 'chicken_wings', 'salad', 'sub', 'wrap', 'sauces'];
+  const SECTION_QUANTITY_SECTIONS = ['pizza', 'burger', 'calzone', 'chicken_wings', 'salad', 'dinner', 'sub', 'wrap', 'sauces'];
   const SECTION_QUANTITY_ALLOW_DISABLE_DEFAULT = true;
   let quantityCanDisable = SECTION_QUANTITY_ALLOW_DISABLE_DEFAULT;
   let sectionQuantities = {};
@@ -3414,6 +3647,7 @@
         if (group.startsWith('calzone_')) return 'calzone';
         if (group.startsWith('chicken_wings_')) return 'chicken_wings';
         if (group.startsWith('salad_')) return 'salad';
+        if (group.startsWith('dinner_')) return 'dinner';
         if (group.startsWith('sauces_')) return 'sauces';
         if (group.startsWith('sub_')) return 'sub';
         if (group.startsWith('wrap_')) return 'wrap';

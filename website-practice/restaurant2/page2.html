@@ -43,6 +43,7 @@
                     role="listitem">Calzone</button>
                 <button type="button" class="swiper-chip menu-launch" data-target="chicken_wings"
                     role="listitem">Chicken Wings</button>
+                <button type="button" class="swiper-chip menu-launch" data-target="dinner" role="listitem">Dinner</button>
                 <button type="button" class="swiper-chip menu-launch" data-target="pizza" role="listitem">Pizza</button>
                 <button type="button" class="swiper-chip menu-launch" data-target="salad" role="listitem">Salad</button>
                 <button type="button" class="swiper-chip menu-launch" data-target="sauces"
@@ -176,6 +177,14 @@
                 </button>
             </div>
             <div class="menu-action-card" role="listitem">
+                <button type="button" class="menu-launch" data-target="dinner">
+                    <span class="menu-launch-label">Dinner</span>
+                    <div class="menu-launch-meta">
+                        <span class="menu-launch-price" aria-hidden="true">$0</span>
+                    </div>
+                </button>
+            </div>
+            <div class="menu-action-card" role="listitem">
                 <button type="button" class="menu-launch" data-target="pizza">
                     <span class="menu-launch-label">Pizza</span>
                     <div class="menu-launch-meta">
@@ -302,6 +311,8 @@
                                 Broccoli</label><br>
                             <label><input type="checkbox" name="calzone_ingredients[]" value="cheddar_cheese"> Cheddar
                                 Cheese</label><br>
+                            <label><input type="checkbox" name="calzone_ingredients[]" value="chicken">
+                                Chicken</label><br>
                             <label><input type="checkbox" name="calzone_ingredients[]" value="eggplant">
                                 Eggplant</label><br>
                             <label><input type="checkbox" name="calzone_ingredients[]" value="feta_cheese"> Feta
@@ -417,6 +428,53 @@
             </div>
         </div>
 
+        <!-- Menu Item: Dinner -->
+        <div class="menu-overlay" data-section="dinner" hidden>
+            <div class="menu-overlay-card">
+                <div class="overlay-header">
+                    <h2>Dinner</h2>
+                    <span class="overlay-header-price" aria-hidden="true">$0</span>
+                    <button type="button" class="close-overlay" aria-label="Close Dinner options">✕</button>
+                </div>
+                <div class="menu-section" id="dinner">
+                    <div class="menu-summary">
+                        <input type="checkbox" class="section-toggle" data-section="dinner">
+                        <span class="menu-summary-label">Dinner</span>
+                    </div>
+                    <form>
+                        <fieldset>
+                            <legend>Choose Ingredients</legend>
+                            <label><input type="checkbox" name="dinner_ingredients[]" value="baked_ziti"> Baked
+                                Ziti</label><br>
+                            <label><input type="checkbox" name="dinner_ingredients[]" value="chicken_parmigiana">
+                                Chicken Parmigiana</label><br>
+                            <label><input type="checkbox" name="dinner_ingredients[]" value="chicken_riggies"> Chicken
+                                Riggies</label><br>
+                            <label><input type="checkbox" name="dinner_ingredients[]" value="house_italian_dressing">
+                                House Italian Dressing</label><br>
+                            <label><input type="checkbox" name="dinner_ingredients[]" value="lasagna">
+                                Lasagna</label><br>
+                            <label><input type="checkbox" name="dinner_ingredients[]" value="manicotti">
+                                Manicotti</label><br>
+                            <label><input type="checkbox" name="dinner_ingredients[]" value="spaghetti">
+                                Spaghetti</label><br>
+                            <label><input type="checkbox" name="dinner_ingredients[]" value="stuffed_shells"> Stuffed
+                                Shells</label><br>
+                            <label><input type="checkbox" name="dinner_ingredients[]" value="vodka_riggies"> Vodka
+                                Riggies</label><br>
+                        </fieldset>
+                    </form>
+                    <div class="section-actions">
+                        <button type="button" class="reset-group" data-group="dinner_ingredients[]">Reset Dinner</button>
+                        <button type="button" class="section-done" data-section="dinner"
+                            aria-label="Save Dinner item">
+                            Save Item
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Menu Item: Pizza -->
         <div class="menu-overlay" data-section="pizza" hidden>
             <div class="menu-overlay-card">
@@ -454,6 +512,13 @@
                                     <span class="size-pill-price">$0</span>
                                 </span>
                             </label>
+                            <label class="size-pill">
+                                <input type="radio" name="pizza_size" value="sheet">
+                                <span class="size-pill-card">
+                                    <span class="size-pill-name">Sheet</span>
+                                    <span class="size-pill-price">$0</span>
+                                </span>
+                            </label>
                         </div>
                     </div>
                     <form>
@@ -461,11 +526,15 @@
                             <legend>Choose Ingredients</legend>
                             <!-- Alphabetical order -->
                             <label><input type="checkbox" name="pizza_ingredients[]" value="bacon"> Bacon</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="broccoli">
+                                Broccoli</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="chicken"> Chicken</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="cheese"> Cheese</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="cherry_peppers"> Cherry
                                 Peppers</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="feta_cheese"> Feta
                                 Cheese</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="garlic"> Garlic</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="green_peppers"> Green
                                 Peppers</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="ham"> Ham</label><br>
@@ -473,16 +542,26 @@
                                 Jalapeños</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="lettuce">
                                 Lettuce</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="meatballs">
+                                Meatballs</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="mild_sauce"> Mild
+                                Sauce</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="mushrooms">
                                 Mushrooms</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="olives"> Olives</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="onion"> Onion</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="pepperoni">
+                                Pepperoni</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="pickles">
                                 Pickles</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="pineapple">
                                 Pineapples</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="ranch"> Ranch</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="ricotta_cheese"> Ricotta
+                                Cheese</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="roasted_peppers"> Roasted
                                 Peppers</label><br>
+                            <label><input type="checkbox" name="pizza_ingredients[]" value="sausage"> Sausage</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="spinach">
                                 Spinach</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="thin_crust">
@@ -524,6 +603,8 @@
                             <legend>Choose Ingredients</legend>
                             <label><input type="checkbox" name="salad_ingredients[]" value="banana_peppers"> Banana
                                 Peppers</label><br>
+                            <label><input type="checkbox" name="salad_ingredients[]" value="croutons">
+                                Croutons</label><br>
                             <label><input type="checkbox" name="salad_ingredients[]" value="cucumbers">
                                 Cucumbers</label><br>
                             <label><input type="checkbox" name="salad_ingredients[]" value="green_peppers"> Green
@@ -616,6 +697,8 @@
                             <!-- Alphabetical order -->
                             <label><input type="checkbox" name="sub_ingredients[]" value="bacon"> Bacon</label><br>
                             <label><input type="checkbox" name="sub_ingredients[]" value="bologna"> Bologna</label><br>
+                            <label><input type="checkbox" name="sub_ingredients[]" value="buffalo_sauce"> Buffalo
+                                Sauce</label><br>
                             <label class="required bread-select" title="Required">
                                 <input type="checkbox" id="sub-bread-checkbox" name="sub_ingredients[]" value="white"
                                     data-required="true" data-no-qty="true" title="Required" checked>
@@ -627,6 +710,7 @@
                                 </select>
                             </label><br>
                             <label><input type="checkbox" name="sub_ingredients[]" value="cheese"> Cheese</label><br>
+                            <label><input type="checkbox" name="sub_ingredients[]" value="chicken"> Chicken</label><br>
                             <label><input type="checkbox" name="sub_ingredients[]" value="ham"> Ham</label><br>
                             <label><input type="checkbox" name="sub_ingredients[]" value="jalapenos">
                                 Jalapeños</label><br>
@@ -646,6 +730,7 @@
                                 Toasted</label><br>
                             <label><input type="checkbox" name="sub_ingredients[]" value="tomatoes">
                                 Tomatoes</label><br>
+                            <label><input type="checkbox" name="sub_ingredients[]" value="tuna"> Tuna</label><br>
                             <label><input type="checkbox" name="sub_ingredients[]" value="turkey"> Turkey</label><br>
                         </fieldset>
                     </form>
