@@ -406,22 +406,32 @@
     ],
     chicken_wings: [
       {
-        id: 'six_hot_wings',
-        name: '6 Wing Hot',
+        id: 'hot_wings',
+        name: 'Hot Wings',
         price: '$0',
-        sectionQty: 6,
-        lockSectionQty: true,
-        ingredients: ['plain', 'hot_sauce', 'extra_hot_sauce'],
-        description: '6 wings, hot sauce, extra hot sauce'
+        ingredients: ['plain', 'hot_sauce'],
+        description: 'Plain wings with hot sauce'
       },
       {
-        id: 'twelve_mild_wings',
-        name: '12 Wing Mild',
+        id: 'extra_hot_wings',
+        name: 'Extra Hot Wings',
         price: '$0',
-        sectionQty: 12,
-        lockSectionQty: true,
+        ingredients: ['plain', 'extra_hot_sauce'],
+        description: 'Plain wings with extra hot sauce'
+      },
+      {
+        id: 'medium_wings',
+        name: 'Medium Wings',
+        price: '$0',
+        ingredients: ['plain', 'medium_sauce'],
+        description: 'Plain wings with medium sauce'
+      },
+      {
+        id: 'mild_wings',
+        name: 'Mild Wings',
+        price: '$0',
         ingredients: ['plain', 'mild_sauce'],
-        description: '12 wings, mild sauce'
+        description: 'Plain wings with mild sauce'
       }
     ],
     salad: [
@@ -699,6 +709,9 @@
   const SECTION_QUANTITY_DEFAULT_MIN = 1;
   const SECTION_QUANTITY_MAX = 12;
   const SECTION_QUANTITY_SECTIONS = ['pizza', 'burger', 'calzone', 'chicken_wings', 'salad', 'dinner', 'sub', 'wrap', 'sauces'];
+  const SECTION_QUANTITY_RULES = {
+    chicken_wings: { min: 10, max: 100, step: 10 }
+  };
   const SECTION_QUANTITY_ALLOW_DISABLE_DEFAULT = true;
   let quantityCanDisable = SECTION_QUANTITY_ALLOW_DISABLE_DEFAULT;
   let sectionQuantities = {};
@@ -1214,22 +1227,51 @@
     try { return JSON.parse(v); } catch { return fallback; }
   }
 
-  function getQuantityMin() {
-    return quantityCanDisable ? 0 : SECTION_QUANTITY_DEFAULT_MIN;
+  function getSectionQuantityRule(section) {
+    const key = String(section || '').toLowerCase();
+    return SECTION_QUANTITY_RULES[key] || null;
   }
 
-  function clampSectionQuantity(value) {
-    const min = getQuantityMin();
+  function getSectionQuantityActiveMin(section) {
+    const rule = getSectionQuantityRule(section);
+    return Number.isFinite(rule && rule.min) ? Number(rule.min) : SECTION_QUANTITY_DEFAULT_MIN;
+  }
+
+  function getSectionQuantityMax(section) {
+    const rule = getSectionQuantityRule(section);
+    return Number.isFinite(rule && rule.max) ? Number(rule.max) : SECTION_QUANTITY_MAX;
+  }
+
+  function getSectionQuantityStep(section) {
+    const rule = getSectionQuantityRule(section);
+    return Number.isFinite(rule && rule.step) ? Number(rule.step) : 1;
+  }
+
+  function getQuantityMin(section) {
+    return quantityCanDisable ? 0 : getSectionQuantityActiveMin(section);
+  }
+
+  function clampSectionQuantity(value, section) {
+    const min = getQuantityMin(section);
+    const activeMin = getSectionQuantityActiveMin(section);
+    const max = getSectionQuantityMax(section);
+    const step = getSectionQuantityStep(section);
     const num = Number(value);
     if (!Number.isFinite(num)) return min;
-    return Math.min(SECTION_QUANTITY_MAX, Math.max(min, Math.floor(num)));
+    if (quantityCanDisable && num <= 0) return 0;
+    const clamped = Math.min(max, Math.max(activeMin, Math.floor(num)));
+    if (step > 1) {
+      const snapped = Math.round(clamped / step) * step;
+      return Math.min(max, Math.max(activeMin, snapped));
+    }
+    return clamped;
   }
 
   function loadSectionQuantities() {
     const stored = safeParseJSON(localStorage.getItem(STORAGE_KEYS.quantitiesSections), {}) || {};
     const normalized = {};
     SECTION_QUANTITY_SECTIONS.forEach((sec) => {
-      normalized[sec] = clampSectionQuantity(stored[sec]);
+      normalized[sec] = clampSectionQuantity(stored[sec], sec);
     });
     return normalized;
   }
@@ -1242,18 +1284,18 @@
 
   function getSectionQuantity(section) {
     const key = String(section || '').toLowerCase();
-    if (!SECTION_QUANTITY_SECTIONS.includes(key)) return getQuantityMin();
+    if (!SECTION_QUANTITY_SECTIONS.includes(key)) return getQuantityMin(key);
     const stored = sectionQuantities[key];
-    return clampSectionQuantity(stored);
+    return clampSectionQuantity(stored, key);
   }
 
   function setSectionQuantity(section, value) {
     const key = String(section || '').toLowerCase();
-    if (!SECTION_QUANTITY_SECTIONS.includes(key)) return getQuantityMin();
+    if (!SECTION_QUANTITY_SECTIONS.includes(key)) return getQuantityMin(key);
     if (!sectionQuantities || typeof sectionQuantities !== 'object') {
       sectionQuantities = {};
     }
-    const next = clampSectionQuantity(value);
+    const next = clampSectionQuantity(value, key);
     sectionQuantities[key] = next;
     saveSectionQuantities();
     return next;
@@ -1267,7 +1309,8 @@
     const sec = String(section || '').toLowerCase();
     if (!sec) return;
     const qty = getSectionQuantity(sec);
-    const min = getQuantityMin();
+    const min = getQuantityMin(sec);
+    const max = getSectionQuantityMax(sec);
     const locked = isSectionQuantityLocked(sec);
     document.querySelectorAll(`.qty-controls[data-section="${sec}"]`).forEach((wrap) => {
       const countSpan = wrap.querySelector('.qty-controls-value');
@@ -1275,14 +1318,17 @@
       const dec = wrap.querySelector('.qty-control-decrement');
       const inc = wrap.querySelector('.qty-control-increment');
       if (dec) dec.disabled = locked || qty <= min;
-      if (inc) inc.disabled = locked || qty >= SECTION_QUANTITY_MAX;
+      if (inc) inc.disabled = locked || qty >= max;
+    });
+    document.querySelectorAll(`.section-qty-select[data-section="${sec}"]`).forEach((select) => {
+      select.value = String(qty > 0 ? qty : getSectionQuantityActiveMin(sec));
+      select.disabled = locked;
     });
   }
 
   function resetSectionQuantitiesToDefaults() {
-    const min = getQuantityMin();
     sectionQuantities = SECTION_QUANTITY_SECTIONS.reduce((acc, sec) => {
-      acc[sec] = min;
+      acc[sec] = getQuantityMin(sec);
       return acc;
     }, {});
     saveSectionQuantities();
@@ -1587,7 +1633,7 @@
       });
     });
     if (!ingredientRows.length) return null;
-    const sectionQty = Math.max(SECTION_QUANTITY_DEFAULT_MIN, clampSectionQuantity(getSectionQuantity(section)));
+    const sectionQty = Math.max(getSectionQuantityActiveMin(section), clampSectionQuantity(getSectionQuantity(section), section));
     const sectionEl = document.getElementById(section);
     const selectedPresetName = sectionEl ? String(sectionEl.dataset.selectedPresetName || '') : '';
     const selectedPresetPrice = sectionEl ? String(sectionEl.dataset.selectedPresetPrice || '') : '';
@@ -3240,7 +3286,8 @@
       const manualDisabledSet = new Set(readManualDisabledSections());
       const updateSectionQuantityControl = (sec) => {
         const qty = getSectionQuantity(sec);
-        const min = getQuantityMin();
+        const min = getQuantityMin(sec);
+        const max = getSectionQuantityMax(sec);
         const locked = isSectionQuantityLocked(sec);
         document.querySelectorAll(`.qty-controls[data-section="${sec}"]`).forEach((wrap) => {
           const countSpan = wrap.querySelector('.qty-controls-value');
@@ -3248,13 +3295,18 @@
           const dec = wrap.querySelector('.qty-control-decrement');
           const inc = wrap.querySelector('.qty-control-increment');
           if (dec) dec.disabled = locked || qty <= min;
-          if (inc) inc.disabled = locked || qty >= SECTION_QUANTITY_MAX;
+          if (inc) inc.disabled = locked || qty >= max;
+        });
+        document.querySelectorAll(`.section-qty-select[data-section="${sec}"]`).forEach((select) => {
+          select.value = String(qty > 0 ? qty : getSectionQuantityActiveMin(sec));
+          select.disabled = locked;
         });
       };
       const adjustSectionQuantity = (sec, delta) => {
         if (isSectionQuantityLocked(sec)) return;
         const current = getSectionQuantity(sec);
-        const next = setSectionQuantity(sec, current + delta);
+        const step = getSectionQuantityStep(sec);
+        const next = setSectionQuantity(sec, current + (delta * step));
         if (next === null) return;
         const toggle = document.querySelector(`.section-toggle[data-section="${sec}"]`);
         if (toggle && !toggle.disabled) {
@@ -3339,6 +3391,10 @@
         const summary = sectionEl.querySelector('.menu-summary');
         if (!summary) return;
         let wrap = summary.querySelector('.qty-controls');
+        if (sec === 'chicken_wings') {
+          if (wrap) wrap.remove();
+          return;
+        }
         if (!wrap) {
           wrap = createSectionQuantityControls(sec);
           summary.appendChild(wrap);
@@ -3352,7 +3408,46 @@
         if (!actions) return;
         const resetBtn = actions.querySelector('.reset-group');
         if (!resetBtn) return;
+        if (sec === 'chicken_wings') {
+          let wingCountWrap = actions.querySelector('.section-qty-select-wrap');
+          if (!wingCountWrap) {
+            wingCountWrap = document.createElement('label');
+            wingCountWrap.className = 'section-qty-select-wrap';
+            wingCountWrap.setAttribute('for', 'section-qty-select-chicken_wings');
+            const wingCountLabel = document.createElement('span');
+            wingCountLabel.className = 'section-qty-select-label';
+            wingCountLabel.textContent = 'Wing Count';
+            const wingCountSelect = document.createElement('select');
+            wingCountSelect.id = 'section-qty-select-chicken_wings';
+            wingCountSelect.className = 'section-qty-select';
+            wingCountSelect.dataset.section = sec;
+            for (let qty = 10; qty <= 100; qty += 10) {
+              const option = document.createElement('option');
+              option.value = String(qty);
+              option.textContent = `${qty} Wings`;
+              wingCountSelect.appendChild(option);
+            }
+            wingCountSelect.addEventListener('change', () => {
+              const nextQty = setSectionQuantity(sec, Number(wingCountSelect.value));
+              const toggle = document.querySelector(`.section-toggle[data-section="${sec}"]`);
+              if (toggle && !toggle.disabled && !toggle.checked) {
+                toggle.checked = true;
+                toggle.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+              wingCountSelect.value = String(nextQty > 0 ? nextQty : getSectionQuantityActiveMin(sec));
+              updateSectionQuantityControl(sec);
+              updateSectionDoneState(sec);
+              markOverlayDirtyForSection(sec);
+            });
+            wingCountWrap.appendChild(wingCountLabel);
+            wingCountWrap.appendChild(wingCountSelect);
+            actions.insertBefore(wingCountWrap, resetBtn);
+          }
+        }
         let qtyWrap = actions.querySelector('.qty-controls.section-actions-qty-controls');
+        if (sec === 'chicken_wings') {
+          if (qtyWrap) qtyWrap.remove();
+        } else
         if (!qtyWrap) {
           qtyWrap = createSectionQuantityControls(sec, 'section-actions-qty-controls');
           actions.insertBefore(qtyWrap, resetBtn);
@@ -3409,8 +3504,8 @@
       function applySectionQuantityStateImpl() {
         sectionQuantities = loadSectionQuantities();
         if (!quantityCanDisable) {
-          const min = getQuantityMin();
           SECTION_QUANTITY_SECTIONS.forEach((sec) => {
+            const min = getQuantityMin(sec);
             const current = getSectionQuantity(sec);
             if (current < min) {
               setSectionQuantity(sec, min);
@@ -3544,8 +3639,9 @@
         }
         if (SECTION_QUANTITY_SECTIONS.includes(secId)) {
           const currentQty = getSectionQuantity(secId);
-          if (currentQty < SECTION_QUANTITY_DEFAULT_MIN) {
-            setSectionQuantity(secId, SECTION_QUANTITY_DEFAULT_MIN);
+          const activeMin = getSectionQuantityActiveMin(secId);
+          if (currentQty < activeMin) {
+            setSectionQuantity(secId, activeMin);
             refreshSectionQuantityControls();
           }
         }
@@ -3570,8 +3666,9 @@
         }
         if (SECTION_QUANTITY_SECTIONS.includes(secId)) {
           const currentQty = getSectionQuantity(secId);
-          if (currentQty < SECTION_QUANTITY_DEFAULT_MIN) {
-            setSectionQuantity(secId, SECTION_QUANTITY_DEFAULT_MIN);
+          const activeMin = getSectionQuantityActiveMin(secId);
+          if (currentQty < activeMin) {
+            setSectionQuantity(secId, activeMin);
             refreshSectionQuantityControls();
           }
         }
@@ -4604,8 +4701,9 @@
           const keepOverlayOpenOnDisable = !!resetKeepOpen && (isResetDisable || isQuantityDisable);
           if (sec && t.checked && SECTION_QUANTITY_SECTIONS.includes(sec)) {
             const currentQty = getSectionQuantity(sec);
-            if (currentQty < SECTION_QUANTITY_DEFAULT_MIN) {
-              setSectionQuantity(sec, SECTION_QUANTITY_DEFAULT_MIN);
+            const activeMin = getSectionQuantityActiveMin(sec);
+            if (currentQty < activeMin) {
+              setSectionQuantity(sec, activeMin);
               refreshSectionQuantityControls();
             }
           }
@@ -4921,7 +5019,7 @@
           });
           return;
         }
-        setSectionQuantity(normalized, getQuantityMin());
+        setSectionQuantity(normalized, getQuantityMin(normalized));
         removeIngredientGroupsForSection(normalized);
         removeQuantitiesForSection(normalized);
         markSectionManualDisabled(normalized);
@@ -4938,8 +5036,12 @@
         const step = Number(delta);
         if (!normalized || !Number.isFinite(step) || !step) return;
         if (isSectionQuantityLocked(normalized)) return;
-        const current = Math.max(SECTION_QUANTITY_DEFAULT_MIN, getSectionQuantity(normalized));
-        const next = Math.min(SECTION_QUANTITY_MAX, Math.max(SECTION_QUANTITY_DEFAULT_MIN, current + step));
+        const current = Math.max(getSectionQuantityActiveMin(normalized), getSectionQuantity(normalized));
+        const quantityStep = getSectionQuantityStep(normalized);
+        const next = Math.min(
+          getSectionQuantityMax(normalized),
+          Math.max(getSectionQuantityActiveMin(normalized), current + (step * quantityStep))
+        );
         if (next === current) return;
         setSectionQuantity(normalized, next);
         renderOrderSummary();
@@ -5268,12 +5370,14 @@
           sectionsContainer.className = 'summary-sections';
           const catalog = loadIngredientCatalogFromStorage();
           const sectionDisplayCounts = {};
-          const clampOrderItemQty = (value) => {
-            const n = parseInt(value, 10) || SECTION_QUANTITY_DEFAULT_MIN;
-            return Math.max(SECTION_QUANTITY_DEFAULT_MIN, Math.min(SECTION_QUANTITY_MAX, n));
+          const clampOrderItemQty = (value, section) => {
+            const fallback = getSectionQuantityActiveMin(section);
+            const n = parseInt(value, 10);
+            return clampSectionQuantity(Number.isFinite(n) ? n : fallback, section);
           };
           const updateOrderItemQty = (itemId, nextQty) => {
-            const clamped = clampOrderItemQty(nextQty);
+            const currentItem = loadOrderItemsFromStorage().find((it) => it && it.id === itemId);
+            const clamped = clampOrderItemQty(nextQty, currentItem && currentItem.section);
             const nextItems = loadOrderItemsFromStorage().map((it) => {
               if (!it || it.id !== itemId) return it;
               return { ...it, sectionQty: clamped };
@@ -5340,7 +5444,10 @@
             // OLD SECTION (hidden old behavior): header.appendChild(remove);
             actions.appendChild(remove);
 
-            const currentItemQty = clampOrderItemQty(item.sectionQty);
+            const currentItemQty = clampOrderItemQty(item.sectionQty, item.section);
+            const itemQtyMin = getSectionQuantityActiveMin(item.section);
+            const itemQtyMax = getSectionQuantityMax(item.section);
+            const itemQtyStep = getSectionQuantityStep(item.section);
             const itemQtyLocked = isOrderItemSectionQtyLocked(item);
             const qtyWrap = document.createElement('span');
             qtyWrap.className = 'qty-controls summary-qty-controls';
@@ -5355,23 +5462,23 @@
             dec.className = 'qty-control-decrement summary-qty-decrement';
             dec.textContent = '−';
             dec.setAttribute('aria-label', `Decrease ${title.textContent} quantity`);
-            dec.disabled = itemQtyLocked || currentItemQty <= SECTION_QUANTITY_DEFAULT_MIN;
+            dec.disabled = itemQtyLocked || currentItemQty <= itemQtyMin;
             const inc = document.createElement('button');
             inc.type = 'button';
             inc.className = 'qty-control-increment summary-qty-increment';
             inc.textContent = '+';
             inc.setAttribute('aria-label', `Increase ${title.textContent} quantity`);
-            inc.disabled = itemQtyLocked || currentItemQty >= SECTION_QUANTITY_MAX;
+            inc.disabled = itemQtyLocked || currentItemQty >= itemQtyMax;
             if (!itemQtyLocked) {
               dec.addEventListener('click', (evt) => {
                 evt.preventDefault();
                 evt.stopPropagation();
-                updateOrderItemQty(item.id, currentItemQty - 1);
+                updateOrderItemQty(item.id, currentItemQty - itemQtyStep);
               });
               inc.addEventListener('click', (evt) => {
                 evt.preventDefault();
                 evt.stopPropagation();
-                updateOrderItemQty(item.id, currentItemQty + 1);
+                updateOrderItemQty(item.id, currentItemQty + itemQtyStep);
               });
             }
             qtyWrap.appendChild(qtyCount);
@@ -5666,7 +5773,9 @@
             actions.appendChild(remove);
 
             if (SECTION_QUANTITY_SECTIONS.includes(sec)) {
-	              const qtyValue = Math.max(SECTION_QUANTITY_DEFAULT_MIN, clampSectionQuantity(qtySections[sec]));
+	              const qtyValue = Math.max(getSectionQuantityActiveMin(sec), clampSectionQuantity(qtySections[sec], sec));
+              const qtyMin = getSectionQuantityActiveMin(sec);
+              const qtyMax = getSectionQuantityMax(sec);
               const qtyLocked = isSectionQuantityLocked(sec);
 	              const qtyWrap = document.createElement('span');
               qtyWrap.className = 'qty-controls summary-qty-controls';
@@ -5683,7 +5792,7 @@
               dec.className = 'qty-control-decrement summary-qty-decrement';
               dec.textContent = '−';
               dec.setAttribute('aria-label', `Decrease ${title.textContent} quantity`);
-	              dec.disabled = qtyLocked || qtyValue <= SECTION_QUANTITY_DEFAULT_MIN;
+	              dec.disabled = qtyLocked || qtyValue <= qtyMin;
 	              if (!qtyLocked) bindSummaryAdjustButton(dec, sec, -1);
 
               const inc = document.createElement('button');
@@ -5691,7 +5800,7 @@
               inc.className = 'qty-control-increment summary-qty-increment';
               inc.textContent = '+';
               inc.setAttribute('aria-label', `Increase ${title.textContent} quantity`);
-	              inc.disabled = qtyLocked || qtyValue >= SECTION_QUANTITY_MAX;
+	              inc.disabled = qtyLocked || qtyValue >= qtyMax;
 	              if (!qtyLocked) bindSummaryAdjustButton(inc, sec, 1);
 
               qtyWrap.appendChild(qtyCount);
@@ -5758,7 +5867,7 @@
             const editorPanel = document.createElement('div');
             editorPanel.className = 'summary-inline-editor-panel';
             const sectionQtyValue = SECTION_QUANTITY_SECTIONS.includes(sec)
-              ? Math.max(SECTION_QUANTITY_DEFAULT_MIN, clampSectionQuantity(qtySections[sec]))
+              ? Math.max(getSectionQuantityActiveMin(sec), clampSectionQuantity(qtySections[sec], sec))
               : null;
             const editorHeader = document.createElement('div');
             editorHeader.className = 'summary-inline-editor-header';
