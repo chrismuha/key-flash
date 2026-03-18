@@ -31,6 +31,95 @@
     orderItems: 'restaurant.orderItems'
   };
 
+  function renderOwnerConfigError(messages) {
+    const lines = Array.isArray(messages) ? messages.filter(Boolean) : [String(messages || 'Unknown configuration error.')];
+    const mount = () => {
+      const body = document.body || document.documentElement;
+      if (!body) return;
+      document.documentElement.classList.add('owner-config-error');
+      if (document.body) document.body.innerHTML = '';
+      const panel = document.createElement('main');
+      panel.style.maxWidth = '760px';
+      panel.style.margin = '40px auto';
+      panel.style.padding = '24px';
+      panel.style.fontFamily = 'system-ui, sans-serif';
+      panel.style.lineHeight = '1.5';
+      panel.innerHTML = `
+        <h1 style="margin:0 0 12px;font-size:24px;">Restaurant 1 config error</h1>
+        <p style="margin:0 0 16px;">Fix <code>owner-config.js</code> before using the site.</p>
+        <ul style="margin:0;padding-left:20px;"></ul>
+      `;
+      const list = panel.querySelector('ul');
+      lines.forEach((line) => {
+        const item = document.createElement('li');
+        item.textContent = line;
+        list.appendChild(item);
+      });
+      body.appendChild(panel);
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', mount, { once: true });
+    } else {
+      mount();
+    }
+  }
+
+  function validateOwnerConfig(config) {
+    const errors = [];
+    if (!config || typeof config !== 'object') {
+      errors.push('window.RESTAURANT1_OWNER_CONFIG is missing.');
+      return errors;
+    }
+    const requiredObjectKeys = [
+      'businessLocations',
+      'sectionLabels',
+      'pizzaSizeLabels',
+      'ingredientLabels',
+      'sectionIngredientCategories',
+      'presetsBySection'
+    ];
+    requiredObjectKeys.forEach((key) => {
+      if (!config[key] || typeof config[key] !== 'object' || Array.isArray(config[key])) {
+        errors.push(`${key} must be an object.`);
+      }
+    });
+    if (typeof config.defaultBusinessLocationId !== 'string' || !config.defaultBusinessLocationId.trim()) {
+      errors.push('defaultBusinessLocationId must be a non-empty string.');
+    }
+    const requiredSections = ['pizza', 'burger', 'calzone', 'chicken_wings', 'salad', 'sub', 'wrap', 'sauces'];
+    if (config.sectionLabels && typeof config.sectionLabels === 'object' && !Array.isArray(config.sectionLabels)) {
+      requiredSections.forEach((section) => {
+        if (typeof config.sectionLabels[section] !== 'string' || !config.sectionLabels[section].trim()) {
+          errors.push(`sectionLabels.${section} must be a non-empty string.`);
+        }
+      });
+    }
+    const requiredPizzaSizes = ['small', 'medium', 'large'];
+    if (config.pizzaSizeLabels && typeof config.pizzaSizeLabels === 'object' && !Array.isArray(config.pizzaSizeLabels)) {
+      requiredPizzaSizes.forEach((size) => {
+        if (typeof config.pizzaSizeLabels[size] !== 'string' || !config.pizzaSizeLabels[size].trim()) {
+          errors.push(`pizzaSizeLabels.${size} must be a non-empty string.`);
+        }
+      });
+    }
+    const businessLocations = config.businessLocations;
+    if (businessLocations && typeof businessLocations === 'object' && !Array.isArray(businessLocations)) {
+      const entries = Object.values(businessLocations);
+      if (!entries.length) errors.push('businessLocations must contain at least one location.');
+      if (config.defaultBusinessLocationId && !businessLocations[config.defaultBusinessLocationId]) {
+        errors.push('defaultBusinessLocationId must match a key in businessLocations.');
+      }
+    }
+    return errors;
+  }
+
+  const OWNER_CONFIG = window.RESTAURANT1_OWNER_CONFIG;
+  const OWNER_CONFIG_ERRORS = validateOwnerConfig(OWNER_CONFIG);
+  if (OWNER_CONFIG_ERRORS.length) {
+    renderOwnerConfigError(OWNER_CONFIG_ERRORS);
+    throw new Error(`Restaurant 1 owner config invalid:\n- ${OWNER_CONFIG_ERRORS.join('\n- ')}`);
+  }
+
   const SECTION_INGREDIENT_GROUPS = {
     pizza: ['pizza_ingredients[]'],
     burger: ['burger_ingredients[]'],
@@ -42,16 +131,10 @@
     sauces: ['sauces_ingredients[]']
   };
 
-  const SECTION_LABELS = {
-    pizza: 'Pizza',
-    burger: 'Burger',
-    calzone: 'Calzone',
-    chicken_wings: 'Chicken Wings',
-    salad: 'Salad',
-    sub: 'Sub',
-    wrap: 'Wrap',
-    sauces: 'Sauces'
-  };
+  const BUSINESS_LOCATIONS = OWNER_CONFIG.businessLocations;
+  const DEFAULT_BUSINESS_LOCATION_ID = OWNER_CONFIG.defaultBusinessLocationId;
+  const SECTION_LABELS = OWNER_CONFIG.sectionLabels;
+  const PIZZA_SIZE_LABELS = OWNER_CONFIG.pizzaSizeLabels;
 
   const SECTION_QTY_RULES = {
     chicken_wings: { activeMin: 10, max: 100, step: 10 }
@@ -101,6 +184,30 @@
       .split(/\s+/)
       .map(w => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
+  }
+
+  function applyOwnerConfigToDom() {
+    Object.entries(SECTION_LABELS).forEach(([section, label]) => {
+      if (!section || !label) return;
+      const details = document.getElementById(section);
+      if (!details) return;
+      const summaryText = details.querySelector('.menu-summary span');
+      const collapseBtn = details.parentElement ? details.parentElement.querySelector(`.collapse-section[data-target="${section}"]`) : null;
+      const resetBtn = details.querySelector('.reset-group');
+      const doneBtn = details.querySelector('.section-done');
+      if (summaryText) summaryText.textContent = label;
+      if (collapseBtn) collapseBtn.setAttribute('aria-label', `Collapse ${label} section`);
+      if (resetBtn) resetBtn.textContent = `Reset ${label}`;
+      if (doneBtn) doneBtn.setAttribute('aria-label', `Done with ${label} ingredients`);
+    });
+
+    document.querySelectorAll('input[type="radio"][name="pizza_size"]').forEach((radio) => {
+      const text = PIZZA_SIZE_LABELS[String(radio.value || '')];
+      if (!text) return;
+      const label = radio.closest('label');
+      const span = label ? label.querySelector('span') : null;
+      if (span) span.textContent = text;
+    });
   }
   // Strip any trailing inline quantity like (x12) that might have been
   // embedded into labels by UI controls on the builder page.
@@ -501,6 +608,7 @@
 
   // Section: Page Initialization
   document.addEventListener('DOMContentLoaded', () => {
+    applyOwnerConfigToDom();
     applyAutomaticAlphabetizing();
     installAutomaticAlphabetizeObserver();
     applyIngredientCaseExceptions(document);
@@ -3208,7 +3316,7 @@
         return {
           id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
           section,
-          sectionLabel: SECTION_LABELS[section] || titleCase(String(section || '').replace(/_/g, ' ')),
+          sectionLabel: SECTION_LABELS[section],
           sectionQty,
           pizzaSize: section === 'pizza' ? (getPizzaSize() || 'large') : '',
           ingredients: ingredientRows
@@ -3426,7 +3534,7 @@
             const actions = document.createElement('div');
             actions.className = 'summary-section-actions';
             const title = document.createElement('strong');
-            const sectionLabel = item.sectionLabel || SECTION_LABELS[item.section] || titleCase(String(item.section).replace(/_/g, ' '));
+            const sectionLabel = item.sectionLabel || SECTION_LABELS[item.section];
             title.textContent = `${sectionLabel} #${idx + 1}`;
             header.appendChild(title);
 
@@ -3593,7 +3701,7 @@
               const sizeDiv = document.createElement('div');
               sizeDiv.className = 'summary-size';
               sizeDiv.style.marginTop = '8px';
-              sizeDiv.textContent = `Size: ${titleCase(item.pizzaSize)}`;
+              sizeDiv.textContent = `Size: ${PIZZA_SIZE_LABELS[item.pizzaSize]}`;
               sectionWrap.appendChild(sizeDiv);
             }
             sectionWrap.appendChild(ul);
@@ -3964,7 +4072,7 @@
                   const sizeDiv = document.createElement('div');
                   sizeDiv.className = 'summary-size';
                   sizeDiv.style.marginTop = '8px';
-                  sizeDiv.textContent = `Size: ${titleCase(size)}`;
+                  sizeDiv.textContent = `Size: ${PIZZA_SIZE_LABELS[size]}`;
                   sectionWrap.appendChild(sizeDiv);
                 }
               } catch (err) { /* ignore */ }
