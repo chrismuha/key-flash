@@ -903,6 +903,36 @@ body.theme-dark main .burger-qty button {
     color: var(--surface);
 }
 
+main .section-qty-select-wrap {
+    display: grid;
+    gap: 4px;
+    width: min(100%, 20ch);
+}
+
+main .section-qty-select-label {
+    font-size: 9pt;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+main .section-qty-select {
+    width: 100%;
+    border: 1px solid var(--color-black);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font: inherit;
+    font-size: 10pt;
+    line-height: 1.2;
+    background: var(--surface);
+    color: var(--color-black);
+}
+
+body.theme-dark main .section-qty-select {
+    border-color: var(--surface);
+    background: var(--surface-dark-strong);
+    color: var(--surface);
+}
+
 body.theme-dark.page3 #order-summary {
     border-color: var(--surface);
     background: var(--color-black);

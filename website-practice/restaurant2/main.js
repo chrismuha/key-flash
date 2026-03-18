@@ -116,6 +116,7 @@
     'calzone_ingredients[]|ham': 'Ham',
 
     'chicken_wings_ingredients[]|garlic': 'Garlic',
+    'chicken_wings_ingredients[]|bbq_sauce': 'BBQ sauce',
     'chicken_wings_ingredients[]|butter_sauce': 'Butter sauce',
     'chicken_wings_ingredients[]|hot_sauce': 'Hot sauce',
     'chicken_wings_ingredients[]|medium_sauce': 'Medium sauce',
@@ -294,7 +295,7 @@
       { id: 'seasonings', label: 'Seasonings', values: ['black_pepper', 'garlic_powder', 'italian_seasoning', 'olive_oil', 'salt'] }
     ],
     chicken_wings: [
-      { id: 'sauces', label: 'Sauces', values: ['butter_sauce', 'hot_and_spicy_barbecue_sauce', 'hot_sauce', 'medium_sauce', 'mild_sauce', 'mustard', 'extra_hot_sauce', 'spicy_garlic_parm_sauce'] },
+      { id: 'sauces', label: 'Sauces', values: ['bbq_sauce', 'butter_sauce', 'hot_and_spicy_barbecue_sauce', 'hot_sauce', 'medium_sauce', 'mild_sauce', 'mustard', 'extra_hot_sauce', 'spicy_garlic_parm_sauce'] },
       { id: 'extras', label: 'Extras', values: ['garlic', 'honey'] },
       { id: 'base', label: 'Base', values: ['plain'] }
     ],
@@ -406,6 +407,27 @@
     ],
     chicken_wings: [
       {
+        id: 'everything_wings',
+        name: 'Everything Wings',
+        price: '$0',
+        ingredients: ['plain', 'bbq_sauce', 'butter_sauce', 'extra_hot_sauce', 'garlic', 'honey', 'hot_and_spicy_barbecue_sauce', 'hot_sauce', 'medium_sauce', 'mild_sauce', 'mustard', 'spicy_garlic_parm_sauce'],
+        description: 'Plain wings with all sauces and extras'
+      },
+      {
+        id: 'bbq_wings',
+        name: 'BBQ Wings',
+        price: '$0',
+        ingredients: ['plain', 'bbq_sauce'],
+        description: 'Plain wings with BBQ sauce'
+      },
+      {
+        id: 'hot_spicy_bbq_wings',
+        name: 'Hot and Spicy BBQ Wings',
+        price: '$0',
+        ingredients: ['plain', 'hot_and_spicy_barbecue_sauce'],
+        description: 'Plain wings with hot and spicy barbecue sauce'
+      },
+      {
         id: 'hot_wings',
         name: 'Hot Wings',
         price: '$0',
@@ -490,7 +512,7 @@
       },
       {
         id: 'buff_chick_sub',
-        name: 'Buff Chick Sub',
+        name: 'Buffalo Chicken Sub',
         price: '$0',
         ingredients: ['white', 'chicken', 'buffalo_sauce', 'cheese', 'lettuce'],
         description: 'White bread, chicken, buffalo sauce, cheese, lettuce'

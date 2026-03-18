@@ -53,6 +53,46 @@
     sauces: 'Sauces'
   };
 
+  const SECTION_QTY_RULES = {
+    chicken_wings: { activeMin: 10, max: 100, step: 10 }
+  };
+
+  function getSectionQtyActiveMin(section) {
+    const key = String(section || '').toLowerCase();
+    return SECTION_QTY_RULES[key] && Number.isFinite(SECTION_QTY_RULES[key].activeMin)
+      ? SECTION_QTY_RULES[key].activeMin
+      : 1;
+  }
+
+  function getSectionQtyMax(section) {
+    const key = String(section || '').toLowerCase();
+    return SECTION_QTY_RULES[key] && Number.isFinite(SECTION_QTY_RULES[key].max)
+      ? SECTION_QTY_RULES[key].max
+      : 12;
+  }
+
+  function getSectionQtyStep(section) {
+    const key = String(section || '').toLowerCase();
+    return SECTION_QTY_RULES[key] && Number.isFinite(SECTION_QTY_RULES[key].step)
+      ? SECTION_QTY_RULES[key].step
+      : 1;
+  }
+
+  function clampSectionQtyValue(value, section, allowZero = true) {
+    const activeMin = getSectionQtyActiveMin(section);
+    const max = getSectionQtyMax(section);
+    const step = getSectionQtyStep(section);
+    const num = parseInt(value, 10);
+    if (!Number.isFinite(num)) return allowZero ? 0 : activeMin;
+    if (allowZero && num <= 0) return 0;
+    const clamped = Math.min(max, Math.max(activeMin, num));
+    if (step > 1) {
+      const snapped = Math.round(clamped / step) * step;
+      return Math.min(max, Math.max(activeMin, snapped));
+    }
+    return clamped;
+  }
+
   // Section: Text Utils
   function titleCase(str) {
     if (!str) return '';
@@ -2219,7 +2259,7 @@
         } catch { }
       };
 
-      // Decorate section summaries with quantity controls (1-12)
+      // Decorate section summaries with quantity controls
       SECTION_QTY_KEYS.forEach((sec) => {
         const d = document.getElementById(sec);
         if (!d) return;
@@ -2231,7 +2271,7 @@
         const hasStoredSectionQty = Object.prototype.hasOwnProperty.call(qtySections, sec);
         // Keep stored values as-is; only apply a default when nothing has been stored yet.
         let current = hasStoredSectionQty
-          ? Math.max(0, Math.min(12, parseInt(qtySections[sec], 10) || 0))
+          ? clampSectionQtyValue(qtySections[sec], sec, true)
           : sectionDefaultQty;
         if (!hasStoredSectionQty) {
           qtySections[sec] = current;
@@ -2270,10 +2310,10 @@
             const labelNum = parseInt((label.textContent || '').replace(/\D+/g, ''), 10);
             if (!Number.isNaN(labelNum)) stored = labelNum;
           }
-          return Math.max(0, Math.min(12, stored));
+          return clampSectionQtyValue(stored, sec, true);
         };
         const update = (next) => {
-          current = Math.max(0, Math.min(12, (next | 0)));
+          current = clampSectionQtyValue(next, sec, true);
           qtySections[sec] = current; saveQtySections();
           try {
             const qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
@@ -2296,22 +2336,33 @@
               toggle.dispatchEvent(new Event('change', { bubbles: true }));
             }
           }
+          const sectionQtySelect = document.querySelector(`.section-qty-select[data-section="${sec}"]`);
+          if (sectionQtySelect) {
+            sectionQtySelect.value = String(current > 0 ? current : getSectionQtyActiveMin(sec));
+          }
           if (sec === 'burger') updateBurgerTomatoLabel();
         };
         dec.addEventListener('click', (e) => {
           e.stopPropagation();
           current = getStoredQty();
-          update(current - 1);
+          update(current - getSectionQtyStep(sec));
         });
         inc.addEventListener('click', (e) => {
           e.stopPropagation();
           current = getStoredQty();
-          update(current + 1);
+          update(current + getSectionQtyStep(sec));
         });
         wrap.appendChild(label); wrap.appendChild(dec); wrap.appendChild(inc);
         summary.appendChild(wrap);
         setQtyVisible();
         if (sectionToggle) sectionToggle.addEventListener('change', setQtyVisible);
+        const sectionQtySelect = document.querySelector(`.section-qty-select[data-section="${sec}"]`);
+        if (sectionQtySelect) {
+          sectionQtySelect.value = String(current > 0 ? current : getSectionQtyActiveMin(sec));
+          sectionQtySelect.addEventListener('change', () => {
+            update(parseInt(sectionQtySelect.value, 10));
+          });
+        }
       });
 
       // Initialize Burger tomato label once on load
@@ -2598,12 +2649,14 @@
                 let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                 const cur = parseInt(qtySections[section] || '0', 10) || 0;
                 if (cur <= 0) {
-                  const defaultQty = Math.max(1, getSectionDefaultQty(section));
+                  const defaultQty = Math.max(getSectionQtyActiveMin(section), getSectionDefaultQty(section));
                   const last = (!resetOnDeselect && t.dataset && t.dataset.lastQty) ? parseInt(t.dataset.lastQty, 10) || defaultQty : defaultQty;
                   qtySections[section] = Math.max(defaultQty, last);
                   localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections));
                   const sum = d2.querySelector('.menu-summary .qty-controls span');
                   if (sum) sum.textContent = `(x${qtySections[section]})`;
+                  const sectionQtySelect = document.querySelector(`.section-qty-select[data-section="${section}"]`);
+                  if (sectionQtySelect) sectionQtySelect.value = String(qtySections[section]);
                   if (t.dataset) delete t.dataset.lastQty;
                 }
               } catch { }
@@ -2623,7 +2676,7 @@
                   let qtySections = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
                   const currentQty = parseInt(qtySections[section] || '0', 10) || 0;
                   if (!resetOnDeselect && t.dataset) {
-                    t.dataset.lastQty = String(Math.max(1, currentQty || 1));
+                    t.dataset.lastQty = String(Math.max(getSectionQtyActiveMin(section), currentQty || getSectionQtyActiveMin(section)));
                   }
                   qtySections[section] = 0;
                   localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections));
@@ -2641,6 +2694,17 @@
                 } else {
                   sum.textContent = '(x0)';
                 }
+              }
+              const sectionQtySelect = document.querySelector(`.section-qty-select[data-section="${section}"]`);
+              if (sectionQtySelect) {
+                let nextSelectValue = getSectionQtyActiveMin(section);
+                if (isResetDisable) {
+                  try {
+                    const qs = JSON.parse(localStorage.getItem(STORAGE_KEYS.quantitiesSections) || '{}');
+                    nextSelectValue = clampSectionQtyValue(qs[section], section, false);
+                  } catch { nextSelectValue = getSectionQtyActiveMin(section); }
+                }
+                sectionQtySelect.value = String(nextSelectValue);
               }
             }
             collapseSectionIfInactive(section);
@@ -3140,7 +3204,7 @@
         });
         if (!ingredientRows.length) return null;
         const rawSectionQty = parseInt(qtySections[section] || '0', 10) || 0;
-        const sectionQty = Math.max(1, Math.min(12, rawSectionQty || 1));
+        const sectionQty = clampSectionQtyValue(rawSectionQty || getSectionQtyActiveMin(section), section, false);
         return {
           id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
           section,
@@ -3327,12 +3391,14 @@
           const sectionsContainer = document.createElement('div');
           sectionsContainer.className = 'summary-sections';
           const catalog = loadIngredientCatalogFromStorage();
-          const clampOrderItemQty = (value) => {
-            const n = parseInt(value, 10) || 1;
-            return Math.max(1, Math.min(12, n));
+          const clampOrderItemQty = (value, section) => {
+            const fallback = getSectionQtyActiveMin(section);
+            const n = parseInt(value, 10);
+            return clampSectionQtyValue(Number.isFinite(n) ? n : fallback, section, false);
           };
           const updateOrderItemQty = (itemId, nextQty) => {
-            const clamped = clampOrderItemQty(nextQty);
+            const currentItem = loadOrderItemsFromStorage().find((it) => it && it.id === itemId);
+            const clamped = clampOrderItemQty(nextQty, currentItem && currentItem.section);
             const next = loadOrderItemsFromStorage().map((it) => {
               if (!it || it.id !== itemId) return it;
               return { ...it, sectionQty: clamped };
@@ -3381,7 +3447,10 @@
 
             const qtyRow = document.createElement('div');
             qtyRow.className = 'summary-section-qty-row';
-            const currentItemQty = clampOrderItemQty(item.sectionQty);
+            const currentItemQty = clampOrderItemQty(item.sectionQty, item.section);
+            const itemQtyMin = getSectionQtyActiveMin(item.section);
+            const itemQtyMax = getSectionQtyMax(item.section);
+            const itemQtyStep = getSectionQtyStep(item.section);
             const qtyLabel = document.createElement('span');
             qtyLabel.textContent = `(x${currentItemQty})`;
             qtyLabel.style.marginRight = '6px';
@@ -3394,8 +3463,8 @@
             inc.type = 'button';
             inc.textContent = '+';
             inc.setAttribute('aria-label', `Increase ${title.textContent} quantity`);
-            dec.disabled = currentItemQty <= 1;
-            inc.disabled = currentItemQty >= 12;
+            dec.disabled = currentItemQty <= itemQtyMin;
+            inc.disabled = currentItemQty >= itemQtyMax;
             qtyRow.appendChild(qtyLabel);
             qtyRow.appendChild(dec);
             qtyRow.appendChild(inc);
@@ -3405,18 +3474,18 @@
             buildItemList(ul, itemIngredients);
 
             dec.addEventListener('click', () => {
-              const nextQty = clampOrderItemQty((parseInt(qtyLabel.textContent.replace(/\D+/g, ''), 10) || 1) - 1);
+              const nextQty = clampOrderItemQty((parseInt(qtyLabel.textContent.replace(/\D+/g, ''), 10) || itemQtyMin) - itemQtyStep, item.section);
               updateOrderItemQty(item.id, nextQty);
               qtyLabel.textContent = `(x${nextQty})`;
-              dec.disabled = nextQty <= 1;
-              inc.disabled = nextQty >= 12;
+              dec.disabled = nextQty <= itemQtyMin;
+              inc.disabled = nextQty >= itemQtyMax;
             });
             inc.addEventListener('click', () => {
-              const nextQty = clampOrderItemQty((parseInt(qtyLabel.textContent.replace(/\D+/g, ''), 10) || 1) + 1);
+              const nextQty = clampOrderItemQty((parseInt(qtyLabel.textContent.replace(/\D+/g, ''), 10) || itemQtyMin) + itemQtyStep, item.section);
               updateOrderItemQty(item.id, nextQty);
               qtyLabel.textContent = `(x${nextQty})`;
-              dec.disabled = nextQty <= 1;
-              inc.disabled = nextQty >= 12;
+              dec.disabled = nextQty <= itemQtyMin;
+              inc.disabled = nextQty >= itemQtyMax;
             });
 
             remove.addEventListener('click', () => {
@@ -3633,8 +3702,11 @@
               const qWrap = document.createElement('div');
               qWrap.className = 'summary-section-qty-row';
               const qKey = key;
-              // Allow 0 if previously set via deselection; otherwise controls clamp to 1..12
-              let current = Math.max(0, Math.min(12, parseInt(qtySections[qKey] || '0', 10) || 0));
+              // Allow 0 if previously set via deselection; otherwise controls clamp to section rules
+              let current = clampSectionQtyValue(qtySections[qKey], qKey, true);
+              const qMin = getSectionQtyActiveMin(qKey);
+              const qMax = getSectionQtyMax(qKey);
+              const qStep = getSectionQtyStep(qKey);
 
               const labelSpan = document.createElement('span');
               labelSpan.textContent = `(x${current})`;
@@ -3652,11 +3724,13 @@
               inc.setAttribute('aria-label', `Increase ${key} quantity`);
 
               const updateQty = (next) => {
-                const val = Math.max(0, Math.min(12, (next | 0)));
+                const val = clampSectionQtyValue(next, qKey, true);
                 current = val;
                 qtySections[qKey] = val;
                 try { localStorage.setItem(STORAGE_KEYS.quantitiesSections, JSON.stringify(qtySections)); } catch { }
                 labelSpan.textContent = `(x${val})`;
+                dec.disabled = val <= qMin;
+                inc.disabled = val >= qMax;
                 if (val === 0) {
                   // Deselect item on Page 2 state: deactivate section and clear its ingredients
                   try {
@@ -3674,8 +3748,10 @@
                 }
               };
 
-              dec.addEventListener('click', () => { updateQty(current - 1); });
-              inc.addEventListener('click', () => { updateQty(current + 1); });
+              dec.disabled = current <= qMin;
+              inc.disabled = current >= qMax;
+              dec.addEventListener('click', () => { updateQty(current - qStep); });
+              inc.addEventListener('click', () => { updateQty(current + qStep); });
 
               qWrap.appendChild(labelSpan);
               qWrap.appendChild(dec);
