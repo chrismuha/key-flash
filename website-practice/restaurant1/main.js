@@ -74,6 +74,7 @@
       'businessLocations',
       'sectionLabels',
       'pizzaSizeLabels',
+      'menuSections',
       'ingredientLabels',
       'sectionIngredientCategories',
       'presetsBySection'
@@ -101,6 +102,9 @@
           errors.push(`pizzaSizeLabels.${size} must be a non-empty string.`);
         }
       });
+    }
+    if (!Array.isArray(config.menuSections) || !config.menuSections.length) {
+      errors.push('menuSections must be a non-empty array.');
     }
     const businessLocations = config.businessLocations;
     if (businessLocations && typeof businessLocations === 'object' && !Array.isArray(businessLocations)) {
@@ -135,6 +139,7 @@
   const DEFAULT_BUSINESS_LOCATION_ID = OWNER_CONFIG.defaultBusinessLocationId;
   const SECTION_LABELS = OWNER_CONFIG.sectionLabels;
   const PIZZA_SIZE_LABELS = OWNER_CONFIG.pizzaSizeLabels;
+  const MENU_SECTIONS = OWNER_CONFIG.menuSections;
 
   const SECTION_QTY_RULES = {
     chicken_wings: { activeMin: 10, max: 100, step: 10 }
@@ -207,6 +212,172 @@
       const label = radio.closest('label');
       const span = label ? label.querySelector('span') : null;
       if (span) span.textContent = text;
+    });
+  }
+
+  function renderRestaurant1MenuSections() {
+    const root = document.getElementById('menu-sections-root');
+    if (!root || !Array.isArray(MENU_SECTIONS)) return;
+    root.textContent = '';
+
+    MENU_SECTIONS.forEach((sectionConfig) => {
+      if (!sectionConfig || !sectionConfig.id || !sectionConfig.label) return;
+      const sectionId = String(sectionConfig.id);
+      const sectionLabel = String(sectionConfig.label);
+      const groupName = `${sectionId}_ingredients[]`;
+
+      const sectionEl = document.createElement('section');
+      const details = document.createElement('details');
+      details.id = sectionId;
+
+      const summary = document.createElement('summary');
+      summary.className = 'menu-summary';
+      const toggle = document.createElement('input');
+      toggle.type = 'checkbox';
+      toggle.className = 'section-toggle';
+      toggle.dataset.section = sectionId;
+      const summaryText = document.createElement('span');
+      summaryText.textContent = sectionLabel;
+      summary.appendChild(toggle);
+      summary.appendChild(summaryText);
+      details.appendChild(summary);
+
+      const collapseBtn = document.createElement('button');
+      collapseBtn.type = 'button';
+      collapseBtn.className = 'collapse collapse-inline collapse-section';
+      collapseBtn.dataset.target = sectionId;
+      collapseBtn.setAttribute('aria-label', `Collapse ${sectionLabel} section`);
+      collapseBtn.textContent = 'Collapse';
+      details.appendChild(collapseBtn);
+
+      if (Array.isArray(sectionConfig.pizzaSizes) && sectionConfig.pizzaSizes.length) {
+        const sizeOptions = document.createElement('div');
+        sizeOptions.className = 'size-options';
+        const sizeLabel = document.createElement('span');
+        sizeLabel.className = 'size-options__label';
+        sizeLabel.textContent = 'Size';
+        const sizePills = document.createElement('div');
+        sizePills.className = 'size-options__pills';
+        sizePills.setAttribute('role', 'radiogroup');
+        sizePills.setAttribute('aria-label', 'Pizza size');
+        sectionConfig.pizzaSizes.forEach((sizeValue, index) => {
+          const pill = document.createElement('label');
+          pill.className = 'size-pill';
+          const radio = document.createElement('input');
+          radio.type = 'radio';
+          radio.name = 'pizza_size';
+          radio.value = String(sizeValue);
+          if (index === 2 || (sectionConfig.defaultPizzaSize && sectionConfig.defaultPizzaSize === sizeValue)) {
+            radio.checked = true;
+          }
+          const text = document.createElement('span');
+          text.textContent = PIZZA_SIZE_LABELS[String(sizeValue)] || String(sizeValue);
+          pill.appendChild(radio);
+          pill.appendChild(text);
+          sizePills.appendChild(pill);
+        });
+        sizeOptions.appendChild(sizeLabel);
+        sizeOptions.appendChild(sizePills);
+        details.appendChild(sizeOptions);
+      }
+
+      const form = document.createElement('form');
+      const fieldset = document.createElement('fieldset');
+      const legend = document.createElement('legend');
+      legend.textContent = 'Choose Ingredients';
+      fieldset.appendChild(legend);
+
+      (Array.isArray(sectionConfig.ingredients) ? sectionConfig.ingredients : []).forEach((ingredient) => {
+        if (!ingredient || !ingredient.value || !ingredient.label) return;
+        const label = document.createElement('label');
+        if (ingredient.required) {
+          label.className = 'required';
+          label.title = 'Required';
+        }
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.name = groupName;
+        input.value = String(ingredient.value);
+        if (ingredient.inputId) input.id = String(ingredient.inputId);
+        if (ingredient.required) {
+          input.dataset.required = 'true';
+          input.title = 'Required';
+          input.checked = true;
+        }
+        if (ingredient.noQty) {
+          input.dataset.noQty = 'true';
+          input.checked = true;
+        }
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(` ${ingredient.label}`));
+
+        if (Array.isArray(ingredient.options) && ingredient.options.length) {
+          const select = document.createElement('select');
+          select.className = 'ingredient-qty';
+          if (ingredient.selectId) select.id = String(ingredient.selectId);
+          select.dataset.ignoreLabelToggle = 'true';
+          select.dataset.noQty = 'true';
+          if (ingredient.selectAriaLabel) select.setAttribute('aria-label', String(ingredient.selectAriaLabel));
+          ingredient.options.forEach((option, index) => {
+            const optionEl = document.createElement('option');
+            optionEl.value = String(option.value);
+            optionEl.textContent = String(option.label);
+            if (index === 0) optionEl.selected = true;
+            select.appendChild(optionEl);
+          });
+          label.appendChild(document.createTextNode(' '));
+          label.appendChild(select);
+        }
+
+        fieldset.appendChild(label);
+        fieldset.appendChild(document.createElement('br'));
+      });
+
+      form.appendChild(fieldset);
+
+      const actions = document.createElement('div');
+      actions.className = 'section-actions';
+      if (sectionConfig.sectionQtySelect && Array.isArray(sectionConfig.sectionQtySelect.options)) {
+        const wrap = document.createElement('label');
+        wrap.className = 'section-qty-select-wrap';
+        wrap.setAttribute('for', `section-qty-select-${sectionId}`);
+        const wrapLabel = document.createElement('span');
+        wrapLabel.className = 'section-qty-select-label';
+        wrapLabel.textContent = String(sectionConfig.sectionQtySelect.label || 'Quantity');
+        const select = document.createElement('select');
+        select.id = `section-qty-select-${sectionId}`;
+        select.className = 'section-qty-select';
+        select.dataset.section = sectionId;
+        select.setAttribute('aria-label', `Select ${String(sectionConfig.sectionQtySelect.label || 'quantity').toLowerCase()}`);
+        sectionConfig.sectionQtySelect.options.forEach((value) => {
+          const option = document.createElement('option');
+          option.value = String(value);
+          option.textContent = `${value}${String(sectionConfig.sectionQtySelect.suffix || '')}`;
+          select.appendChild(option);
+        });
+        wrap.appendChild(wrapLabel);
+        wrap.appendChild(select);
+        actions.appendChild(wrap);
+      }
+
+      const resetBtn = document.createElement('button');
+      resetBtn.type = 'button';
+      resetBtn.className = 'reset-group';
+      resetBtn.dataset.group = groupName;
+      resetBtn.textContent = `Reset ${sectionLabel}`;
+      const doneBtn = document.createElement('button');
+      doneBtn.type = 'button';
+      doneBtn.className = 'section-done';
+      doneBtn.dataset.section = sectionId;
+      doneBtn.setAttribute('aria-label', `Done with ${sectionLabel} ingredients`);
+      doneBtn.textContent = 'Done';
+      actions.appendChild(resetBtn);
+      actions.appendChild(doneBtn);
+      form.appendChild(actions);
+
+      details.appendChild(form);
+      sectionEl.appendChild(details);
+      root.appendChild(sectionEl);
     });
   }
   // Strip any trailing inline quantity like (x12) that might have been
@@ -608,6 +779,9 @@
 
   // Section: Page Initialization
   document.addEventListener('DOMContentLoaded', () => {
+    if (document.body.classList.contains('page2')) {
+      renderRestaurant1MenuSections();
+    }
     applyOwnerConfigToDom();
     applyAutomaticAlphabetizing();
     installAutomaticAlphabetizeObserver();
