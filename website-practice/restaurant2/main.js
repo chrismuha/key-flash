@@ -40,12 +40,102 @@
     orderItems: 'restaurant.orderItems'
   };
 
-  const OWNER_CONFIG = window.RESTAURANT2_OWNER_CONFIG || {};
-  const INGREDIENT_LABELS = OWNER_CONFIG.ingredientLabels || {};
-  const BUSINESS_LOCATIONS = OWNER_CONFIG.businessLocations || {};
-  const DEFAULT_BUSINESS_LOCATION_ID = OWNER_CONFIG.defaultBusinessLocationId
-    || Object.keys(BUSINESS_LOCATIONS)[0]
-    || 'default';
+  function renderOwnerConfigError(messages) {
+    const lines = Array.isArray(messages) ? messages.filter(Boolean) : [String(messages || 'Unknown configuration error.')];
+    const mount = () => {
+      const body = document.body || document.documentElement;
+      if (!body) return;
+      document.documentElement.classList.add('owner-config-error');
+      if (document.body) {
+        document.body.innerHTML = '';
+      }
+      const panel = document.createElement('main');
+      panel.style.maxWidth = '760px';
+      panel.style.margin = '40px auto';
+      panel.style.padding = '24px';
+      panel.style.fontFamily = 'system-ui, sans-serif';
+      panel.style.lineHeight = '1.5';
+      panel.innerHTML = `
+        <h1 style="margin:0 0 12px;font-size:24px;">Restaurant 2 config error</h1>
+        <p style="margin:0 0 16px;">Fix <code>owner-config.js</code> before using the site.</p>
+        <ul style="margin:0;padding-left:20px;"></ul>
+      `;
+      const list = panel.querySelector('ul');
+      lines.forEach((line) => {
+        const item = document.createElement('li');
+        item.textContent = line;
+        list.appendChild(item);
+      });
+      body.appendChild(panel);
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', mount, { once: true });
+    } else {
+      mount();
+    }
+  }
+
+  function validateOwnerConfig(config) {
+    const errors = [];
+    if (!config || typeof config !== 'object') {
+      errors.push('window.RESTAURANT2_OWNER_CONFIG is missing.');
+      return errors;
+    }
+    const requiredObjectKeys = [
+      'businessLocations',
+      'sectionLabels',
+      'pizzaSizeLabels',
+      'ingredientLabels',
+      'sectionIngredientCategories',
+      'presetsBySection'
+    ];
+    requiredObjectKeys.forEach((key) => {
+      if (!config[key] || typeof config[key] !== 'object' || Array.isArray(config[key])) {
+        errors.push(`${key} must be an object.`);
+      }
+    });
+    if (typeof config.defaultBusinessLocationId !== 'string' || !config.defaultBusinessLocationId.trim()) {
+      errors.push('defaultBusinessLocationId must be a non-empty string.');
+    }
+    const requiredSections = ['pizza', 'burger', 'calzone', 'chicken_wings', 'salad', 'dinner', 'sub', 'wrap', 'sauces', 'order'];
+    if (config.sectionLabels && typeof config.sectionLabels === 'object' && !Array.isArray(config.sectionLabels)) {
+      requiredSections.forEach((section) => {
+        if (typeof config.sectionLabels[section] !== 'string' || !config.sectionLabels[section].trim()) {
+          errors.push(`sectionLabels.${section} must be a non-empty string.`);
+        }
+      });
+    }
+    const requiredPizzaSizes = ['small', 'medium', 'large', 'sheet'];
+    if (config.pizzaSizeLabels && typeof config.pizzaSizeLabels === 'object' && !Array.isArray(config.pizzaSizeLabels)) {
+      requiredPizzaSizes.forEach((size) => {
+        if (typeof config.pizzaSizeLabels[size] !== 'string' || !config.pizzaSizeLabels[size].trim()) {
+          errors.push(`pizzaSizeLabels.${size} must be a non-empty string.`);
+        }
+      });
+    }
+    const businessLocations = config.businessLocations;
+    if (businessLocations && typeof businessLocations === 'object' && !Array.isArray(businessLocations)) {
+      const entries = Object.values(businessLocations);
+      if (!entries.length) {
+        errors.push('businessLocations must contain at least one location.');
+      }
+      if (config.defaultBusinessLocationId && !businessLocations[config.defaultBusinessLocationId]) {
+        errors.push('defaultBusinessLocationId must match a key in businessLocations.');
+      }
+    }
+    return errors;
+  }
+
+  const OWNER_CONFIG = window.RESTAURANT2_OWNER_CONFIG;
+  const OWNER_CONFIG_ERRORS = validateOwnerConfig(OWNER_CONFIG);
+  if (OWNER_CONFIG_ERRORS.length) {
+    renderOwnerConfigError(OWNER_CONFIG_ERRORS);
+    throw new Error(`Restaurant 2 owner config invalid:\n- ${OWNER_CONFIG_ERRORS.join('\n- ')}`);
+  }
+
+  const INGREDIENT_LABELS = OWNER_CONFIG.ingredientLabels;
+  const BUSINESS_LOCATIONS = OWNER_CONFIG.businessLocations;
+  const DEFAULT_BUSINESS_LOCATION_ID = OWNER_CONFIG.defaultBusinessLocationId;
 
   const JALAPENO_VALUE = 'jalapenos';
   const JALAPENO_LABEL_RE = /jalapenos|jalapeños/i;
@@ -78,12 +168,7 @@
 
   const DEFAULT_PIZZA_SIZE = 'large';
   const SECTION_NOTE_MAX_CHARS = 210;
-  const PIZZA_SIZE_LABELS = OWNER_CONFIG.pizzaSizeLabels || {
-    small: 'Small',
-    medium: 'Medium',
-    large: 'Large',
-    sheet: 'Sheet'
-  };
+  const PIZZA_SIZE_LABELS = OWNER_CONFIG.pizzaSizeLabels;
 
   const INGREDIENT_GROUPS = [
     'pizza_ingredients[]',
@@ -109,20 +194,9 @@
     sauces: ['sauces_ingredients[]']
   };
 
-  const SECTION_INGREDIENT_CATEGORIES = OWNER_CONFIG.sectionIngredientCategories || {};
-  const PRESETS_BY_SECTION = OWNER_CONFIG.presetsBySection || {};
-  const SECTION_LABELS = OWNER_CONFIG.sectionLabels || {
-    pizza: 'Pizza',
-    burger: 'Burger',
-    calzone: 'Calzone',
-    chicken_wings: 'Chicken Wings',
-    salad: 'Salad',
-    dinner: 'Dinner',
-    sub: 'Sub',
-    wrap: 'Wrap',
-    sauces: 'Sauces',
-    order: 'Order'
-  };
+  const SECTION_INGREDIENT_CATEGORIES = OWNER_CONFIG.sectionIngredientCategories;
+  const PRESETS_BY_SECTION = OWNER_CONFIG.presetsBySection;
+  const SECTION_LABELS = OWNER_CONFIG.sectionLabels;
 
   const SECTION_QUANTITY_DEFAULT_MIN = 1;
   const SECTION_QUANTITY_MAX = 12;
@@ -250,9 +324,113 @@
 
   const MIXED_SUB_MIN_MEATS = 3;
   const SUB_MEAT_VALUES = new Set(['bacon', 'bologna', 'chicken', 'ham', 'pepperoni', 'salami', 'tuna', 'turkey']);
+  const PRESET_NAME_COLLATOR = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
+  const PRESET_REMOVABLE_PRODUCE_VALUES = new Set([
+    'banana_peppers',
+    'broccoli',
+    'cherry_peppers',
+    'cucumbers',
+    'eggplant',
+    'green_peppers',
+    'greens',
+    'hot_peppers',
+    'jalapenos',
+    'lettuce',
+    'mushrooms',
+    'olives',
+    'onion',
+    'pickles',
+    'pineapple',
+    'red_onion',
+    'red_peppers',
+    'roasted_peppers',
+    'roasted_red_peppers',
+    'spinach',
+    'tomato',
+    'tomatoes'
+  ]);
 
   function countMixedSubMeats(values) {
     return (Array.isArray(values) ? values : []).reduce((total, value) => total + (SUB_MEAT_VALUES.has(String(value || '')) ? 1 : 0), 0);
+  }
+
+  function isVegetableCategory(category) {
+    if (!category || typeof category !== 'object') return false;
+    const idText = String(category.id || '').trim().toLowerCase();
+    const labelText = String(category.label || '').trim().toLowerCase();
+    const combined = `${idText} ${labelText}`;
+    return ['vegetable', 'vegetables', 'veggie', 'veggies', 'greens'].some((token) => combined.includes(token));
+  }
+
+  function getVegetableValuesForSection(section) {
+    const categories = getIngredientCategoriesForSection(section) || [];
+    const values = new Set();
+    categories.forEach((category) => {
+      if (!isVegetableCategory(category)) return;
+      (Array.isArray(category.values) ? category.values : []).forEach((value) => {
+        const normalized = normalizeJalapenoValue(value);
+        if (normalized) values.add(normalized);
+      });
+    });
+    return values;
+  }
+
+  function getPresetsForSection(section) {
+    const presets = Array.isArray(PRESETS_BY_SECTION[String(section || '').toLowerCase()])
+      ? PRESETS_BY_SECTION[String(section || '').toLowerCase()]
+      : [];
+    return presets
+      .slice()
+      .sort((a, b) => PRESET_NAME_COLLATOR.compare(String(a?.name || ''), String(b?.name || '')));
+  }
+
+  function findPresetById(section, presetId) {
+    const normalizedId = String(presetId || '');
+    if (!normalizedId) return null;
+    return getPresetsForSection(section).find((preset) => String(preset?.id || '') === normalizedId) || null;
+  }
+
+  function getPresetRequiredValues(section, presetLikeOrId) {
+    const preset = typeof presetLikeOrId === 'string'
+      ? findPresetById(section, presetLikeOrId)
+      : (presetLikeOrId && typeof presetLikeOrId === 'object' ? presetLikeOrId : null);
+    const requiredValues = new Set();
+    if (!preset || !Array.isArray(preset.ingredients)) return requiredValues;
+    const vegetableValues = getVegetableValuesForSection(section);
+    preset.ingredients.forEach((rawValue) => {
+      const value = normalizeJalapenoValue(rawValue);
+      if (!value || vegetableValues.has(value) || PRESET_REMOVABLE_PRODUCE_VALUES.has(value)) return;
+      requiredValues.add(value);
+    });
+    return requiredValues;
+  }
+
+  function isCheckboxRequiredNow(cb) {
+    if (!cb || !cb.dataset) return false;
+    return cb.dataset.required === 'true' || cb.dataset.presetRequired === 'true';
+  }
+
+  function syncPresetRequiredStateForSection(sectionOrEl) {
+    const sectionEl = typeof sectionOrEl === 'string' ? document.getElementById(sectionOrEl) : sectionOrEl;
+    if (!sectionEl) return;
+    const sectionId = String(sectionEl.id || sectionEl.dataset.section || '').toLowerCase();
+    if (!sectionId) return;
+    const selectedPresetId = String(sectionEl.dataset.selectedPresetId || '');
+    const presetRequiredValues = getPresetRequiredValues(sectionId, selectedPresetId);
+    const checkboxes = Array.from(sectionEl.querySelectorAll('input[type="checkbox"][name$="_ingredients[]"]'));
+    checkboxes.forEach((cb) => {
+      const value = normalizeJalapenoValue(cb.value);
+      if (presetRequiredValues.has(value)) {
+        cb.dataset.presetRequired = 'true';
+        cb.checked = true;
+      } else {
+        delete cb.dataset.presetRequired;
+      }
+      const label = cb.closest('label');
+      if (label) {
+        label.classList.toggle('required', isCheckboxRequiredNow(cb));
+      }
+    });
   }
 
   function getMixedSubValidationState() {
@@ -365,7 +543,7 @@
     if (!section) return;
     const sectionEl = document.getElementById(section);
     if (!sectionEl) return;
-    const presets = PRESETS_BY_SECTION[String(section).toLowerCase()] || [];
+    const presets = getPresetsForSection(section);
     const existing = sectionEl.querySelector('.preset-panel');
     if (!presets.length) {
       if (existing) existing.remove();
@@ -413,18 +591,19 @@
         selectBtn.addEventListener('click', () => {
           const sectionId = String(selectBtn.dataset.section || '').toLowerCase();
           const presetId = String(selectBtn.dataset.preset || '');
-          const chosenPreset = (PRESETS_BY_SECTION[sectionId] || []).find((p) => String(p.id) === presetId);
+          const chosenPreset = findPresetById(sectionId, presetId);
           if (!chosenPreset) return;
           const menuSection = document.getElementById(sectionId);
           if (!menuSection) return;
           applyPresetStateToSection(menuSection, chosenPreset);
+          syncPresetRequiredStateForSection(menuSection);
           if (Number.isFinite(Number(chosenPreset.sectionQty))) {
             setSectionQuantity(sectionId, Number(chosenPreset.sectionQty));
             syncSectionQuantityControlsInDOM(sectionId);
           }
           const checkboxes = Array.from(menuSection.querySelectorAll('input[type="checkbox"][name$="_ingredients[]"]'));
           checkboxes.forEach((cb) => {
-            const required = cb.dataset.required === 'true';
+            const required = isCheckboxRequiredNow(cb);
             const value = cb.value;
             const shouldCheck = required || (Array.isArray(chosenPreset.ingredients) && chosenPreset.ingredients.includes(value));
             cb.checked = Boolean(shouldCheck);
@@ -484,6 +663,7 @@
     delete sectionEl.dataset.selectedPresetPrice;
     delete sectionEl.dataset.selectedPresetDescription;
     delete sectionEl.dataset.lockSectionQty;
+    syncPresetRequiredStateForSection(sectionEl);
   }
 
   function applyPresetStateToSection(sectionOrEl, preset) {
@@ -499,6 +679,7 @@
     sectionEl.dataset.selectedPresetDescription = String(preset.description || '');
     if (preset.lockSectionQty) sectionEl.dataset.lockSectionQty = 'true';
     else delete sectionEl.dataset.lockSectionQty;
+    syncPresetRequiredStateForSection(sectionEl);
   }
 
   function isSectionQuantityLocked(section) {
@@ -2094,7 +2275,7 @@
       if (!lbl) return;
       const cb = lbl.querySelector('input[type="checkbox"][name]');
       if (!cb || cb.disabled) return;
-      if (cb.dataset && cb.dataset.required === 'true') return;
+      if (isCheckboxRequiredNow(cb)) return;
       // When label toggling is disabled, swallow label clicks (but still allow direct checkbox clicks)
       if (!labelSelects && e.target !== cb) {
         e.preventDefault();
@@ -2248,7 +2429,7 @@
         populateDeliveryFieldsFromStorage();
         installPhoneFormatter();
       }
-      const businessLocationEntries = Object.values(BUSINESS_LOCATIONS || {});
+      const businessLocationEntries = Object.values(BUSINESS_LOCATIONS);
       if (businessLocationTrigger && businessLocationOptions && businessLocationEntries.length) {
         businessLocationOptions.textContent = '';
         const businessLocationOptionButtons = businessLocationEntries.map((location) => {
@@ -3066,7 +3247,7 @@
         cb.checked = true;
         // Keep required items checked even if clicked directly
         cb.addEventListener('change', () => {
-          if (!cb.checked) cb.checked = true;
+          if (!cb.checked && isCheckboxRequiredNow(cb)) cb.checked = true;
         });
       });
 
@@ -3090,7 +3271,11 @@
         sectionToggles.forEach((toggle) => {
           const sec = toggle.dataset.section;
           if (!sec) return;
-          const reqList = requiredBySection[sec] || [];
+          syncPresetRequiredStateForSection(sec);
+          const sectionEl = document.getElementById(sec);
+          const reqList = sectionEl
+            ? Array.from(sectionEl.querySelectorAll('input[type="checkbox"][name]')).filter((cb) => isCheckboxRequiredNow(cb))
+            : (requiredBySection[sec] || []);
           const isActive = !!toggle.checked && !toggle.disabled;
           reqList.forEach((cb) => {
             cb.checked = true;
@@ -3171,7 +3356,7 @@
         suppressAutoDisable = true;
         try {
           inputs.forEach((cb) => {
-            if (cb.dataset && cb.dataset.required === 'true') return;
+            if (isCheckboxRequiredNow(cb)) return;
             cb.checked = false;
             const lbl = cb.closest('label');
             const qty = lbl && lbl.querySelector('select.ingredient-qty');
@@ -3204,8 +3389,8 @@
         const sectionEl = document.getElementById(secId);
         if (!sectionEl) return;
         const inputs = Array.from(sectionEl.querySelectorAll('input[type="checkbox"][name]'));
-        const anyOptionalChecked = inputs.some((input) => input.checked && input.dataset.required !== 'true');
-        const hasOptionals = inputs.some((input) => input.dataset.required !== 'true');
+        const anyOptionalChecked = inputs.some((input) => input.checked && !isCheckboxRequiredNow(input));
+        const hasOptionals = inputs.some((input) => !isCheckboxRequiredNow(input));
         if (!anyOptionalChecked && hasOptionals) {
           clearOptionalSelections(secId);
           autoDisableTrigger = secId;
@@ -3263,7 +3448,7 @@
         if (shouldGuardSection && groupingSection) resettingSections.add(groupingSection);
         try {
           inputs.forEach((cb) => {
-            const isRequired = cb.dataset.required === 'true';
+            const isRequired = isCheckboxRequiredNow(cb);
             cb.checked = isRequired;
             const lbl = cb.closest('label');
             const qty = lbl && lbl.querySelector('select.ingredient-qty');
@@ -3863,10 +4048,6 @@
         const doneBtn = document.querySelector(`.section-done[data-section="${section}"]`);
         if (!doneBtn) return;
         let canUseDone = isSectionActive(section) && getSectionSelectedIngredientCount(section) > 0;
-        if (section === 'sub') {
-          const mixedSubState = getMixedSubValidationState();
-          if (mixedSubState.applies && !mixedSubState.ok) canUseDone = false;
-        }
         doneBtn.disabled = !canUseDone;
         if (canUseDone) doneBtn.removeAttribute('aria-disabled');
         else doneBtn.setAttribute('aria-disabled', 'true');
@@ -4013,6 +4194,7 @@
       const clearSectionOnPage2AfterDone = (section) => {
         if (!section) return;
         suppressSectionToast = section;
+        clearPresetStateForSection(section);
         setSectionNote(section, '');
         const groups = Array.isArray(SECTION_INGREDIENT_GROUPS[section]) ? SECTION_INGREDIENT_GROUPS[section] : [];
         try {
@@ -4046,6 +4228,7 @@
               builderError.textContent = `Mixed Sub requires at least ${MIXED_SUB_MIN_MEATS} meats.`;
               ensureBuilderErrorVisible();
             }
+            window.alert(`Mixed Sub requires at least ${MIXED_SUB_MIN_MEATS} meats.`);
             updateSectionDoneState(section);
             return;
           }
@@ -4129,6 +4312,9 @@
         cb.addEventListener('change', () => {
           const secEl = cb.closest('.menu-section');
           const secId = secEl && secEl.id;
+          if (!cb.checked && isCheckboxRequiredNow(cb)) {
+            cb.checked = true;
+          }
           if (!suppressEnsureActive && cb.checked && !(secId && resettingSections.has(secId))) {
             ensureSectionActiveForCheckbox(cb);
           }
@@ -4138,6 +4324,7 @@
             }
           }
           saveAllIngredientSelections();
+          syncRequiredCheckboxes();
           updateBuilderError();
           updatePage3NavState();
           if (secId) updateSectionDoneState(secId);
@@ -4147,7 +4334,7 @@
 
       // Repair stale state: checked optionals must imply active section + quantity >= 1.
       document.querySelectorAll('.menu-section[id]').forEach((sectionEl) => {
-        const optionalChecked = sectionEl.querySelector('input[type="checkbox"][name]:checked:not([data-required="true"])');
+        const optionalChecked = Array.from(sectionEl.querySelectorAll('input[type="checkbox"][name]:checked')).find((input) => !isCheckboxRequiredNow(input));
         if (optionalChecked) ensureSectionActiveForCheckbox(optionalChecked);
       });
 
@@ -5028,19 +5215,20 @@
             });
             sectionWrap.appendChild(ul);
 
+            const presetRequiredValues = getPresetRequiredValues(item.section, item.preset && item.preset.id);
             const optionsRaw = Array.isArray(catalog[item.section]) ? catalog[item.section] : [];
             const options = optionsRaw.length
               ? optionsRaw.map((opt) => ({
                 group: opt.group || `${item.section}_ingredients[]`,
                 value: normalizeJalapenoValue(opt.value),
                 label: formatIngredientDisplayLabel(opt.label || titleCase(String(opt.value || '').replace(/_/g, ' '))),
-                required: !!opt.required
+                required: !!opt.required || presetRequiredValues.has(normalizeJalapenoValue(opt.value))
               })).filter((opt) => !!opt.value)
               : itemIngredients.map((row) => ({
                 group: row.group || `${item.section}_ingredients[]`,
                 value: normalizeJalapenoValue(row.value),
                 label: formatIngredientDisplayLabel(row.label || titleCase(String(row.value || '').replace(/_/g, ' '))),
-                required: false
+                required: presetRequiredValues.has(normalizeJalapenoValue(row.value))
               }));
             const selectedValues = new Set(itemIngredients.map((row) => normalizeJalapenoValue(row.value)).filter(Boolean));
             const selectedQtyByValue = {};
@@ -5353,6 +5541,9 @@
             sectionWrap.appendChild(ul);
 
             const catalog = loadIngredientCatalogFromStorage();
+            const secSectionEl = document.getElementById(sec);
+            const selectedPresetId = secSectionEl ? String(secSectionEl.dataset.selectedPresetId || '') : '';
+            const presetRequiredValues = getPresetRequiredValues(sec, selectedPresetId);
             const sectionOptions = Array.isArray(catalog[sec]) ? catalog[sec] : [];
             const options = sectionOptions.length
               ? sectionOptions.map((opt) => ({
@@ -5361,7 +5552,7 @@
                 label: formatIngredientDisplayLabel(
                   opt.label || titleCase(String(opt.value || '').replace(/_/g, ' '))
                 ),
-                required: !!opt.required
+                required: !!opt.required || presetRequiredValues.has(normalizeJalapenoValue(opt.value))
               })).filter((opt) => !!opt.value)
               : values.map((val) => {
                 const raw = normalizeJalapenoValue(resolveIngredientValueKey(val));
@@ -5370,7 +5561,7 @@
                   group,
                   value: raw,
                   label: formatIngredientDisplayLabel(INGREDIENT_LABELS[mapKey] || titleCase(String(raw || '').replace(/_/g, ' '))),
-                  required: false
+                  required: presetRequiredValues.has(raw)
                 };
               });
             const selectedValues = new Set(values.map((val) => normalizeJalapenoValue(resolveIngredientValueKey(val))).filter(Boolean));
@@ -5489,8 +5680,6 @@
                 qtyMapNext[rowKey] = qStr;
                 next.push(value);
               });
-              const secSectionEl = document.getElementById(sec);
-              const selectedPresetId = secSectionEl ? String(secSectionEl.dataset.selectedPresetId || '') : '';
               if (sec === 'sub' && selectedPresetId === 'mixed_sub') {
                 const mixedSubMeatCount = countMixedSubMeats(next);
                 if (mixedSubMeatCount < MIXED_SUB_MIN_MEATS) {
