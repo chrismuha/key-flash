@@ -297,25 +297,41 @@
   const PRESETS_BY_SECTION = {
     burger: [
       {
-        id: 'large_burger',
-        name: 'Large Burger',
-        price: '$0',
-        ingredients: ['bun', 'patty', 'cheese', 'lettuce', 'tomatoes', 'bacon'],
-        description: 'Bun, patty, cheese, lettuce, tomatoes, bacon'
-      },
-      {
-        id: 'small_burger',
-        name: 'Small Burger',
+        id: 'regular_burger',
+        name: 'Regular Burger',
         price: '$0',
         ingredients: ['bun', 'patty', 'cheese', 'lettuce', 'tomatoes'],
         description: 'Bun, patty, cheese, lettuce, tomatoes'
       },
       {
+        id: 'deluxe_burger',
+        name: 'Deluxe Burger',
+        price: '$0',
+        ingredients: ['bun', 'patty', 'cheese', 'lettuce', 'tomatoes', 'bacon'],
+        description: 'Bun, patty, cheese, lettuce, tomatoes, bacon'
+      },
+      {
         id: 'veggie_burger',
-        name: 'Only Vegetable Burger',
+        name: 'Vegetable Burger',
         price: '$0',
         ingredients: ['bun', 'cheese', 'lettuce', 'tomatoes', 'mushrooms', 'olives'],
         description: 'Bun, cheese, lettuce, tomatoes, mushrooms, olives'
+      },
+      {
+        id: 'double_burger',
+        name: 'Double Burger',
+        price: '$0',
+        ingredients: ['bun', 'patty', 'cheese', 'lettuce', 'tomatoes'],
+        ingredientQty: { patty: '3' },
+        description: 'Bun, double patty, cheese, lettuce, tomatoes'
+      },
+      {
+        id: 'triple_burger',
+        name: 'Triple Burger',
+        price: '$0',
+        ingredients: ['bun', 'patty', 'cheese', 'lettuce', 'tomatoes'],
+        ingredientQty: { patty: '4' },
+        description: 'Bun, triple patty, cheese, lettuce, tomatoes'
       }
     ],
     calzone: [
@@ -343,18 +359,22 @@
     ],
     chicken_wings: [
       {
-        id: 'hot_wings',
-        name: 'Hot Wing Set',
+        id: 'six_hot_wings',
+        name: '6 Wing Hot',
         price: '$0',
+        sectionQty: 6,
+        lockSectionQty: true,
         ingredients: ['plain', 'hot_sauce', 'extra_hot_sauce'],
-        description: 'Plain wings, hot sauce, extra hot sauce'
+        description: '6 wings, hot sauce, extra hot sauce'
       },
       {
-        id: 'mild_wings',
-        name: 'Mild Wings',
+        id: 'twelve_mild_wings',
+        name: '12 Wing Mild',
         price: '$0',
+        sectionQty: 12,
+        lockSectionQty: true,
         ingredients: ['plain', 'mild_sauce'],
-        description: 'Plain wings, mild sauce'
+        description: '12 wings, mild sauce'
       }
     ],
     salad: [
@@ -371,6 +391,13 @@
         price: '$0',
         ingredients: ['lettuce', 'tomato', 'ham', 'salami', 'provolone_cheese'],
         description: 'Lettuce, tomato, ham, salami, provolone cheese'
+      },
+      {
+        id: 'antipasto_salad',
+        name: 'Antipasto Salad',
+        price: '$0',
+        ingredients: ['banana_peppers', 'cucumbers', 'ham', 'italian_dressing', 'olives', 'provolone_cheese', 'red_onion', 'red_peppers', 'salami', 'tomato'],
+        description: 'Ham, salami, provolone cheese, olives, banana peppers, red onion, red peppers, tomato, cucumbers, Italian dressing'
       }
     ],
     sauces: [
@@ -703,10 +730,11 @@
           if (!chosenPreset) return;
           const menuSection = document.getElementById(sectionId);
           if (!menuSection) return;
-          menuSection.dataset.selectedPresetId = String(chosenPreset.id || '');
-          menuSection.dataset.selectedPresetName = String(chosenPreset.name || '');
-          menuSection.dataset.selectedPresetPrice = String(chosenPreset.price || '$0');
-          menuSection.dataset.selectedPresetDescription = String(chosenPreset.description || '');
+          applyPresetStateToSection(menuSection, chosenPreset);
+          if (Number.isFinite(Number(chosenPreset.sectionQty))) {
+            setSectionQuantity(sectionId, Number(chosenPreset.sectionQty));
+            syncSectionQuantityControlsInDOM(sectionId);
+          }
           const checkboxes = Array.from(menuSection.querySelectorAll('input[type="checkbox"][name$="_ingredients[]"]'));
           checkboxes.forEach((cb) => {
             const required = cb.dataset.required === 'true';
@@ -725,6 +753,24 @@
             }
             cb.dispatchEvent(new Event('change', { bubbles: true }));
           });
+          try {
+            const qtyMap = safeParseJSON(localStorage.getItem(STORAGE_KEYS.quantities), {}) || {};
+            const ingredientQty = chosenPreset && chosenPreset.ingredientQty && typeof chosenPreset.ingredientQty === 'object'
+              ? chosenPreset.ingredientQty
+              : {};
+            checkboxes.forEach((cb) => {
+              const key = `${cb.name}|${normalizeJalapenoValue(cb.value)}`;
+              qtyMap[key] = cb.checked ? String(ingredientQty[cb.value] || '1') : '1';
+              const label = cb.closest('label');
+              const qtySelect = label ? label.querySelector('select.ingredient-qty') : null;
+              if (qtySelect && cb.dataset.noQty !== 'true') {
+                qtySelect.value = qtyMap[key];
+                qtySelect.disabled = !cb.checked;
+                qtySelect.hidden = !cb.checked;
+              }
+            });
+            localStorage.setItem(STORAGE_KEYS.quantities, JSON.stringify(qtyMap));
+          } catch { /* ignore */ }
           saveAllIngredientSelections();
           if (typeof updateBuilderError === 'function') updateBuilderError();
           if (typeof updatePage3NavState === 'function') updatePage3NavState();
@@ -741,6 +787,36 @@
     Object.keys(PRESETS_BY_SECTION).forEach((section) => {
       renderPresetsForSection(section);
     });
+  }
+
+  function clearPresetStateForSection(sectionOrEl) {
+    const sectionEl = typeof sectionOrEl === 'string' ? document.getElementById(sectionOrEl) : sectionOrEl;
+    if (!sectionEl || !sectionEl.dataset) return;
+    delete sectionEl.dataset.selectedPresetId;
+    delete sectionEl.dataset.selectedPresetName;
+    delete sectionEl.dataset.selectedPresetPrice;
+    delete sectionEl.dataset.selectedPresetDescription;
+    delete sectionEl.dataset.lockSectionQty;
+  }
+
+  function applyPresetStateToSection(sectionOrEl, preset) {
+    const sectionEl = typeof sectionOrEl === 'string' ? document.getElementById(sectionOrEl) : sectionOrEl;
+    if (!sectionEl || !sectionEl.dataset) return;
+    if (!preset || typeof preset !== 'object') {
+      clearPresetStateForSection(sectionEl);
+      return;
+    }
+    sectionEl.dataset.selectedPresetId = String(preset.id || '');
+    sectionEl.dataset.selectedPresetName = String(preset.name || '');
+    sectionEl.dataset.selectedPresetPrice = String(preset.price || '$0');
+    sectionEl.dataset.selectedPresetDescription = String(preset.description || '');
+    if (preset.lockSectionQty) sectionEl.dataset.lockSectionQty = 'true';
+    else delete sectionEl.dataset.lockSectionQty;
+  }
+
+  function isSectionQuantityLocked(section) {
+    const sectionEl = typeof section === 'string' ? document.getElementById(section) : section;
+    return !!(sectionEl && sectionEl.dataset && sectionEl.dataset.lockSectionQty === 'true');
   }
 
   function getSelectedCategoryForCartSection(section) {
@@ -948,6 +1024,26 @@
     sectionQuantities[key] = next;
     saveSectionQuantities();
     return next;
+  }
+
+  function isOrderItemSectionQtyLocked(item) {
+    return !!(item && item.preset && item.preset.lockSectionQty);
+  }
+
+  function syncSectionQuantityControlsInDOM(section) {
+    const sec = String(section || '').toLowerCase();
+    if (!sec) return;
+    const qty = getSectionQuantity(sec);
+    const min = getQuantityMin();
+    const locked = isSectionQuantityLocked(sec);
+    document.querySelectorAll(`.qty-controls[data-section="${sec}"]`).forEach((wrap) => {
+      const countSpan = wrap.querySelector('.qty-controls-value');
+      if (countSpan) countSpan.textContent = `(x${qty})`;
+      const dec = wrap.querySelector('.qty-control-decrement');
+      const inc = wrap.querySelector('.qty-control-increment');
+      if (dec) dec.disabled = locked || qty <= min;
+      if (inc) inc.disabled = locked || qty >= SECTION_QUANTITY_MAX;
+    });
   }
 
   function resetSectionQuantitiesToDefaults() {
@@ -1264,6 +1360,7 @@
     const selectedPresetPrice = sectionEl ? String(sectionEl.dataset.selectedPresetPrice || '') : '';
     const selectedPresetDescription = sectionEl ? String(sectionEl.dataset.selectedPresetDescription || '') : '';
     const selectedPresetId = sectionEl ? String(sectionEl.dataset.selectedPresetId || '') : '';
+    const lockSectionQty = !!(sectionEl && sectionEl.dataset && sectionEl.dataset.lockSectionQty === 'true');
     const item = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       section,
@@ -1279,7 +1376,8 @@
         id: selectedPresetId || undefined,
         name: selectedPresetName,
         price: selectedPresetPrice || undefined,
-        description: selectedPresetDescription || undefined
+        description: selectedPresetDescription || undefined,
+        lockSectionQty: lockSectionQty || undefined
       };
     }
     return item;
@@ -2910,16 +3008,18 @@
       const updateSectionQuantityControl = (sec) => {
         const qty = getSectionQuantity(sec);
         const min = getQuantityMin();
+        const locked = isSectionQuantityLocked(sec);
         document.querySelectorAll(`.qty-controls[data-section="${sec}"]`).forEach((wrap) => {
           const countSpan = wrap.querySelector('.qty-controls-value');
           if (countSpan) countSpan.textContent = `(x${qty})`;
           const dec = wrap.querySelector('.qty-control-decrement');
           const inc = wrap.querySelector('.qty-control-increment');
-          if (dec) dec.disabled = qty <= min;
-          if (inc) inc.disabled = qty >= SECTION_QUANTITY_MAX;
+          if (dec) dec.disabled = locked || qty <= min;
+          if (inc) inc.disabled = locked || qty >= SECTION_QUANTITY_MAX;
         });
       };
       const adjustSectionQuantity = (sec, delta) => {
+        if (isSectionQuantityLocked(sec)) return;
         const current = getSectionQuantity(sec);
         const next = setSectionQuantity(sec, current + delta);
         if (next === null) return;
@@ -3333,6 +3433,9 @@
             resetGroupByName(group, { ...options, skipConfirm: true });
           });
           return;
+        }
+        if (groupingSection) {
+          clearPresetStateForSection(groupingSection);
         }
         const sectionToggle = groupingSection ? document.querySelector(`.section-toggle[data-section="${groupingSection}"]`) : null;
         const initialToggleState = sectionToggle ? {
@@ -4600,6 +4703,7 @@
         const normalized = String(section || '').toLowerCase();
         const step = Number(delta);
         if (!normalized || !Number.isFinite(step) || !step) return;
+        if (isSectionQuantityLocked(normalized)) return;
         const current = Math.max(SECTION_QUANTITY_DEFAULT_MIN, getSectionQuantity(normalized));
         const next = Math.min(SECTION_QUANTITY_MAX, Math.max(SECTION_QUANTITY_DEFAULT_MIN, current + step));
         if (next === current) return;
@@ -5003,6 +5107,7 @@
             actions.appendChild(remove);
 
             const currentItemQty = clampOrderItemQty(item.sectionQty);
+            const itemQtyLocked = isOrderItemSectionQtyLocked(item);
             const qtyWrap = document.createElement('span');
             qtyWrap.className = 'qty-controls summary-qty-controls';
             ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach((evtName) => {
@@ -5016,23 +5121,25 @@
             dec.className = 'qty-control-decrement summary-qty-decrement';
             dec.textContent = '−';
             dec.setAttribute('aria-label', `Decrease ${title.textContent} quantity`);
-            dec.disabled = currentItemQty <= SECTION_QUANTITY_DEFAULT_MIN;
+            dec.disabled = itemQtyLocked || currentItemQty <= SECTION_QUANTITY_DEFAULT_MIN;
             const inc = document.createElement('button');
             inc.type = 'button';
             inc.className = 'qty-control-increment summary-qty-increment';
             inc.textContent = '+';
             inc.setAttribute('aria-label', `Increase ${title.textContent} quantity`);
-            inc.disabled = currentItemQty >= SECTION_QUANTITY_MAX;
-            dec.addEventListener('click', (evt) => {
-              evt.preventDefault();
-              evt.stopPropagation();
-              updateOrderItemQty(item.id, currentItemQty - 1);
-            });
-            inc.addEventListener('click', (evt) => {
-              evt.preventDefault();
-              evt.stopPropagation();
-              updateOrderItemQty(item.id, currentItemQty + 1);
-            });
+            inc.disabled = itemQtyLocked || currentItemQty >= SECTION_QUANTITY_MAX;
+            if (!itemQtyLocked) {
+              dec.addEventListener('click', (evt) => {
+                evt.preventDefault();
+                evt.stopPropagation();
+                updateOrderItemQty(item.id, currentItemQty - 1);
+              });
+              inc.addEventListener('click', (evt) => {
+                evt.preventDefault();
+                evt.stopPropagation();
+                updateOrderItemQty(item.id, currentItemQty + 1);
+              });
+            }
             qtyWrap.appendChild(qtyCount);
             qtyWrap.appendChild(dec);
             qtyWrap.appendChild(inc);
@@ -5325,8 +5432,9 @@
             actions.appendChild(remove);
 
             if (SECTION_QUANTITY_SECTIONS.includes(sec)) {
-              const qtyValue = Math.max(SECTION_QUANTITY_DEFAULT_MIN, clampSectionQuantity(qtySections[sec]));
-              const qtyWrap = document.createElement('span');
+	              const qtyValue = Math.max(SECTION_QUANTITY_DEFAULT_MIN, clampSectionQuantity(qtySections[sec]));
+              const qtyLocked = isSectionQuantityLocked(sec);
+	              const qtyWrap = document.createElement('span');
               qtyWrap.className = 'qty-controls summary-qty-controls';
               ['click', 'pointerdown', 'mousedown', 'touchstart'].forEach((evt) => {
                 qtyWrap.addEventListener(evt, (event) => event.stopPropagation());
@@ -5341,16 +5449,16 @@
               dec.className = 'qty-control-decrement summary-qty-decrement';
               dec.textContent = '−';
               dec.setAttribute('aria-label', `Decrease ${title.textContent} quantity`);
-              dec.disabled = qtyValue <= SECTION_QUANTITY_DEFAULT_MIN;
-              bindSummaryAdjustButton(dec, sec, -1);
+	              dec.disabled = qtyLocked || qtyValue <= SECTION_QUANTITY_DEFAULT_MIN;
+	              if (!qtyLocked) bindSummaryAdjustButton(dec, sec, -1);
 
               const inc = document.createElement('button');
               inc.type = 'button';
               inc.className = 'qty-control-increment summary-qty-increment';
               inc.textContent = '+';
               inc.setAttribute('aria-label', `Increase ${title.textContent} quantity`);
-              inc.disabled = qtyValue >= SECTION_QUANTITY_MAX;
-              bindSummaryAdjustButton(inc, sec, 1);
+	              inc.disabled = qtyLocked || qtyValue >= SECTION_QUANTITY_MAX;
+	              if (!qtyLocked) bindSummaryAdjustButton(inc, sec, 1);
 
               qtyWrap.appendChild(qtyCount);
               qtyWrap.appendChild(dec);
