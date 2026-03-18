@@ -258,9 +258,10 @@
       { id: 'base', label: 'Base', values: ['bun', 'tomato_sauce', 'cheese'] }
     ],
     calzone: [
-      { id: 'cheese', label: 'Cheese', values: ['cheddar_cheese', 'feta_cheese', 'grated_parmesan_or_pecorino', 'ricotta_cheese', 'shredded_mozzarella', 'swiss_cheese', 'american_cheese'] },
-      { id: 'meats', label: 'Meats', values: ['ham', 'meatballs', 'pepperoni', 'salami', 'steak'] },
-      { id: 'veggies', label: 'Vegetables', values: ['broccoli', 'eggplant', 'greens', 'jalapenos', 'onion', 'roasted_red_peppers', 'spinach', 'tomatoes'] }
+      { id: 'cheese', label: 'Cheese', values: ['american_cheese', 'cheddar_cheese', 'feta_cheese', 'grated_parmesan_or_pecorino', 'ricotta_cheese', 'shredded_mozzarella', 'swiss_cheese'] },
+      { id: 'meats', label: 'Meats', values: ['bacon_bits', 'ham', 'meatballs', 'pepperoni', 'salami', 'steak'] },
+      { id: 'vegetables', label: 'Vegetables', values: ['banana_peppers', 'broccoli', 'eggplant', 'greens', 'hot_peppers', 'jalapenos', 'onion', 'pineapple', 'roasted_red_peppers', 'spinach', 'tomatoes'] },
+      { id: 'seasonings', label: 'Seasonings', values: ['black_pepper', 'garlic_powder', 'italian_seasoning', 'olive_oil', 'salt'] }
     ],
     chicken_wings: [
       { id: 'sauces', label: 'Sauces', values: ['butter_sauce', 'hot_and_spicy_barbecue_sauce', 'hot_sauce', 'medium_sauce', 'mild_sauce', 'mustard', 'extra_hot_sauce', 'spicy_garlic_parm_sauce'] },
