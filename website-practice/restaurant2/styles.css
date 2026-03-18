@@ -52,10 +52,12 @@
     --color-charcoal: #222;
     --color-muted: #777;
     --color-muted-strong: #999;
+    --color-muted-deep: #555;
     --color-border-muted: #9b9b9b;
     --color-border-soft: #bbb;
     --color-error: #c00;
     --color-red: #d32f2f;
+    --color-red-hover: #ff4040;
     --color-oxblood: #6d2b2b;
     --color-cloud-soft: #eee;
     --color-smoke: #f3f3f3;
@@ -85,6 +87,8 @@
     --color-emerald: #18833d;
     --color-forest: #2f8f49;
     --color-pistachio: #3cb371;
+    --color-preset-card-bg: #252525;
+    --color-preset-card-text: #f6cdcd;
     --footer-button-border:transparent;
     --color-danger-accent: #e53935;
 
@@ -3051,9 +3055,9 @@ main .section-actions .reset-group {
 }
 
 .ingredient-category-tab {
-    border: 1px solid #999;
-    background: #fff;
-    color: #222;
+    border: 1px solid var(--color-muted-strong);
+    background: var(--color-white);
+    color: var(--color-charcoal);
     border-radius: 999px;
     padding: 6px 12px;
     cursor: pointer;
@@ -3063,9 +3067,9 @@ main .section-actions .reset-group {
 }
 
 .ingredient-category-tab.active {
-    background: #222;
-    color: #fff;
-    border-color: #222;
+    background: var(--color-charcoal);
+    color: var(--color-white);
+    border-color: var(--color-charcoal);
 }
 
 .ingredient-category-item {
@@ -3076,7 +3080,7 @@ main .section-actions .reset-group {
     display: block;
     font-size: 10pt;
     margin-top: 2px;
-    color: #555;
+    color: var(--color-muted-deep);
     font-weight: 600;
 }
 
@@ -3955,11 +3959,11 @@ a.btn {
 }
 .preset-panel-label {
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 11.4pt;
     margin-bottom: 2px;
 }
 .preset-panel-subtitle {
-    font-size: 0.8rem;
+    font-size: 9.6pt;
 }
 .preset-card-grid {
     display: grid;
@@ -3967,14 +3971,14 @@ a.btn {
     gap: 8px;
 }
 .preset-card {
-    background: #252525;
+    background: var(--color-preset-card-bg);
     border-radius: 10px;
     padding: 8px;
     display: grid;
     gap: 10px;
 }
 .preset-card-selected {
-    border-color: red;
+    border-color: var(--color-red);
 }
 .preset-card-top {
     display: flex;
@@ -3984,31 +3988,60 @@ a.btn {
 }
 .preset-card-title {
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 10.2pt;
 }
 .preset-card-price {
-    font-size: 0.82rem;
+    font-size: 9.84pt;
     font-weight: 700;
-    color: red;
+    color: var(--color-red);
 }
 .preset-card-text {
-    font-size: 0.75rem;
-    color: #f6cdcd;
+    font-size: 9pt;
+    color: var(--color-preset-card-text);
     line-height: 1.2;
 }
 .preset-select-btn {
     border-radius: 8px;
-    background: red;
-    color: #fff;
+    background: var(--color-red);
+    color: var(--color-white);
     font-weight: 700;
-    font-size: 0.72rem;
+    font-size: 8.64pt;
     padding: 4px 8px;
     cursor: pointer;
     text-align: center;
     width: 100%;
     border: 0;
 }
-.preset-select-btn:hover,
+
 .preset-select-btn:focus-visible {
-    background: #ff4040;
+    background: var(--color-red);
+    outline: 2px solid var(--color-white);
+    outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .preset-select-btn:hover {
+        background: var(--color-red-hover);
+    }
+}
+
+@media (max-width: 768px) {
+    body.order-type main {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow-x: hidden;
+        padding-left: max(var(--gap), env(safe-area-inset-left, 0px));
+        padding-right: max(var(--gap), env(safe-area-inset-right, 0px));
+    }
+
+    body.order-type .business-location-picker,
+    body.order-type .order-options,
+    body.order-type .order-note,
+    body.order-type .delivery-details,
+    body.order-type .page-footer {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
 }
