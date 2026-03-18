@@ -284,6 +284,129 @@
     sauces: []
   };
 
+  const PRESETS_BY_SECTION = {
+    burger: [
+      {
+        id: 'large_burger',
+        name: 'Large Burger',
+        price: '$9.99',
+        ingredients: ['bun', 'patty', 'cheese', 'lettuce', 'tomatoes', 'bacon'],
+        description: 'Bun, patty, cheese, lettuce, tomatoes, bacon'
+      },
+      {
+        id: 'small_burger',
+        name: 'Small Burger',
+        price: '$6.99',
+        ingredients: ['bun', 'patty', 'cheese', 'lettuce', 'tomatoes'],
+        description: 'Bun, patty, cheese, lettuce, tomatoes'
+      },
+      {
+        id: 'veggie_burger',
+        name: 'Only Vegetable Burger',
+        price: '$7.50',
+        ingredients: ['bun', 'cheese', 'lettuce', 'tomatoes', 'mushrooms', 'olives'],
+        description: 'Bun, cheese, lettuce, tomatoes, mushrooms, olives'
+      }
+    ],
+    calzone: [
+      {
+        id: 'meat_calzone',
+        name: 'Meaty Calzone',
+        price: '$10.99',
+        ingredients: ['american_cheese', 'ham', 'pepperoni', 'meatballs'],
+        description: 'American cheese, ham, pepperoni, meatballs'
+      },
+      {
+        id: 'garden_calzone',
+        name: 'Garden Calzone',
+        price: '$9.49',
+        ingredients: ['broccoli', 'eggplant', 'spinach', 'onion', 'tomatoes'],
+        description: 'Broccoli, eggplant, spinach, onion, tomatoes'
+      }
+    ],
+    chicken_wings: [
+      {
+        id: 'hot_wings',
+        name: 'Hot Wing Set',
+        price: '$8.99',
+        ingredients: ['plain', 'hot_sauce', 'extra_hot_sauce'],
+        description: 'Plain wings, hot sauce, extra hot sauce'
+      },
+      {
+        id: 'mild_wings',
+        name: 'Mild Wings',
+        price: '$8.49',
+        ingredients: ['plain', 'mild_sauce'],
+        description: 'Plain wings, mild sauce'
+      }
+    ],
+    salad: [
+      {
+        id: 'classic_salad',
+        name: 'Classic Salad',
+        price: '$7.99',
+        ingredients: ['lettuce', 'tomato', 'cucumbers', 'italian_dressing'],
+        description: 'Lettuce, tomato, cucumbers, Italian dressing'
+      },
+      {
+        id: 'protein_salad',
+        name: 'Protein Salad',
+        price: '$9.99',
+        ingredients: ['lettuce', 'tomato', 'ham', 'salami', 'provolone_cheese'],
+        description: 'Lettuce, tomato, ham, salami, provolone cheese'
+      }
+    ],
+    sauces: [
+      {
+        id: 'bbq_combo',
+        name: 'BBQ Combo',
+        price: '$2.99',
+        ingredients: ['bbq', 'honey_mustard'],
+        description: 'BBQ, honey mustard'
+      },
+      {
+        id: 'ranch_combo',
+        name: 'Ranch Combo',
+        price: '$2.49',
+        ingredients: ['ranch', 'mayonnaise'],
+        description: 'Ranch, mayonnaise'
+      }
+    ],
+    sub: [
+      {
+        id: 'italian_sub',
+        name: 'Italian Sub',
+        price: '$8.25',
+        ingredients: ['white', 'salami', 'ham', 'cheese', 'lettuce', 'tomatoes'],
+        description: 'White bread, salami, ham, cheese, lettuce, tomatoes'
+      },
+      {
+        id: 'turkey_sub',
+        name: 'Turkey Sub',
+        price: '$8.75',
+        ingredients: ['white', 'turkey', 'lettuce', 'onion', 'tomatoes'],
+        description: 'White bread, turkey, lettuce, onion, tomatoes'
+      }
+    ],
+    wrap: [
+      {
+        id: 'chicken_wrap',
+        name: 'Chicken Wrap',
+        price: '$8.50',
+        ingredients: ['white', 'turkey', 'lettuce', 'cheese', 'tomatoes'],
+        description: 'Tortilla, turkey, lettuce, cheese, tomatoes'
+      },
+      {
+        id: 'veggie_wrap',
+        name: 'Veggie Wrap',
+        price: '$7.75',
+        ingredients: ['spinach', 'lettuce', 'mushrooms', 'olives', 'tomatoes'],
+        description: 'Spinach tortilla, lettuce, mushrooms, olives, tomatoes'
+      }
+    ],
+    pizza: []
+  };
+
   const SECTION_LABELS = {
     pizza: 'Pizza',
     burger: 'Burger',
@@ -504,6 +627,102 @@
       } else {
         renderIngredientCategoryTabs(section); // this function handles empty
       }
+    });
+  }
+
+  function renderPresetsForSection(section) {
+    if (!section) return;
+    const sectionEl = document.getElementById(section);
+    if (!sectionEl) return;
+    const presets = PRESETS_BY_SECTION[String(section).toLowerCase()] || [];
+    const existing = sectionEl.querySelector('.preset-panel');
+    if (!presets.length) {
+      if (existing) existing.remove();
+      return;
+    }
+    let panel = existing;
+    if (!panel) {
+      panel = document.createElement('section');
+      panel.className = 'preset-panel';
+      panel.setAttribute('aria-label', 'Presets');
+      const summary = sectionEl.querySelector('.menu-summary');
+      if (summary && summary.parentElement) {
+        sectionEl.insertBefore(panel, summary.nextElementSibling);
+      } else {
+        sectionEl.insertBefore(panel, sectionEl.firstChild);
+      }
+    }
+    panel.innerHTML = `
+      <div class="preset-panel-header">
+        <div>
+          <div class="preset-panel-label">Presets</div>
+          <div class="preset-panel-subtitle">Tap a preset to auto-select ingredients.</div>
+        </div>
+      </div>
+      <div class="preset-card-grid"></div>
+    `;
+    const grid = panel.querySelector('.preset-card-grid');
+    const selectedPresetId = sectionEl.dataset.selectedPresetId || '';
+    presets.forEach((preset) => {
+      const card = document.createElement('article');
+      card.className = 'preset-card';
+      if (selectedPresetId && String(selectedPresetId) === String(preset.id)) {
+        card.classList.add('preset-card-selected');
+      }
+      card.innerHTML = `
+        <div class="preset-card-top">
+          <div class="preset-card-title">${String(preset.name || 'Preset')}</div>
+          <div class="preset-card-price">${String(preset.price || '$0')}</div>
+        </div>
+        <div class="preset-card-text">${String(preset.description || (Array.isArray(preset.ingredients) ? preset.ingredients.join(', ') : ''))}</div>
+        <button type="button" class="preset-select-btn" data-section="${section}" data-preset="${preset.id}">Select</button>
+      `;
+      const selectBtn = card.querySelector('.preset-select-btn');
+      if (selectBtn) {
+        selectBtn.addEventListener('click', () => {
+          const sectionId = String(selectBtn.dataset.section || '').toLowerCase();
+          const presetId = String(selectBtn.dataset.preset || '');
+          const chosenPreset = (PRESETS_BY_SECTION[sectionId] || []).find((p) => String(p.id) === presetId);
+          if (!chosenPreset) return;
+          const menuSection = document.getElementById(sectionId);
+          if (!menuSection) return;
+          menuSection.dataset.selectedPresetId = String(chosenPreset.id || '');
+          menuSection.dataset.selectedPresetName = String(chosenPreset.name || '');
+          menuSection.dataset.selectedPresetPrice = String(chosenPreset.price || '$0');
+          menuSection.dataset.selectedPresetDescription = String(chosenPreset.description || '');
+          const checkboxes = Array.from(menuSection.querySelectorAll('input[type="checkbox"][name$="_ingredients[]"]'));
+          checkboxes.forEach((cb) => {
+            const required = cb.dataset.required === 'true';
+            const value = cb.value;
+            const shouldCheck = required || (Array.isArray(chosenPreset.ingredients) && chosenPreset.ingredients.includes(value));
+            cb.checked = Boolean(shouldCheck);
+            const label = cb.closest('label');
+            const qty = label ? label.querySelector('select.ingredient-qty') : null;
+            if (qty) {
+              qty.disabled = !cb.checked;
+              qty.hidden = !cb.checked;
+              if (cb.checked && cb.dataset.noQty === 'true') {
+                const targetValue = chosenPreset.ingredients.find((v) => v === cb.value);
+                if (targetValue) qty.value = targetValue;
+              }
+            }
+            cb.dispatchEvent(new Event('change', { bubbles: true }));
+          });
+          saveAllIngredientSelections();
+          if (typeof updateBuilderError === 'function') updateBuilderError();
+          if (typeof updatePage3NavState === 'function') updatePage3NavState();
+          updateSectionDoneState(sectionId);
+          markOverlayDirtyForSection(sectionId);
+          renderPresetsForSection(sectionId);
+        });
+      }
+      grid.appendChild(card);
+    });
+  }
+
+  function renderPresetsForAllSections() {
+    Object.keys(PRESETS_BY_SECTION).forEach((section) => {
+      renderPresetsForSection(section);
     });
   }
 
@@ -1023,7 +1242,12 @@
     });
     if (!ingredientRows.length) return null;
     const sectionQty = Math.max(SECTION_QUANTITY_DEFAULT_MIN, clampSectionQuantity(getSectionQuantity(section)));
-    return {
+    const sectionEl = document.getElementById(section);
+    const selectedPresetName = sectionEl ? String(sectionEl.dataset.selectedPresetName || '') : '';
+    const selectedPresetPrice = sectionEl ? String(sectionEl.dataset.selectedPresetPrice || '') : '';
+    const selectedPresetDescription = sectionEl ? String(sectionEl.dataset.selectedPresetDescription || '') : '';
+    const selectedPresetId = sectionEl ? String(sectionEl.dataset.selectedPresetId || '') : '';
+    const item = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
       section,
       sectionLabel: SECTION_LABELS[section] || titleCase(String(section || '').replace(/_/g, ' ')),
@@ -1033,6 +1257,15 @@
       pizzaSize: section === 'pizza' ? loadPizzaSize() : '',
       ingredients: ingredientRows
     };
+    if (selectedPresetName) {
+      item.preset = {
+        id: selectedPresetId || undefined,
+        name: selectedPresetName,
+        price: selectedPresetPrice || undefined,
+        description: selectedPresetDescription || undefined
+      };
+    }
+    return item;
   }
 
   // Delivery helpers
@@ -2382,6 +2615,7 @@
     if (body.classList.contains('page2')) {
       saveIngredientCatalogFromDOM();
       ensureIngredientCategories();
+      renderPresetsForAllSections();
       const overlays = Array.from(document.querySelectorAll('.menu-overlay[data-section]'));
       const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
       const backToMenuBtn = document.querySelector('.back-to-menu');
@@ -3550,6 +3784,7 @@
         moveBackButtonToOverlay(overlay);
         setOverlaySessionForSection(section);
         ensureIngredientCategories();
+        renderPresetsForSection(section);
         updateSectionDoneState(section);
         updateFooterBackState();
         const focusable = overlay.querySelector('input, button, select, [tabindex]:not([tabindex="-1"])');
@@ -4792,6 +5027,14 @@
               noteLine.className = 'summary-section-note';
               noteLine.textContent = itemNoteText;
               sectionWrap.appendChild(noteLine);
+            }
+            if (item.preset && item.preset.name) {
+              const presetLine = document.createElement('div');
+              presetLine.className = 'summary-section-preset';
+              const presetPrice = String(item.preset.price || '').trim();
+              const pText = presetPrice ? `${item.preset.name} (${presetPrice})` : item.preset.name;
+              presetLine.textContent = `Preset: ${pText}`;
+              sectionWrap.appendChild(presetLine);
             }
             sectionWrap.appendChild(actions);
 

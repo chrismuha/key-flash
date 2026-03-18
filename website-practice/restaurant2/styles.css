@@ -3943,3 +3943,72 @@ a.btn {
   display: none;
   background: transparent;
 }
+.preset-panel {
+    padding: 10px 0;
+    margin: 10px 0 6px;
+}
+.preset-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+.preset-panel-label {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+}
+.preset-panel-subtitle {
+    font-size: 0.8rem;
+}
+.preset-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+}
+.preset-card {
+    background: #252525;
+    border-radius: 10px;
+    padding: 8px;
+    display: grid;
+    gap: 10px;
+}
+.preset-card-selected {
+    border-color: red;
+}
+.preset-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+.preset-card-title {
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+.preset-card-price {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: red;
+}
+.preset-card-text {
+    font-size: 0.75rem;
+    color: #f6cdcd;
+    line-height: 1.2;
+}
+.preset-select-btn {
+    border-radius: 8px;
+    background: red;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.72rem;
+    padding: 4px 8px;
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+    border: 0;
+}
+.preset-select-btn:hover,
+.preset-select-btn:focus-visible {
+    background: #ff4040;
+}
