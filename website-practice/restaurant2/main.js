@@ -2711,7 +2711,7 @@
       const overlays = Array.from(document.querySelectorAll('.menu-overlay[data-section]'));
       const menuLaunchButtons = Array.from(document.querySelectorAll('.menu-launch[data-target]'));
       const backToMenuBtn = document.querySelector('.back-to-menu');
-      const footerBackBtn = document.querySelector('.footer-back-button');
+      const footerBackBtn = document.querySelector('body.page2 .footer-back-button');
       const backToMenuOriginalParent = backToMenuBtn ? backToMenuBtn.parentElement : null;
       const backToMenuOriginalNext = backToMenuBtn ? backToMenuBtn.nextElementSibling : null;
       const sliderTrack = document.querySelector('.mobile-menu-swiper .swiper-track');
@@ -2915,7 +2915,7 @@
           }
         });
       }
-      const footerResetBtn = document.querySelector('.footer-reset');
+      const footerResetBtn = document.querySelector('body.page2 .footer-reset');
       if (footerResetBtn) {
         footerResetBtn.addEventListener('click', (event) => {
           event.preventDefault();
@@ -4719,8 +4719,16 @@
     // Page 3: Order summary rendering
     if (body.classList.contains('page3')) {
       const container = document.getElementById('order-summary');
+      const page3FooterBackBtn = document.querySelector('body.page3 .footer-back-button');
       if (!container) return;
       const page3FooterResetBtn = document.querySelector('body.page3 .footer-reset');
+
+      if (page3FooterBackBtn) {
+        page3FooterBackBtn.removeAttribute('aria-disabled');
+        page3FooterBackBtn.removeAttribute('tabindex');
+        page3FooterBackBtn.removeAttribute('title');
+        page3FooterBackBtn.classList.remove('next-disabled');
+      }
 
       function redirectIfNoActiveSections() {
         if (!document.body.classList.contains('page3')) return false;

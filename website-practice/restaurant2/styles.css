@@ -92,7 +92,7 @@
     --footer-button-border: transparent;
     --color-danger-accent: #e53935;
     --color-footer-dark-bg: #7a7a7a;
-    --color-footer-dark-back: #cf7a7a;
+    --color-footer-dark-back: var(--danger);
     --color-footer-dark-next: #2f8a66;
     --color-footer-dark-outline: #ffffff;
     --color-footer-dark-reset-outline: #000000;
@@ -1018,6 +1018,7 @@ body.page3 main {
     width: min(880px, calc(100vw - 96px));
     max-width: 880px;
     margin-inline: auto;
+    padding-bottom: calc(120px + var(--safe-area-bottom));
     overflow-y: visible;
     -webkit-overflow-scrolling: touch;
 }
@@ -1729,6 +1730,12 @@ body.theme-dark .page-footer .footer-back-button {
     background: var(--color-footer-dark-back);
 }
 
+body.page3 .page-footer .footer-back-button {
+    opacity: 1;
+    filter: none;
+    pointer-events: auto;
+}
+
 body.theme-dark .page-footer .next-button,
 body.theme-dark .page-footer .proceed-order-type {
     background: var(--color-footer-dark-next);
@@ -2209,7 +2216,7 @@ body.page3 #order-summary .summary-inline-option span {
 
 body.page3 .pos-section {
     margin-top: 12px;
-    padding-bottom: 24px;
+    padding-bottom: calc(120px + var(--safe-area-bottom));
 }
 
 body.page3 .pos-actions {
