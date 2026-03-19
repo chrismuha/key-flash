@@ -135,6 +135,9 @@
   }
 
   const INGREDIENT_LABELS = OWNER_CONFIG.ingredientLabels;
+  const MENU_SECTION_CONFIGS = OWNER_CONFIG.menuSections && typeof OWNER_CONFIG.menuSections === 'object'
+    ? OWNER_CONFIG.menuSections
+    : {};
   const BUSINESS_LOCATIONS = OWNER_CONFIG.businessLocations;
   const DEFAULT_BUSINESS_LOCATION_ID = OWNER_CONFIG.defaultBusinessLocationId;
 
@@ -1399,6 +1402,96 @@
   }
 
   function applyOwnerConfigToDom() {
+    Object.entries(MENU_SECTION_CONFIGS).forEach(([section, config]) => {
+      if (!section || !config || typeof config !== 'object') return;
+      const sectionEl = document.getElementById(section);
+      const fieldset = sectionEl ? sectionEl.querySelector('form fieldset') : null;
+      if (!fieldset) return;
+      const sizeOptionsRoot = sectionEl ? sectionEl.querySelector('.size-options') : null;
+      const pizzaSizes = Array.isArray(config.pizzaSizes) ? config.pizzaSizes : [];
+      if (sizeOptionsRoot && pizzaSizes.length) {
+        const sizeLabel = sizeOptionsRoot.querySelector('.size-options__label');
+        const sizePills = sizeOptionsRoot.querySelector('.size-options__pills');
+        if (sizeLabel) sizeLabel.textContent = 'Please select a Size';
+        if (sizePills) {
+          sizePills.textContent = '';
+          sizePills.setAttribute('role', 'radiogroup');
+          sizePills.setAttribute('aria-label', 'Pizza size');
+          pizzaSizes.forEach((sizeValue) => {
+            const pill = document.createElement('label');
+            pill.className = 'size-pill';
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = 'pizza_size';
+            radio.value = String(sizeValue);
+            if (String(sizeValue) === 'large') {
+              radio.checked = true;
+            }
+            const card = document.createElement('span');
+            card.className = 'size-pill-card';
+            const name = document.createElement('span');
+            name.className = 'size-pill-name';
+            name.textContent = PIZZA_SIZE_LABELS[String(sizeValue)] || String(sizeValue);
+            const price = document.createElement('span');
+            price.className = 'size-pill-price';
+            price.textContent = '$0';
+            card.appendChild(name);
+            card.appendChild(price);
+            pill.appendChild(radio);
+            pill.appendChild(card);
+            sizePills.appendChild(pill);
+          });
+        }
+      }
+      const ingredients = Array.isArray(config.ingredients) ? config.ingredients : [];
+      if (!ingredients.length) return;
+      const legend = fieldset.querySelector('legend');
+      fieldset.textContent = '';
+      if (legend) fieldset.appendChild(legend);
+      ingredients.forEach((ingredient) => {
+        if (!ingredient || !ingredient.value || !ingredient.label) return;
+        const label = document.createElement('label');
+        if (ingredient.required) {
+          label.className = 'required';
+          label.title = 'Required';
+        }
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.name = `${section}_ingredients[]`;
+        input.value = String(ingredient.value);
+        if (ingredient.inputId) input.id = String(ingredient.inputId);
+        if (ingredient.required) {
+          input.dataset.required = 'true';
+          input.title = 'Required';
+          input.checked = true;
+        }
+        if (ingredient.noQty) {
+          input.dataset.noQty = 'true';
+          input.checked = true;
+        }
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(` ${ingredient.label}`));
+        if (Array.isArray(ingredient.options) && ingredient.options.length) {
+          const select = document.createElement('select');
+          select.className = 'ingredient-qty';
+          select.dataset.noQty = 'true';
+          if (ingredient.selectId) select.id = String(ingredient.selectId);
+          if (ingredient.selectAriaLabel) select.setAttribute('aria-label', String(ingredient.selectAriaLabel));
+          ingredient.options.forEach((option, index) => {
+            const optionEl = document.createElement('option');
+            optionEl.value = String(option.value);
+            optionEl.textContent = String(option.label);
+            if (index === 0) optionEl.selected = true;
+            select.appendChild(optionEl);
+          });
+          label.appendChild(document.createTextNode(' '));
+          label.appendChild(select);
+        }
+        fieldset.appendChild(label);
+        fieldset.appendChild(document.createElement('br'));
+      });
+    });
+
     Object.entries(SECTION_LABELS).forEach(([section, label]) => {
       if (!section || !label || section === 'order') return;
       document.querySelectorAll(`.menu-launch[data-target="${section}"]`).forEach((button) => {

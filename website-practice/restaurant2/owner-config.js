@@ -29,6 +29,260 @@ window.RESTAURANT2_OWNER_CONFIG = {
     large: 'Large',
     sheet: 'Sheet'
   },
+  menuSections: {
+    burger: {
+      ingredients: [
+        { value: 'bacon', label: 'Bacon' },
+        { value: 'bbq_sauce', label: 'BBQ Sauce' },
+        { value: 'bun', label: 'Bun', required: true },
+        { value: 'cheese', label: 'Cheese' },
+        { value: 'honey_mustard', label: 'Honey Mustard' },
+        { value: 'hot_sauce', label: 'Hot Sauce' },
+        { value: 'jalapenos', label: 'Jalapeños' },
+        { value: 'ketchup', label: 'Ketchup' },
+        { value: 'lettuce', label: 'Lettuce' },
+        { value: 'mayonnaise', label: 'Mayonnaise' },
+        { value: 'medium_well', label: 'Medium-Well' },
+        { value: 'mild_sauce', label: 'Mild Sauce' },
+        { value: 'mustard', label: 'Mustard' },
+        { value: 'mushrooms', label: 'Mushrooms' },
+        { value: 'olives', label: 'Olives' },
+        { value: 'onion', label: 'Onion' },
+        { value: 'patty', label: 'Patty', required: true },
+        { value: 'pickles', label: 'Pickles' },
+        { value: 'ranch', label: 'Ranch' },
+        { value: 'rare', label: 'Rare' },
+        { value: 'relish', label: 'Relish' },
+        { value: 'tartar_sauce', label: 'Tartar Sauce' },
+        { value: 'tomatoes', label: 'Tomatoes' },
+        { value: 'well_done', label: 'Well-Done' }
+      ]
+    },
+    calzone: {
+      ingredients: [
+        {
+          value: 'regular_dough',
+          label: 'Dough',
+          required: true,
+          noQty: true,
+          inputId: 'calzone-dough-checkbox',
+          selectId: 'calzone-dough-select',
+          selectAriaLabel: 'Choose calzone dough',
+          options: [
+            { value: 'regular_dough', label: 'Regular' },
+            { value: 'wheat_free_dough', label: 'Wheat Free' },
+            { value: 'gluten_free_dough', label: 'Gluten Free' }
+          ]
+        },
+        { value: 'american_cheese', label: 'American Cheese' },
+        { value: 'bacon_bits', label: 'Bacon Bits' },
+        { value: 'banana_peppers', label: 'Banana Peppers' },
+        { value: 'black_pepper', label: 'Black Pepper' },
+        { value: 'broccoli', label: 'Broccoli' },
+        { value: 'cheddar_cheese', label: 'Cheddar Cheese' },
+        { value: 'chicken', label: 'Grilled Chicken Strips' },
+        { value: 'eggplant', label: 'Eggplant' },
+        { value: 'feta_cheese', label: 'Feta Cheese' },
+        { value: 'garlic_powder', label: 'Garlic Powder' },
+        { value: 'grated_parmesan_or_pecorino', label: 'Grated Parmesan or Pecorino' },
+        { value: 'greens', label: 'Greens' },
+        { value: 'green_peppers', label: 'Green Peppers' },
+        { value: 'ham', label: 'Ham' },
+        { value: 'hot_peppers', label: 'Hot Peppers' },
+        { value: 'jalapenos', label: 'Jalapeño' },
+        { value: 'italian_seasoning', label: 'Italian Seasoning' },
+        { value: 'meatballs', label: 'Meatballs' },
+        { value: 'mushrooms', label: 'Mushrooms' },
+        { value: 'olive_oil', label: 'Olive Oil' },
+        { value: 'onion', label: 'Onion' },
+        { value: 'pepperoni', label: 'Pepperoni' },
+        { value: 'pineapple', label: 'Pineapple' },
+        { value: 'ricotta_cheese', label: 'Ricotta Cheese' },
+        { value: 'roasted_red_peppers', label: 'Roasted Red Peppers' },
+        { value: 'salami', label: 'Salami' },
+        { value: 'sausage', label: 'Sausage' },
+        { value: 'salt', label: 'Salt' },
+        { value: 'shredded_mozzarella', label: 'Shredded Mozzarella' },
+        { value: 'spinach', label: 'Spinach' },
+        { value: 'steak', label: 'Steak' },
+        { value: 'swiss_cheese', label: 'Swiss Cheese' },
+        { value: 'tomatoes', label: 'Tomatoes' }
+      ]
+    },
+    chicken_wings: {
+      ingredients: [
+        { value: 'bbq_sauce', label: 'BBQ Sauce' },
+        { value: 'butter_sauce', label: 'Butter Sauce' },
+        { value: 'garlic', label: 'Garlic' },
+        { value: 'honey', label: 'Honey' },
+        { value: 'hot_and_spicy_barbecue_sauce', label: 'Hot and Spicy Barbecue Sauce' },
+        { value: 'hot_sauce', label: 'Hot Sauce' },
+        { value: 'medium_sauce', label: 'Medium Sauce' },
+        { value: 'mild_sauce', label: 'Mild Sauce' },
+        { value: 'mustard', label: 'Mustard' },
+        { value: 'plain', label: 'Plain', required: true },
+        { value: 'extra_hot_sauce', label: 'Extra Hot Sauce' },
+        { value: 'spicy_garlic_parm_sauce', label: 'Spicy Garlic Parm Sauce' }
+      ]
+    },
+    dinner: {
+      ingredients: [
+        { value: 'baked_ziti', label: 'Baked Ziti' },
+        { value: 'chicken_parmigiana', label: 'Chicken Parmigiana' },
+        { value: 'chicken_riggies', label: 'Chicken Riggies' },
+        { value: 'house_italian_dressing', label: 'House Italian Dressing' },
+        { value: 'lasagna', label: 'Lasagna' },
+        { value: 'manicotti', label: 'Manicotti' },
+        { value: 'spaghetti', label: 'Spaghetti' },
+        { value: 'stuffed_shells', label: 'Stuffed Shells' },
+        { value: 'vodka_riggies', label: 'Vodka Riggies' }
+      ]
+    },
+    pizza: {
+      pizzaSizes: ['small', 'medium', 'large', 'sheet'],
+      ingredients: [
+        {
+          value: 'regular_dough',
+          label: 'Dough',
+          required: true,
+          noQty: true,
+          inputId: 'pizza-dough-checkbox',
+          selectId: 'pizza-dough-select',
+          selectAriaLabel: 'Choose pizza dough',
+          options: [
+            { value: 'regular_dough', label: 'Regular' },
+            { value: 'wheat_free_dough', label: 'Wheat Free' },
+            { value: 'gluten_free_dough', label: 'Gluten Free' }
+          ]
+        },
+        { value: 'bacon', label: 'Bacon' },
+        { value: 'boneless_chicken_wings', label: 'Boneless Chicken Wings' },
+        { value: 'broccoli', label: 'Broccoli' },
+        { value: 'chicken', label: 'Grilled Chicken Strips' },
+        { value: 'cheese', label: 'Cheese' },
+        { value: 'cherry_peppers', label: 'Cherry Peppers' },
+        { value: 'feta_cheese', label: 'Feta Cheese' },
+        { value: 'garlic', label: 'Garlic' },
+        { value: 'green_peppers', label: 'Green Peppers' },
+        { value: 'ham', label: 'Ham' },
+        { value: 'jalapenos', label: 'Jalapeños' },
+        { value: 'lettuce', label: 'Lettuce' },
+        { value: 'meatballs', label: 'Meatballs' },
+        { value: 'mild_sauce', label: 'Mild Sauce' },
+        { value: 'mushrooms', label: 'Mushrooms' },
+        { value: 'olives', label: 'Olives' },
+        { value: 'onion', label: 'Onion' },
+        { value: 'pepperoni', label: 'Pepperoni' },
+        { value: 'pickles', label: 'Pickles' },
+        { value: 'pineapple', label: 'Pineapples' },
+        { value: 'ranch', label: 'Ranch' },
+        { value: 'ricotta_cheese', label: 'Ricotta Cheese' },
+        { value: 'roasted_peppers', label: 'Roasted Peppers' },
+        { value: 'sausage', label: 'Sausage' },
+        { value: 'spinach', label: 'Spinach' },
+        { value: 'thin_crust', label: 'Thin Crust' },
+        { value: 'tomatoes', label: 'Tomatoes' },
+        { value: 'tomato_sauce', label: 'Tomato Sauce', required: true },
+        { value: 'well_done', label: 'Well-Done' }
+      ]
+    },
+    salad: {
+      ingredients: [
+        { value: 'banana_peppers', label: 'Banana Peppers' },
+        { value: 'croutons', label: 'Croutons' },
+        { value: 'cucumbers', label: 'Cucumbers' },
+        { value: 'green_peppers', label: 'Green Peppers' },
+        { value: 'ham', label: 'Ham' },
+        { value: 'italian_dressing', label: 'Italian Dressing' },
+        { value: 'olives', label: 'Olives' },
+        { value: 'provolone_cheese', label: 'Provolone Cheese' },
+        { value: 'red_onion', label: 'Red Onion' },
+        { value: 'red_peppers', label: 'Red Peppers' },
+        { value: 'salami', label: 'Salami' },
+        { value: 'tomato', label: 'Tomato' }
+      ]
+    },
+    sauces: {
+      ingredients: [
+        { value: 'bbq', label: 'BBQ' },
+        { value: 'butter_milk_ranch', label: 'Butter Milk Ranch' },
+        { value: 'honey_bbq', label: 'Honey BBQ' },
+        { value: 'honey_mustard', label: 'Honey Mustard' },
+        { value: 'mayonnaise', label: 'Mayonnaise' },
+        { value: 'mustard', label: 'Mustard' },
+        { value: 'ranch', label: 'Ranch' }
+      ]
+    },
+    sub: {
+      ingredients: [
+        { value: 'bacon', label: 'Bacon' },
+        { value: 'bologna', label: 'Bologna' },
+        { value: 'buffalo_sauce', label: 'Buffalo Sauce' },
+        {
+          value: 'white',
+          label: 'Bread',
+          required: true,
+          noQty: true,
+          inputId: 'sub-bread-checkbox',
+          selectId: 'sub-bread-select',
+          selectAriaLabel: 'Choose bread',
+          options: [
+            { value: 'white', label: 'White' },
+            { value: 'wheat', label: 'Wheat' },
+            { value: 'toasted', label: 'Toasted' }
+          ]
+        },
+        { value: 'cheese', label: 'Cheese' },
+        { value: 'chicken', label: 'Grilled Chicken Strips' },
+        { value: 'ham', label: 'Ham' },
+        { value: 'jalapenos', label: 'Jalapeños' },
+        { value: 'lettuce', label: 'Lettuce' },
+        { value: 'mushrooms', label: 'Mushrooms' },
+        { value: 'olives', label: 'Olives' },
+        { value: 'onion', label: 'Onion' },
+        { value: 'pepperoni', label: 'Pepperoni' },
+        { value: 'pickles', label: 'Pickles' },
+        { value: 'salami', label: 'Salami' },
+        { value: 'toasted', label: 'Toasted' },
+        { value: 'tomatoes', label: 'Tomatoes' },
+        { value: 'tuna', label: 'Tuna' },
+        { value: 'turkey', label: 'Turkey' }
+      ]
+    },
+    wrap: {
+      ingredients: [
+        { value: 'bacon', label: 'Bacon' },
+        { value: 'bologna', label: 'Bologna' },
+        {
+          value: 'white',
+          label: 'Tortilla',
+          required: true,
+          noQty: true,
+          inputId: 'wrap-bread-checkbox',
+          selectId: 'wrap-bread-select',
+          selectAriaLabel: 'Choose tortilla',
+          options: [
+            { value: 'white', label: 'White' },
+            { value: 'wheat', label: 'Wheat' },
+            { value: 'tomato_basil', label: 'Tomato Basil' },
+            { value: 'spinach', label: 'Spinach' }
+          ]
+        },
+        { value: 'cheese', label: 'Cheese' },
+        { value: 'ham', label: 'Ham' },
+        { value: 'jalapenos', label: 'Jalapeños' },
+        { value: 'lettuce', label: 'Lettuce' },
+        { value: 'mushrooms', label: 'Mushrooms' },
+        { value: 'olives', label: 'Olives' },
+        { value: 'onion', label: 'Onion' },
+        { value: 'pepperoni', label: 'Pepperoni' },
+        { value: 'pickles', label: 'Pickles' },
+        { value: 'salami', label: 'Salami' },
+        { value: 'tomatoes', label: 'Tomatoes' },
+        { value: 'turkey', label: 'Turkey' }
+      ]
+    }
+  },
   ingredientLabels: {
     'pizza_ingredients[]|bacon': 'Bacon',
     'pizza_ingredients[]|boneless_chicken_wings': 'Boneless Chicken Wings',
