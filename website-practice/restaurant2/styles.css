@@ -1566,7 +1566,8 @@ body.page2:not(.nav-enabled) main {
     }
 }
 
-body.page2 .page-footer {
+body.page2 .page-footer,
+body.page3 .page-footer {
     position: fixed;
     inset: auto 0 0 0;
     background: var(--surface-strong);
@@ -1581,7 +1582,8 @@ body.page2 .page-footer {
     z-index: 1000;
 }
 
-body.page2 .page-footer .action-button {
+body.page2 .page-footer .action-button,
+body.page3 .page-footer .action-button {
     padding: 8px 14px;
     border-radius: 999px;
     font-weight: 700;
@@ -1602,26 +1604,32 @@ body.page2 .page-footer .action-button {
     box-shadow: 0 0 0 1.5px var(--color-black);
 }
 
-body.page2 .page-footer .action-button:hover {
+body.page2 .page-footer .action-button:hover,
+body.page3 .page-footer .action-button:hover {
     filter: brightness(0.95);
 }
 
-body.page2 .page-footer .action-button:active {
+body.page2 .page-footer .action-button:active,
+body.page3 .page-footer .action-button:active {
     transform: translateY(1px);
 }
 
-body.page2 .page-footer .action-button[aria-disabled="true"] {
+body.page2 .page-footer .action-button[aria-disabled="true"],
+body.page3 .page-footer .action-button[aria-disabled="true"],
+body.page3 .page-footer .action-button:disabled {
     opacity: 0.65;
     cursor: not-allowed;
     pointer-events: auto;
 }
 
-body.page2 .page-footer .footer-back-button {
+body.page2 .page-footer .footer-back-button,
+body.page3 .page-footer .footer-back-button {
     background: var(--danger);
     color: var(--color-white);
 }
 
-body.page2 .page-footer .footer-reset {
+body.page2 .page-footer .footer-reset,
+body.page3 .page-footer .footer-reset {
     background: var(--color-white);
     color: var(--color-black);
     min-width: 110px;
@@ -1647,12 +1655,14 @@ body.theme-dark .page-footer .footer-reset {
 }
 
 @media (max-width: 640px) {
-    body.page2 .page-footer {
+    body.page2 .page-footer,
+    body.page3 .page-footer {
         padding: 16px 8px;
         gap: 6px;
     }
 
-    body.page2 .page-footer .action-button {
+    body.page2 .page-footer .action-button,
+    body.page3 .page-footer .action-button {
         flex: 1 1 0;
         min-width: 0;
         box-sizing: border-box;
@@ -1661,7 +1671,8 @@ body.theme-dark .page-footer .footer-reset {
         line-height: 1.2;
     }
 
-    body.page2 .page-footer .footer-reset {
+    body.page2 .page-footer .footer-reset,
+    body.page3 .page-footer .footer-reset {
         min-width: 0;
     }
 }
