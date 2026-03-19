@@ -89,21 +89,21 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!quantityInput) return;
 
     if (quantityInput.value.trim() !== "") {
-        quantityInput.style.color = "gray"; // Light Mode default text color
+        quantityInput.style.color = "var(--color-placeholder-text)"; // Light Mode default text color
     }
 
     quantityInput.addEventListener("input", function () {
         this.value = this.value.replace(/[^\d]/g, "").slice(0, 2);
         if (this.value !== "" && Number(this.value) > 99) this.value = "99";
-        this.style.color = "black"; // Change color when user types
+        this.style.color = "var(--color-text-primary)"; // Change color when user types
     });
 
     if (document.body.classList.contains("dark-mode")) {
         if (quantityInput.value.trim() !== "") {
-            quantityInput.style.color = "lightgray"; // Dark Mode default text color
+            quantityInput.style.color = "var(--color-placeholder-text-dark)"; // Dark Mode default text color
         }
         quantityInput.addEventListener("input", function () {
-            this.style.color = "white";
+            this.style.color = "var(--color-text-inverse)";
         });
     }
 });

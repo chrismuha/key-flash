@@ -1,3 +1,28 @@
+/* Theme Tokens */
+:root {
+    --color-text-primary: #000000;
+    --color-text-inverse: #ffffff;
+    --color-text-muted: #808080;
+    --color-text-muted-soft: #d3d3d3;
+    --color-form-bg: #ffd0d0;
+    --color-input-bg: #ffffff;
+    --color-input-bg-dark: #1e1e1e;
+    --color-panel-bg: #f5f5f5;
+    --color-border-soft: #cccccc;
+    --color-border-strong: #888888;
+    --color-border-dark: #444444;
+    --color-accent-danger: #ff0000;
+    --color-accent-danger-dark: #00008b;
+    --color-accent-success: #7cfc00;
+    --color-accent-success-dark: #32cd32;
+    --color-accent-focus: #007bff;
+    --color-accent-focus-strong: #0000ff;
+    --color-form-bg-dark: #800020;
+    --color-page-bg-dark: #000000;
+    --color-placeholder-text: #808080;
+    --color-placeholder-text-dark: #d3d3d3;
+}
+
 /* Global Reset */
 * {
     margin: 0;
@@ -60,7 +85,7 @@ div span {
 /* Page Banner */
 .page-banner::before {
     content: 'test-form';
-    color: black;
+    color: var(--color-text-primary);
 }
 
 /* Container */
@@ -73,7 +98,7 @@ div span {
 
 /* Form Styling */
 form {
-    background-color: #ffd0d0;
+    background-color: var(--color-form-bg);
     padding: 1rem;
     display: flex;
     flex-direction: column;
@@ -106,7 +131,7 @@ form select {
     height: auto;
     border: none;
     resize: none;
-    background-color: white;
+    background-color: var(--color-input-bg);
     cursor: pointer;
 }
 
@@ -127,7 +152,7 @@ form textarea {
 
 body.dark-mode form input,
 form textarea {
-    background-color: #1E1E1E;
+    background-color: var(--color-input-bg-dark);
 }
 
 body.dark-mode form textarea {
@@ -141,14 +166,14 @@ body.dark-mode form textarea {
 body.dark-mode form input,
 body.dark-mode form textarea,
 body.dark-mode form select {
-    color: white;
+    color: var(--color-text-inverse);
 }
 
 /* Ensure placeholder text is also visible in dark mode */
 body.dark-mode input::placeholder,
 body.dark-mode textarea::placeholder,
 body.dark-mode select::placeholder {
-    color: lightgray;
+    color: var(--color-placeholder-text-dark);
     opacity: 1;
 }
 
@@ -161,10 +186,10 @@ form .button-group {
 
 /* Reset and Submit Button Styling */
 form input:is([type="reset"], [type="submit"]) {
-    background-color: red;
+    background-color: var(--color-accent-danger);
     border: none;
     border-radius: 0.2rem;
-    color: white;
+    color: var(--color-text-inverse);
     padding: 0.5rem 1rem;
     height: 2rem;
     margin-top: -0.75rem;
@@ -188,10 +213,10 @@ form input[type="submit"],
 }
 
 body.dark-mode form input:is([type="reset"], [type="submit"]) {
-    background-color: darkblue;
+    background-color: var(--color-accent-danger-dark);
     border: none;
     border-radius: 0.2rem;
-    color: white;
+    color: var(--color-text-inverse);
     padding: 0.5rem 1rem;
     height: 2rem;
     margin-top: -0.75rem;
@@ -204,10 +229,10 @@ body.dark-mode form input:is([type="reset"], [type="submit"]) {
 
 /* Export Button */
 #exportButton {
-    color: white;
+    color: var(--color-text-inverse);
     padding: 0.5rem 1rem;
     height: 2rem;
-    background-color: red;
+    background-color: var(--color-accent-danger);
     border: none;
     border-radius: 0.2rem;
     font-family: 'Aptos', Arial, sans-serif;
@@ -220,10 +245,10 @@ body.dark-mode form input:is([type="reset"], [type="submit"]) {
 }
 
 body.dark-mode #exportButton {
-    color: white;
+    color: var(--color-text-inverse);
     padding: 0.5rem 1rem;
     height: 2rem;
-    background-color: darkblue;
+    background-color: var(--color-accent-danger-dark);
     border: none;
     border-radius: 0.2rem;
     font-family: 'Aptos', Arial, sans-serif;
@@ -238,10 +263,10 @@ body.dark-mode #exportButton {
     width: 250px;
     min-width: 250px;
     max-width: 250px;
-    color: white;
+    color: var(--color-text-inverse);
     padding: 0.5rem 1rem;
     height: 2rem;
-    background-color: red;
+    background-color: var(--color-accent-danger);
     border: none;
     border-radius: 0.2rem;
     font-family: 'Aptos', Arial, sans-serif;
@@ -253,12 +278,12 @@ body.dark-mode #exportButton {
 }
 
 body.dark-mode #settings-toggle {
-    background-color: darkblue;
+    background-color: var(--color-accent-danger-dark);
 }
 
 #settings-panel {
-    background: whitesmoke;
-    border: 1px solid #ccc;
+    background: var(--color-panel-bg);
+    border: 1px solid var(--color-border-soft);
     border-radius: 0.2rem;
     padding: 0.5rem 0.75rem;
     margin-bottom: 0.5rem;
@@ -267,8 +292,8 @@ body.dark-mode #settings-toggle {
 }
 
 body.dark-mode #settings-panel {
-    background: #1E1E1E;
-    border-color: #444;
+    background: var(--color-input-bg-dark);
+    border-color: var(--color-border-dark);
 }
 
 .settings-checkbox {
@@ -331,8 +356,8 @@ form input[type="file"] {
 }
 
 input::-webkit-file-upload-button {
-    background-color: red;
-    color: white;
+    background-color: var(--color-accent-danger);
+    color: var(--color-text-inverse);
     padding: 0.5rem;
     border-radius: 0.2rem;
     border: none;
@@ -345,13 +370,13 @@ input::-webkit-file-upload-button {
 }
 
 body.dark-mode input::-webkit-file-upload-button {
-    background-color: darkblue;
+    background-color: var(--color-accent-danger-dark);
 }
 
 /* Payment Button */
 form #payment-method {
-    background-color: red;
-    color: white;
+    background-color: var(--color-accent-danger);
+    color: var(--color-text-inverse);
     border: none;
     margin-top: 0.5rem;
     padding: 0.5rem;
@@ -365,8 +390,8 @@ form #payment-method {
 }
 
 body.dark-mode form #payment-method {
-    background-color: darkblue;
-    color: white;
+    background-color: var(--color-accent-danger-dark);
+    color: var(--color-text-inverse);
     border: none;
     margin-top: 0.5rem;
     padding: 0.5rem;
@@ -382,8 +407,8 @@ body.dark-mode form #payment-method {
 form #title-honorific,
 form #title-credentials,
 form #title-suffix {
-    background-color: red;
-    color: white;
+    background-color: var(--color-accent-danger);
+    color: var(--color-text-inverse);
     width: 100%;
     max-width: 100%;
     padding: 0.5rem;
@@ -397,8 +422,8 @@ form #title-suffix {
 body.dark-mode form #title-honorific,
 body.dark-mode form #title-credentials,
 body.dark-mode form #title-suffix {
-    background-color: darkblue;
-    color: white;
+    background-color: var(--color-accent-danger-dark);
+    color: var(--color-text-inverse);
 }
 
 form #payment>label {
@@ -407,7 +432,7 @@ form #payment>label {
     height: auto;
     width: auto;
     display: block;
-    color: black;
+    color: var(--color-text-primary);
 }
 
 body.dark-mode form #payment>label {
@@ -416,7 +441,7 @@ body.dark-mode form #payment>label {
     width: auto;
     height: auto;
     display: block;
-    color: white;
+    color: var(--color-text-inverse);
 }
 
 /* Exam Attempt Section */
@@ -460,9 +485,9 @@ input[type="checkbox"] {
     left: -2px;
     width: 20px;
     height: 20px;
-    border: 2px solid #888;
+    border: 2px solid var(--color-border-strong);
     border-radius: 4px;
-    background-color: white;
+    background-color: var(--color-input-bg);
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -471,13 +496,13 @@ input[type="checkbox"] {
 }
 
 input[type="checkbox"]:checked {
-    background-color: red;
-    border-color: #7CFC00;
+    background-color: var(--color-accent-danger);
+    border-color: var(--color-accent-success);
 }
 
 input[type="checkbox"]:checked::after {
     content: '\2714';
-    color: #7CFC00;
+    color: var(--color-accent-success);
     font-size: 12pt;
     top: -2px;
     left: -2px;
@@ -491,13 +516,13 @@ input[type="checkbox"]:checked::after {
 }
 
 body.dark-mode input[type="checkbox"]:checked {
-    background-color: black;
-    border-color: #32CD32;
+    background-color: var(--color-text-primary);
+    border-color: var(--color-accent-success-dark);
 }
 
 body.dark-mode input[type="checkbox"]:checked::after {
     content: '\2714';
-    color: #32CD32;
+    color: var(--color-accent-success-dark);
     font-size: 12pt;
     top: -2px;
     left: -2px;
@@ -511,32 +536,32 @@ body.dark-mode input[type="checkbox"]:checked::after {
 }
 
 input[type="checkbox"]:focus {
-    outline: 1.5px solid #7CFC00;
+    outline: 1.5px solid var(--color-accent-success);
 }
 
 /* Focus Styles */
 form input:focus,
 form textarea:focus {
-    background-color: white;
-    outline: 2px solid blue;
+    background-color: var(--color-input-bg);
+    outline: 2px solid var(--color-accent-focus-strong);
 }
 
 /* Selection Styling */
 ::selection {
-    background-color: blue;
-    color: white;
+    background-color: var(--color-accent-focus-strong);
+    color: var(--color-text-inverse);
 }
 
 /* Caret Styling */
 input,
 textarea {
-    caret-color: blue;
+    caret-color: var(--color-accent-focus-strong);
 }
 
 .themes-switcher {
     display: flex;
     border-radius: 0.2rem;
-    background: white;
+    background: var(--color-input-bg);
 }
 
 .themes-switcher div {
@@ -546,7 +571,7 @@ textarea {
     justify-content: center;
     height: 2rem;
     padding: 0 0.5rem;
-    color: grey;
+    color: var(--color-text-muted);
     cursor: pointer;
 }
 
@@ -561,9 +586,9 @@ textarea {
 }
 
 .themes-switcher .active {
-    background: black;
+    background: var(--color-page-bg-dark);
     border-radius: 0.2rem;
-    color: white;
+    color: var(--color-text-inverse);
 }
 
 .business-logo {
@@ -591,17 +616,17 @@ body.dark-mode .only-dark {
 }
 
 body.dark-mode {
-    background: black;
+    background: var(--color-page-bg-dark);
 }
 
 body.dark-mode form {
-    background: #800020;
-    color: white;
+    background: var(--color-form-bg-dark);
+    color: var(--color-text-inverse);
 }
 
 #comment {
-    background-color: white;
-    color: black;
+    background-color: var(--color-input-bg);
+    color: var(--color-text-primary);
     border: none;
     padding: 0.5rem;
     width: 100%;
@@ -612,8 +637,8 @@ body.dark-mode form {
 }
 
 body.dark-mode #comment {
-    background-color: #1E1E1E;
-    color: white;
+    background-color: var(--color-input-bg-dark);
+    color: var(--color-text-inverse);
     border: none;
     padding: 0.5rem;
     width: 100%;
@@ -637,17 +662,17 @@ body.dark-mode #comment {
 }
 
 body #quantity {
-    color: gray !important;
+    color: var(--color-placeholder-text) !important;
 }
 
 body.dark-mode #quantity {
-    color: lightgray !important;
+    color: var(--color-placeholder-text-dark) !important;
 }
 
 input::placeholder,
 textarea::placeholder,
 select::placeholder {
-    color: gray;
+    color: var(--color-placeholder-text);
     opacity: 1;
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
@@ -656,7 +681,7 @@ select::placeholder {
 body.dark-mode input::placeholder,
 textarea::placeholder,
 select::placeholder {
-    color: lightgray;
+    color: var(--color-placeholder-text-dark);
     opacity: 1;
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
@@ -665,7 +690,7 @@ select::placeholder {
 input:-ms-input-placeholder,
 textarea:-ms-input-placeholder,
 select:-ms-input-placeholder {
-    color: gray;
+    color: var(--color-placeholder-text);
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
 }
@@ -673,7 +698,7 @@ select:-ms-input-placeholder {
 body.dark-mode input:-ms-input-placeholder,
 textarea:-ms-input-placeholder,
 select:-ms-input-placeholder {
-    color: lightgray;
+    color: var(--color-placeholder-text-dark);
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
 }
@@ -682,7 +707,7 @@ select:-ms-input-placeholder {
 input::-ms-input-placeholder,
 textarea::-ms-input-placeholder,
 select::-ms-input-placeholder {
-    color: gray;
+    color: var(--color-placeholder-text);
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
 }
@@ -691,19 +716,19 @@ body.dark-mode ::-ms-input-placeholder,
 input::-ms-input-placeholder,
 textarea::-ms-input-placeholder,
 select::-ms-input-placeholder {
-    color: lightgray;
+    color: var(--color-placeholder-text-dark);
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
 }
 
 #quantity::placeholder {
-    color: gray;
+    color: var(--color-placeholder-text);
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
 }
 
 body.dark-mode #quantity::placeholder {
-    color: lightgray !important;
+    color: var(--color-placeholder-text-dark) !important;
     font-family: 'Aptos', Arial, sans-serif;
     font-size: 12pt;
 }
@@ -748,7 +773,7 @@ input {
     width: 100%;
     padding: 8px;
     font-size: 12pt;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-soft);
     /* Default border */
     border-radius: 0px;
     box-sizing: border-box;
@@ -781,7 +806,7 @@ form #file {
 /* Fixes double outline on focus */
 input:focus,
 input:active {
-    border: 2px solid #007bff;
+    border: 2px solid var(--color-accent-focus);
     /* Ensures a clear focus effect */
     outline: none !important;
     /* Completely removes the unwanted second outline */
@@ -789,14 +814,14 @@ input:active {
 
 /* Error message aligns perfectly with input */
 #error-message {
-    color: red;
+    color: var(--color-accent-danger);
     font-size: 10.5pt;
     display: none;
     margin-top: -12px;
     /* Ensures correct spacing below input */
-    background: whitesmoke;
+    background: var(--color-panel-bg);
     padding: 6px 10px;
-    border: 1px solid red;
+    border: 1px solid var(--color-accent-danger);
     border-radius: 0px;
     box-sizing: border-box;
     width: 100%;
@@ -809,7 +834,7 @@ textarea {
     /* Ensures full width */
     padding: 8px;
     font-size: 12pt;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-soft);
     /* Default border */
     border-radius: 0px;
     /* Keeps your custom styling */
@@ -823,7 +848,7 @@ textarea {
 /* Fixes double outline issue on focus */
 textarea:focus,
 textarea:active {
-    border: 2px solid #007bff !important;
+    border: 2px solid var(--color-accent-focus) !important;
     /* Ensures a clear focus effect */
     outline: none !important;
     /* Completely removes the unwanted second outline */

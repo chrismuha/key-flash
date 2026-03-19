@@ -1,17 +1,28 @@
 /* Section: Button Variants */
+:root {
+    --color-button-1-decoration: #00ff11;
+    --color-button-1-border: #000000;
+    --color-button-1-outline: #ffff00;
+    --color-button-1-bg: #ff0000;
+    --color-button-2-decoration: #ff0000;
+    --color-button-2-border: #800080;
+    --color-button-2-outline: #adff2f;
+    --color-button-2-bg: #0000ff;
+}
+
 .button1 {
-    text-decoration-color: #00ff11;
+    text-decoration-color: var(--color-button-1-decoration);
     text-align: center;
     font-size: 20pt;
     line-height: 60px;
-    border: 6px solid #000000;
-    outline: 12px solid #ffff00;
+    border: 6px solid var(--color-button-1-border);
+    outline: 12px solid var(--color-button-1-outline);
     min-width: 20px;
     min-height: 20px;
     max-width: 200px;
     max-height: 200px;
     border-radius: 20px;
-    background-color: #ff0000;
+    background-color: var(--color-button-1-bg);
     margin: auto;
     margin-top: 25px;
     margin-bottom: 50px;
@@ -19,18 +30,18 @@
 }
 
 .button2 {
-    text-decoration-color: #ff0000;
+    text-decoration-color: var(--color-button-2-decoration);
     text-align: center;
     font-size: 20pt;
     line-height: 0px;
-    border: 6px solid #800080;
-    outline: 12px solid #adff2f;
+    border: 6px solid var(--color-button-2-border);
+    outline: 12px solid var(--color-button-2-outline);
     min-width: 20px;
     min-height: 20px;
     max-width: 200px;
     max-height: 200px;
     border-radius: 20px;
-    background-color: #0000ff;
+    background-color: var(--color-button-2-bg);
     margin: auto;
     margin-top: 25px;
     margin-bottom: 0px;

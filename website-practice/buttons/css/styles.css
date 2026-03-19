@@ -1,3 +1,18 @@
+/* palette */
+:root {
+    --color-page-bg: #d3d3d3;
+    --color-button-1-decoration: #00ff11;
+    --color-button-1-border: #000000;
+    --color-button-1-outline: #ffff00;
+    --color-button-1-bg: #ff0000;
+    --color-button-1-text: #0000ff;
+    --color-button-2-decoration: #ff0000;
+    --color-button-2-border: #800080;
+    --color-button-2-outline: #adff2f;
+    --color-button-2-bg: #0000ff;
+    --color-button-2-text: #ff0000;
+}
+
 /* elements */
 body {
     display: flex;
@@ -8,7 +23,7 @@ body {
     padding: 16px;
     box-sizing: border-box;
     overflow-x: hidden;
-    background: #d3d3d3;
+    background: var(--color-page-bg);
 }
 
 /* flex container for buttons */
@@ -47,25 +62,25 @@ body {
 /* classes for individual styling */
 /* Section: Button Variants */
 .button1 {
-    text-decoration-color: #00ff11;
-    border: 10px solid #000000;
-    outline: 10px solid #ffff00;
-    background-color: #ff0000;
+    text-decoration-color: var(--color-button-1-decoration);
+    border: 10px solid var(--color-button-1-border);
+    outline: 10px solid var(--color-button-1-outline);
+    background-color: var(--color-button-1-bg);
 }
 
 .button1 h1 {
-    color: #0000ff;
+    color: var(--color-button-1-text);
 }
 
 .button2 {
-    text-decoration-color: #ff0000;
-    border: 10px solid #800080;
-    outline: 10px solid #adff2f;
-    background-color: #0000ff;
+    text-decoration-color: var(--color-button-2-decoration);
+    border: 10px solid var(--color-button-2-border);
+    outline: 10px solid var(--color-button-2-outline);
+    background-color: var(--color-button-2-bg);
 }
 
 .button2 h1 {
-    color: #ff0000;
+    color: var(--color-button-2-text);
 }
 
 /* mobile optimization */

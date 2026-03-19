@@ -2320,18 +2320,6 @@
         updateSwiperArrows();
       };
       const syncMenuLaunchState = () => {
-        // OLD SECTION (kept for reference): querySelector/active lookup for launch state
-        // const activeLookup = {};
-        // document.querySelectorAll('.section-toggle').forEach((toggle) => {
-        //   const sec = toggle.dataset.section;
-        //   if (sec) activeLookup[sec] = toggle.checked;
-        // });
-        // menuLaunchButtons.forEach((btn) => {
-        //   const target = btn.getAttribute('data-target');
-        //   const isActive = target ? !!activeLookup[target] : false;
-        //   btn.classList.toggle('menu-launch-active', isActive);
-        // });
-
         menuLaunchButtons.forEach((btn) => {
           btn.classList.remove('menu-launch-active');
         });
@@ -3716,7 +3704,6 @@
             edit.type = 'button';
             edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
-            // OLD SECTION (hidden old behavior): header.appendChild(edit);
             actions.appendChild(edit);
 
             const remove = document.createElement('button');
@@ -3724,7 +3711,6 @@
             remove.textContent = 'Remove';
             remove.className = 'summary-remove-btn';
             remove.setAttribute('aria-label', `Remove ${title.textContent}`);
-            // OLD SECTION (hidden old behavior): header.appendChild(remove);
             actions.appendChild(remove);
 
             const qtyRow = document.createElement('div');
@@ -3925,14 +3911,6 @@
             edit.type = 'button';
             edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
-
-            // OLD SECTION (kept for reference): summary edit link behavior
-            // const edit = document.createElement('a');
-            // edit.href = `page2.html#${key}`;
-            // edit.textContent = 'Edit';
-            // edit.className = 'summary-edit-btn';
-            // OLD SECTION (hidden old behavior): header.appendChild(edit);
-
             actions.appendChild(edit);
 
             const remove = document.createElement('button');
@@ -3976,7 +3954,6 @@
                 selectionsBlock.appendChild(none);
               }
             });
-            // OLD SECTION (hidden old behavior): header.appendChild(remove);
             actions.appendChild(remove);
 
             // Section-level quantity controls
@@ -4276,16 +4253,6 @@
 })();
 
 
-/* ===================================================================
-   App merged fixes: "pill arrow only" behavior for both
-   - .menu-launch[data-target] "pills"
-   - <summary class="menu-summary"> inside <details>
-   This file augments existing main.js behavior to ensure menus only
-   open when the arrow is activated if the global setting
-   `window.pillArrowOnly` (or a checkbox with class `.setting-pill-arrow-only`)
-   is enabled.
-   =================================================================== */
-
 (function () {
   'use strict';
 
@@ -4320,11 +4287,6 @@
     }, true)
   );
 
-  /* ----------------------
-     Guard: capture-phase event blocking for .menu-launch pills
-     Blocks pointerdown/clicks inside .menu-launch[data-target] unless the arrow
-     or an interactive control was the activation target.
-     ---------------------- */
   (function installPillLaunchGuard() {
     const interactiveSelector = 'input, select, textarea, button, a[href], label, [contenteditable="true"]';
 
@@ -4361,11 +4323,6 @@
   })();
 
 
-  /* ----------------------
-     Summary-based UI support: for <summary class="menu-summary"> markup
-     Adds an explicit arrow button (re-using .menu-launch-arrow CSS) and
-     blocks native toggling on non-arrow clicks when pill-arrow-only is enabled.
-     ---------------------- */
   (function installSummaryAugmentation() {
     function ensureArrowForSummary(summary) {
       // If an arrow already exists, return it
@@ -4476,11 +4433,6 @@
   })();
 
 
-  /* ----------------------
-     Extra defensive patch: if the app exposes an `openOverlay` function which
-     opens menus by target name, patch it so it respects pillArrowOnly setting.
-     This prevents other code paths from opening pills unless arrow activated.
-     ---------------------- */
   (function patchOpenOverlayIfPresent() {
     try {
       if (typeof window.openOverlay === 'function') {
@@ -4508,10 +4460,6 @@
   })();
 
 
-  /* ----------------------
-     Public helper: flip pillArrowOnly global and re-run summary handlers.
-     Useful for programmatic toggling.
-     ---------------------- */
   window.setPillArrowOnly = function (enabled) {
     try {
       window.pillArrowOnly = !!enabled;
@@ -4520,20 +4468,8 @@
     } catch (err) { /* ignore */ }
   };
 
-})(); // end merged fixes IIFE
+})();
 
-/* End of merged fixes */
-
-
-/* ===================================================================
-   Non-intrusive summary handlers (v2)
-   - Removes any previously-injected .menu-summary-arrow elements created
-     by the earlier patch to avoid changing visual styling.
-   - If there is no existing arrow element, uses a right-edge "hit area"
-     heuristic (last 36px of the summary) to act as the arrow target, so
-     the visual layout is NOT modified.
-   - Keeps interactive controls (inputs, labels, buttons, anchors) usable.
-   =================================================================== */
 (function () {
   'use strict';
 
@@ -4691,9 +4627,6 @@
 })(); // end non-intrusive summary handlers (v2)
 
 
-/* Runtime cleanup: remove any injected arrow elements and prevent future insertions from showing.
-   This runs on DOMContentLoaded and also uses a MutationObserver to strip any newly-added arrow nodes.
-*/
 (function () {
   'use strict';
   function removeInjectedArrows(root = document) {
@@ -4740,14 +4673,8 @@
 
   // Expose for debugging
   window._removedInjectedArrows = true;
-})(); // end runtime cleanup
+})();
 
-
-
-
-// --- control-box safe-area helper ---
-// Adjusts page padding/scroll offsets when a bottom "control box" overlay is present.
-// Customize selector '.control-box' if your control uses a different class.
 (function () {
   'use strict';
   const CONTROL_SELECTOR = '.control-box'; // CHANGE THIS if your control uses a different class

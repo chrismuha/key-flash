@@ -1,17 +1,38 @@
 /* Section: Navbar Layout */
+:root {
+  --color-navbar-bg: #87ceeb;
+  --color-logo-bg: #000000;
+  --color-link: #20b2aa;
+  --color-link-hover: #ffff00;
+  --color-item-hover: #90ee90;
+  --color-item-active: #8b4513;
+  --color-content-bg: #f4a460;
+  --color-content-text: #000000;
+  --color-box-border: #008b8b;
+  --color-menu-bg: #00008b;
+  --color-menu-text: #ffffff;
+  --color-block-bg: #d3d3d3;
+  --color-block-surface: #ffffff;
+  --color-block-shadow: #0000001a;
+  --color-header-bg: #800080;
+  --color-header-text: #ffffff;
+  --color-footer-bg: #000000;
+  --color-footer-text: #ffffff;
+}
+
 /* classes */
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #87ceeb;
+  background-color: var(--color-navbar-bg);
   padding: 7.5px;
   width: 100%;
   gap: 7.5px;
 }
 
 .navbar-logo {
-  background-color: #000000;
+  background-color: var(--color-logo-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,13 +69,13 @@
   padding: 5.25px 6px;
   font-size: 20pt;
   font-family: Arial, sans-serif;
-  color: #20b2aa;
+  color: var(--color-link);
   text-decoration: none;
   white-space: nowrap;
 }
 
 .navbar-ul a:hover {
-  color: #ffff00;
+  color: var(--color-link-hover);
   text-decoration: none;
 }
 
@@ -71,21 +92,21 @@
 }
 
 .navbar-li a:hover {
-  background-color: #90ee90;
+  background-color: var(--color-item-hover);
 }
 
 .navbar-active {
-  background-color: #8b4513;
+  background-color: var(--color-item-active);
 }
 
 .body-content {
   margin-top: 15px;
   margin-bottom: 15px;
   padding: 15px;
-  background-color: #f4a460;
+  background-color: var(--color-content-bg);
   text-align: center;
   font-size: 18pt !important;
-  color: black !important;
+  color: var(--color-content-text) !important;
 }
 
 .body-content p {
@@ -93,10 +114,10 @@
   margin-bottom: 15px;
   margin-top: 15px;
   padding: 15px;
-  background-color: #f4a460;
+  background-color: var(--color-content-bg);
   text-align: center;
   font-size: 18pt !important;
-  color: black !important;
+  color: var(--color-content-text) !important;
 }
 
 .box1,
@@ -107,7 +128,7 @@
   justify-content: left;
   height: 45px;
   width: 100%;
-  border: 2px solid #008b8b;
+  border: 2px solid var(--color-box-border);
   margin: 15px auto;
   padding: 7.5px;
   font-size: 16pt;
@@ -132,7 +153,7 @@
 #navbar-container {
   width: 100%;
   position: relative;
-  background-color: #87ceeb;
+  background-color: var(--color-navbar-bg);
 }
 
 #navbar-menu {
@@ -140,45 +161,45 @@
   justify-content: center;
   align-items: center;
   padding: 3.75px;
-  background-color: #00008b;
-  color: #ffffff;
+  background-color: var(--color-menu-bg);
+  color: var(--color-menu-text);
 }
 
 #content-wrapper {
   max-width: 1200px;
   margin: auto;
   padding: 15px;
-  background-color: #f4a460;
-  color: #000000;
+  background-color: var(--color-content-bg);
+  color: var(--color-content-text);
   text-align: center;
 }
 
 #block-container {
   width: 100%;
-  background-color: #d3d3d3;
+  background-color: var(--color-block-bg);
   padding: 15px;
 }
 
 #block-content {
   max-width: 1000px;
   margin: auto;
-  background-color: #ffffff;
+  background-color: var(--color-block-surface);
   padding: 15px;
-  box-shadow: 0 0 10px #0000001a;
+  box-shadow: 0 0 10px var(--color-block-shadow);
 }
 
 #header-section {
   width: 100%;
-  background-color: #800080;
-  color: white;
+  background-color: var(--color-header-bg);
+  color: var(--color-header-text);
   text-align: center;
   padding: 11.25px;
 }
 
 #footer-section {
   width: 100%;
-  background-color: #000000;
-  color: #ffffff;
+  background-color: var(--color-footer-bg);
+  color: var(--color-footer-text);
   text-align: center;
   padding: 7.5px;
   position: fixed;
@@ -197,10 +218,10 @@ h1 {
   margin-top: 15px;
   margin-bottom: 15px;
   padding: 15px;
-  background-color: #f4a460;
+  background-color: var(--color-content-bg);
   text-align: center;
   font-size: 18pt !important;
-  color: #000000 !important;
+  color: var(--color-content-text) !important;
   font-weight: bold;
   text-decoration: underline;
 }
@@ -211,8 +232,8 @@ body {
   height: auto;
   width: 100%;
   text-align: center;
-  background-color: #f4a460;
-  color: #000000;
+  background-color: var(--color-content-bg);
+  color: var(--color-content-text);
   margin: 0;
   padding: 15px;
   font-weight: lighter;

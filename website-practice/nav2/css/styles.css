@@ -1,9 +1,25 @@
 /* Section: Sidebar Layout */
+:root {
+    --color-sidebar-bg: #b4a6a6;
+    --color-logo-bg: #000000;
+    --color-link: #50b94a;
+    --color-link-shadow: #000000;
+    --color-link-bg: #000000;
+    --color-link-hover: #ed2024;
+    --color-link-active: #50b94a;
+    --color-link-active-text: #ffffff;
+    --color-toggle-bg: #50b94a;
+    --color-toggle-text: #ffffff;
+    --color-accent-bar: #ed2124;
+    --color-page-bg: #fff5ee;
+    --color-page-border: #50b94a;
+}
+
 /* classes */
 .navbar {
     width: 206px;
     height: 100vh;
-    background-color: #b4a6a6;
+    background-color: var(--color-sidebar-bg);
     position: fixed;
     top: 0;
     left: -206px;
@@ -25,7 +41,7 @@
     width: 203px;
     height: 203px;
     object-fit: contain;
-    background-color: #000000;
+    background-color: var(--color-logo-bg);
     display: block;
 }
 
@@ -50,7 +66,7 @@
     padding-left: 10px;
     font-family: Arial, sans-serif;
     font-size: 16pt;
-    color: #50b94a;
+    color: var(--color-link);
     text-decoration: none;
     width: 100%;
     box-sizing: border-box;
@@ -58,10 +74,10 @@
     font-weight: 700;
     text-align: left;
     text-shadow:
-        -1px -1px 0 #000000,
-        1px -1px 0 #000000,
-        -1px 1px 0 #000000,
-        1px 1px 0 #000000;
+        -1px -1px 0 var(--color-link-shadow),
+        1px -1px 0 var(--color-link-shadow),
+        -1px 1px 0 var(--color-link-shadow),
+        1px 1px 0 var(--color-link-shadow);
 }
 
 .navbar-ul a::before {
@@ -71,12 +87,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #000000;
+    background-color: var(--color-link-bg);
     z-index: -1;
 }
 
 .navbar-ul a:hover {
-    background-color: #ed2024;
+    background-color: var(--color-link-hover);
     text-decoration: underline;
 }
 
@@ -85,16 +101,16 @@
 }
 
 .navbar-ul a.active {
-    background-color: #50b94a;
-    color: #ffffff;
+    background-color: var(--color-link-active);
+    color: var(--color-link-active-text);
 }
 
 .toggle-button {
     position: fixed;
     top: 20px;
     left: 10px;
-    background-color: #50b94a;
-    color: #ffffff;
+    background-color: var(--color-toggle-bg);
+    color: var(--color-toggle-text);
     border: none;
     padding: 10px 10px;
     width: 45px;
@@ -121,7 +137,7 @@
 /* Section: Attribute Targets */
 /* attributes */
 #rectangle-gap {
-    background: #ed2124;
+    background: var(--color-accent-bar);
     width: 5px;
     height: 100vh;
     position: fixed;
@@ -132,7 +148,7 @@
 }
 
 #rectangle1 {
-    background: #ed2124;
+    background: var(--color-accent-bar);
     width: 10px;
     height: 100%;
     position: fixed;
@@ -145,7 +161,7 @@
 .navbar-logo-gap {
     width: 100%;
     height: 20px;
-    background-color: #000000;
+    background-color: var(--color-logo-bg);
     position: absolute;
     top: 203px;
     left: 0;
@@ -157,7 +173,7 @@
     left: 0;
     width: 2px;
     height: 203px;
-    background-color: #000000;
+    background-color: var(--color-logo-bg);
     flex-shrink: 0;
     z-index: 1002;
 }
@@ -169,7 +185,7 @@
     right: 0;
     width: 2px;
     height: 203px;
-    background-color: #000000;
+    background-color: var(--color-logo-bg);
     flex-shrink: 0;
     z-index: 1002;
 }
@@ -177,13 +193,13 @@
 /* Section: Base Elements */
 /* elements */
 body {
-    background-color: #fff5ee;
+    background-color: var(--color-page-bg);
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
     font-size: 14pt;
     overflow: hidden;
-    border: #50b94a solid 4px;
+    border: var(--color-page-border) solid 4px;
     display: grid;
     grid-template-columns: 206px 1fr;
 }
