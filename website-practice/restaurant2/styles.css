@@ -3920,6 +3920,24 @@ body.theme-dark .close-overlay:focus-visible {
     font-size: 18pt;
     position: relative;
     overflow: visible;
+    outline: none;
+    box-shadow: none !important;
+}
+
+.left-rail .box.nav-cart:hover,
+.left-rail .box.nav-cart:focus,
+.left-rail .box.nav-cart:focus-visible,
+ .left-rail .box.nav-cart.active,
+ .left-rail .box.nav-cart[aria-current="page"],
+body.theme-dark .left-rail .box.nav-cart,
+body.theme-dark .left-rail .box.nav-cart:hover,
+body.theme-dark .left-rail .box.nav-cart:focus,
+ body.theme-dark .left-rail .box.nav-cart:focus-visible,
+ body.theme-dark .left-rail .box.nav-cart.active,
+ body.theme-dark .left-rail .box.nav-cart[aria-current="page"] {
+    outline: none;
+    border-color: transparent;
+    box-shadow: none !important;
 }
 
 .left-rail .box.nav-cart .nav-cart-count {
