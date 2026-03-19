@@ -1401,6 +1401,150 @@
     if (!button.children.length) button.textContent = label;
   }
 
+  function renderRestaurant2MenuStructure() {
+    const menuActionsRoot = document.getElementById('menu-actions-root');
+    const menuOverlaysRoot = document.getElementById('menu-overlays-root');
+    const swiperRoot = document.getElementById('menu-swiper-root');
+    const sections = Object.entries(MENU_SECTION_CONFIGS).filter(([section, config]) => section && config && typeof config === 'object');
+    if (!menuActionsRoot || !menuOverlaysRoot || !sections.length) return;
+
+    menuActionsRoot.textContent = '';
+    menuOverlaysRoot.textContent = '';
+    if (swiperRoot) swiperRoot.textContent = '';
+
+    sections.forEach(([section, config]) => {
+      const label = SECTION_LABELS[section] || titleCase(section.replace(/_/g, ' '));
+      const groupName = `${section}_ingredients[]`;
+      const isSauces = section === 'sauces';
+
+      const card = document.createElement('div');
+      card.className = 'menu-action-card';
+      card.setAttribute('role', 'listitem');
+      const launch = document.createElement('button');
+      launch.type = 'button';
+      launch.className = 'menu-launch';
+      launch.dataset.target = section;
+      const launchLabel = document.createElement('span');
+      launchLabel.className = 'menu-launch-label';
+      launchLabel.textContent = label;
+      const launchMeta = document.createElement('div');
+      launchMeta.className = 'menu-launch-meta';
+      const launchPrice = document.createElement('span');
+      launchPrice.className = 'menu-launch-price';
+      launchPrice.setAttribute('aria-hidden', 'true');
+      launchPrice.textContent = '$0';
+      launchMeta.appendChild(launchPrice);
+      launch.appendChild(launchLabel);
+      launch.appendChild(launchMeta);
+      card.appendChild(launch);
+      menuActionsRoot.appendChild(card);
+
+      if (swiperRoot) {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'swiper-chip menu-launch';
+        chip.dataset.target = section;
+        chip.setAttribute('role', 'listitem');
+        chip.textContent = label;
+        swiperRoot.appendChild(chip);
+      }
+
+      const overlay = document.createElement('div');
+      overlay.className = 'menu-overlay';
+      overlay.dataset.section = section;
+      overlay.hidden = true;
+
+      const overlayCard = document.createElement('div');
+      overlayCard.className = 'menu-overlay-card';
+
+      const overlayHeader = document.createElement('div');
+      overlayHeader.className = 'overlay-header';
+      const heading = document.createElement('h2');
+      heading.textContent = label;
+      const headerPrice = document.createElement('span');
+      headerPrice.className = 'overlay-header-price';
+      headerPrice.setAttribute('aria-hidden', 'true');
+      headerPrice.textContent = '$0';
+      const closeBtn = document.createElement('button');
+      closeBtn.type = 'button';
+      closeBtn.className = 'close-overlay';
+      closeBtn.setAttribute('aria-label', `Close ${label} options`);
+      closeBtn.textContent = '✕';
+      overlayHeader.appendChild(heading);
+      overlayHeader.appendChild(headerPrice);
+      overlayHeader.appendChild(closeBtn);
+
+      const sectionBody = document.createElement('div');
+      sectionBody.className = 'menu-section section';
+      sectionBody.id = section;
+      sectionBody.dataset.section = section;
+      sectionBody.dataset.id = section;
+
+      const summary = document.createElement('div');
+      summary.className = 'menu-summary';
+      const toggle = document.createElement('input');
+      toggle.type = 'checkbox';
+      toggle.className = 'section-toggle';
+      toggle.dataset.section = section;
+      if (isSauces) {
+        toggle.disabled = true;
+        toggle.setAttribute('aria-disabled', 'true');
+      }
+      const summaryLabel = document.createElement('span');
+      summaryLabel.className = 'menu-summary-label section-title';
+      summaryLabel.textContent = label;
+      summary.appendChild(toggle);
+      summary.appendChild(summaryLabel);
+
+      sectionBody.appendChild(summary);
+
+      if (Array.isArray(config.pizzaSizes) && config.pizzaSizes.length) {
+        const sizeOptions = document.createElement('div');
+        sizeOptions.className = 'size-options';
+        const sizeLabel = document.createElement('span');
+        sizeLabel.className = 'size-options__label';
+        sizeLabel.textContent = 'Please select a Size';
+        const sizePills = document.createElement('div');
+        sizePills.className = 'size-options__pills';
+        sizePills.setAttribute('role', 'radiogroup');
+        sizePills.setAttribute('aria-label', 'Pizza size');
+        sizeOptions.appendChild(sizeLabel);
+        sizeOptions.appendChild(sizePills);
+        sectionBody.appendChild(sizeOptions);
+      }
+
+      const form = document.createElement('form');
+      const fieldset = document.createElement('fieldset');
+      const legend = document.createElement('legend');
+      legend.textContent = 'Choose Ingredients';
+      fieldset.appendChild(legend);
+      form.appendChild(fieldset);
+      sectionBody.appendChild(form);
+
+      const actions = document.createElement('div');
+      actions.className = 'section-actions';
+      const resetBtn = document.createElement('button');
+      resetBtn.type = 'button';
+      resetBtn.className = 'reset-group';
+      resetBtn.dataset.group = groupName;
+      resetBtn.textContent = `Reset ${label}`;
+      const doneBtn = document.createElement('button');
+      doneBtn.type = 'button';
+      doneBtn.className = 'section-done';
+      doneBtn.dataset.section = section;
+      doneBtn.setAttribute('aria-label', `Save ${label} item`);
+      doneBtn.textContent = 'Save Item';
+      actions.appendChild(resetBtn);
+      actions.appendChild(doneBtn);
+      sectionBody.appendChild(actions);
+
+      overlayCard.appendChild(overlayHeader);
+      overlayCard.appendChild(sectionBody);
+      overlay.appendChild(overlayCard);
+      menuOverlaysRoot.appendChild(overlay);
+    });
+  }
+
   function applyOwnerConfigToDom() {
     Object.entries(MENU_SECTION_CONFIGS).forEach(([section, config]) => {
       if (!section || !config || typeof config !== 'object') return;
@@ -1584,9 +1728,9 @@
 
     const main = document.querySelector('main');
     if (main) {
-      const overlays = Array.from(main.querySelectorAll(':scope > .menu-overlay[data-section]'));
+      const overlays = Array.from(main.querySelectorAll('.menu-overlay[data-section]'));
       changed = sortDirectChildren(
-        main,
+        overlays[0] && overlays[0].parentElement ? overlays[0].parentElement : main,
         overlays,
         (overlay) => getMenuText(overlay.querySelector('.overlay-header h2') || overlay.querySelector('.menu-summary-label'))
       ) || changed;
@@ -1709,6 +1853,7 @@
 
   // Section: Page Initialization
   document.addEventListener('DOMContentLoaded', () => {
+    renderRestaurant2MenuStructure();
     applyOwnerConfigToDom();
     applyAutomaticAlphabetizing();
     installAutomaticAlphabetizeObserver();
