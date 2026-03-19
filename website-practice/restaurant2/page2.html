@@ -249,15 +249,27 @@
                             <legend>Choose Ingredients</legend>
                             <!-- Alphabetical order -->
                             <label><input type="checkbox" name="burger_ingredients[]" value="bacon"> Bacon</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="bbq_sauce"> BBQ
+                                Sauce</label><br>
                             <label class="required" title="Required"><input type="checkbox" name="burger_ingredients[]"
                                     value="bun" data-required="true" title="Required"> Bun (Required)</label><br>
                             <label><input type="checkbox" name="burger_ingredients[]" value="cheese"> Cheese</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="honey_mustard"> Honey
+                                Mustard</label><br>
                             <label><input type="checkbox" name="burger_ingredients[]" value="jalapenos">
                                 Jalapeños</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="ketchup">
+                                Ketchup</label><br>
                             <label><input type="checkbox" name="burger_ingredients[]" value="lettuce">
                                 Lettuce</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="mayonnaise">
+                                Mayonnaise</label><br>
                             <label><input type="checkbox" name="burger_ingredients[]" value="medium_well">
                                 Medium-Well</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="mild_sauce"> Mild
+                                Sauce</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="mustard">
+                                Mustard</label><br>
                             <label><input type="checkbox" name="burger_ingredients[]" value="mushrooms">
                                 Mushrooms</label><br>
                             <label><input type="checkbox" name="burger_ingredients[]" value="olives"> Olives</label><br>
@@ -267,10 +279,16 @@
                             <label><input type="checkbox" name="burger_ingredients[]" value="pickles">
                                 Pickles</label><br>
                             <label><input type="checkbox" name="burger_ingredients[]" value="rare"> Rare</label><br>
-                            <label><input type="checkbox" name="burger_ingredients[]" value="tomato_sauce">
+                            <label><input type="checkbox" name="burger_ingredients[]" value="ranch">
+                                Ranch</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="relish">
+                                Relish</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="tartar_sauce"> Tartar
                                 Sauce</label><br>
                             <label><input type="checkbox" name="burger_ingredients[]" value="tomatoes">
                                 Tomatoes</label><br>
+                            <label><input type="checkbox" name="burger_ingredients[]" value="hot_sauce"> Hot
+                                Sauce</label><br>
                             <label><input type="checkbox" name="burger_ingredients[]" value="well_done">
                                 Well-Done</label><br>
                         </fieldset>
@@ -303,8 +321,16 @@
                     <form>
                         <fieldset>
                             <legend>Choose Ingredients</legend>
-                            <label class="required" title="Required"><input type="checkbox" name="calzone_ingredients[]"
-                                    value="calzone_dough" data-required="true" data-locked="true"> Calzone Dough (Required)</label><br>
+                            <label class="required bread-select" title="Required">
+                                <input type="checkbox" id="calzone-dough-checkbox" name="calzone_ingredients[]" value="regular_dough"
+                                    data-required="true" data-no-qty="true" title="Required" checked>
+                                Dough (Required)
+                                <select id="calzone-dough-select" class="ingredient-qty" data-no-qty="true" aria-label="Choose calzone dough">
+                                    <option value="regular_dough" selected>Regular</option>
+                                    <option value="wheat_free_dough">Wheat Free</option>
+                                    <option value="gluten_free_dough">Gluten Free</option>
+                                </select>
+                            </label><br>
                             <label><input type="checkbox" name="calzone_ingredients[]" value="american_cheese"> American
                                 Cheese</label><br>
                             <label><input type="checkbox" name="calzone_ingredients[]" value="bacon_bits"> Bacon
@@ -533,8 +559,16 @@
                         <fieldset>
                             <legend>Choose Ingredients</legend>
                             <!-- Alphabetical order -->
-                            <label class="required" title="Required"><input type="checkbox" name="pizza_ingredients[]"
-                                    value="pizza_dough" data-required="true" data-locked="true"> Pizza Dough (Required)</label><br>
+                            <label class="required bread-select" title="Required">
+                                <input type="checkbox" id="pizza-dough-checkbox" name="pizza_ingredients[]" value="regular_dough"
+                                    data-required="true" data-no-qty="true" title="Required" checked>
+                                Dough (Required)
+                                <select id="pizza-dough-select" class="ingredient-qty" data-no-qty="true" aria-label="Choose pizza dough">
+                                    <option value="regular_dough" selected>Regular</option>
+                                    <option value="wheat_free_dough">Wheat Free</option>
+                                    <option value="gluten_free_dough">Gluten Free</option>
+                                </select>
+                            </label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="bacon"> Bacon</label><br>
                             <label><input type="checkbox" name="pizza_ingredients[]" value="boneless_chicken_wings">
                                 Boneless Chicken Wings</label><br>
@@ -716,7 +750,7 @@
                                 <input type="checkbox" id="sub-bread-checkbox" name="sub_ingredients[]" value="white"
                                     data-required="true" data-no-qty="true" title="Required" checked>
                                 Bread (Required)
-                                <select id="sub-bread-select" class="ingredient-qty" aria-label="Choose bread">
+                                <select id="sub-bread-select" class="ingredient-qty" data-no-qty="true" aria-label="Choose bread">
                                     <option value="white" selected>White</option>
                                     <option value="wheat">Wheat</option>
                                     <option value="toasted">Toasted</option>
@@ -782,7 +816,7 @@
                                 <input type="checkbox" id="wrap-bread-checkbox" name="wrap_ingredients[]" value="white"
                                     data-required="true" data-no-qty="true" title="Required" checked>
                                 Tortilla (Required)
-                                <select id="wrap-bread-select" class="ingredient-qty" aria-label="Choose tortilla">
+                                <select id="wrap-bread-select" class="ingredient-qty" data-no-qty="true" aria-label="Choose tortilla">
                                     <option value="white" selected>White</option>
                                     <option value="wheat">Wheat</option>
                                     <option value="tomato_basil">Tomato Basil</option>

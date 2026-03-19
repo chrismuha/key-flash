@@ -31,19 +31,28 @@ window.RESTAURANT1_OWNER_CONFIG = {
       label: 'Burger',
       ingredients: [
         { value: 'bacon', label: 'Bacon' },
+        { value: 'bbq_sauce', label: 'BBQ Sauce' },
         { value: 'bun', label: 'Bun', required: true },
         { value: 'cheese', label: 'Cheese' },
+        { value: 'honey_mustard', label: 'Honey Mustard' },
         { value: 'jalapenos', label: 'Jalapeños' },
+        { value: 'ketchup', label: 'Ketchup' },
         { value: 'lettuce', label: 'Lettuce' },
+        { value: 'mayonnaise', label: 'Mayonnaise' },
         { value: 'medium_well', label: 'Medium-Well' },
+        { value: 'mild_sauce', label: 'Mild Sauce' },
+        { value: 'mustard', label: 'Mustard' },
         { value: 'mushrooms', label: 'Mushrooms' },
         { value: 'olives', label: 'Olives' },
         { value: 'onion', label: 'Onion' },
         { value: 'patty', label: 'Patty', required: true },
         { value: 'pickles', label: 'Pickles' },
         { value: 'rare', label: 'Rare' },
-        { value: 'tomato_sauce', label: 'Sauce' },
+        { value: 'ranch', label: 'Ranch' },
+        { value: 'relish', label: 'Relish' },
+        { value: 'tartar_sauce', label: 'Tartar Sauce' },
         { value: 'tomatoes', label: 'Tomatoes' },
+        { value: 'hot_sauce', label: 'Hot Sauce' },
         { value: 'well_done', label: 'Well-Done' }
       ]
     },
@@ -51,6 +60,20 @@ window.RESTAURANT1_OWNER_CONFIG = {
       id: 'calzone',
       label: 'Calzone',
       ingredients: [
+        {
+          value: 'regular_dough',
+          label: 'Dough',
+          required: true,
+          noQty: true,
+          inputId: 'calzone-dough-checkbox',
+          selectId: 'calzone-dough-select',
+          selectAriaLabel: 'Choose calzone dough',
+          options: [
+            { value: 'regular_dough', label: 'Regular' },
+            { value: 'wheat_free_dough', label: 'Wheat Free' },
+            { value: 'gluten_free_dough', label: 'Gluten Free' }
+          ]
+        },
         { value: 'american_cheese', label: 'American Cheese' },
         { value: 'bacon_bits', label: 'Bacon Bits' },
         { value: 'banana_peppers', label: 'Banana Peppers' },
@@ -112,6 +135,20 @@ window.RESTAURANT1_OWNER_CONFIG = {
       label: 'Pizza',
       pizzaSizes: ['small', 'medium', 'large'],
       ingredients: [
+        {
+          value: 'regular_dough',
+          label: 'Dough',
+          required: true,
+          noQty: true,
+          inputId: 'pizza-dough-checkbox',
+          selectId: 'pizza-dough-select',
+          selectAriaLabel: 'Choose pizza dough',
+          options: [
+            { value: 'regular_dough', label: 'Regular' },
+            { value: 'wheat_free_dough', label: 'Wheat Free' },
+            { value: 'gluten_free_dough', label: 'Gluten Free' }
+          ]
+        },
         { value: 'bacon', label: 'Bacon' },
         { value: 'cheese', label: 'Cheese' },
         { value: 'cherry_peppers', label: 'Cherry Peppers' },
