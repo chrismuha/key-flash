@@ -36,7 +36,6 @@
     quantitiesSections: 'restaurant.quantitiesSections',
     sectionNotes: 'restaurant.sectionNotes',
     pizzaSize: 'restaurant.pizza.size',
-    // OLD (hidden line reference): ingredientCatalog was last key before orderItems.
     ingredientCatalog: 'restaurant.ingredientCatalog',
     orderItems: 'restaurant.orderItems'
   };
@@ -4001,13 +4000,6 @@
           const isActive = !!t.checked;
           if (sec) active[sec] = isActive;
 
-          // OLD SECTION (kept for reference): menu launch active-state toggle
-          // if (sec && menuLaunchLookup[sec]) {
-          //   menuLaunchLookup[sec].forEach((btn) =>
-          //     btn.classList.toggle('menu-launch-active', isActive)
-          //   );
-          // }
-
           if (sec && menuLaunchLookup[sec]) {
             menuLaunchLookup[sec].forEach((btn) => btn.classList.toggle('menu-launch-active', isActive));
           }
@@ -4174,7 +4166,6 @@
       menuLaunchButtons.forEach((btn) => {
         const target = btn.dataset.target;
         if (!target) return;
-        // OLD (hidden line reference): const arrow = btn.querySelector('.menu-launch-arrow');
         const arrow = ensureMenuLaunchArrow(btn);
         const isArrowTarget = (el) => arrow && (el === arrow || arrow.contains(el));
         const guardNonArrow = (evt) => {
@@ -4719,16 +4710,8 @@
     // Page 3: Order summary rendering
     if (body.classList.contains('page3')) {
       const container = document.getElementById('order-summary');
-      const page3FooterBackBtn = document.querySelector('body.page3 .footer-back-button');
       if (!container) return;
       const page3FooterResetBtn = document.querySelector('body.page3 .footer-reset');
-
-      if (page3FooterBackBtn) {
-        page3FooterBackBtn.removeAttribute('aria-disabled');
-        page3FooterBackBtn.removeAttribute('tabindex');
-        page3FooterBackBtn.removeAttribute('title');
-        page3FooterBackBtn.classList.remove('next-disabled');
-      }
 
       function redirectIfNoActiveSections() {
         if (!document.body.classList.contains('page3')) return false;
@@ -5177,7 +5160,6 @@
             edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
             edit.setAttribute('aria-label', `Edit ${title.textContent}`);
-            // OLD SECTION (hidden old behavior): header.appendChild(edit);
             actions.appendChild(edit);
 
             const remove = document.createElement('button');
@@ -5202,7 +5184,6 @@
                 }
               );
             });
-            // OLD SECTION (hidden old behavior): header.appendChild(remove);
             actions.appendChild(remove);
 
             const currentItemQty = clampOrderItemQty(item.sectionQty, item.section);
@@ -5510,14 +5491,6 @@
             edit.textContent = 'Edit';
             edit.className = 'summary-edit-btn';
             edit.setAttribute('aria-label', `Edit ${title.textContent}`);
-
-            // OLD SECTION (kept for reference): summary edit link behavior
-            // const edit = document.createElement('a');
-            // edit.href = `page2.html#${sec}`;
-            // edit.textContent = 'Edit';
-            // edit.className = 'summary-edit-btn';
-            // OLD SECTION (hidden old behavior): header.appendChild(edit);
-
             actions.appendChild(edit);
 
             const remove = document.createElement('button');
@@ -5539,7 +5512,6 @@
                 }
               );
             });
-            // OLD SECTION (hidden old behavior): header.appendChild(remove);
             actions.appendChild(remove);
 
             if (SECTION_QUANTITY_SECTIONS.includes(sec)) {

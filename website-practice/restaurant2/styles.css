@@ -1649,12 +1649,6 @@ body.theme-dark .page-footer {
     background: var(--color-footer-dark-bg);
 }
 
-body.theme-dark .page-footer .footer-reset {
-    background: var(--color-porcelain);
-    color: var(--color-black);
-    box-shadow: 0 0 0 1.5px var(--color-black);
-}
-
 @media (max-width: 640px) {
     body.page2 .page-footer,
     body.page3 .page-footer {
