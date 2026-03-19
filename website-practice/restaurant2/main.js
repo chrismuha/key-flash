@@ -411,6 +411,11 @@
     return cb.dataset.required === 'true' || cb.dataset.presetRequired === 'true';
   }
 
+  function isCheckboxLocked(cb) {
+    if (!cb || !cb.dataset) return false;
+    return cb.dataset.locked === 'true';
+  }
+
   function syncPresetRequiredStateForSection(sectionOrEl) {
     const sectionEl = typeof sectionOrEl === 'string' ? document.getElementById(sectionOrEl) : sectionOrEl;
     if (!sectionEl) return;
@@ -3329,12 +3334,13 @@
           const isActive = !!toggle.checked && !toggle.disabled;
           reqList.forEach((cb) => {
             cb.checked = true;
-            cb.disabled = !isActive;
+            const disableRequired = !isActive || isCheckboxRequiredNow(cb) || isCheckboxLocked(cb);
+            cb.disabled = disableRequired;
             const lbl = cb.closest('label');
             if (lbl) {
               lbl.classList.toggle('required-disabled', !isActive);
               const extras = Array.from(lbl.querySelectorAll('select, input:not([type=\"checkbox\"])'));
-              extras.forEach((el) => { el.disabled = !isActive; });
+              extras.forEach((el) => { el.disabled = disableRequired; });
             }
           });
         });
@@ -3364,7 +3370,9 @@
           }
         }
         // After enabling section, allow the checkbox to be toggled
-        cb.disabled = false;
+        if (!isCheckboxRequiredNow(cb) && !isCheckboxLocked(cb)) {
+          cb.disabled = false;
+        }
       };
 
       const ensureSectionActiveForCheckbox = (cb) => {
@@ -4365,8 +4373,8 @@
               autoDisableIfEmpty(secId);
             }
           }
-          saveAllIngredientSelections();
           syncRequiredCheckboxes();
+          saveAllIngredientSelections();
           updateBuilderError();
           updatePage3NavState();
           if (secId) updateSectionDoneState(secId);
@@ -5169,12 +5177,6 @@
             sectionDisplayCounts[sectionKey] = nextSectionCount;
             title.textContent = `${sectionLabel} #${nextSectionCount}`;
             header.appendChild(title);
-            if (item.selectedCategory) {
-              const category = document.createElement('div');
-              category.className = 'summary-section-category';
-              category.textContent = `Category: ${item.selectedCategory}`;
-              header.appendChild(category);
-            }
 
             const actions = document.createElement('div');
             actions.className = 'summary-section-actions';

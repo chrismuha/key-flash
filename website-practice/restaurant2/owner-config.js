@@ -35,6 +35,7 @@ window.RESTAURANT2_OWNER_CONFIG = {
     'pizza_ingredients[]|broccoli': 'Broccoli',
     'pizza_ingredients[]|chicken': 'Grilled chicken strips',
     'pizza_ingredients[]|cheese': 'Cheese',
+    'pizza_ingredients[]|pizza_dough': 'Pizza Dough (Required)',
     'pizza_ingredients[]|garlic': 'Garlic',
     'pizza_ingredients[]|jalapenos': 'Jalapeños',
     'pizza_ingredients[]|lettuce': 'Lettuce',
@@ -71,6 +72,7 @@ window.RESTAURANT2_OWNER_CONFIG = {
     'burger_ingredients[]|tomato_sauce': 'Sauce',
 
     'calzone_ingredients[]|ricotta_cheese': 'Ricotta cheese',
+    'calzone_ingredients[]|calzone_dough': 'Calzone Dough (Required)',
     'calzone_ingredients[]|shredded_mozzarella': 'Shredded mozzarella',
     'calzone_ingredients[]|grated_parmesan_or_pecorino': 'Grated parmesan or pecorino',
     'calzone_ingredients[]|salt': 'Salt',
@@ -189,8 +191,9 @@ window.RESTAURANT2_OWNER_CONFIG = {
   },
   sectionIngredientCategories: {
     pizza: [
+      { id: 'base', label: 'Base', values: ['pizza_dough', 'tomato_sauce'] },
       { id: 'cheese', label: 'Cheese & Toppings', values: ['cheese', 'bacon', 'boneless_chicken_wings', 'broccoli', 'cherry_peppers', 'chicken', 'feta_cheese', 'garlic', 'green_peppers', 'ham', 'jalapenos', 'lettuce', 'meatballs', 'mild_sauce', 'mushrooms', 'olives', 'onion', 'pepperoni', 'pickles', 'pineapple', 'ranch', 'ricotta_cheese', 'roasted_peppers', 'sausage', 'spinach', 'tomatoes'] },
-      { id: 'sauce', label: 'Sauce & Crust', values: ['tomato_sauce', 'well_done', 'thin_crust'] }
+      { id: 'crust', label: 'Crust & Bake', values: ['thin_crust', 'well_done'] }
     ],
     burger: [
       { id: 'protein', label: 'Protein', values: ['patty', 'bacon', 'medium_well', 'rare', 'well_done'] },
@@ -198,6 +201,7 @@ window.RESTAURANT2_OWNER_CONFIG = {
       { id: 'base', label: 'Base', values: ['bun', 'tomato_sauce', 'cheese'] }
     ],
     calzone: [
+      { id: 'base', label: 'Base', values: ['calzone_dough'] },
       { id: 'cheese', label: 'Cheese', values: ['american_cheese', 'cheddar_cheese', 'feta_cheese', 'grated_parmesan_or_pecorino', 'ricotta_cheese', 'shredded_mozzarella', 'swiss_cheese'] },
       { id: 'meats', label: 'Meats', values: ['bacon_bits', 'chicken', 'ham', 'meatballs', 'pepperoni', 'salami', 'sausage', 'steak'] },
       { id: 'veggies', label: 'Vegetables', values: ['banana_peppers', 'broccoli', 'eggplant', 'green_peppers', 'greens', 'hot_peppers', 'jalapenos', 'mushrooms', 'onion', 'pineapple', 'roasted_red_peppers', 'spinach', 'tomatoes'] },
