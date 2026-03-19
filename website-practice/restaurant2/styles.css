@@ -2543,6 +2543,9 @@ body.order-type .business-location-trigger {
     padding: 12px 52px 12px 18px;
     min-height: 60px;
     height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: 2px solid var(--color-black);
     border-radius: 999px;
     background: var(--color-white);
@@ -2574,6 +2577,7 @@ body.order-type .business-location-trigger-text {
     display: block;
     width: 100%;
     min-width: 0;
+    line-height: 1.1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2605,6 +2609,9 @@ body.order-type .business-location-option {
     font-size: 11pt;
     font-weight: 700;
     text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     cursor: pointer;
 }
 
@@ -2943,17 +2950,27 @@ body.order-type .order-powered a {
 
 @media (max-width: 400px) {
     body.order-type .business-location-picker {
-        width: 68%;
-        max-width: 68%;
+        width: 63%;
+        max-width: 63%;
         margin: 0 auto;
         position: relative;
-        left: -68px;
+        left: -79px;
     }
 
     body.order-type .business-location-trigger {
         padding-left: 14px;
-        padding-right: 42px;
+        padding-right: 20px;
         font-size: 10.5pt;
+    }
+
+    body.order-type .business-location-trigger::after {
+        right: 6px;
+    }
+
+    body.order-type .business-location-option {
+        font-size: 10pt;
+        padding-left: 12px;
+        padding-right: 12px;
     }
 
     body.order-type .order-options,
