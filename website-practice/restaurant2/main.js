@@ -29,6 +29,7 @@
     settingsPromptAddsToCart: 'restaurant.settings.promptAddsToCart',
     settingsToastEnabled: 'restaurant.settings.toastEnabled',
     settingsToastPage2Long: 'restaurant.settings.toastPage2Long',
+    settingsOrderTypeInstantProceed: 'restaurant.settings.orderTypeInstantProceed',
     businessLocation: 'restaurant.businessLocation',
     redirectReason: 'restaurant.redirectReason',
     quantities: 'restaurant.quantities',
@@ -1618,6 +1619,7 @@
     const orderNoteEl = document.querySelector('body.order-type .order-note');
     const orderHeadingDefaultText = orderTypeHeading ? orderTypeHeading.textContent.trim() : '';
     const orderNoteDefaultText = orderNoteEl ? orderNoteEl.textContent.trim() : '';
+    let orderTypeInstantProceed = true;
     const refreshOrderPrompts = (type) => {
       if (orderTypeHeading) {
         const hideHeading = type === 'delivery';
@@ -1631,8 +1633,8 @@
           orderNoteEl.hidden = true;
           orderNoteEl.textContent = '';
         } else {
-          orderNoteEl.hidden = false;
-          orderNoteEl.textContent = orderNoteDefaultText;
+          orderNoteEl.hidden = !!orderTypeInstantProceed;
+          orderNoteEl.textContent = orderTypeInstantProceed ? '' : orderNoteDefaultText;
         }
       }
     };
@@ -1656,6 +1658,7 @@
     const settingPromptAddsToCart = document.getElementById('setting-prompt-adds-to-cart') || document.querySelector('.setting-prompt-adds-to-cart');
     const settingToastEnabled = document.getElementById('setting-toast-enabled');
     const settingToastPage2Long = document.getElementById('setting-toast-page2-long');
+    const settingOrderTypeInstantProceed = document.getElementById('setting-order-type-instant-proceed') || document.querySelector('.setting-order-type-instant-proceed');
     const settingsResetBtn = document.getElementById('settings-reset') || document.querySelector('.settings-reset');
     doneAddsToCart = false;
     let promptAddsToCart = true;
@@ -1675,6 +1678,21 @@
     };
     const applyOverlayChromeSettingState = (enabled) => {
       body.classList.toggle('hide-overlay-chrome', !!enabled);
+    };
+    const applyOrderTypeInstantProceedUi = () => {
+      if (orderTypeProceedBtn) {
+        orderTypeProceedBtn.hidden = !!orderTypeInstantProceed;
+        orderTypeProceedBtn.style.display = orderTypeInstantProceed ? 'none' : '';
+        const footer = orderTypeProceedBtn.closest('.page-footer');
+        if (footer) {
+          footer.hidden = !!orderTypeInstantProceed;
+          footer.style.display = orderTypeInstantProceed ? 'none' : '';
+        }
+      }
+      const currentType = (() => {
+        try { return localStorage.getItem(STORAGE_KEYS.orderType) || ''; } catch { return ''; }
+      })();
+      refreshOrderPrompts(currentType);
     };
     window.addEventListener('resize', updateNavOffset);
 
@@ -2004,6 +2022,13 @@
     if (settingToastPage2Long) settingToastPage2Long.checked = toastPage2Long;
 
     try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsOrderTypeInstantProceed);
+      orderTypeInstantProceed = v === null ? true : v === 'true';
+    } catch { orderTypeInstantProceed = true; }
+    if (settingOrderTypeInstantProceed) settingOrderTypeInstantProceed.checked = orderTypeInstantProceed;
+    applyOrderTypeInstantProceedUi();
+
+    try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsQuantityCanDisable);
       quantityCanDisable = v === null ? true : v === 'true';
     } catch { quantityCanDisable = true; }
@@ -2215,6 +2240,7 @@
       promptAddsToCart = true;
       toastEnabled = true;
       toastPage2Long = true;
+      orderTypeInstantProceed = true;
       try {
         localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
@@ -2230,6 +2256,7 @@
         localStorage.setItem(STORAGE_KEYS.settingsPromptAddsToCart, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsToastEnabled, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsToastPage2Long, 'true');
+        localStorage.setItem(STORAGE_KEYS.settingsOrderTypeInstantProceed, 'true');
       } catch { }
       if (settingLabelSelects) settingLabelSelects.checked = true;
       if (settingTitleSelects) settingTitleSelects.checked = true;
@@ -2245,7 +2272,9 @@
       if (settingPromptAddsToCart) settingPromptAddsToCart.checked = true;
       if (settingToastEnabled) settingToastEnabled.checked = true;
       if (settingToastPage2Long) settingToastPage2Long.checked = true;
+      if (settingOrderTypeInstantProceed) settingOrderTypeInstantProceed.checked = true;
       applyOverlayChromeSettingState(true);
+      applyOrderTypeInstantProceedUi();
       if (typeof applyQuantitySettingState === 'function') applyQuantitySettingState();
     };
 
@@ -2550,6 +2579,11 @@
           showDeliveryForm(isDelivery);
           if (isDelivery) {
             focusFirstDeliveryField();
+            if (orderTypeInstantProceed && hasValidDeliveryDetails()) {
+              handleOrderTypeProceed();
+            }
+          } else if (orderTypeInstantProceed) {
+            handleOrderTypeProceed();
           }
         });
       });
@@ -4557,6 +4591,13 @@
       settingToastPage2Long.addEventListener('change', () => {
         toastPage2Long = !!settingToastPage2Long.checked;
         try { localStorage.setItem(STORAGE_KEYS.settingsToastPage2Long, String(toastPage2Long)); } catch { }
+      });
+    }
+    if (settingOrderTypeInstantProceed) {
+      settingOrderTypeInstantProceed.addEventListener('change', () => {
+        orderTypeInstantProceed = !!settingOrderTypeInstantProceed.checked;
+        applyOrderTypeInstantProceedUi();
+        try { localStorage.setItem(STORAGE_KEYS.settingsOrderTypeInstantProceed, String(orderTypeInstantProceed)); } catch { }
       });
     }
 
