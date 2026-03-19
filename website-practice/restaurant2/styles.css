@@ -640,7 +640,7 @@ body.theme-dark .settings-panel {
 .settings-modal {
     background: var(--color-porcelain);
     color: var(--color-black);
-    border: 2px solid var(--color-black);
+    border: none;
     border-radius: 16px;
     width: min(520px, 100%);
     max-width: 520px;
@@ -1316,17 +1316,16 @@ body.theme-dark main fieldset {
     font-size: 10pt;
     line-height: 1;
     white-space: nowrap;
-    border: 2px solid var(--color-black);
+    border: none;
     background: var(--danger);
     color: var(--color-white);
     border-radius: 999px;
     cursor: pointer;
     z-index: 1000;
-    transition: transform var(--motion-fast) ease,
-        opacity var(--motion-fast) ease,
-        border-color var(--motion-medium) ease,
-        color var(--motion-medium) ease;
-    box-shadow: inset 0 0 0 0.75px var(--color-black);
+    transition-property: transform, opacity, color, box-shadow;
+    transition-duration: var(--motion-fast), var(--motion-fast), var(--motion-medium), var(--motion-medium);
+    transition-timing-function: ease, ease, ease, ease;
+    box-shadow: inset 0 0 0 1.5px var(--color-black);
 }
 
 body.has-go-back:not(.nav-enabled) .go-back {
@@ -1340,7 +1339,7 @@ body.nav-enabled .go-back {
 body.theme-dark .go-back {
     background: var(--danger);
     color: var(--color-white);
-    box-shadow: inset 0 0 0 0.35px var(--color-white);
+    box-shadow: inset 0 0 0 1.5px var(--color-white);
 }
 
 body.page3 .go-back {
@@ -1595,6 +1594,7 @@ body.page2 .page-footer .action-button {
     min-height: 48px;
     font-size: 12pt;
     line-height: 1.2;
+    box-shadow: 0 0 0 1.5px var(--color-black);
 }
 
 body.page2 .page-footer .action-button:hover {
@@ -1617,10 +1617,11 @@ body.page2 .page-footer .footer-back-button {
 }
 
 body.page2 .page-footer .footer-reset {
-    background: var(--reset-button-bg);
-    color: var(--color-white);
+    background: var(--color-white);
+    color: var(--color-black);
     min-width: 110px;
     min-height: 48px;
+    box-shadow: 0 0 0 1.5px var(--color-black);
 }
 
 body.page2.menu-overlay-open.hide-overlay-chrome .page-footer,
@@ -1630,9 +1631,14 @@ body.page2.menu-overlay-open.hide-overlay-chrome .left-rail .nav-logo {
     display: none;
 }
 
+body.theme-dark .page-footer {
+    background: #7a7a7a;
+}
+
 body.theme-dark .page-footer .footer-reset {
     background: var(--color-porcelain);
     color: var(--color-black);
+    box-shadow: 0 0 0 1.5px var(--color-black);
 }
 
 @media (max-width: 640px) {
@@ -1689,6 +1695,15 @@ body.order-type .page-footer .action-button {
     min-height: 48px;
     font-size: 12pt;
     line-height: 1.2;
+    box-shadow: 0 0 0 1.5px var(--color-black);
+}
+
+body.theme-dark .page-footer .action-button {
+    box-shadow: 0 0 0 1.5px var(--color-white);
+}
+
+body.theme-dark .page-footer .footer-reset {
+    box-shadow: 0 0 0 1.5px var(--color-black);
 }
 
 body.order-type .page-footer .action-button:hover {
