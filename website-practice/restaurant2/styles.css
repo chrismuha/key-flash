@@ -2941,11 +2941,19 @@ body.order-type .order-powered a {
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 400px) {
     body.order-type .business-location-picker {
-        width: min(100%, 340px);
-        margin-left: auto;
-        margin-right: auto;
+        width: 68%;
+        max-width: 68%;
+        margin: 0 auto;
+        position: relative;
+        left: -68px;
+    }
+
+    body.order-type .business-location-trigger {
+        padding-left: 14px;
+        padding-right: 42px;
+        font-size: 10.5pt;
     }
 
     body.order-type .order-options,
@@ -4082,7 +4090,6 @@ a.btn {
         padding-right: max(var(--gap), env(safe-area-inset-right, 0px));
     }
 
-    body.order-type .business-location-picker,
     body.order-type .order-options,
     body.order-type .order-note,
     body.order-type .delivery-details,
