@@ -30,6 +30,7 @@
     settingsToastEnabled: 'restaurant.settings.toastEnabled',
     settingsToastPage2Long: 'restaurant.settings.toastPage2Long',
     settingsOrderTypeInstantProceed: 'restaurant.settings.orderTypeInstantProceed',
+    settingsDisableOutlines: 'restaurant.settings.disableOutlines',
     businessLocation: 'restaurant.businessLocation',
     redirectReason: 'restaurant.redirectReason',
     quantities: 'restaurant.quantities',
@@ -1170,6 +1171,7 @@
   let titleSelects = true;
   let toastEnabled = true;
   let toastPage2Long = true;
+  let disableOutlines = true;
   // Track which theme family is active; default to restaurant styling
   let currentThemeChoice = 'restaurant';
 
@@ -1658,6 +1660,7 @@
     const settingToastEnabled = document.getElementById('setting-toast-enabled');
     const settingToastPage2Long = document.getElementById('setting-toast-page2-long');
     const settingOrderTypeInstantProceed = document.getElementById('setting-order-type-instant-proceed') || document.querySelector('.setting-order-type-instant-proceed');
+    const settingDisableOutlines = document.getElementById('setting-disable-outlines') || document.querySelector('.setting-disable-outlines');
     const settingsResetBtn = document.getElementById('settings-reset') || document.querySelector('.settings-reset');
     doneAddsToCart = false;
     let promptAddsToCart = true;
@@ -1677,6 +1680,9 @@
     };
     const applyOverlayChromeSettingState = (enabled) => {
       body.classList.toggle('hide-overlay-chrome', !!enabled);
+    };
+    const applyOutlineSettingState = (enabled) => {
+      body.classList.toggle('outlines-disabled', !!enabled);
     };
     const applyOrderTypeInstantProceedUi = () => {
       if (orderTypeProceedBtn) {
@@ -2028,6 +2034,13 @@
     applyOrderTypeInstantProceedUi();
 
     try {
+      const v = localStorage.getItem(STORAGE_KEYS.settingsDisableOutlines);
+      disableOutlines = v === null ? true : v === 'true';
+    } catch { disableOutlines = true; }
+    if (settingDisableOutlines) settingDisableOutlines.checked = disableOutlines;
+    applyOutlineSettingState(disableOutlines);
+
+    try {
       const v = localStorage.getItem(STORAGE_KEYS.settingsQuantityCanDisable);
       quantityCanDisable = v === null ? true : v === 'true';
     } catch { quantityCanDisable = true; }
@@ -2240,6 +2253,7 @@
       toastEnabled = true;
       toastPage2Long = true;
       orderTypeInstantProceed = true;
+      disableOutlines = true;
       try {
         localStorage.setItem(STORAGE_KEYS.settingsLabelSelects, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsTitleSelects, 'true');
@@ -2256,6 +2270,7 @@
         localStorage.setItem(STORAGE_KEYS.settingsToastEnabled, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsToastPage2Long, 'true');
         localStorage.setItem(STORAGE_KEYS.settingsOrderTypeInstantProceed, 'true');
+        localStorage.setItem(STORAGE_KEYS.settingsDisableOutlines, 'true');
       } catch { }
       if (settingLabelSelects) settingLabelSelects.checked = true;
       if (settingTitleSelects) settingTitleSelects.checked = true;
@@ -2272,8 +2287,10 @@
       if (settingToastEnabled) settingToastEnabled.checked = true;
       if (settingToastPage2Long) settingToastPage2Long.checked = true;
       if (settingOrderTypeInstantProceed) settingOrderTypeInstantProceed.checked = true;
+      if (settingDisableOutlines) settingDisableOutlines.checked = true;
       applyOverlayChromeSettingState(true);
       applyOrderTypeInstantProceedUi();
+      applyOutlineSettingState(true);
       if (typeof applyQuantitySettingState === 'function') applyQuantitySettingState();
     };
 
@@ -4589,6 +4606,13 @@
         orderTypeInstantProceed = !!settingOrderTypeInstantProceed.checked;
         applyOrderTypeInstantProceedUi();
         try { localStorage.setItem(STORAGE_KEYS.settingsOrderTypeInstantProceed, String(orderTypeInstantProceed)); } catch { }
+      });
+    }
+    if (settingDisableOutlines) {
+      settingDisableOutlines.addEventListener('change', () => {
+        disableOutlines = !!settingDisableOutlines.checked;
+        applyOutlineSettingState(disableOutlines);
+        try { localStorage.setItem(STORAGE_KEYS.settingsDisableOutlines, String(disableOutlines)); } catch { }
       });
     }
 
