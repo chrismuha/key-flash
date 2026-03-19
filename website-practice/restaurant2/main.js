@@ -282,7 +282,14 @@
       const values = Array.isArray(category.values) ? category.values.map((v) => String(v).trim()) : [];
       if (!id || !label) return null;
       return { id, label, values };
-    }).filter((category) => category && category.id && category.label);
+    }).filter((category) => category && category.id && category.label)
+      .sort((a, b) => {
+        const aIsBase = String(a.label || '').trim().toLowerCase() === 'base';
+        const bIsBase = String(b.label || '').trim().toLowerCase() === 'base';
+        if (aIsBase && !bIsBase) return -1;
+        if (!aIsBase && bIsBase) return 1;
+        return String(a.label || '').localeCompare(String(b.label || ''), undefined, { sensitivity: 'base' });
+      });
   }
 
   function setIngredientCategoryVisibility(section, selectedCategoryId) {

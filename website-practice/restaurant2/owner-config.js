@@ -295,11 +295,11 @@ window.RESTAURANT2_OWNER_CONFIG = {
       { id: 'garlic_pizza', name: 'Garlic Pizza', price: '$0', ingredients: ['cheese', 'garlic', 'tomato_sauce'], description: 'Cheese, garlic, tomato sauce' },
       { id: 'lasagna_pizza', name: 'Lasagna Pizza', price: '$0', ingredients: ['meatballs', 'cheese', 'tomato_sauce', 'ricotta_cheese', 'sausage'], description: 'Meatballs, cheese, tomato sauce, ricotta cheese, sausage' },
       { id: 'pepperoni_pizza', name: 'Pepperoni Pizza', price: '$0', ingredients: ['cheese', 'pepperoni', 'tomato_sauce'], description: 'Cheese, pepperoni, tomato sauce' },
-      { id: 'chkn_bacon_ranch_pizza', name: 'Chkn Bacon Ranch Pizza', price: '$0', ingredients: ['bacon', 'chicken', 'cheese', 'ranch'], description: 'Bacon, chicken, cheese, ranch' },
+      { id: 'chicken_bacon_ranch_pizza', name: 'chicken Bacon Ranch Pizza', price: '$0', ingredients: ['bacon', 'chicken', 'cheese', 'ranch'], description: 'Bacon, chicken, cheese, ranch' },
       { id: 'vegetarian_pizza', name: 'Vegetarian Pizza', price: '$0', ingredients: ['broccoli', 'green_peppers', 'cheese', 'mushrooms', 'onion', 'tomato_sauce'], description: 'Broccoli, green peppers, cheese, mushrooms, onion, tomato sauce' },
       { id: 'supreme_pizza', name: 'Supreme Pizza', price: '$0', ingredients: ['cheese', 'pepperoni', 'green_peppers', 'mushrooms', 'onion', 'tomato_sauce'], description: 'Cheese, pepperoni, green peppers, mushrooms, onion, tomato sauce' },
       { id: 'stuffed_pizza', name: 'Stuffed Pizza', price: '$0', ingredients: ['green_peppers', 'cheese', 'mushrooms', 'pepperoni', 'tomato_sauce', 'sausage'], description: 'Green peppers, cheese, mushrooms, pepperoni, tomato sauce, sausage' },
-      { id: 'chkn_wing_pizza', name: 'Chkn Wing Pizza', price: '$0', ingredients: ['boneless_chicken_wings', 'mild_sauce', 'cheese', 'ranch'], description: 'Boneless chicken wings, mild sauce, cheese, ranch' }
+      { id: 'chicken_wing_pizza', name: 'chicken Wing Pizza', price: '$0', ingredients: ['boneless_chicken_wings', 'mild_sauce', 'cheese', 'ranch'], description: 'Boneless chicken wings, mild sauce, cheese, ranch' }
     ],
     dinner: [
       { id: 'manicotti_dinner', name: 'Manicotti', price: '$0', ingredients: ['manicotti', 'house_italian_dressing'], description: 'Manicotti, house Italian dressing' },
