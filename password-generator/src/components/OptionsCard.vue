@@ -14,10 +14,14 @@ const props = defineProps({
   entropyBits: {
     type: Number,
     required: true
+  },
+  infoOpen: {
+    type: Boolean,
+    required: true
   }
 });
 
-const emit = defineEmits(['update:state', 'update:groups', 'update:chars-per-group']);
+const emit = defineEmits(['close-info', 'toggle-info', 'update:state', 'update:groups', 'update:chars-per-group']);
 
 const separators = [
   { label: 'Dot', value: '.', noSeparators: false },
@@ -126,9 +130,32 @@ function cycleSymbolPreset() {
         <strong>{{ charsetSize }} characters</strong>
       </div>
       <div>
-        <span class="metric-label">Entropy</span>
+        <span class="metric-label metric-label-row">
+          <span>Entropy</span>
+          <button class="metric-info-button" type="button" aria-label="What is entropy?" @click="$emit('toggle-info')">
+            <i class="bi bi-info-circle"></i>
+          </button>
+        </span>
         <strong>{{ entropyBits }} bits</strong>
       </div>
     </div>
+
+    <section v-if="infoOpen" class="info-overlay" @click.self="$emit('close-info')">
+      <div class="info-modal">
+        <div class="info-modal-header">
+          <span>Entropy</span>
+          <button class="info-modal-close" type="button" aria-label="Close entropy help" @click="$emit('close-info')">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="info-panel">
+          <p><strong>Entropy</strong> is an estimate of how hard the password is to guess.</p>
+          <p><strong>Not secure:</strong> under 40 bits.</p>
+          <p><strong>Somewhat secure:</strong> 40 to 59 bits.</p>
+          <p><strong>Secure:</strong> 60 to 99 bits.</p>
+          <p><strong>Very secure:</strong> 100+ bits.</p>
+        </div>
+      </div>
+    </section>
   </section>
 </template>

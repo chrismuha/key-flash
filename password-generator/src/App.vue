@@ -200,19 +200,21 @@ buildPassword(false);
     <main class="app-frame">
       <PasswordPanel
         :password="password"
-        :info-open="entropyInfoOpen"
+        :history-count="history.length"
         :length="renderedLength"
         :security-label="securityLabel"
-        :status="status"
         @generate="buildPassword()"
         @copy="copyPassword"
-        @toggle-info="entropyInfoOpen = !entropyInfoOpen"
+        @toggle-history="historyOpen = !historyOpen"
       />
 
       <OptionsCard
         :state="state"
         :charset-size="combinedCharset.length"
         :entropy-bits="entropyWholeBits"
+        :info-open="entropyInfoOpen"
+        @close-info="entropyInfoOpen = false"
+        @toggle-info="entropyInfoOpen = !entropyInfoOpen"
         @update:state="state = $event"
         @update:groups="updateGroups"
         @update:chars-per-group="updateCharsPerGroup"
@@ -222,7 +224,7 @@ buildPassword(false);
         :open="historyOpen"
         :history="history"
         @clear-history="clearHistory"
-        @toggle="historyOpen = !historyOpen"
+        @close="historyOpen = false"
         @copy="copyHistoryValue"
       />
     </main>
