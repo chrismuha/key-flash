@@ -11,17 +11,29 @@ const props = defineProps({
     type: Number,
     required: true
   },
+  charsetInfoOpen: {
+    type: Boolean,
+    required: true
+  },
   entropyBits: {
     type: Number,
     required: true
   },
-  infoOpen: {
+  entropyInfoOpen: {
     type: Boolean,
     required: true
   }
 });
 
-const emit = defineEmits(['close-info', 'toggle-info', 'update:state', 'update:groups', 'update:chars-per-group']);
+const emit = defineEmits([
+  'close-charset-info',
+  'close-entropy-info',
+  'toggle-charset-info',
+  'toggle-entropy-info',
+  'update:state',
+  'update:groups',
+  'update:chars-per-group'
+]);
 
 const separators = [
   { label: 'Dot', value: '.', noSeparators: false },
@@ -126,13 +138,18 @@ function cycleSymbolPreset() {
 
     <div class="metrics-card">
       <div>
-        <span class="metric-label">Charset</span>
+        <span class="metric-label metric-label-row">
+          <span>Charset</span>
+          <button class="metric-info-button" type="button" aria-label="What is charset?" @click="$emit('toggle-charset-info')">
+            <i class="bi bi-info-circle"></i>
+          </button>
+        </span>
         <strong>{{ charsetSize }} characters</strong>
       </div>
       <div>
         <span class="metric-label metric-label-row">
           <span>Entropy</span>
-          <button class="metric-info-button" type="button" aria-label="What is entropy?" @click="$emit('toggle-info')">
+          <button class="metric-info-button" type="button" aria-label="What is entropy?" @click="$emit('toggle-entropy-info')">
             <i class="bi bi-info-circle"></i>
           </button>
         </span>
@@ -140,11 +157,27 @@ function cycleSymbolPreset() {
       </div>
     </div>
 
-    <section v-if="infoOpen" class="info-overlay" @click.self="$emit('close-info')">
+    <section v-if="charsetInfoOpen" class="info-overlay" @click.self="$emit('close-charset-info')">
+      <div class="info-modal">
+        <div class="info-modal-header">
+          <span>Charset</span>
+          <button class="info-modal-close" type="button" aria-label="Close charset help" @click="$emit('close-charset-info')">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+        <div class="info-panel">
+          <p><strong>Charset</strong> is the number of different characters the generator can currently choose from.</p>
+          <p>If it says <strong>58</strong>, the password can be built from 58 possible characters based on your current settings.</p>
+          <p>More available characters usually means more entropy and a harder password to guess.</p>
+        </div>
+      </div>
+    </section>
+
+    <section v-if="entropyInfoOpen" class="info-overlay" @click.self="$emit('close-entropy-info')">
       <div class="info-modal">
         <div class="info-modal-header">
           <span>Entropy</span>
-          <button class="info-modal-close" type="button" aria-label="Close entropy help" @click="$emit('close-info')">
+          <button class="info-modal-close" type="button" aria-label="Close entropy help" @click="$emit('close-entropy-info')">
             <i class="bi bi-x-lg"></i>
           </button>
         </div>

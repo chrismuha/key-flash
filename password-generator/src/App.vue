@@ -34,6 +34,7 @@ const status = ref('Ready');
 const history = ref([]);
 const historyOpen = ref(false);
 const entropyInfoOpen = ref(false);
+const charsetInfoOpen = ref(false);
 
 function secureRandomInt(maxExclusive) {
   const values = new Uint32Array(1);
@@ -212,9 +213,12 @@ buildPassword(false);
         :state="state"
         :charset-size="combinedCharset.length"
         :entropy-bits="entropyWholeBits"
-        :info-open="entropyInfoOpen"
-        @close-info="entropyInfoOpen = false"
-        @toggle-info="entropyInfoOpen = !entropyInfoOpen"
+        :charset-info-open="charsetInfoOpen"
+        :entropy-info-open="entropyInfoOpen"
+        @close-charset-info="charsetInfoOpen = false"
+        @close-entropy-info="entropyInfoOpen = false"
+        @toggle-charset-info="charsetInfoOpen = !charsetInfoOpen"
+        @toggle-entropy-info="entropyInfoOpen = !entropyInfoOpen"
         @update:state="state = $event"
         @update:groups="updateGroups"
         @update:chars-per-group="updateCharsPerGroup"

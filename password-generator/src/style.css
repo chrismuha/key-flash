@@ -53,17 +53,8 @@ button {
 }
 
 .window-chrome {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px 0 10px;
+  height: 20px;
   -webkit-app-region: drag;
-}
-
-.window-title {
-  color: #bdbdbf;
-  font-size: 1rem;
-  font-weight: 700;
 }
 
 .hero-panel {
