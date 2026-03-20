@@ -1,27 +1,84 @@
 {
   "name": "password-generator",
+  "productName": "Password Generator",
   "version": "1.0.0",
-  "private": true,
-  "description": "Desktop password generator built with Electron and Vue.",
-  "main": "main.js",
+  "description": "Password Generator is a desktop utility for creating secure random-character passwords with configurable groups, separators, symbols, numbers, and history.",
+  "main": "src/main.js",
   "scripts": {
-    "dev": "concurrently \"vite --strictPort --port 5174\" \"wait-on tcp:5174 && env -u ELECTRON_RUN_AS_NODE electron .\"",
-    "build": "vite build",
-    "start": "env -u ELECTRON_RUN_AS_NODE electron .",
-    "test": "find . -name '*.js' -not -path './node_modules/*' -exec node --check {} \\;"
+    "start": "npx concurrently -k \"npm run dev:renderer\" \"npx wait-on http://localhost:5174 && npm run dev:main\"",
+    "start:prod": "env -u ELECTRON_RUN_AS_NODE NODE_ENV=production electron .",
+    "dev": "npx concurrently -k \"npm run dev:renderer\" \"npx wait-on http://localhost:5174 && npm run dev:main\"",
+    "dev:renderer": "vite --strictPort --port 5174",
+    "dev:main": "env -u ELECTRON_RUN_AS_NODE NODE_ENV=development electron .",
+    "build": "npm run dist",
+    "build:web": "vite build",
+    "dist": "npm run dist:mac:universal",
+    "dist:mac:x64": "npm run generate-icons && npm run build:web && electron-builder --mac --x64",
+    "dist:mac:arm64": "npm run generate-icons && npm run build:web && electron-builder --mac --arm64",
+    "dist:mac:universal": "npm run generate-icons && npm run build:web && electron-builder --mac --universal",
+    "build:mac:x64": "npm run dist:mac:x64",
+    "build:mac:arm64": "npm run dist:mac:arm64",
+    "build:mac:universal": "npm run dist:mac:universal",
+    "dist:win": "npm run generate-icons && npm run build:web && electron-builder --win",
+    "dist:linux": "npm run build:web && electron-builder --linux",
+    "build:win": "npm run dist:win",
+    "build:linux": "npm run dist:linux",
+    "package": "echo \"electron-forge package is not configured for password-generator\"",
+    "make": "echo \"electron-forge make is not configured for password-generator\"",
+    "publish": "echo \"electron-forge publish is not configured for password-generator\"",
+    "lint": "echo \"No linting configured\"",
+    "generate-icons": "echo \"No icon generation configured\"",
+    "all": "echo \"Shared all-script is not configured for password-generator\"",
+    "scripts": "echo \"Shared scripts runner is not configured for password-generator\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "vue": "^3.5.13"
+  "build": {
+    "appId": "com.mcr.passwordgenerator",
+    "productName": "PasswordGenerator",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "src/**/*",
+      "package.json"
+    ],
+    "forceCodeSigning": false,
+    "mac": {
+      "category": "public.app-category.utilities",
+      "identity": null,
+      "target": [
+        {
+          "target": "dmg",
+          "arch": "universal"
+        },
+        {
+          "target": "zip",
+          "arch": "universal"
+        }
+      ]
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
     "concurrently": "^9.1.2",
     "electron": "^35.0.1",
+    "electron-builder": "^26.0.12",
     "vite": "^6.2.0",
     "wait-on": "^8.0.3"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Chris Muha"
+  },
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "vue": "^3.5.13"
   }
 }

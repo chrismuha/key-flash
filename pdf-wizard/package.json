@@ -1,16 +1,43 @@
 {
   "name": "pdf-sorter",
+  "productName": "PDF Sorter",
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "env -u ELECTRON_RUN_AS_NODE electron .",
-    "test": "find . -name '*.js' -not -path './node_modules/*' -exec node --check {} \\;"
+    "start": "npm run dev",
+    "start:prod": "env -u ELECTRON_RUN_AS_NODE NODE_ENV=production electron .",
+    "dev": "npm run dev:main",
+    "dev:renderer": "echo \"No renderer dev server configured for pdf-wizard\"",
+    "dev:main": "env -u ELECTRON_RUN_AS_NODE NODE_ENV=development electron .",
+    "build": "npm run dist",
+    "build:web": "echo \"No web build configured for pdf-wizard\"",
+    "dist": "npm run dist:mac:universal",
+    "dist:mac:x64": "npm run generate-icons && npm run build:web && electron-builder --mac --x64",
+    "dist:mac:arm64": "npm run generate-icons && npm run build:web && electron-builder --mac --arm64",
+    "dist:mac:universal": "npm run generate-icons && npm run build:web && electron-builder --mac --universal",
+    "build:mac:x64": "npm run dist:mac:x64",
+    "build:mac:arm64": "npm run dist:mac:arm64",
+    "build:mac:universal": "npm run dist:mac:universal",
+    "dist:win": "npm run generate-icons && npm run build:web && electron-builder --win",
+    "dist:linux": "npm run build:web && electron-builder --linux",
+    "build:win": "npm run dist:win",
+    "build:linux": "npm run dist:linux",
+    "package": "echo \"electron-forge package is not configured for pdf-wizard\"",
+    "make": "echo \"electron-forge make is not configured for pdf-wizard\"",
+    "publish": "echo \"electron-forge publish is not configured for pdf-wizard\"",
+    "lint": "echo \"No linting configured\"",
+    "generate-icons": "echo \"No icon generation configured\"",
+    "all": "echo \"Shared all-script is not configured for pdf-wizard\"",
+    "scripts": "echo \"Shared scripts runner is not configured for pdf-wizard\""
   },
   "devDependencies": {
-    "electron": "^40.6.1"
+    "electron": "^40.6.1",
+    "electron-builder": "^26.0.12"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": {
+    "name": "Chris Muha"
+  },
+  "license": "MIT",
   "description": ""
 }
