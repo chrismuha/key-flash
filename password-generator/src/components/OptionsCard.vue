@@ -17,34 +17,41 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['update:state', 'update:groups', 'update:separator']);
+const emit = defineEmits(['update:state', 'update:groups', 'update:chars-per-group']);
 
-const separators = ['.', '-', '_', 'None'];
+const separators = [
+  { label: 'Dot', value: '.', noSeparators: false },
+  { label: '-', value: '-', noSeparators: false },
+  { label: 'Space', value: ' ', noSeparators: false },
+  { label: 'None', value: '', noSeparators: true }
+];
 const symbolPresets = ['Minimal', 'Dot', 'Standard', 'Extended'];
 
-const separatorLabel = computed(() => props.state.noSeparators ? 'None' : props.state.separator === '.' ? 'Dot' : props.state.separator);
+const separatorLabel = computed(() => {
+  const current = separators.find((item) => (
+    item.noSeparators === props.state.noSeparators
+    && item.value === (props.state.noSeparators ? '' : props.state.separator)
+  ));
+
+  return current?.label || 'Dot';
+});
 
 function patchState(patch) {
   emit('update:state', { ...props.state, ...patch });
 }
 
 function cycleValue(values, current) {
-  const currentIndex = values.indexOf(current);
+  const currentIndex = values.findIndex((value) => value === current || value.label === current);
   const nextIndex = (currentIndex + 1) % values.length;
   return values[nextIndex];
 }
 
 function cycleSeparator() {
-  const nextLabel = cycleValue(separators, separatorLabel.value);
-
-  if (nextLabel === 'None') {
-    patchState({ noSeparators: true });
-    emit('update:separator', '.');
-    return;
-  }
-
-  patchState({ noSeparators: false });
-  emit('update:separator', nextLabel === 'Dot' ? '.' : nextLabel);
+  const nextSeparator = cycleValue(separators, separatorLabel.value);
+  patchState({
+    noSeparators: nextSeparator.noSeparators,
+    separator: nextSeparator.noSeparators ? '' : nextSeparator.value
+  });
 }
 
 function cycleSymbolPreset() {
@@ -89,6 +96,12 @@ function cycleSymbolPreset() {
         @toggle="patchState({ excludeAmbiguous: !state.excludeAmbiguous })"
       />
       <OptionRow
+        label="Save only copied passwords"
+        kind="toggle"
+        :checked="state.historyOnCopyOnly"
+        @toggle="patchState({ historyOnCopyOnly: !state.historyOnCopyOnly })"
+      />
+      <OptionRow
         label="Special characters"
         :value="state.symbolPreset"
         @click="cycleSymbolPreset"
@@ -100,8 +113,10 @@ function cycleSymbolPreset() {
       />
       <OptionRow
         label="Characters per group"
-        :value="String(state.charsPerGroup)"
-        @click="patchState({ charsPerGroup: state.charsPerGroup >= 8 ? 3 : state.charsPerGroup + 1 })"
+        kind="stepper"
+        :value="`${state.charsPerGroup} chars`"
+        @decrement="$emit('update:chars-per-group', state.charsPerGroup - 1)"
+        @increment="$emit('update:chars-per-group', state.charsPerGroup + 1)"
       />
     </div>
 

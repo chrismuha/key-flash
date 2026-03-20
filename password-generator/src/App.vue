@@ -23,6 +23,7 @@ const state = ref({
   includeNumbers: true,
   includeSymbols: true,
   excludeAmbiguous: false,
+  historyOnCopyOnly: true,
   noSeparators: false,
   separator: '.',
   symbolPreset: 'Minimal'
@@ -88,6 +89,21 @@ function choose(pool) {
   return pool[secureRandomInt(pool.length)];
 }
 
+function addHistoryEntry(value) {
+  if (!value) return;
+
+  const newestEntry = history.value[0];
+  if (newestEntry?.value === value) return;
+
+  history.value.unshift({
+    value,
+    length: value.length,
+    createdAt: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+  });
+
+  history.value = history.value.slice(0, 10);
+}
+
 function buildPassword(recordHistory = true) {
   if (!combinedCharset.value.length) {
     password.value = '';
@@ -117,14 +133,8 @@ function buildPassword(recordHistory = true) {
   password.value = state.value.noSeparators ? groups.join('') : groups.join(state.value.separator);
   status.value = 'Generated password';
 
-  if (recordHistory) {
-    history.value.unshift({
-      value: password.value,
-      length: password.value.length,
-      createdAt: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-    });
-
-    history.value = history.value.slice(0, 10);
+  if (recordHistory && !state.value.historyOnCopyOnly) {
+    addHistoryEntry(password.value);
   }
 }
 
@@ -135,6 +145,12 @@ async function copyPassword() {
   }
 
   await navigator.clipboard.writeText(password.value);
+  if (state.value.historyOnCopyOnly) {
+    addHistoryEntry(password.value);
+    status.value = 'Copied to clipboard and saved to history';
+    return;
+  }
+
   status.value = 'Copied to clipboard';
 }
 
@@ -143,12 +159,17 @@ async function copyHistoryValue(value) {
   status.value = 'Copied history item to clipboard';
 }
 
+function clearHistory() {
+  history.value = [];
+  status.value = 'Password history cleared';
+}
+
 function updateGroups(nextValue) {
   state.value.groups = Math.max(1, Math.min(12, nextValue));
 }
 
-function updateSeparator(nextValue) {
-  state.value.separator = nextValue;
+function updateCharsPerGroup(nextValue) {
+  state.value.charsPerGroup = Math.max(1, Math.min(32, nextValue));
 }
 
 watch(() => state.value.noSeparators, (isDisabled) => {
@@ -183,12 +204,13 @@ buildPassword(false);
         :entropy-bits="entropyBits"
         @update:state="state = $event"
         @update:groups="updateGroups"
-        @update:separator="updateSeparator"
+        @update:chars-per-group="updateCharsPerGroup"
       />
 
       <HistoryCard
         :open="historyOpen"
         :history="history"
+        @clear-history="clearHistory"
         @toggle="historyOpen = !historyOpen"
         @copy="copyHistoryValue"
       />

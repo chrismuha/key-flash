@@ -10,7 +10,7 @@ defineProps({
   }
 });
 
-defineEmits(['copy', 'toggle']);
+defineEmits(['clear-history', 'copy', 'toggle']);
 </script>
 
 <template>
@@ -21,6 +21,7 @@ defineEmits(['copy', 'toggle']);
     </button>
 
     <div class="history-list" v-if="open && history.length">
+      <button class="history-clear" type="button" @click="$emit('clear-history')">Clear History</button>
       <article v-for="entry in history" :key="`${entry.value}-${entry.createdAt}`" class="history-item">
         <button class="history-copy" type="button" @click="$emit('copy', entry.value)">
           <div class="history-value">{{ entry.value }}</div>

@@ -7,6 +7,7 @@
 
 * {
   box-sizing: border-box;
+  user-select: none;
 }
 
 html,
@@ -35,89 +36,48 @@ button {
 
 .app-shell {
   min-height: 100vh;
-  padding: 22px 26px 28px;
+  padding: 12px 14px 18px;
 }
 
 .app-frame {
-  max-width: 1540px;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 24px 22px 28px;
-  border: 1px solid #5a5a5c;
-  border-radius: 22px;
+  padding: 18px 18px 22px;
+  border: 1px solid #4e4e50;
+  border-radius: 18px;
   background: linear-gradient(180deg, #232323 0%, #1f1f1f 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .window-chrome {
-  position: sticky;
-  top: 0;
-  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 0 22px;
-}
-
-.traffic-lights {
-  position: absolute;
-  left: 18px;
-  display: flex;
-  gap: 12px;
-}
-
-.light {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-}
-
-.light.red {
-  background: #ff5f57;
-}
-
-.light.yellow {
-  background: #febc2e;
-}
-
-.light.green {
-  background: #28c840;
+  padding: 4px 0 14px;
 }
 
 .window-title {
   color: #bdbdbf;
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 700;
 }
 
 .hero-panel {
-  margin-top: 12px;
+  margin-top: 4px;
 }
 
 .hero-heading {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 24px;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .hero-heading h1 {
   margin: 0;
-  font-size: 4rem;
+  font-size: 2.5rem;
   letter-spacing: -0.05em;
-}
-
-.info-badge {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: transparent;
-  color: #ff3b30;
-  border: 2px solid #ff3b30;
-  font-family: Georgia, serif;
-  font-weight: 700;
 }
 
 .result-card,
@@ -134,20 +94,22 @@ button {
 }
 
 .result-value {
-  min-height: 142px;
-  padding: 28px 24px 18px;
+  min-height: 92px;
+  padding: 20px 18px 12px;
   color: #ededee;
-  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-size: clamp(1.35rem, 2.6vw, 2.2rem);
   letter-spacing: 0.01em;
   font-family: "SF Mono", "Menlo", monospace;
   word-break: break-word;
+  user-select: text;
+  cursor: text;
 }
 
 .result-meta {
-  padding: 0 24px 10px;
+  padding: 0 18px 10px;
   color: #d6d6d8;
   text-align: right;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: lowercase;
@@ -155,22 +117,22 @@ button {
 
 .result-action {
   width: 100%;
-  padding: 18px 24px;
+  padding: 14px 18px;
   background: transparent;
   border-top: 1px solid #4a4a4a;
   color: #ff3b30;
-  font-size: 1.1rem;
+  font-size: 1rem;
   cursor: pointer;
 }
 
 .status-line {
-  margin-top: 14px;
+  margin-top: 10px;
   color: #9d9d9f;
-  font-size: 0.96rem;
+  font-size: 0.88rem;
 }
 
 .options-panel {
-  margin-top: 34px;
+  margin-top: 22px;
 }
 
 .options-panel h2 {
@@ -185,7 +147,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 18px 22px;
+  padding: 14px 16px;
   background: transparent;
   color: #f1f1f2;
   border-bottom: 1px solid #474747;
@@ -199,7 +161,7 @@ button {
 
 .option-label,
 .option-value {
-  font-size: 1.03rem;
+  font-size: 0.96rem;
 }
 
 .toggle {
@@ -234,18 +196,18 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 6px;
-  border-radius: 14px;
+  padding: 4px;
+  border-radius: 12px;
   background: #46464a;
 }
 
 .stepper-button {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border-radius: 10px;
   background: transparent;
   color: #d9d9da;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   line-height: 1;
   cursor: pointer;
 }
@@ -270,11 +232,11 @@ button {
 }
 
 .metrics-card {
-  margin-top: 16px;
+  margin-top: 12px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
-  padding: 20px 22px;
+  padding: 16px;
 }
 
 .metric-label {
@@ -287,12 +249,12 @@ button {
 }
 
 .history-panel {
-  margin-top: 34px;
+  margin-top: 22px;
 }
 
 .history-header {
   width: 100%;
-  padding: 18px 22px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -304,6 +266,16 @@ button {
   margin-top: 12px;
   display: grid;
   gap: 10px;
+}
+
+.history-clear {
+  justify-self: end;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #383838;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #ff6b63;
+  cursor: pointer;
 }
 
 .history-item {
@@ -326,6 +298,8 @@ button {
   font-size: 1rem;
   color: #f0f0f1;
   word-break: break-word;
+  user-select: text;
+  cursor: text;
 }
 
 .history-meta {
@@ -336,20 +310,20 @@ button {
 
 @media (max-width: 900px) {
   .app-shell {
-    padding: 12px;
+    padding: 8px;
   }
 
   .app-frame {
-    padding: 18px 16px 22px;
+    padding: 14px 12px 16px;
   }
 
   .hero-heading h1 {
-    font-size: 2.6rem;
+    font-size: 2rem;
   }
 
   .result-value {
-    min-height: 110px;
-    font-size: 1.75rem;
+    min-height: 84px;
+    font-size: 1.2rem;
   }
 
   .metrics-card {

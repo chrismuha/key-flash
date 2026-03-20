@@ -20,7 +20,6 @@ defineEmits(['generate', 'copy']);
 <template>
   <section class="hero-panel">
     <div class="hero-heading">
-      <button class="info-badge" type="button" aria-label="App info">i</button>
       <h1>password-generator</h1>
     </div>
 
