@@ -17,15 +17,15 @@ const SYMBOL_PRESETS = {
 const AMBIGUOUS = new Set(['0', 'O', 'o', '1', 'l', 'I', '|']);
 
 const state = ref({
-  groups: 3,
-  charsPerGroup: 5,
+  groups: 4,
+  charsPerGroup: 4,
   includeUppercase: true,
   includeNumbers: true,
   includeSymbols: true,
-  excludeAmbiguous: false,
+  excludeAmbiguous: true,
   historyOnCopyOnly: true,
-  noSeparators: false,
-  separator: '.',
+  noSeparators: true,
+  separator: '',
   symbolPreset: 'Minimal'
 });
 
@@ -33,6 +33,7 @@ const password = ref('');
 const status = ref('Ready');
 const history = ref([]);
 const historyOpen = ref(false);
+const entropyInfoOpen = ref(false);
 
 function secureRandomInt(maxExclusive) {
   const values = new Uint32Array(1);
@@ -72,6 +73,13 @@ const renderedLength = computed(() => {
 const entropyBits = computed(() => {
   if (!combinedCharset.value.length) return 0;
   return totalCharacters.value * Math.log2(combinedCharset.value.length);
+});
+const entropyWholeBits = computed(() => Math.round(entropyBits.value));
+const securityLabel = computed(() => {
+  if (entropyWholeBits.value < 40) return 'not secure';
+  if (entropyWholeBits.value < 60) return 'somewhat secure';
+  if (entropyWholeBits.value < 100) return 'secure';
+  return 'very secure';
 });
 
 function shuffle(items) {
@@ -192,16 +200,19 @@ buildPassword(false);
     <main class="app-frame">
       <PasswordPanel
         :password="password"
+        :info-open="entropyInfoOpen"
         :length="renderedLength"
+        :security-label="securityLabel"
         :status="status"
         @generate="buildPassword()"
         @copy="copyPassword"
+        @toggle-info="entropyInfoOpen = !entropyInfoOpen"
       />
 
       <OptionsCard
         :state="state"
         :charset-size="combinedCharset.length"
-        :entropy-bits="entropyBits"
+        :entropy-bits="entropyWholeBits"
         @update:state="state = $event"
         @update:groups="updateGroups"
         @update:chars-per-group="updateCharsPerGroup"

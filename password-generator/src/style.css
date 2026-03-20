@@ -74,10 +74,50 @@ button {
   margin-bottom: 14px;
 }
 
+.hero-title-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .hero-heading h1 {
   margin: 0;
   font-size: 2.5rem;
   letter-spacing: -0.05em;
+}
+
+.info-button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #383838;
+  color: #d8d8da;
+  cursor: pointer;
+}
+
+.info-button .bi {
+  font-size: 1rem;
+}
+
+.info-panel {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #2f2f31;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #d4d4d6;
+}
+
+.info-panel p {
+  margin: 0 0 6px;
+}
+
+.info-panel p:last-child {
+  margin-bottom: 0;
 }
 
 .result-card,

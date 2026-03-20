@@ -127,7 +127,7 @@ function cycleSymbolPreset() {
       </div>
       <div>
         <span class="metric-label">Entropy</span>
-        <strong>{{ entropyBits.toFixed(1) }} bits</strong>
+        <strong>{{ entropyBits }} bits</strong>
       </div>
     </div>
   </section>
