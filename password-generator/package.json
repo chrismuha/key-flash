@@ -1,12 +1,27 @@
 {
   "name": "password-generator",
   "version": "1.0.0",
+  "private": true,
+  "description": "Desktop password generator built with Electron and Vue.",
   "main": "main.js",
   "scripts": {
+    "dev": "concurrently \"vite --strictPort --port 5174\" \"wait-on tcp:5174 && env -u ELECTRON_RUN_AS_NODE electron .\"",
+    "build": "vite build",
+    "start": "env -u ELECTRON_RUN_AS_NODE electron .",
     "test": "find . -name '*.js' -not -path './node_modules/*' -exec node --check {} \\;"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "type": "commonjs",
+  "dependencies": {
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "concurrently": "^9.1.2",
+    "electron": "^35.0.1",
+    "vite": "^6.2.0",
+    "wait-on": "^8.0.3"
+  }
 }

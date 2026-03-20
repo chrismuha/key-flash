@@ -1,107 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>password-generator</title>
-  <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-  <main class="shell">
-    <section class="hero card">
-      <p class="eyebrow">Random Character Passwords</p>
-      <h1>password-generator</h1>
-      <p class="lede">
-        A Dice Gen style generator, rebuilt for random characters instead of dictionary words.
-      </p>
-
-      <div class="output-wrap">
-        <label class="sr-only" for="passwordOutput">Generated password</label>
-        <textarea id="passwordOutput" readonly spellcheck="false"></textarea>
-        <div class="output-actions">
-          <button id="generateButton" type="button">Generate</button>
-          <button id="copyButton" type="button" class="ghost">Copy</button>
-        </div>
-      </div>
-
-      <p id="statusMessage" class="status" aria-live="polite">Ready.</p>
-    </section>
-
-    <section class="controls card">
-      <div class="control-grid">
-        <label class="field">
-          <span>Passwords</span>
-          <input id="passwordCount" type="number" min="1" max="20" value="6">
-        </label>
-
-        <label class="field">
-          <span>Groups</span>
-          <input id="groupCount" type="number" min="1" max="12" value="4">
-        </label>
-
-        <label class="field">
-          <span>Characters Per Group</span>
-          <input id="charsPerGroup" type="number" min="1" max="32" value="4">
-        </label>
-
-        <label class="field">
-          <span>Separator</span>
-          <input id="separatorInput" type="text" value="-" maxlength="3">
-        </label>
-      </div>
-
-      <div class="toggle-row">
-        <label class="check">
-          <input id="noSeparator" type="checkbox">
-          <span>No separators</span>
-        </label>
-
-        <label class="check">
-          <input id="includeLowercase" type="checkbox" checked>
-          <span>Lowercase</span>
-        </label>
-
-        <label class="check">
-          <input id="includeUppercase" type="checkbox" checked>
-          <span>Uppercase</span>
-        </label>
-
-        <label class="check">
-          <input id="includeNumbers" type="checkbox" checked>
-          <span>Numbers</span>
-        </label>
-
-        <label class="check">
-          <input id="includeSymbols" type="checkbox">
-          <span>Symbols</span>
-        </label>
-
-        <label class="check">
-          <input id="excludeAmbiguous" type="checkbox">
-          <span>Exclude ambiguous</span>
-        </label>
-      </div>
-
-      <section class="summary">
-        <div>
-          <span class="summary-label">Characters each</span>
-          <strong id="lengthSummary">19</strong>
-        </div>
-        <div>
-          <span class="summary-label">Charset size</span>
-          <strong id="charsetSummary">62</strong>
-        </div>
-        <div>
-          <span class="summary-label">Approx entropy</span>
-          <strong id="entropySummary">113.1 bits</strong>
-        </div>
-      </section>
-    </section>
-  </main>
-
-  <script src="main.js"></script>
+  <div id="app"></div>
+  <script type="module" src="/src/main.js"></script>
 </body>
-
 </html>
