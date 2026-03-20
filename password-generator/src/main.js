@@ -7,8 +7,9 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1500,
     height: 1080,
-    minWidth: 1180,
-    minHeight: 860,
+    resizable: false,
+    maximizable: false,
+    fullscreenable: false,
     backgroundColor: '#111111',
     title: 'Password Generator',
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',

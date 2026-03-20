@@ -57,6 +57,7 @@ button {
   align-items: center;
   justify-content: center;
   padding: 2px 0 10px;
+  -webkit-app-region: drag;
 }
 
 .window-title {
@@ -84,6 +85,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  -webkit-app-region: drag;
 }
 
 .hero-toolbar {
@@ -110,6 +112,7 @@ button {
   padding: 0 10px;
   grid-auto-flow: column;
   gap: 6px;
+  -webkit-app-region: no-drag;
 }
 
 .toolbar-button .bi {
@@ -312,6 +315,7 @@ button {
   color: #d8d8da;
   cursor: pointer;
   padding: 0;
+  -webkit-app-region: no-drag;
 }
 
 .metrics-card strong {
@@ -463,6 +467,7 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: #ff6b63;
   cursor: pointer;
+  -webkit-app-region: no-drag;
 }
 
 .history-close {
@@ -474,6 +479,7 @@ button {
   background: #383838;
   color: #d8d8da;
   cursor: pointer;
+  -webkit-app-region: no-drag;
 }
 
 .history-item {
