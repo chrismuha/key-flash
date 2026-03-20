@@ -1,0 +1,12 @@
+{
+  "name": "password-generator",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "find . -name '*.js' -not -path './node_modules/*' -exec node --check {} \\;"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
