@@ -36,7 +36,7 @@ button {
 
 .app-shell {
   height: 100vh;
-  padding: 8px 10px 10px;
+  padding: 8px 10px 0;
   overflow: hidden;
 }
 
@@ -47,7 +47,7 @@ button {
   max-width: 980px;
   height: 100%;
   margin: 0 auto;
-  padding: 12px 14px 14px;
+  padding: 12px 14px 0;
   border: 1px solid #4e4e50;
   border-radius: 18px;
   background: linear-gradient(180deg, #232323 0%, #1f1f1f 100%);
@@ -175,6 +175,7 @@ button {
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
+  gap: 4px;
 }
 
 .options-panel h2 {
@@ -185,7 +186,7 @@ button {
 }
 
 .list-card {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-height: 0;
   overflow: auto;
 }
@@ -281,11 +282,10 @@ button {
 }
 
 .metrics-card {
-  margin-top: 8px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  padding: 12px 14px;
+  padding: 10px 14px 6px;
   flex: 0 0 auto;
 }
 
@@ -295,7 +295,7 @@ button {
 
 .metric-label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   color: #9f9fa1;
   font-size: 0.76rem;
   text-transform: uppercase;
@@ -323,7 +323,7 @@ button {
 .metrics-card strong {
   display: block;
   font-size: 0.9rem;
-  line-height: 1.25;
+  line-height: 1.1;
   word-break: break-word;
 }
 
