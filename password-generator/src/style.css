@@ -173,8 +173,7 @@ button {
   margin-top: 0;
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
   gap: 4px;
 }
 
@@ -186,9 +185,7 @@ button {
 }
 
 .list-card {
-  flex: 0 1 auto;
-  min-height: 0;
-  overflow: auto;
+  overflow: visible;
 }
 
 .option-row {
