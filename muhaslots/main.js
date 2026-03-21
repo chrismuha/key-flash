@@ -67,6 +67,7 @@ const denomEl = document.getElementById("denom");
 const linesEl = document.getElementById("lines");
 const betEl = document.getElementById("bet");
 const winOddsEl = document.getElementById("winOdds");
+const maxBetUsesAvailableCreditsEl = document.getElementById("maxBetUsesAvailableCredits");
 const creditStepEl = document.getElementById("creditStep");
 const creditUpBtn = document.getElementById("creditUp");
 const creditDownBtn = document.getElementById("creditDown");
@@ -76,6 +77,12 @@ const autoSpinHintEl = document.getElementById("autoSpinHint");
 const payInfoBtn = document.getElementById("payInfo");
 const previewOverlayEl = document.getElementById("previewOverlay");
 const previewOverlayCloseBtn = document.getElementById("previewOverlayClose");
+const lastChanceOverlayEl = document.getElementById("lastChanceOverlay");
+const lastChanceCloseBtn = document.getElementById("lastChanceClose");
+const lastChanceCancelBtn = document.getElementById("lastChanceCancel");
+const lastChanceConfirmBtn = document.getElementById("lastChanceConfirm");
+const lastChanceSummaryEl = document.getElementById("lastChanceSummary");
+const lastChanceQuestionEl = document.getElementById("lastChanceQuestion");
 const linesPreviewOverlayEl = document.getElementById("linesPreviewOverlay");
 const overlayPrevBtn = document.getElementById("overlayPrev");
 const overlayNextBtn = document.getElementById("overlayNext");
@@ -121,6 +128,7 @@ let autoSpinRemaining = 0;
 let spinHoldTimer = 0;
 let suppressSpinClick = false;
 let lastTouchEndAt = 0;
+let pendingLastChanceSpinUSD = 0;
 
 // Session Winnings State
 let sessionWinningsUSD = 0;
@@ -235,12 +243,48 @@ function getTotalBet() {
     return roundUSD(lines * betPerLine * denom);
 }
 
+function shouldOfferLastChanceSpin() {
+    return balance > 0 && balance < getTotalBet();
+}
+
+function getWagerConfig(totalBetOverrideUSD = null) {
+    const linesActive = parseInt(linesEl.value, 10);
+    const denom = getDenominationValue();
+    const totalBetUSD = Number.isFinite(totalBetOverrideUSD) ? roundUSD(totalBetOverrideUSD) : getTotalBet();
+    const betPerLine = linesActive > 0 && denom > 0 ? totalBetUSD / (linesActive * denom) : 0;
+    return { linesActive, denom, totalBetUSD, betPerLine };
+}
+
+function getHighestBetOptionValue() {
+    const betOptions = Array.from(betEl?.options ?? []);
+    if (betOptions.length <= 0) return null;
+    return betOptions.reduce((max, option) =>
+        parseFloat(option.value) > parseFloat(max.value) ? option : max
+    ).value;
+}
+
+function getHighestAffordableBetOptionValue() {
+    const linesActive = parseInt(linesEl.value, 10);
+    const denom = getDenominationValue();
+    const affordableOptions = Array.from(betEl?.options ?? []).filter((option) => {
+        const betPerLine = parseFloat(option.value);
+        const totalBetUSD = roundUSD(linesActive * betPerLine * denom);
+        return balance >= totalBetUSD;
+    });
+
+    if (affordableOptions.length <= 0) return null;
+    return affordableOptions.reduce((max, option) =>
+        parseFloat(option.value) > parseFloat(max.value) ? option : max
+    ).value;
+}
+
 function updateTotals() {
     const totalBet = getTotalBet();
     totalBetEl.textContent = fmtUSD(totalBet);
     balanceEl.textContent = fmtUSD(balance);
-    const canAfford = balance >= totalBet;
-    spinBtn.disabled = autoSpinRunning ? false : (!canAfford || isSpinning);
+    const canSpinNow = balance >= totalBet;
+    const canUseLastChance = balance > 0 && balance < totalBet;
+    spinBtn.disabled = autoSpinRunning ? false : (!(canSpinNow || canUseLastChance) || isSpinning);
     maxBtn.disabled = isSpinning || autoSpinRunning;
 }
 
@@ -332,10 +376,8 @@ function resolveSpinGrid(forceWin) {
 }
 
 // Returns { totalWinUSD, lineWins: [...], winningPositions: Set<string> }
-function evaluateGrid(grid) {
-    const linesActive = parseInt(linesEl.value, 10);
-    const betPerLine = parseFloat(betEl.value);
-    const denom = getDenominationValue();
+function evaluateGrid(grid, wagerConfig = getWagerConfig()) {
+    const { linesActive, betPerLine, denom } = wagerConfig;
 
     let totalWinUSD = 0;
     const lineWins = [];
@@ -347,8 +389,8 @@ function evaluateGrid(grid) {
 
         if (count >= 3 && PAYTABLE[symbol]?.[count]) {
             const multiplier = PAYTABLE[symbol][count];
-            const winUSD = multiplier * betPerLine * denom;
-            totalWinUSD += winUSD;
+            const winUSD = roundUSD(multiplier * betPerLine * denom);
+            totalWinUSD = roundUSD(totalWinUSD + winUSD);
 
             lineWins.push({ lineIndex: li + 1, count, symbol, winUSD });
 
@@ -469,7 +511,81 @@ function togglePreviewOverlay(force) {
     const wantOpen = (typeof force === "boolean") ? force : previewOverlayEl.hidden;
     previewOverlayEl.hidden = !wantOpen;
     payInfoBtn?.setAttribute("aria-expanded", String(wantOpen));
-    document.body.classList.toggle("overlay-open", wantOpen);
+    syncOverlayOpenState();
+}
+
+function syncOverlayOpenState() {
+    const anyOpen =
+        (previewOverlayEl && !previewOverlayEl.hidden) ||
+        (lastChanceOverlayEl && !lastChanceOverlayEl.hidden);
+    document.body.classList.toggle("overlay-open", Boolean(anyOpen));
+}
+
+function closeLastChanceOverlay({ restoreFocus = false } = {}) {
+    pendingLastChanceSpinUSD = 0;
+    if (lastChanceOverlayEl) lastChanceOverlayEl.hidden = true;
+    syncOverlayOpenState();
+    if (restoreFocus) spinBtn?.focus();
+}
+
+function updateLastChanceOverlayContent() {
+    if (!lastChanceSummaryEl || !lastChanceQuestionEl) return;
+    const totalBetUSD = getTotalBet();
+    const remainderUSD = snapBalanceToDenomination(balance);
+    lastChanceSummaryEl.textContent =
+        `You have ${fmtUSD(remainderUSD)} left, but your current bet is ${fmtUSD(totalBetUSD)}.`;
+    lastChanceQuestionEl.textContent =
+        `Do you want to use all remaining credits for one last spin across the current ${parseInt(linesEl.value, 10)} lines?`;
+    if (lastChanceConfirmBtn) {
+        lastChanceConfirmBtn.textContent = `Spin ${fmtUSD(remainderUSD)}`;
+    }
+}
+
+function openLastChanceOverlay() {
+    if (!shouldOfferLastChanceSpin() || !lastChanceOverlayEl || autoSpinRunning || isSpinning) return false;
+    pendingLastChanceSpinUSD = snapBalanceToDenomination(balance);
+    updateLastChanceOverlayContent();
+    lastChanceOverlayEl.hidden = false;
+    syncOverlayOpenState();
+    lastChanceConfirmBtn?.focus();
+    return true;
+}
+
+async function tryLastChanceSpin() {
+    if (!pendingLastChanceSpinUSD || balance < pendingLastChanceSpinUSD) {
+        closeLastChanceOverlay();
+        updateRealtimeCreditMessage();
+        return;
+    }
+    closeLastChanceOverlay();
+    await doSpin({ totalBetOverrideUSD: pendingLastChanceSpinUSD, offerLastChance: false });
+}
+
+async function handleSpinAction() {
+    if (autoSpinRunning) {
+        cancelAutoSpin();
+        return;
+    }
+
+    if (shouldOfferLastChanceSpin()) {
+        openLastChanceOverlay();
+        return;
+    }
+
+    await doSpin({ offerLastChance: true });
+}
+
+function syncLastChanceOverlayState() {
+    if (shouldOfferLastChanceSpin()) {
+        if (lastChanceOverlayEl && !lastChanceOverlayEl.hidden) {
+            pendingLastChanceSpinUSD = snapBalanceToDenomination(balance);
+            updateLastChanceOverlayContent();
+        }
+        return;
+    }
+    if (lastChanceOverlayEl && !lastChanceOverlayEl.hidden) {
+        closeLastChanceOverlay();
+    }
 }
 
 function bindRapidPress(button, action) {
@@ -516,6 +632,11 @@ function bindRapidPress(button, action) {
 
 function handleEsc(e) {
     if (e.key !== "Escape") return;
+
+    if (lastChanceOverlayEl && !lastChanceOverlayEl.hidden) {
+        closeLastChanceOverlay({ restoreFocus: true });
+        return;
+    }
 
     if (previewOverlayEl && !previewOverlayEl.hidden) {
         togglePreviewOverlay(false);
@@ -753,6 +874,7 @@ function adjustBalanceByCredits(creditDelta) {
     balance = snapBalanceToDenomination(balance + (step * denom * creditDelta));
     updateTotals();
     updateRealtimeCreditMessage();
+    syncLastChanceOverlayState();
 }
 
 function updateAutoSpinControls() {
@@ -837,7 +959,8 @@ async function doSpin(options = {}) {
     if (isSpinning) {
         return { completed: false, reason: "busy", totalWinUSD: 0 };
     }
-    const totalBetUSD = getTotalBet();
+    const wagerConfig = getWagerConfig(options.totalBetOverrideUSD);
+    const { totalBetUSD } = wagerConfig;
     if (balance < totalBetUSD) {
         updateRealtimeCreditMessage();
         return { completed: false, reason: "insufficient_credits", totalWinUSD: 0 };
@@ -860,7 +983,7 @@ async function doSpin(options = {}) {
     // Final outcome
     const shouldWin = Math.random() < getTargetSpinWinRate();
     const grid = resolveSpinGrid(shouldWin);
-    const { totalWinUSD, lineWins, winningPositions } = evaluateGrid(grid);
+    const { totalWinUSD, lineWins, winningPositions } = evaluateGrid(grid, wagerConfig);
     const lossComponentUSD = Math.max(totalBetUSD - totalWinUSD, 0);
     renderGrid(grid, winningPositions);
     addSessionLosses(lossComponentUSD);
@@ -891,15 +1014,30 @@ async function doSpin(options = {}) {
 
     isSpinning = false;
     updateTotals();
+    syncLastChanceOverlayState();
 
     updateAllSessionDisplays();
+    if (options.offerLastChance && shouldOfferLastChanceSpin()) {
+        openLastChanceOverlay();
+    }
     return { completed: true, totalWinUSD };
 }
 
 function doMaxBet() {
-    betEl.value = Array.from(betEl.options).reduce((max, o) =>
-        parseFloat(o.value) > parseFloat(max.value) ? o : max
-    ).value;
+    if (maxBetUsesAvailableCreditsEl?.checked) {
+        const affordableBetValue = getHighestAffordableBetOptionValue();
+        if (!affordableBetValue) {
+            updateRealtimeCreditMessage();
+            return;
+        }
+        betEl.value = affordableBetValue;
+        onConfigChange();
+        setMessage(`Max Bet set to ${betEl.value} credits per line for ${linesEl.value} lines based on available credits.`);
+        return;
+    }
+
+    const highestBetValue = getHighestBetOptionValue();
+    if (highestBetValue != null) betEl.value = highestBetValue;
     linesEl.value = "10";
     onConfigChange();
 }
@@ -914,7 +1052,7 @@ function bindSpinHold() {
     };
 
     spinBtn.addEventListener("pointerdown", (e) => {
-        if (e.button !== 0 || isSpinning || autoSpinRunning) return;
+        if (e.button !== 0 || isSpinning || autoSpinRunning || shouldOfferLastChanceSpin()) return;
         suppressSpinClick = false;
         clearHoldTimer();
         spinHoldTimer = setTimeout(() => {
@@ -933,13 +1071,7 @@ function bindSpinHold() {
             suppressSpinClick = false;
             return;
         }
-
-        if (autoSpinRunning) {
-            cancelAutoSpin();
-            return;
-        }
-
-        doSpin();
+        handleSpinAction();
     });
 }
 
@@ -950,6 +1082,7 @@ function onConfigChange() {
     updateGameOddsDisplay();
     updateAutoSpinControls();
     updateRealtimeCreditMessage();
+    syncLastChanceOverlayState();
 }
 
 maxBtn.addEventListener("click", doMaxBet);
@@ -957,6 +1090,7 @@ denomEl.addEventListener("change", onConfigChange);
 linesEl.addEventListener("change", onConfigChange);
 betEl.addEventListener("change", onConfigChange);
 winOddsEl?.addEventListener("change", onConfigChange);
+maxBetUsesAvailableCreditsEl?.addEventListener("change", onConfigChange);
 sessionStatDisplayEl?.addEventListener("change", updateSessionStatsVisibility);
 
 creditUpBtn.onclick = () => adjustBalanceByCredits(1);
@@ -1008,6 +1142,11 @@ payInfoBtn?.addEventListener("click", () => {
 });
 document.addEventListener("keydown", handleEsc);
 previewOverlayCloseBtn?.addEventListener("click", () => togglePreviewOverlay(false));
+lastChanceCloseBtn?.addEventListener("click", () => closeLastChanceOverlay({ restoreFocus: true }));
+lastChanceCancelBtn?.addEventListener("click", () => closeLastChanceOverlay({ restoreFocus: true }));
+lastChanceConfirmBtn?.addEventListener("click", () => {
+    tryLastChanceSpin();
+});
 bindRapidPress(overlayPrevBtn, () => stepOverlayPage(-1));
 bindRapidPress(overlayNextBtn, () => stepOverlayPage(1));
 
@@ -1050,6 +1189,7 @@ document.addEventListener("keydown", (e) => {
     // ARIA defaults
     payInfoBtn?.setAttribute("aria-expanded", "false");
     if (previewOverlayEl) previewOverlayEl.hidden = true;
+    if (lastChanceOverlayEl) lastChanceOverlayEl.hidden = true;
     applyOverlayPage(0);
 
     ensureSessionStatsUI();

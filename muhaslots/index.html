@@ -116,6 +116,13 @@
                                 <option value="0.90">90% Win / 10% Loss</option>
                             </select>
                         </div>
+
+                        <div class="checkbox-setting">
+                            <label class="checkbox-row" for="maxBetUsesAvailableCredits">
+                                <input id="maxBetUsesAvailableCredits" type="checkbox" />
+                                <span>Max Bet uses available credits</span>
+                            </label>
+                        </div>
                     </div>
 
                     <div class="right">
@@ -168,7 +175,7 @@
                     <p class="overlay-note"><strong>Win Odds:</strong> Sets the target chance that a spin resolves as a win. Winning payout amounts still come from the paytable.</p>
                     <p class="overlay-note"><strong>Adjust Credit + ▲/▼:</strong> Sets how much credit to add/remove per click, scaled by denomination.</p>
                     <p class="overlay-note"><strong>Spin:</strong> Plays one round using current settings and deducts the total bet first.</p>
-                    <p class="overlay-note"><strong>Max Bet:</strong> Sets the highest bet per line and all 10 lines, then updates totals.</p>
+                    <p class="overlay-note"><strong>Max Bet:</strong> Sets the highest bet per line and all 10 lines by default. If Max Bet uses available credits is enabled, it keeps your current lines and denomination, then picks the highest bet per line you can afford.</p>
                     <h4>Definition: Bernoulli Trial</h4>
                     <p class="overlay-note">A Bernoulli trial is a random experiment with exactly two possible outcomes: success and failure.</p>
                     <p class="overlay-note">The probability of success, p, stays constant for each independent trial. It models binary events like coin flips, pass/fail tests, purchases, and slot win/loss outcomes.</p>
@@ -224,6 +231,25 @@
                     <h4>Lines Preview</h4>
                     <p class="overlay-note">Highlighted cells represent currently active paylines.</p>
                     <div class="lines-preview lines-preview-overlay" id="linesPreviewOverlay" aria-hidden="true"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="lastChanceOverlay" class="overlay" role="dialog" aria-modal="true"
+        aria-labelledby="lastChanceOverlayTitle" hidden>
+        <div class="overlay-panel overlay-panel-compact">
+            <div class="overlay-head">
+                <h3 id="lastChanceOverlayTitle">Last Chance Spin</h3>
+                <button id="lastChanceClose" type="button" class="overlay-close" aria-label="Close last chance spin popup">Close</button>
+            </div>
+
+            <div class="overlay-section overlay-section-compact">
+                <p id="lastChanceSummary" class="last-chance-summary"></p>
+                <p id="lastChanceQuestion" class="overlay-note"></p>
+                <div class="last-chance-actions">
+                    <button id="lastChanceCancel" type="button">Keep Current Bet</button>
+                    <button id="lastChanceConfirm" type="button">Spin Remaining Credits</button>
                 </div>
             </div>
         </div>
