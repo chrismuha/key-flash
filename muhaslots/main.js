@@ -69,6 +69,7 @@ const betEl = document.getElementById("bet");
 const winOddsEl = document.getElementById("winOdds");
 const maxBetUsesAvailableCreditsEl = document.getElementById("maxBetUsesAvailableCredits");
 const creditStepEl = document.getElementById("creditStep");
+const allowFractionalCreditsEl = document.getElementById("allowFractionalCredits");
 const creditUpBtn = document.getElementById("creditUp");
 const creditDownBtn = document.getElementById("creditDown");
 const spinBtn = document.getElementById("spin");
@@ -177,14 +178,35 @@ function clampBalanceUSD(value) {
     return roundUSD(Math.max(0, value));
 }
 
+function allowsFractionalCreditSteps() {
+    return Boolean(allowFractionalCreditsEl?.checked);
+}
+
+function syncCreditStepFieldMode() {
+    if (!creditStepEl) return;
+    if (allowsFractionalCreditSteps()) {
+        creditStepEl.inputMode = "decimal";
+        creditStepEl.pattern = "^(?:0?\\.\\d{1,2}|[1-9]\\d*(?:\\.\\d{1,2})?)$";
+        return;
+    }
+    creditStepEl.inputMode = "numeric";
+    creditStepEl.pattern = "[1-9][0-9]*";
+}
+
 function isValidCreditStepValue(rawValue) {
-    return /^(?:0?\.\d{1,2}|[1-9]\d*(?:\.\d{1,2})?)$/.test(String(rawValue ?? "").trim());
+    const value = String(rawValue ?? "").trim();
+    if (allowsFractionalCreditSteps()) {
+        return /^(?:0?\.\d{1,2}|[1-9]\d*(?:\.\d{1,2})?)$/.test(value);
+    }
+    return /^[1-9]\d*$/.test(value);
 }
 
 function normalizeCreditStepValue(rawValue) {
     if (!isValidCreditStepValue(rawValue)) return 1;
     const parsed = Number.parseFloat(String(rawValue).trim());
-    return Number.isFinite(parsed) && parsed > 0 ? roundUSD(parsed) : 1;
+    if (!Number.isFinite(parsed) || parsed <= 0) return 1;
+    if (allowsFractionalCreditSteps()) return roundUSD(parsed);
+    return Math.max(1, Math.round(parsed));
 }
 
 function formatCreditStepValue(value) {
@@ -193,11 +215,7 @@ function formatCreditStepValue(value) {
 }
 
 function getAvailableCreditsBetUSD() {
-    const linesActive = parseInt(linesEl.value, 10);
-    const denom = getDenominationValue();
-    const totalBetStepUSD = roundUSD(linesActive * denom);
-    if (!Number.isFinite(totalBetStepUSD) || totalBetStepUSD <= 0) return 0;
-    return roundUSD(Math.floor(balance / totalBetStepUSD) * totalBetStepUSD);
+    return clampBalanceUSD(balance);
 }
 
 function getNextInputValue(input, insertedText) {
@@ -207,13 +225,16 @@ function getNextInputValue(input, insertedText) {
 }
 
 function syncCreditStepInput(rawValue) {
+    syncCreditStepFieldMode();
     if (isValidCreditStepValue(rawValue)) {
         const normalized = formatCreditStepValue(rawValue);
         creditStepEl.value = normalized;
         creditStepEl.dataset.lastValidValue = normalized;
         return;
     }
-    creditStepEl.value = creditStepEl.dataset.lastValidValue || "1";
+    const fallbackValue = formatCreditStepValue(creditStepEl.dataset.lastValidValue || "1");
+    creditStepEl.value = fallbackValue;
+    creditStepEl.dataset.lastValidValue = fallbackValue;
 }
 
 function getTargetSpinWinRate() {
@@ -1127,10 +1148,14 @@ betEl.addEventListener("change", onConfigChange);
 winOddsEl?.addEventListener("change", onConfigChange);
 maxBetUsesAvailableCreditsEl?.addEventListener("change", onConfigChange);
 sessionStatDisplayEl?.addEventListener("change", updateSessionStatsVisibility);
+allowFractionalCreditsEl?.addEventListener("change", () => {
+    syncCreditStepInput(creditStepEl.value);
+});
 
 bindRapidPress(creditUpBtn, () => adjustBalanceByCredits(1), { immediate: true });
 bindRapidPress(creditDownBtn, () => adjustBalanceByCredits(-1), { immediate: true });
 
+syncCreditStepFieldMode();
 creditStepEl.dataset.lastValidValue = formatCreditStepValue(creditStepEl.value);
 
 creditStepEl.addEventListener("beforeinput", (e) => {
