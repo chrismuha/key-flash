@@ -173,20 +173,31 @@ function roundUSD(value) {
     return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 }
 
-function snapBalanceToDenomination(value) {
-    const denom = getDenominationValue();
-    const steps = Math.round(roundUSD(value) / denom);
-    return roundUSD(Math.max(0, steps * denom));
+function clampBalanceUSD(value) {
+    return roundUSD(Math.max(0, value));
 }
 
 function isValidCreditStepValue(rawValue) {
-    return /^[1-9]\d*$/.test(String(rawValue ?? "").trim());
+    return /^(?:0?\.\d{1,2}|[1-9]\d*(?:\.\d{1,2})?)$/.test(String(rawValue ?? "").trim());
 }
 
 function normalizeCreditStepValue(rawValue) {
     if (!isValidCreditStepValue(rawValue)) return 1;
-    const parsed = Number.parseInt(String(rawValue).trim(), 10);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+    const parsed = Number.parseFloat(String(rawValue).trim());
+    return Number.isFinite(parsed) && parsed > 0 ? roundUSD(parsed) : 1;
+}
+
+function formatCreditStepValue(value) {
+    const normalized = normalizeCreditStepValue(value);
+    return normalized.toFixed(2).replace(/\.?0+$/, "");
+}
+
+function getAvailableCreditsBetUSD() {
+    const linesActive = parseInt(linesEl.value, 10);
+    const denom = getDenominationValue();
+    const totalBetStepUSD = roundUSD(linesActive * denom);
+    if (!Number.isFinite(totalBetStepUSD) || totalBetStepUSD <= 0) return 0;
+    return roundUSD(Math.floor(balance / totalBetStepUSD) * totalBetStepUSD);
 }
 
 function getNextInputValue(input, insertedText) {
@@ -197,7 +208,7 @@ function getNextInputValue(input, insertedText) {
 
 function syncCreditStepInput(rawValue) {
     if (isValidCreditStepValue(rawValue)) {
-        const normalized = String(normalizeCreditStepValue(rawValue));
+        const normalized = formatCreditStepValue(rawValue);
         creditStepEl.value = normalized;
         creditStepEl.dataset.lastValidValue = normalized;
         return;
@@ -244,12 +255,15 @@ function getTotalBet() {
     return roundUSD(lines * betPerLine * denom);
 }
 
-function getAvailableCreditsBetUSD() {
-    return snapBalanceToDenomination(balance);
+function getActiveTotalBetUSD(totalBetOverrideUSD = totalBetDisplayOverrideUSD) {
+    return Number.isFinite(totalBetOverrideUSD)
+        ? roundUSD(totalBetOverrideUSD)
+        : getTotalBet();
 }
 
-function shouldOfferLastChanceSpin() {
-    return balance > 0 && balance < getTotalBet();
+function shouldOfferLastChanceSpin(totalBetOverrideUSD = totalBetDisplayOverrideUSD) {
+    const totalBetUSD = getActiveTotalBetUSD(totalBetOverrideUSD);
+    return balance > 0 && balance < totalBetUSD;
 }
 
 function getWagerConfig(totalBetOverrideUSD = null) {
@@ -269,9 +283,7 @@ function getHighestBetOptionValue() {
 }
 
 function updateTotals() {
-    const totalBet = Number.isFinite(totalBetDisplayOverrideUSD)
-        ? roundUSD(totalBetDisplayOverrideUSD)
-        : getTotalBet();
+    const totalBet = getActiveTotalBetUSD();
     totalBetEl.textContent = fmtUSD(totalBet);
     balanceEl.textContent = fmtUSD(balance);
     const canSpinNow = balance >= totalBet;
@@ -288,8 +300,8 @@ function setMessage(msg) {
     messageEl.textContent = msg;
 }
 
-function getCreditStatusMessage() {
-    const totalBetUSD = getTotalBet();
+function getCreditStatusMessage(totalBetOverrideUSD = totalBetDisplayOverrideUSD) {
+    const totalBetUSD = getActiveTotalBetUSD(totalBetOverrideUSD);
     if (balance <= 0) return "Out of credits. Add credits to continue.";
     if (balance < totalBetUSD) return "Insufficient credits for this bet. Lower bet/lines or add credits.";
     return "";
@@ -522,8 +534,8 @@ function closeLastChanceOverlay({ restoreFocus = false } = {}) {
 
 function updateLastChanceOverlayContent() {
     if (!lastChanceSummaryEl || !lastChanceQuestionEl) return;
-    const totalBetUSD = getTotalBet();
-    const remainderUSD = snapBalanceToDenomination(balance);
+    const totalBetUSD = getActiveTotalBetUSD();
+    const remainderUSD = clampBalanceUSD(balance);
     const requiredCreditUSD = roundUSD(Math.max(totalBetUSD - remainderUSD, 0));
     lastChanceSummaryEl.textContent =
         `You have ${fmtUSD(remainderUSD)} left, and your current bet needs ${fmtUSD(totalBetUSD)}.`;
@@ -536,7 +548,7 @@ function updateLastChanceOverlayContent() {
 
 function openLastChanceOverlay() {
     if (!shouldOfferLastChanceSpin() || !lastChanceOverlayEl || autoSpinRunning || isSpinning) return false;
-    pendingLastChanceSpinUSD = getTotalBet();
+    pendingLastChanceSpinUSD = getActiveTotalBetUSD();
     updateLastChanceOverlayContent();
     lastChanceOverlayEl.hidden = false;
     syncOverlayOpenState();
@@ -553,24 +565,28 @@ async function tryLastChanceSpin() {
     const totalBetUSD = roundUSD(pendingLastChanceSpinUSD);
     const requiredCreditUSD = roundUSD(Math.max(totalBetUSD - balance, 0));
     if (requiredCreditUSD > 0) {
-        balance = snapBalanceToDenomination(balance + requiredCreditUSD);
+        balance = clampBalanceUSD(balance + requiredCreditUSD);
     }
     closeLastChanceOverlay();
     await doSpin({ totalBetOverrideUSD: totalBetUSD, offerLastChance: false });
 }
 
 async function handleSpinAction() {
+    const totalBetOverrideUSD = Number.isFinite(totalBetDisplayOverrideUSD)
+        ? roundUSD(totalBetDisplayOverrideUSD)
+        : null;
+
     if (autoSpinRunning) {
         cancelAutoSpin();
         return;
     }
 
-    if (shouldOfferLastChanceSpin()) {
+    if (shouldOfferLastChanceSpin(totalBetOverrideUSD)) {
         openLastChanceOverlay();
         return;
     }
 
-    await doSpin({ offerLastChance: true });
+    await doSpin({ offerLastChance: true, totalBetOverrideUSD });
 }
 
 function syncLastChanceOverlayState() {
@@ -878,9 +894,9 @@ function updateAllSessionDisplays() {
 
 function adjustBalanceByCredits(creditDelta) {
     const step = normalizeCreditStepValue(creditStepEl.value);
-    creditStepEl.value = String(step);
+    creditStepEl.value = formatCreditStepValue(step);
     const denom = getDenominationValue();
-    balance = snapBalanceToDenomination(balance + (step * denom * creditDelta));
+    balance = clampBalanceUSD(balance + roundUSD(step * denom * creditDelta));
     updateTotals();
     updateRealtimeCreditMessage();
     syncLastChanceOverlayState();
@@ -982,7 +998,7 @@ async function doSpin(options = {}) {
     clearMessage();
 
     // Deduct bet up front
-    balance = snapBalanceToDenomination(balance - totalBetUSD);
+        balance = clampBalanceUSD(balance - totalBetUSD);
     updateTotals();
 
     const instantSpin = Boolean(options.instant);
@@ -1004,7 +1020,7 @@ async function doSpin(options = {}) {
 
     // Payout
     if (totalWinUSD > 0) {
-        balance = snapBalanceToDenomination(balance + totalWinUSD);
+        balance = clampBalanceUSD(balance + totalWinUSD);
         addSessionWinnings(totalWinUSD);
         addNetSessionWinnings(totalWinUSD);
         subtractNetSessionLosses(totalWinUSD);
@@ -1016,7 +1032,7 @@ async function doSpin(options = {}) {
         setMessage(`WIN ${fmtUSD(totalWinUSD)} — ${linesText}`);
     } else {
         let creditHint = "";
-        const status = getCreditStatusMessage();
+        const status = getCreditStatusMessage(options.totalBetOverrideUSD);
         if (status) creditHint = ` ${status}`;
         if (!options.silentNoWin) {
             setMessage(`No win — try again!${creditHint}`);
@@ -1029,7 +1045,7 @@ async function doSpin(options = {}) {
     syncLastChanceOverlayState();
 
     updateAllSessionDisplays();
-    if (options.offerLastChance && shouldOfferLastChanceSpin()) {
+    if (options.offerLastChance && !Number.isFinite(options.totalBetOverrideUSD) && shouldOfferLastChanceSpin()) {
         openLastChanceOverlay();
     }
     return { completed: true, totalWinUSD };
@@ -1046,7 +1062,10 @@ async function doMaxBet() {
         }
         totalBetDisplayOverrideUSD = availableCreditsBetUSD;
         updateTotals();
-        await doSpin({ totalBetOverrideUSD: availableCreditsBetUSD, offerLastChance: false });
+        if (lastChanceOverlayEl && !lastChanceOverlayEl.hidden) {
+            closeLastChanceOverlay();
+        }
+        updateRealtimeCreditMessage();
         return;
     }
 
@@ -1112,7 +1131,7 @@ sessionStatDisplayEl?.addEventListener("change", updateSessionStatsVisibility);
 bindRapidPress(creditUpBtn, () => adjustBalanceByCredits(1), { immediate: true });
 bindRapidPress(creditDownBtn, () => adjustBalanceByCredits(-1), { immediate: true });
 
-creditStepEl.dataset.lastValidValue = String(normalizeCreditStepValue(creditStepEl.value));
+creditStepEl.dataset.lastValidValue = formatCreditStepValue(creditStepEl.value);
 
 creditStepEl.addEventListener("beforeinput", (e) => {
     if (e.inputType.startsWith("delete")) return;
@@ -1147,7 +1166,7 @@ creditStepEl.addEventListener("keydown", (e) => {
     }
     if (e.key === "Enter") {
         e.preventDefault();
-        creditStepEl.value = String(normalizeCreditStepValue(creditStepEl.value));
+        creditStepEl.value = formatCreditStepValue(creditStepEl.value);
         creditUpBtn.click();
     }
 });
@@ -1209,7 +1228,7 @@ document.addEventListener("keydown", (e) => {
     applyOverlayPage(0);
 
     ensureSessionStatsUI();
-    creditStepEl.value = String(normalizeCreditStepValue(creditStepEl.value));
+    creditStepEl.value = formatCreditStepValue(creditStepEl.value);
     updateAllSessionDisplays();
     updateSessionStatsVisibility();
     updateRealtimeCreditMessage();

@@ -28,7 +28,7 @@
                         <div class="credit-controls">
                             <label for="creditStep" class="muted">Adjust Credit:</label>
                             <div class="credit-row">
-                                <input id="creditStep" type="text" value="1" inputmode="numeric" pattern="[1-9][0-9]*"
+                                <input id="creditStep" type="text" value="1" inputmode="decimal" pattern="^(?:0?\.\d{1,2}|[1-9]\d*(?:\.\d{1,2})?)$"
                                     autocomplete="off" aria-label="Credit increment amount" />
                                 <button id="creditUp" class="icon-btn" title="Increase credit (Arrow Up)" type="button"
                                     aria-label="Increase credit">▲</button>
