@@ -243,6 +243,10 @@ function getTotalBet() {
     return roundUSD(lines * betPerLine * denom);
 }
 
+function getAvailableCreditsBetUSD() {
+    return snapBalanceToDenomination(balance);
+}
+
 function shouldOfferLastChanceSpin() {
     return balance > 0 && balance < getTotalBet();
 }
@@ -259,21 +263,6 @@ function getHighestBetOptionValue() {
     const betOptions = Array.from(betEl?.options ?? []);
     if (betOptions.length <= 0) return null;
     return betOptions.reduce((max, option) =>
-        parseFloat(option.value) > parseFloat(max.value) ? option : max
-    ).value;
-}
-
-function getHighestAffordableBetOptionValue() {
-    const linesActive = parseInt(linesEl.value, 10);
-    const denom = getDenominationValue();
-    const affordableOptions = Array.from(betEl?.options ?? []).filter((option) => {
-        const betPerLine = parseFloat(option.value);
-        const totalBetUSD = roundUSD(linesActive * betPerLine * denom);
-        return balance >= totalBetUSD;
-    });
-
-    if (affordableOptions.length <= 0) return null;
-    return affordableOptions.reduce((max, option) =>
         parseFloat(option.value) > parseFloat(max.value) ? option : max
     ).value;
 }
@@ -532,18 +521,19 @@ function updateLastChanceOverlayContent() {
     if (!lastChanceSummaryEl || !lastChanceQuestionEl) return;
     const totalBetUSD = getTotalBet();
     const remainderUSD = snapBalanceToDenomination(balance);
+    const requiredCreditUSD = roundUSD(Math.max(totalBetUSD - remainderUSD, 0));
     lastChanceSummaryEl.textContent =
-        `You have ${fmtUSD(remainderUSD)} left, but your current bet is ${fmtUSD(totalBetUSD)}.`;
+        `You have ${fmtUSD(remainderUSD)} left, and your current bet needs ${fmtUSD(totalBetUSD)}.`;
     lastChanceQuestionEl.textContent =
-        `Do you want to use all remaining credits for one last spin across the current ${parseInt(linesEl.value, 10)} lines?`;
+        `Add ${fmtUSD(requiredCreditUSD)} so you can make one last spin at your current wager across ${parseInt(linesEl.value, 10)} lines?`;
     if (lastChanceConfirmBtn) {
-        lastChanceConfirmBtn.textContent = `Spin ${fmtUSD(remainderUSD)}`;
+        lastChanceConfirmBtn.textContent = `Add ${fmtUSD(requiredCreditUSD)} and Spin`;
     }
 }
 
 function openLastChanceOverlay() {
     if (!shouldOfferLastChanceSpin() || !lastChanceOverlayEl || autoSpinRunning || isSpinning) return false;
-    pendingLastChanceSpinUSD = snapBalanceToDenomination(balance);
+    pendingLastChanceSpinUSD = getTotalBet();
     updateLastChanceOverlayContent();
     lastChanceOverlayEl.hidden = false;
     syncOverlayOpenState();
@@ -552,13 +542,18 @@ function openLastChanceOverlay() {
 }
 
 async function tryLastChanceSpin() {
-    if (!pendingLastChanceSpinUSD || balance < pendingLastChanceSpinUSD) {
+    if (!pendingLastChanceSpinUSD) {
         closeLastChanceOverlay();
         updateRealtimeCreditMessage();
         return;
     }
+    const totalBetUSD = roundUSD(pendingLastChanceSpinUSD);
+    const requiredCreditUSD = roundUSD(Math.max(totalBetUSD - balance, 0));
+    if (requiredCreditUSD > 0) {
+        balance = snapBalanceToDenomination(balance + requiredCreditUSD);
+    }
     closeLastChanceOverlay();
-    await doSpin({ totalBetOverrideUSD: pendingLastChanceSpinUSD, offerLastChance: false });
+    await doSpin({ totalBetOverrideUSD: totalBetUSD, offerLastChance: false });
 }
 
 async function handleSpinAction() {
@@ -578,7 +573,7 @@ async function handleSpinAction() {
 function syncLastChanceOverlayState() {
     if (shouldOfferLastChanceSpin()) {
         if (lastChanceOverlayEl && !lastChanceOverlayEl.hidden) {
-            pendingLastChanceSpinUSD = snapBalanceToDenomination(balance);
+            pendingLastChanceSpinUSD = getTotalBet();
             updateLastChanceOverlayContent();
         }
         return;
@@ -1023,16 +1018,14 @@ async function doSpin(options = {}) {
     return { completed: true, totalWinUSD };
 }
 
-function doMaxBet() {
+async function doMaxBet() {
     if (maxBetUsesAvailableCreditsEl?.checked) {
-        const affordableBetValue = getHighestAffordableBetOptionValue();
-        if (!affordableBetValue) {
+        const availableCreditsBetUSD = getAvailableCreditsBetUSD();
+        if (!availableCreditsBetUSD) {
             updateRealtimeCreditMessage();
             return;
         }
-        betEl.value = affordableBetValue;
-        onConfigChange();
-        setMessage(`Max Bet set to ${betEl.value} credits per line for ${linesEl.value} lines based on available credits.`);
+        await doSpin({ totalBetOverrideUSD: availableCreditsBetUSD, offerLastChance: false });
         return;
     }
 

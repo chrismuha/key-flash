@@ -175,7 +175,7 @@
                     <p class="overlay-note"><strong>Win Odds:</strong> Sets the target chance that a spin resolves as a win. Winning payout amounts still come from the paytable.</p>
                     <p class="overlay-note"><strong>Adjust Credit + ▲/▼:</strong> Sets how much credit to add/remove per click, scaled by denomination.</p>
                     <p class="overlay-note"><strong>Spin:</strong> Plays one round using current settings and deducts the total bet first.</p>
-                    <p class="overlay-note"><strong>Max Bet:</strong> Sets the highest bet per line and all 10 lines by default. If Max Bet uses available credits is enabled, it keeps your current lines and denomination, then picks the highest bet per line you can afford.</p>
+                    <p class="overlay-note"><strong>Max Bet:</strong> Sets the highest bet per line and all 10 lines by default. If Max Bet uses available credits is enabled, it keeps your current lines and denomination, ignores the Bet Per Line dropdown, and spins all available credits as one custom wager.</p>
                     <h4>Definition: Bernoulli Trial</h4>
                     <p class="overlay-note">A Bernoulli trial is a random experiment with exactly two possible outcomes: success and failure.</p>
                     <p class="overlay-note">The probability of success, p, stays constant for each independent trial. It models binary events like coin flips, pass/fail tests, purchases, and slot win/loss outcomes.</p>
@@ -249,7 +249,7 @@
                 <p id="lastChanceQuestion" class="overlay-note"></p>
                 <div class="last-chance-actions">
                     <button id="lastChanceCancel" type="button">Keep Current Bet</button>
-                    <button id="lastChanceConfirm" type="button">Spin Remaining Credits</button>
+                    <button id="lastChanceConfirm" type="button">Add Credits and Spin</button>
                 </div>
             </div>
         </div>
