@@ -233,6 +233,23 @@ function getNextInputValue(input, insertedText) {
     return `${input.value.slice(0, start)}${insertedText}${input.value.slice(end)}`;
 }
 
+function cleanupCreditStepWhileTyping(rawValue) {
+    const value = String(rawValue ?? "");
+    if (!value) return value;
+
+    if (allowsFractionalCreditSteps()) {
+        if (/^0+\d/.test(value)) {
+            return value.replace(/^0+/, "");
+        }
+        return value;
+    }
+
+    if (/^0+\d/.test(value)) {
+        return value.replace(/^0+/, "");
+    }
+    return value;
+}
+
 function syncCreditStepInput(rawValue) {
     syncCreditStepFieldMode();
     if (isValidCreditStepValue(rawValue)) {
@@ -1180,6 +1197,10 @@ creditStepEl.addEventListener("beforeinput", (e) => {
 });
 
 creditStepEl.addEventListener("input", () => {
+    const cleanedValue = cleanupCreditStepWhileTyping(creditStepEl.value);
+    if (cleanedValue !== creditStepEl.value) {
+        creditStepEl.value = cleanedValue;
+    }
     if (isPotentialCreditStepValue(creditStepEl.value)) return;
     syncCreditStepInput(creditStepEl.value);
 });
