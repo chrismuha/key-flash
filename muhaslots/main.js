@@ -70,10 +70,12 @@ const winOddsEl = document.getElementById("winOdds");
 const maxBetUsesAvailableCreditsEl = document.getElementById("maxBetUsesAvailableCredits");
 const creditStepEl = document.getElementById("creditStep");
 const allowFractionalCreditsEl = document.getElementById("allowFractionalCredits");
+const creditStepEffectEl = document.getElementById("creditStepEffect");
 const creditUpBtn = document.getElementById("creditUp");
 const creditDownBtn = document.getElementById("creditDown");
 const spinBtn = document.getElementById("spin");
 const maxBtn = document.getElementById("max");
+const resetSessionBtn = document.getElementById("resetSession");
 const autoSpinHintEl = document.getElementById("autoSpinHint");
 const payInfoBtn = document.getElementById("payInfo");
 const previewOverlayEl = document.getElementById("previewOverlay");
@@ -120,7 +122,8 @@ const SESSION_VISIBILITY_BY_MODE = {
 
 
 // State
-let balance = 100.0;
+const INITIAL_CREDITS_USD = 100.0;
+let balance = INITIAL_CREDITS_USD;
 let isSpinning = false;
 let overlayPageIndex = 0;
 let autoSpinRunning = false;
@@ -223,6 +226,13 @@ function formatCreditStepValue(value) {
     return normalized.toFixed(2).replace(/\.?0+$/, "");
 }
 
+function updateCreditStepEffect() {
+    if (!creditStepEffectEl || !creditStepEl) return;
+    const creditStep = normalizeCreditStepValue(creditStepEl.value);
+    const dollarAmount = roundUSD(creditStep * getDenominationValue());
+    creditStepEffectEl.textContent = `Each arrow press: ${formatCreditStepValue(creditStep)} credit${creditStep === 1 ? "" : "s"} = ${fmtUSD(dollarAmount)}`;
+}
+
 function getAvailableCreditsBetUSD() {
     return clampBalanceUSD(balance);
 }
@@ -256,11 +266,13 @@ function syncCreditStepInput(rawValue) {
         const normalized = formatCreditStepValue(rawValue);
         creditStepEl.value = normalized;
         creditStepEl.dataset.lastValidValue = normalized;
+        updateCreditStepEffect();
         return;
     }
     const fallbackValue = formatCreditStepValue(creditStepEl.dataset.lastValidValue || "1");
     creditStepEl.value = fallbackValue;
     creditStepEl.dataset.lastValidValue = fallbackValue;
+    updateCreditStepEffect();
 }
 
 function getTargetSpinWinRate() {
@@ -337,6 +349,7 @@ function updateTotals() {
     const canUseLastChance = balance > 0 && balance < totalBet;
     spinBtn.disabled = autoSpinRunning ? false : (!(canSpinNow || canUseLastChance) || isSpinning);
     maxBtn.disabled = isSpinning || autoSpinRunning;
+    if (resetSessionBtn) resetSessionBtn.disabled = isSpinning || autoSpinRunning;
 }
 
 function clearMessage() {
@@ -939,6 +952,31 @@ function updateAllSessionDisplays() {
     updateActualSessionLossesDisplay();
 }
 
+function resetSessionState() {
+    if (isSpinning || autoSpinRunning) return;
+
+    balance = INITIAL_CREDITS_USD;
+    totalBetDisplayOverrideUSD = null;
+    pendingLastChanceSpinUSD = 0;
+    sessionWinningsUSD = 0;
+    sessionLossesUSD = 0;
+    netSessionWinningsUSD = 0;
+    netSessionLossesUSD = 0;
+    actualSessionNetUSD = 0;
+
+    if (lastChanceOverlayEl && !lastChanceOverlayEl.hidden) {
+        closeLastChanceOverlay();
+    }
+
+    updateTotals();
+    updateAllSessionDisplays();
+    updateRealtimeCreditMessage();
+    updateAutoSpinControls();
+    updateAutoSpinHint();
+    syncLastChanceOverlayState();
+    setMessage("Session reset.");
+}
+
 function adjustBalanceByCredits(creditDelta) {
     const step = normalizeCreditStepValue(creditStepEl.value);
     creditStepEl.value = formatCreditStepValue(step);
@@ -1163,6 +1201,7 @@ function onConfigChange() {
     renderLinesPreview();
     updateGameOddsDisplay();
     updateAutoSpinControls();
+    updateCreditStepEffect();
     updateRealtimeCreditMessage();
     syncLastChanceOverlayState();
 }
@@ -1177,12 +1216,14 @@ sessionStatDisplayEl?.addEventListener("change", updateSessionStatsVisibility);
 allowFractionalCreditsEl?.addEventListener("change", () => {
     syncCreditStepInput(creditStepEl.value);
 });
+resetSessionBtn?.addEventListener("click", resetSessionState);
 
 bindRapidPress(creditUpBtn, () => adjustBalanceByCredits(1), { immediate: true });
 bindRapidPress(creditDownBtn, () => adjustBalanceByCredits(-1), { immediate: true });
 
 syncCreditStepFieldMode();
 creditStepEl.dataset.lastValidValue = formatCreditStepValue(creditStepEl.value);
+updateCreditStepEffect();
 
 creditStepEl.addEventListener("beforeinput", (e) => {
     if (e.inputType.startsWith("delete")) return;

@@ -39,6 +39,7 @@
                                 <input id="allowFractionalCredits" type="checkbox" />
                                 <span>Allow fractional credit increments</span>
                             </label>
+                            <p id="creditStepEffect" class="overlay-note" aria-live="polite"></p>
                         </div>
 
                         <div class="stat">
@@ -126,12 +127,14 @@
                                 <input id="maxBetUsesAvailableCredits" type="checkbox" />
                                 <span>Max Bet uses available credits</span>
                             </label>
+                            <p class="overlay-note">Uses your full current credits as the wager and may create cent-based bets.</p>
                         </div>
                     </div>
 
                     <div class="right">
                         <button id="spin" type="button">Spin</button>
                         <button id="max" type="button">Max Bet</button>
+                        <button id="resetSession" type="button">Reset Session</button>
                         <p id="autoSpinHint" class="auto-spin-hint" aria-live="polite">Hold Spin to start auto spin. Tap Cancel to stop.</p>
                         <div id="message" class="message" role="status" aria-live="polite"></div>
                     </div>
