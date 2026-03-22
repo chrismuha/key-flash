@@ -129,6 +129,7 @@ let spinHoldTimer = 0;
 let suppressSpinClick = false;
 let lastTouchEndAt = 0;
 let pendingLastChanceSpinUSD = 0;
+let totalBetDisplayOverrideUSD = null;
 
 // Session Winnings State
 let sessionWinningsUSD = 0;
@@ -268,7 +269,9 @@ function getHighestBetOptionValue() {
 }
 
 function updateTotals() {
-    const totalBet = getTotalBet();
+    const totalBet = Number.isFinite(totalBetDisplayOverrideUSD)
+        ? roundUSD(totalBetDisplayOverrideUSD)
+        : getTotalBet();
     totalBetEl.textContent = fmtUSD(totalBet);
     balanceEl.textContent = fmtUSD(balance);
     const canSpinNow = balance >= totalBet;
@@ -583,12 +586,14 @@ function syncLastChanceOverlayState() {
     }
 }
 
-function bindRapidPress(button, action) {
+function bindRapidPress(button, action, options = {}) {
     if (!button || typeof action !== "function") return;
 
+    const { immediate = false, repeatDelayMs = 220, repeatIntervalMs = 85 } = options;
     let holdTimer = 0;
     let repeatTimer = 0;
     let didRepeat = false;
+    let handledOnPointerDown = false;
 
     const clearRepeat = () => {
         if (holdTimer) {
@@ -604,12 +609,17 @@ function bindRapidPress(button, action) {
     button.addEventListener("pointerdown", (e) => {
         if (e.button !== 0) return;
         didRepeat = false;
+        handledOnPointerDown = false;
         clearRepeat();
+        if (immediate) {
+            action();
+            handledOnPointerDown = true;
+        }
         holdTimer = setTimeout(() => {
             didRepeat = true;
             action();
-            repeatTimer = setInterval(action, 85);
-        }, 220);
+            repeatTimer = setInterval(action, repeatIntervalMs);
+        }, repeatDelayMs);
     });
 
     ["pointerup", "pointercancel", "pointerleave"].forEach((evt) => {
@@ -619,6 +629,10 @@ function bindRapidPress(button, action) {
     button.addEventListener("click", () => {
         if (didRepeat) {
             didRepeat = false;
+            return;
+        }
+        if (handledOnPointerDown) {
+            handledOnPointerDown = false;
             return;
         }
         action();
@@ -957,11 +971,13 @@ async function doSpin(options = {}) {
     const wagerConfig = getWagerConfig(options.totalBetOverrideUSD);
     const { totalBetUSD } = wagerConfig;
     if (balance < totalBetUSD) {
+        totalBetDisplayOverrideUSD = null;
         updateRealtimeCreditMessage();
         return { completed: false, reason: "insufficient_credits", totalWinUSD: 0 };
     }
 
     isSpinning = true;
+    totalBetDisplayOverrideUSD = Number.isFinite(options.totalBetOverrideUSD) ? totalBetUSD : null;
     updateTotals();
     clearMessage();
 
@@ -1008,6 +1024,7 @@ async function doSpin(options = {}) {
     }
 
     isSpinning = false;
+    totalBetDisplayOverrideUSD = null;
     updateTotals();
     syncLastChanceOverlayState();
 
@@ -1022,13 +1039,18 @@ async function doMaxBet() {
     if (maxBetUsesAvailableCreditsEl?.checked) {
         const availableCreditsBetUSD = getAvailableCreditsBetUSD();
         if (!availableCreditsBetUSD) {
+            totalBetDisplayOverrideUSD = null;
+            updateTotals();
             updateRealtimeCreditMessage();
             return;
         }
+        totalBetDisplayOverrideUSD = availableCreditsBetUSD;
+        updateTotals();
         await doSpin({ totalBetOverrideUSD: availableCreditsBetUSD, offerLastChance: false });
         return;
     }
 
+    totalBetDisplayOverrideUSD = null;
     const highestBetValue = getHighestBetOptionValue();
     if (highestBetValue != null) betEl.value = highestBetValue;
     linesEl.value = "10";
@@ -1070,6 +1092,7 @@ function bindSpinHold() {
 
 // Events
 function onConfigChange() {
+    totalBetDisplayOverrideUSD = null;
     updateTotals();
     renderLinesPreview();
     updateGameOddsDisplay();
@@ -1086,8 +1109,8 @@ winOddsEl?.addEventListener("change", onConfigChange);
 maxBetUsesAvailableCreditsEl?.addEventListener("change", onConfigChange);
 sessionStatDisplayEl?.addEventListener("change", updateSessionStatsVisibility);
 
-creditUpBtn.onclick = () => adjustBalanceByCredits(1);
-creditDownBtn.onclick = () => adjustBalanceByCredits(-1);
+bindRapidPress(creditUpBtn, () => adjustBalanceByCredits(1), { immediate: true });
+bindRapidPress(creditDownBtn, () => adjustBalanceByCredits(-1), { immediate: true });
 
 creditStepEl.dataset.lastValidValue = String(normalizeCreditStepValue(creditStepEl.value));
 
