@@ -201,6 +201,15 @@ function isValidCreditStepValue(rawValue) {
     return /^[1-9]\d*$/.test(value);
 }
 
+function isPotentialCreditStepValue(rawValue) {
+    const value = String(rawValue ?? "").trim();
+    if (value === "") return true;
+    if (allowsFractionalCreditSteps()) {
+        return /^(?:\d+)?(?:\.\d{0,2})?$/.test(value);
+    }
+    return /^\d*$/.test(value);
+}
+
 function normalizeCreditStepValue(rawValue) {
     if (!isValidCreditStepValue(rawValue)) return 1;
     const parsed = Number.parseFloat(String(rawValue).trim());
@@ -1160,17 +1169,18 @@ creditStepEl.dataset.lastValidValue = formatCreditStepValue(creditStepEl.value);
 
 creditStepEl.addEventListener("beforeinput", (e) => {
     if (e.inputType.startsWith("delete")) return;
-    if (e.inputType === "insertFromPaste" && !isValidCreditStepValue(getNextInputValue(creditStepEl, e.data ?? ""))) {
+    if (e.inputType === "insertFromPaste" && !isPotentialCreditStepValue(getNextInputValue(creditStepEl, e.data ?? ""))) {
         e.preventDefault();
         return;
     }
     if (e.data == null) return;
-    if (!isValidCreditStepValue(getNextInputValue(creditStepEl, e.data))) {
+    if (!isPotentialCreditStepValue(getNextInputValue(creditStepEl, e.data))) {
         e.preventDefault();
     }
 });
 
 creditStepEl.addEventListener("input", () => {
+    if (isPotentialCreditStepValue(creditStepEl.value)) return;
     syncCreditStepInput(creditStepEl.value);
 });
 
