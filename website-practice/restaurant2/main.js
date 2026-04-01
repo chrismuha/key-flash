@@ -596,7 +596,7 @@
       }
       card.innerHTML = `
         <div class="preset-card-top">
-          <div class="preset-card-title">${String(preset.name || 'Preset')}</div>
+          <div class="preset-card-title">${titleCase(String(preset.name || 'Preset'))}</div>
           <div class="preset-card-price">${String(preset.price || '$0')}</div>
         </div>
         <div class="preset-card-text">${String(preset.description || (Array.isArray(preset.ingredients) ? preset.ingredients.join(', ') : ''))}</div>
@@ -2783,6 +2783,19 @@
       const cards = document.querySelectorAll('.order-card');
       const deliveryCloseBtn = document.querySelector('.delivery-close-button');
       const clearCardSelection = () => cards.forEach((c) => c.classList.remove('selected'));
+      const restoreActiveOrderTypeSelection = () => {
+        const activeType = getOrderType();
+        if (!activeType) {
+          clearCardSelection();
+          return;
+        }
+        const activeCard = Array.from(cards).find((card) => (card.dataset.type || '') === activeType);
+        if (activeCard) {
+          setActive(activeCard);
+        } else {
+          clearCardSelection();
+        }
+      };
       const proceedToPage2 = () => {
         window.location.href = 'page2.html';
       };
@@ -2827,9 +2840,6 @@
             c.classList.add('selected');
           } else {
             c.classList.remove('selected');
-            // Hard reset any transient inline styles just in case
-            c.style.background = '';
-            c.style.boxShadow = '';
           }
         });
       };
@@ -2852,6 +2862,12 @@
             handleOrderTypeProceed();
           }
         });
+      });
+
+      restoreActiveOrderTypeSelection();
+
+      window.addEventListener('pageshow', () => {
+        restoreActiveOrderTypeSelection();
       });
 
       function setOrderType(type) {
@@ -3216,7 +3232,7 @@
         const header = overlay.querySelector('.overlay-header');
         if (!header) return;
         if (header.parentElement && header.parentElement.contains(backToMenuBtn)) return;
-        header.insertAdjacentElement('beforebegin', backToMenuBtn);
+        header.insertAdjacentElement('afterend', backToMenuBtn);
       };
       const restoreBackButton = () => {
         if (!backToMenuBtn || !backToMenuOriginalParent) return;
