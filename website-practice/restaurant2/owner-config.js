@@ -24,10 +24,12 @@ window.RESTAURANT2_OWNER_CONFIG = {
     order: 'Order'
   },
   pizzaSizeLabels: {
+    personal_pan: 'Personal Pan',
     small: 'Small',
     medium: 'Medium',
     large: 'Large',
-    sheet: 'Sheet'
+    sheet: 'Sheet',
+    slices: 'Slices'
   },
   menuSections: {
     burger: {
@@ -139,7 +141,7 @@ window.RESTAURANT2_OWNER_CONFIG = {
       ]
     },
     pizza: {
-      pizzaSizes: ['small', 'medium', 'large', 'sheet'],
+      pizzaSizes: ['personal_pan', 'small', 'medium', 'large', 'sheet', 'slices'],
       ingredients: [
         {
           value: 'regular_dough',

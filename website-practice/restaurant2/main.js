@@ -106,7 +106,7 @@
         }
       });
     }
-    const requiredPizzaSizes = ['small', 'medium', 'large', 'sheet'];
+    const requiredPizzaSizes = ['personal_pan', 'small', 'medium', 'large', 'sheet', 'slices'];
     if (config.pizzaSizeLabels && typeof config.pizzaSizeLabels === 'object' && !Array.isArray(config.pizzaSizeLabels)) {
       requiredPizzaSizes.forEach((size) => {
         if (typeof config.pizzaSizeLabels[size] !== 'string' || !config.pizzaSizeLabels[size].trim()) {
@@ -1460,7 +1460,7 @@
       const overlayHeader = document.createElement('div');
       overlayHeader.className = 'overlay-header';
       const heading = document.createElement('h2');
-      heading.textContent = label;
+      heading.textContent = `Customize ${label}`;
       const headerPrice = document.createElement('span');
       headerPrice.className = 'overlay-header-price';
       headerPrice.setAttribute('aria-hidden', 'true');
@@ -1644,7 +1644,7 @@
       document.querySelectorAll(`.menu-overlay[data-section="${section}"]`).forEach((overlay) => {
         const title = overlay.querySelector('.overlay-header h2');
         const summaryLabel = overlay.querySelector('.menu-summary .menu-summary-label');
-        if (title) title.textContent = label;
+        if (title) title.textContent = `Customize ${label}`;
         if (summaryLabel) summaryLabel.textContent = label;
       });
     });

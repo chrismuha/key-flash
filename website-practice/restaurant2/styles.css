@@ -3430,34 +3430,35 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
 
 .size-options {
     margin: 12px 0 20px;
-    padding: 18px 18px 16px;
-    border: 1px solid var(--color-size-box-border);
-    border-radius: 8px;
-    background: var(--color-size-box-bg);
+    padding: 16px;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    background: #fbfbfb;
     color: var(--color-black);
 }
 
 .size-options__label {
-    font-size: 24pt;
-    font-weight: 800;
+    font-size: 14pt;
+    font-weight: 700;
     letter-spacing: 0;
     text-transform: none;
     display: inline-block;
 }
 
 .size-options__pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 14px;
 }
 
 .size-pill {
     position: relative;
-    font-weight: 800;
+    font-weight: 700;
     cursor: pointer;
     user-select: none;
-    display: inline-flex;
+    display: flex;
+    min-width: 0;
 }
 
 .size-pill input {
@@ -3467,39 +3468,41 @@ body.theme-dark .menu-actions .menu-launch:focus-visible {
 }
 
 .size-pill .size-pill-card {
-    border: 2px solid var(--color-size-card-border);
+    border: 2px solid #3a3a3a;
     background: var(--color-white);
     color: var(--color-size-card-text);
-    width: 126px;
-    min-height: 86px;
-    padding: 10px 8px;
-    border-radius: 8px;
-    display: inline-flex;
+    width: 100%;
+    min-height: 58px;
+    padding: 8px 6px;
+    border-radius: 5px;
+    display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     align-items: center;
     justify-content: center;
     text-align: center;
-    transition: background 0.2s ease, color 0.2s ease, border 0.2s ease;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
 }
 
 .size-pill .size-pill-name {
-    font-size: 13.5pt;
-    line-height: 1;
+    font-size: 10.5pt;
+    line-height: 1.05;
     font-weight: 800;
     text-transform: uppercase;
 }
 
 .size-pill .size-pill-price {
-    font-size: 12pt;
+    font-size: 10.5pt;
     line-height: 1;
     font-weight: 800;
 }
 
 .size-pill input:checked+.size-pill-card {
-    background: var(--color-size-card-selected);
-    color: var(--color-white);
-    border-color: var(--color-size-card-selected);
+    background: #fff3f3;
+    color: var(--color-black);
+    border-color: #d73a31;
+    box-shadow: inset 0 0 0 1px #d73a31;
 }
 
 .size-pill input:focus-visible+.size-pill-card {
@@ -3523,9 +3526,10 @@ body.theme-dark .size-pill .size-pill-card {
 }
 
 body.theme-dark .size-pill input:checked+.size-pill-card {
-    background: var(--color-size-card-selected);
+    background: color-mix(in srgb, var(--surface) 78%, var(--color-size-card-selected) 22%);
     border-color: var(--color-size-card-selected);
     color: var(--color-white);
+    box-shadow: inset 0 0 0 1px var(--color-size-card-selected);
 }
 
 @media (max-width: 768px) {
@@ -3534,23 +3538,23 @@ body.theme-dark .size-pill input:checked+.size-pill-card {
     }
 
     .size-options__label {
-        font-size: 17pt;
+        font-size: 12.5pt;
     }
 
     .size-options__pills {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
         margin-top: 12px;
     }
 
     .size-pill .size-pill-card {
-        width: 108px;
-        min-height: 76px;
+        min-height: 70px;
         gap: 4px;
         padding: 8px 6px;
     }
 
     .size-pill .size-pill-name {
-        font-size: 11pt;
+        font-size: 10pt;
     }
 
     .size-pill .size-pill-price {
@@ -3710,12 +3714,19 @@ body.menu-overlay-open main {
     align-items: center;
     justify-content: flex-start;
     gap: 12px;
-    margin-bottom: 12px;
+    margin: -20px -20px 12px;
+    padding: 14px 72px 14px 20px;
+    position: sticky;
+    top: -20px;
+    z-index: 2;
+    background: inherit;
+    border-bottom: 1px solid #d9d9d9;
 }
 
 .overlay-header h2 {
     margin: 0;
-    font-size: 21pt;
+    font-size: 16pt;
+    line-height: 1.15;
 }
 
 .overlay-header-price {
@@ -3726,7 +3737,7 @@ body.menu-overlay-open main {
 
 .close-overlay {
     position: absolute;
-    top: 12px;
+    top: 10px;
     right: 12px;
     margin: 0;
     display: inline-flex;
@@ -3784,6 +3795,10 @@ body.theme-dark .close-overlay:focus-visible {
     transform: scale(1.05);
 }
 
+body.theme-dark .overlay-header {
+    border-bottom-color: var(--border-strong);
+}
+
 /* Section: Left Rail Boxes (Links) */
 .box {
     margin: 0;
@@ -3805,6 +3820,11 @@ body.theme-dark .close-overlay:focus-visible {
 .left-rail .box.active,
 .left-rail .box[aria-current="page"] {
     border-color: var(--box-border);
+    background: color-mix(in srgb, var(--box-bg) 82%, white 18%);
+    color: var(--color-white);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--box-border) 22%, transparent),
+        0 8px 18px rgba(0, 0, 0, 0.18);
+    transform: translateY(-1px);
 }
 
 .box,
@@ -3867,17 +3887,32 @@ body.theme-dark .close-overlay:focus-visible {
 .left-rail .box.nav-cart:hover,
 .left-rail .box.nav-cart:focus,
 .left-rail .box.nav-cart:focus-visible,
- .left-rail .box.nav-cart.active,
- .left-rail .box.nav-cart[aria-current="page"],
 body.theme-dark .left-rail .box.nav-cart,
 body.theme-dark .left-rail .box.nav-cart:hover,
 body.theme-dark .left-rail .box.nav-cart:focus,
- body.theme-dark .left-rail .box.nav-cart:focus-visible,
- body.theme-dark .left-rail .box.nav-cart.active,
- body.theme-dark .left-rail .box.nav-cart[aria-current="page"] {
+ body.theme-dark .left-rail .box.nav-cart:focus-visible {
     outline: none;
     border-color: transparent;
     box-shadow: none !important;
+}
+
+.left-rail .box.nav-cart.active,
+.left-rail .box.nav-cart[aria-current="page"] {
+    border-color: var(--box-border);
+    background: color-mix(in srgb, var(--box-bg) 82%, white 18%);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--box-border) 22%, transparent),
+        0 8px 18px rgba(0, 0, 0, 0.18) !important;
+    transform: translateY(-1px);
+}
+
+body.theme-dark .left-rail .box.active,
+body.theme-dark .left-rail .box[aria-current="page"],
+body.theme-dark .left-rail .box.nav-cart.active,
+body.theme-dark .left-rail .box.nav-cart[aria-current="page"] {
+    border-color: var(--box-border-dark);
+    background: color-mix(in srgb, var(--box-bg-dark) 78%, white 22%);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--box-border-dark) 28%, transparent),
+        0 8px 18px rgba(0, 0, 0, 0.3) !important;
 }
 
 .left-rail .box.nav-cart .nav-cart-count {
