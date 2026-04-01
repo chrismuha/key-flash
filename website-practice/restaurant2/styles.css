@@ -2539,8 +2539,9 @@ body.order-type main h1 {
 }
 
 body.order-type .business-location-picker {
-    width: min(720px, 100%);
-    max-width: 100%;
+    width: 420px !important;
+    min-width: 420px !important;
+    max-width: 420px !important;
     margin: 0 auto;
     display: grid;
     gap: 8px;
@@ -2559,29 +2560,41 @@ body.order-type .business-location-dropdown {
     position: relative;
     display: grid;
     gap: 10px;
+    width: 100%;
 }
 
 body.order-type .business-location-trigger {
-    width: 100%;
-    max-width: 100%;
-    padding: 12px 52px 12px 18px;
+    width: 420px !important;
+    min-width: 420px !important;
+    max-width: 420px !important;
+    padding: 0 52px 0 18px;
     min-height: 60px;
     height: 60px;
-    display: flex;
+    max-height: 60px;
+    min-block-size: 60px;
+    block-size: 60px;
+    max-block-size: 60px;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
-    justify-content: center;
+    justify-items: center;
     border: 2px solid var(--color-black);
     border-radius: 999px;
     background: var(--color-white);
     color: var(--color-black);
-    font: inherit;
-    font-size: 12pt;
+    font-family: "Roboto", sans-serif;
+    font-size: 10pt !important;
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1 !important;
     box-shadow: 0 10px 24px var(--shadow-soft);
     cursor: pointer;
     text-align: center;
     position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
 }
 
 body.order-type .business-location-trigger::after {
@@ -2601,10 +2614,18 @@ body.order-type .business-location-trigger-text {
     display: block;
     width: 100%;
     min-width: 0;
-    line-height: 1.1;
+    max-width: 100%;
+    font-family: "Roboto", sans-serif;
+    font-size: 10pt !important;
+    font-weight: 700;
+    line-height: 1 !important;
+    height: 1em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-align: center;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
 }
 
 body.order-type .business-location-options {
@@ -2615,7 +2636,9 @@ body.order-type .business-location-options {
     border-radius: 18px;
     background: var(--color-white);
     box-shadow: 0 16px 36px var(--shadow-medium);
-    width: 100%;
+    width: 420px !important;
+    min-width: 420px !important;
+    max-width: 420px !important;
 }
 
 body.order-type .business-location-options[hidden] {
@@ -2670,15 +2693,7 @@ body.order-type .business-location-option:focus-visible {
 
 @media (max-width: 640px) {
     body.order-type .business-location-picker {
-        width: min(100%, 420px);
         margin-bottom: 0;
-    }
-
-    body.order-type .business-location-trigger {
-        padding: 12px 46px 12px 16px;
-        min-height: 54px;
-        height: 54px;
-        font-size: 11pt;
     }
 }
 
@@ -2907,9 +2922,10 @@ body.order-type .delivery-details .delivery-clear {
 }
 
 body.order-type .order-card {
-    width: calc((100% - var(--order-card-gap)) / 2);
+    width: min(calc((100% - var(--order-card-gap)) / 2), 188px);
+    max-width: 188px;
     height: auto;
-    flex: 0 0 calc((100% - var(--order-card-gap)) / 2);
+    flex: 0 0 min(calc((100% - var(--order-card-gap)) / 2), 188px);
     aspect-ratio: 1 / 1;
     border: 2px solid var(--color-black);
     border-radius: 100%;
@@ -2943,6 +2959,14 @@ body.order-type .order-label {
     font-size: 11.5pt;
     line-height: 1.2;
     text-align: center;
+}
+
+@media (min-width: 1024px) {
+    body.order-type .order-card {
+        width: 188px;
+        max-width: 188px;
+        flex-basis: 188px;
+    }
 }
 
 body.order-type .order-note {

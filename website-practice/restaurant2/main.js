@@ -2595,6 +2595,10 @@
       const deliveryClearBtn = document.querySelector('.delivery-clear');
       const businessLocationTrigger = document.getElementById('business-location-select');
       const businessLocationOptions = document.getElementById('business-location-options');
+      const businessLocationPicker = document.querySelector('.business-location-picker');
+      const businessLocationTriggerText = businessLocationTrigger
+        ? businessLocationTrigger.querySelector('.business-location-trigger-text')
+        : null;
       const deliveryFields = {
         name: document.getElementById('delivery-name'),
         phone: document.getElementById('delivery-phone'),
@@ -2604,6 +2608,43 @@
         city: document.getElementById('delivery-city'),
         zip: document.getElementById('delivery-zip')
       };
+      const lockBusinessLocationPillSize = () => {
+        if (!businessLocationTrigger || !businessLocationOptions || !businessLocationPicker) return;
+        const widthValue = '420px';
+        const minWidthValue = '420px';
+        const heightValue = '60px';
+        const textSize = '10pt';
+
+        businessLocationPicker.style.width = widthValue;
+        businessLocationPicker.style.minWidth = minWidthValue;
+        businessLocationPicker.style.maxWidth = widthValue;
+
+        businessLocationTrigger.style.width = widthValue;
+        businessLocationTrigger.style.minWidth = minWidthValue;
+        businessLocationTrigger.style.maxWidth = widthValue;
+        businessLocationTrigger.style.minHeight = heightValue;
+        businessLocationTrigger.style.height = heightValue;
+        businessLocationTrigger.style.maxHeight = heightValue;
+        businessLocationTrigger.style.minBlockSize = heightValue;
+        businessLocationTrigger.style.blockSize = heightValue;
+        businessLocationTrigger.style.maxBlockSize = heightValue;
+        businessLocationTrigger.style.fontSize = textSize;
+        businessLocationTrigger.style.lineHeight = '1';
+        businessLocationTrigger.style.paddingTop = '0';
+        businessLocationTrigger.style.paddingBottom = '0';
+
+        businessLocationOptions.style.width = widthValue;
+        businessLocationOptions.style.minWidth = minWidthValue;
+        businessLocationOptions.style.maxWidth = widthValue;
+
+        if (businessLocationTriggerText) {
+          businessLocationTriggerText.style.fontSize = textSize;
+          businessLocationTriggerText.style.lineHeight = '1';
+          businessLocationTriggerText.style.height = '1em';
+        }
+      };
+      lockBusinessLocationPillSize();
+      window.addEventListener('resize', lockBusinessLocationPillSize);
       const formatPhoneInput = (v) => {
         const digits = String(v || '').replace(/\D+/g, '').slice(0, 10);
         const area = digits.slice(0, 3);
