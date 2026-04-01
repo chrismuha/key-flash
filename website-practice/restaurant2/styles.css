@@ -88,7 +88,6 @@
     --color-forest: #2f8f49;
     --color-pistachio: #3cb371;
     --color-preset-card-bg: #252525;
-    --color-preset-card-text: #f6cdcd;
     --footer-button-border: transparent;
     --color-danger-accent: #e53935;
     --color-footer-dark-bg: #7a7a7a;
@@ -2539,9 +2538,9 @@ body.order-type main h1 {
 }
 
 body.order-type .business-location-picker {
-    width: 420px !important;
-    min-width: 420px !important;
-    max-width: 420px !important;
+    width: 420px;
+    min-width: 420px;
+    max-width: 420px;
     margin: 0 auto;
     display: grid;
     gap: 8px;
@@ -2564,9 +2563,9 @@ body.order-type .business-location-dropdown {
 }
 
 body.order-type .business-location-trigger {
-    width: 420px !important;
-    min-width: 420px !important;
-    max-width: 420px !important;
+    width: 420px;
+    min-width: 420px;
+    max-width: 420px;
     padding: 0 52px 0 18px;
     min-height: 60px;
     height: 60px;
@@ -2584,9 +2583,9 @@ body.order-type .business-location-trigger {
     background: var(--color-white);
     color: var(--color-black);
     font-family: "Roboto", sans-serif;
-    font-size: 10pt !important;
+    font-size: 10pt;
     font-weight: 700;
-    line-height: 1 !important;
+    line-height: 1;
     box-shadow: 0 10px 24px var(--shadow-soft);
     cursor: pointer;
     text-align: center;
@@ -2616,9 +2615,9 @@ body.order-type .business-location-trigger-text {
     min-width: 0;
     max-width: 100%;
     font-family: "Roboto", sans-serif;
-    font-size: 10pt !important;
+    font-size: 10pt;
     font-weight: 700;
-    line-height: 1 !important;
+    line-height: 1;
     height: 1em;
     white-space: nowrap;
     overflow: hidden;
@@ -2636,9 +2635,9 @@ body.order-type .business-location-options {
     border-radius: 18px;
     background: var(--color-white);
     box-shadow: 0 16px 36px var(--shadow-medium);
-    width: 420px !important;
-    min-width: 420px !important;
-    max-width: 420px !important;
+    width: 420px;
+    min-width: 420px;
+    max-width: 420px;
 }
 
 body.order-type .business-location-options[hidden] {
@@ -2691,10 +2690,8 @@ body.order-type .business-location-option:focus-visible {
     outline-offset: 2px;
 }
 
-@media (max-width: 640px) {
-    body.order-type .business-location-picker {
-        margin-bottom: 0;
-    }
+body.order-type .business-location-picker {
+    margin-bottom: 0;
 }
 
 body.order-type .order-options {
@@ -4164,6 +4161,7 @@ a.btn {
 .preset-card-title {
     font-weight: 700;
     font-size: 10.2pt;
+    color: var(--color-white);
 }
 
 .preset-card-price {
@@ -4174,7 +4172,7 @@ a.btn {
 
 .preset-card-text {
     font-size: 9pt;
-    color: var(--color-preset-card-text);
+    color: var(--color-white);
     line-height: 1.2;
 }
 
