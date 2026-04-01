@@ -1561,14 +1561,37 @@ body.page2:not(.nav-enabled) main {
 }
 
 @media (max-width: 640px) {
+    html,
+    body {
+        height: 100%;
+    }
+
+    body.page2,
+    body.page3,
+    body.order-type {
+        min-height: 100dvh;
+        overflow: hidden;
+    }
+
     body.page2 main {
         padding: max(calc(var(--nav-offset) - 4px), 1px) clamp(16px, 6vw, 32px) calc(110px + var(--safe-area-bottom));
         width: 100%;
         margin-inline: 0;
+        min-height: calc(100dvh - var(--nav-offset));
+        height: calc(100dvh - var(--nav-offset));
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
     }
 
     body.page2 #builder-error {
         margin-bottom: 0;
+    }
+
+    body.page3 main,
+    body.order-type main {
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
     }
 }
 

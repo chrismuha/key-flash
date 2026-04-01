@@ -74,7 +74,6 @@
       'businessLocations',
       'sectionLabels',
       'pizzaSizeLabels',
-      'menuSections',
       'ingredientLabels',
       'sectionIngredientCategories',
       'presetsBySection'
