@@ -33,10 +33,19 @@ button, input, textarea {
   font: inherit;
 }
 
+button {
+  appearance: none;
+}
+
 .app-shell {
   position: relative;
   min-height: 100vh;
   overflow: hidden;
+}
+
+.chrome {
+  position: relative;
+  z-index: 1;
 }
 
 .flash-layer {
@@ -45,6 +54,25 @@ button, input, textarea {
   opacity: 0;
   pointer-events: none;
   background: black;
+  z-index: 0;
+}
+
+.show-ui-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 3;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px;
+  padding: 10px 14px;
+  color: var(--text);
+  background: rgba(8, 12, 20, 0.76);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+}
+
+.ghost-btn {
+  background: rgba(255,255,255,0.04);
 }
 
 .hero {
@@ -122,7 +150,8 @@ h2 {
 }
 
 .primary-btn,
-.secondary-btn {
+.secondary-btn,
+.ghost-btn {
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 16px;
   padding: 12px 16px;
@@ -140,9 +169,17 @@ h2 {
 }
 
 .primary-btn:hover,
-.secondary-btn:hover {
+.secondary-btn:hover,
+.ghost-btn:hover,
+.show-ui-btn:hover {
   transform: translateY(-1px);
   border-color: rgba(255,255,255,0.25);
+}
+
+body.chrome-hidden .chrome {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .panel-header,

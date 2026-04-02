@@ -9,10 +9,12 @@ const state = createState();
 
 async function init() {
   const ui = renderApp();
+  let isChromeHidden = false;
   state.settings = await loadSettings(window.keyFlashAPI);
   ui.setFormValues(state.settings);
   ui.renderPressedKeys([]);
   ui.setFullscreenState(false);
+  ui.setChromeHidden(false);
 
   const flash = createFlashController(state, ui.refs.flashLayer);
 
@@ -50,12 +52,30 @@ async function init() {
     ui.setFullscreenState(state.isFullscreen);
   }
 
+  function setChromeHidden(nextValue) {
+    isChromeHidden = Boolean(nextValue);
+    ui.setChromeHidden(isChromeHidden);
+  }
+
+  function toggleChrome() {
+    setChromeHidden(!isChromeHidden);
+  }
+
+  function revealChrome() {
+    if (!isChromeHidden) return;
+    setChromeHidden(false);
+  }
+
   ui.refs.fullscreenBtn.addEventListener('click', toggleFullscreen);
+  ui.refs.hideUiBtn.addEventListener('click', toggleChrome);
+  ui.refs.showUiBtn.addEventListener('click', revealChrome);
 
   setupKeyboard(state, {
     onNewKey: () => flash.scheduleFlash(),
     onKeysChanged: (keys) => ui.renderPressedKeys(keys),
-    onToggleFullscreen: toggleFullscreen
+    onToggleFullscreen: toggleFullscreen,
+    onToggleUi: toggleChrome,
+    onRevealUi: revealChrome
   });
 }
 

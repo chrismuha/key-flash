@@ -1,8 +1,15 @@
-export function setupKeyboard(state, { onNewKey, onKeysChanged, onToggleFullscreen }) {
+export function setupKeyboard(state, { onNewKey, onKeysChanged, onToggleFullscreen, onToggleUi, onRevealUi }) {
   function keyLabel(event) {
     if (event.key === ' ') return 'Space';
     if (event.key.length === 1) return event.key.toUpperCase();
     return event.key;
+  }
+
+  function isEditableTarget(target) {
+    if (!(target instanceof HTMLElement)) return false;
+    if (target.isContentEditable) return true;
+    const tagName = target.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
   }
 
   window.addEventListener('keydown', (event) => {
@@ -10,6 +17,16 @@ export function setupKeyboard(state, { onNewKey, onKeysChanged, onToggleFullscre
       event.preventDefault();
       onToggleFullscreen?.();
       return;
+    }
+
+    if (!isEditableTarget(event.target) && event.ctrlKey && !event.metaKey && !event.altKey && event.key.toLowerCase() === 'h') {
+      event.preventDefault();
+      onToggleUi?.();
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      onRevealUi?.();
     }
 
     const label = keyLabel(event);
