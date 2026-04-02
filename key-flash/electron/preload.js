@@ -1,7 +1,8 @@
-
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('keyFlashAPI', {
   getSettings: () => ipcRenderer.invoke('settings:get'),
-  setSettings: (s) => ipcRenderer.invoke('settings:set', s)
+  setSettings: (patch) => ipcRenderer.invoke('settings:set', patch),
+  setFullscreen: (value) => ipcRenderer.invoke('window:setFullscreen', value),
+  toggleFullscreen: () => ipcRenderer.invoke('window:toggleFullscreen')
 });
