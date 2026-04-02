@@ -1,6 +1,10 @@
 export function createFlashController(state, flashLayer) {
   function getNextColor() {
     const colors = state.settings.colors.length ? state.settings.colors : ['#ffffff'];
+    if (state.settings.colorOrder === 'random') {
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
     const color = colors[state.colorIndex % colors.length];
     state.colorIndex += 1;
     return color;

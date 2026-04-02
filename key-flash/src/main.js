@@ -6,6 +6,7 @@ import { setupKeyboard } from './components/keyboard.js';
 import { renderApp } from './components/ui.js';
 
 const state = createState();
+const HEX_COLOR_PATTERN = /^#([0-9a-f]{6}|[0-9a-f]{3})$/i;
 
 async function init() {
   const ui = renderApp();
@@ -27,8 +28,39 @@ async function init() {
   ui.refs.flashDelayMs.addEventListener('input', syncPreviewFromInputs);
   ui.refs.minTimeBetweenFlashesMs.addEventListener('input', syncPreviewFromInputs);
   ui.refs.flashDurationMs.addEventListener('input', syncPreviewFromInputs);
+  ui.refs.colorOrder.addEventListener('change', syncPreviewFromInputs);
   ui.refs.flashOpacity.addEventListener('input', syncPreviewFromInputs);
   ui.refs.colorsInput.addEventListener('input', syncPreviewFromInputs);
+
+  function appendHexColor() {
+    const rawValue = ui.refs.hexColorInput.value.trim();
+    const nextColor = rawValue.startsWith('#') ? rawValue : `#${rawValue}`;
+    if (!HEX_COLOR_PATTERN.test(nextColor)) {
+      ui.refs.hexColorInput.value = nextColor;
+      ui.refs.hexColorInput.focus();
+      ui.refs.hexColorInput.select();
+      return;
+    }
+
+    ui.appendHexColor(nextColor.toLowerCase());
+    syncPreviewFromInputs();
+    ui.refs.hexColorInput.focus();
+  }
+
+  ui.refs.addColorBtn.addEventListener('click', appendHexColor);
+  ui.refs.hexColorInput.addEventListener('input', () => {
+    const value = ui.refs.hexColorInput.value.trim();
+    if (!value) return;
+    if (!value.startsWith('#')) {
+      ui.refs.hexColorInput.value = `#${value.replace(/^#+/, '')}`;
+    }
+  });
+  ui.refs.hexColorInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      appendHexColor();
+    }
+  });
 
   ui.refs.previewBtn.addEventListener('click', () => {
     const draft = getNormalizedSettings(ui.getFormValues());

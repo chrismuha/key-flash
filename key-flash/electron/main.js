@@ -9,6 +9,7 @@ const store = new Store({
     minTimeBetweenFlashesMs: 120,
     flashDurationMs: 160,
     colors: ['#ff0000','#ff7f00','#ffff00','#00ff00','#0000ff','#4b0082','#9400d3'],
+    colorOrder: 'sequence',
     flashOpacity: 1,
     fullscreenOnLaunch: false
   }

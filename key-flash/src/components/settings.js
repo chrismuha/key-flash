@@ -7,6 +7,10 @@ export function parseColors(raw) {
     .filter(Boolean);
 }
 
+export function normalizeColorOrder(value) {
+  return value === 'random' ? 'random' : 'sequence';
+}
+
 export function normalizeNumber(value, fallback, min = 0) {
   const n = Number(value);
   if (!Number.isFinite(n)) return fallback;
@@ -25,6 +29,7 @@ export function getNormalizedSettings(formValues) {
     flashDelayMs: normalizeNumber(formValues.flashDelayMs, DEFAULTS.flashDelayMs, 0),
     minTimeBetweenFlashesMs: normalizeNumber(formValues.minTimeBetweenFlashesMs, DEFAULTS.minTimeBetweenFlashesMs, 0),
     flashDurationMs: normalizeNumber(formValues.flashDurationMs, DEFAULTS.flashDurationMs, 20),
+    colorOrder: normalizeColorOrder(formValues.colorOrder),
     flashOpacity: normalizeFloat(formValues.flashOpacity, DEFAULTS.flashOpacity, 0.1, 1),
     fullscreenOnLaunch: Boolean(formValues.fullscreenOnLaunch),
     colors: parsedColors.length ? parsedColors : [...DEFAULTS.colors]
@@ -37,6 +42,7 @@ export async function loadSettings(api) {
     return {
       ...DEFAULTS,
       ...saved,
+      colorOrder: normalizeColorOrder(saved?.colorOrder),
       colors: Array.isArray(saved?.colors) && saved.colors.length ? saved.colors : [...DEFAULTS.colors]
     };
   } catch {
