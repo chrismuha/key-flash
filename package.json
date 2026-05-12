@@ -42,11 +42,42 @@
   },
   "build": {
     "mac": {
+      "identity": null,
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "category": "public.app-category.productivity",
+      "x64ArchFiles": "Contents/Resources/app.asar.unpacked/node_modules/{@img/sharp-darwin-x64,@img/sharp-libvips-darwin-x64,@img/sharp-darwin-arm64,@img/sharp-libvips-darwin-arm64,@napi-rs/canvas-darwin-x64}/**",
       "artifactName": "key-flash-${version}.dmg"
     },
     "portable": {
       "artifactName": "key-flash-${version}.exe"
-    }
+    },
+    "appId": "com.muha.keyflash",
+    "productName": "Key Flash",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**",
+      "src/**",
+      "index.html",
+      "preload.js",
+      "package.json"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "**/node_modules/sharp/**",
+      "**/node_modules/@img/**"
+    ],
+    "extraResources": [],
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "forceCodeSigning": false
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.10.2",
