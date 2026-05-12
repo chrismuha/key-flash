@@ -1,6 +1,5 @@
 {
   "name": "key-flash",
-  "productName": "Key Flash",
   "version": "1.1.6",
   "description": "Key Flash is a Customer Relationship Management (CRM) software. Key Flash is a one-of-a-kind utility to manage invoices, inventory, and to create budgets. Its features are very unique and are easy-to-use to manage your personal and/or business profits without the time-consuming tasks to manually input data onto documents. With Key Flash, it is easy to enter data and generate a PDF and automatically save it to specific accounts to manage your data professionally to help make business management easier.",
   "main": "electron/main.js",
