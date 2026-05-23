@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const Store = require('electron-store').default;
+const { loadRenderer } = require('../startup-mode.cjs');
 
 const store = new Store({
   projectName: 'key-flash',
@@ -36,12 +37,10 @@ function createWindow() {
     mainWindow.maximize();
   }
 
-  const devServerUrl = process.env.VITE_DEV_SERVER_URL;
-  if (devServerUrl) {
-    mainWindow.loadURL(devServerUrl);
-  } else {
-    mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
-  }
+  loadRenderer(mainWindow, {
+    defaultCloudUrl: 'http://localhost:5189',
+    localFile: path.join(__dirname, '..', 'dist', 'index.html'),
+  });
 
   if (!app.isPackaged) {
     mainWindow.webContents.on('before-input-event', (event, input) => {

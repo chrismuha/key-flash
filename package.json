@@ -7,7 +7,7 @@
     "prestart": "node ../_shared/repair.mjs",
     "start": "node ../_shared/vite-electron-dev.mjs --port 5189",
     "start:fixed": "concurrently \"npm run dev:renderer\" \"cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5189/ npm run dev:main\"",
-    "start:prod": "env -u ELECTRON_RUN_AS_NODE NODE_ENV=production electron .",
+    "start:prod": "env -u ELECTRON_RUN_AS_NODE MCR_STARTUP_MODE=offline NODE_ENV=production electron . --offline",
     "predev": "node ../_shared/repair.mjs",
     "dev": "node ../_shared/vite-electron-dev.mjs --port 5189",
     "dev:renderer": "vite dev --host 127.0.0.1 --port 5189",
@@ -37,7 +37,9 @@
     "lint": "echo \"No linting configured\"",
     "generate-icons": "node ./scripts/generate-macos-icon.mjs",
     "all": "bash ../run-all.sh",
-    "scripts": "bash ../run-all.sh"
+    "scripts": "bash ../run-all.sh",
+    "start:cloud": "node ../_shared/vite-electron-dev.mjs --port 5189",
+    "start:offline": "env -u ELECTRON_RUN_AS_NODE MCR_STARTUP_MODE=offline NODE_ENV=production electron . --offline"
   },
   "build": {
     "mac": {
@@ -62,6 +64,7 @@
       "src/**",
       "index.html",
       "preload.js",
+      "startup-mode.cjs",
       "package.json"
     ],
     "asar": true,
