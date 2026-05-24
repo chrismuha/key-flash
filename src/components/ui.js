@@ -66,6 +66,10 @@ export function renderApp() {
                 <input id="closeSettingsOnOutsideClick" type="checkbox" />
                 <span>Click outside closes Settings</span>
               </label>
+              <label class="switch-row">
+                <input id="fullscreenOnLaunch" type="checkbox" />
+                <span>Start maximized on launch</span>
+              </label>
             </div>
 
             <div class="field">
@@ -117,11 +121,6 @@ export function renderApp() {
               <textarea id="colorsInput" placeholder="#ff0000, #00ff00, #0000ff"></textarea>
               <div id="palettePreview" class="palette"></div>
             </div>
-
-            <label class="check-row">
-              <input id="fullscreenOnLaunch" type="checkbox" />
-              <span>Start maximized on launch</span>
-            </label>
 
             <div class="button-row">
               <button id="saveBtn" class="primary-btn">Save settings</button>
@@ -268,6 +267,7 @@ export function renderApp() {
       refs.hexColorInput.value = '';
     },
     setSettingsOpen(isOpen) {
+      refs.settingsPanel.scrollTop = 0;
       document.body.classList.toggle('settings-open', isOpen);
       refs.settingsBtn.setAttribute('aria-expanded', String(isOpen));
     },

@@ -1,4 +1,4 @@
-export function setupKeyboard(state, { onNewKey, onKeysChanged, onToggleFullscreen, onToggleUi, onRevealUi }) {
+export function setupKeyboard(state, { onNewKey, onHeldKeysActive, onHeldKeysInactive, onKeysChanged, onToggleFullscreen, onToggleUi, onRevealUi }) {
   function keyLabel(event) {
     if (event.key === ' ') return 'Space';
     if (event.key.length === 1) return event.key.toUpperCase();
@@ -42,6 +42,7 @@ export function setupKeyboard(state, { onNewKey, onKeysChanged, onToggleFullscre
 
     if (!alreadyHeld) {
       onNewKey?.();
+      onHeldKeysActive?.();
     }
   });
 
@@ -49,10 +50,14 @@ export function setupKeyboard(state, { onNewKey, onKeysChanged, onToggleFullscre
     const label = keyLabel(event);
     state.pressedKeys.delete(label);
     onKeysChanged?.([...state.pressedKeys]);
+    if (!state.pressedKeys.size) {
+      onHeldKeysInactive?.();
+    }
   });
 
   window.addEventListener('blur', () => {
     state.pressedKeys.clear();
     onKeysChanged?.([]);
+    onHeldKeysInactive?.();
   });
 }

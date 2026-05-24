@@ -63,7 +63,7 @@ button {
   opacity: 0;
   pointer-events: none;
   background: black;
-  z-index: 0;
+  z-index: 10;
 }
 
 .settings-btn {
@@ -216,6 +216,7 @@ body.settings-open .settings-panel {
 body.settings-open .settings-btn {
   border-color: rgba(121,231,255,0.55);
   background: rgba(30, 42, 62, 0.92);
+  transition: none;
 }
 
 .panel-header,

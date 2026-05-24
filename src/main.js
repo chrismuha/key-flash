@@ -21,6 +21,7 @@ async function init() {
 
   const syncPreviewFromInputs = () => {
     const draft = getNormalizedSettings(ui.getFormValues());
+    state.settings = { ...state.settings, ...draft };
     ui.updateValueLabels(draft);
     ui.setDisplayOptions(draft);
     ui.renderPalette(parseColors(ui.refs.colorsInput.value).length ? parseColors(ui.refs.colorsInput.value) : DEFAULTS.colors);
@@ -128,6 +129,8 @@ async function init() {
 
   setupKeyboard(state, {
     onNewKey: () => flash.scheduleFlash(),
+    onHeldKeysActive: () => flash.startHeldFlashLoop(),
+    onHeldKeysInactive: () => flash.stopHeldFlashLoop(),
     onKeysChanged: (keys) => ui.renderPressedKeys(keys),
     onToggleFullscreen: toggleFullscreen,
     onToggleUi: toggleFocusMode,
