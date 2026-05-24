@@ -21,6 +21,24 @@ export function renderApp() {
     <div class="app-shell">
       <div id="flashLayer" class="flash-layer"></div>
       <button id="settingsBtn" class="settings-btn" type="button" aria-expanded="false" title="Settings">Settings</button>
+      <div id="keyTesterInfoOverlay" class="modal-overlay" hidden>
+        <div class="modal-card glass" role="dialog" aria-modal="true" aria-labelledby="keyTesterInfoTitle">
+          <div class="panel-header">
+            <h2 id="keyTesterInfoTitle">Key tester info</h2>
+            <button id="closeKeyTesterInfoBtn" class="secondary-btn compact-btn" type="button">Close</button>
+          </div>
+          <div class="info-list">
+            <div><strong>Meta</strong><span>Command on Mac</span></div>
+            <div><strong>Ctrl</strong><span>Control</span></div>
+            <div><strong>Alt</strong><span>Option or Alt</span></div>
+            <div><strong>Shift</strong><span>Shift</span></div>
+            <div><strong>location 0</strong><span>standard key area</span></div>
+            <div><strong>location 1</strong><span>left-side key</span></div>
+            <div><strong>location 2</strong><span>right-side key</span></div>
+            <div><strong>location 3</strong><span>numpad or keypad area</span></div>
+          </div>
+        </div>
+      </div>
 
       <div id="chrome" class="chrome">
         <div id="heroSection" class="hero">
@@ -122,6 +140,19 @@ export function renderApp() {
               <div id="palettePreview" class="palette"></div>
             </div>
 
+            <div class="field key-tester">
+              <div class="field-row">
+                <label>Key tester</label>
+                <div class="mini-actions">
+                  <button id="keyTesterInfoBtn" class="secondary-btn icon-btn" type="button" aria-label="Key tester info" title="Key tester info">i</button>
+                  <button id="keyTesterModeBtn" class="secondary-btn compact-btn key-tester-mode-btn" type="button">Enter tester</button>
+                </div>
+              </div>
+              <div id="keyTesterOutput" class="key-tester-output">
+                <span class="empty">Enter tester mode to capture keys without flashing</span>
+              </div>
+            </div>
+
             <div class="button-row">
               <button id="saveBtn" class="primary-btn">Save settings</button>
               <button id="resetBtn" class="secondary-btn">Reset rainbow</button>
@@ -172,6 +203,9 @@ export function renderApp() {
     heroSection: document.getElementById('heroSection'),
     settingsPanel: document.getElementById('settingsPanel'),
     statusPanel: document.getElementById('statusPanel'),
+    keyTesterInfoOverlay: document.getElementById('keyTesterInfoOverlay'),
+    keyTesterInfoBtn: document.getElementById('keyTesterInfoBtn'),
+    closeKeyTesterInfoBtn: document.getElementById('closeKeyTesterInfoBtn'),
     settingsBtn: document.getElementById('settingsBtn'),
     previewBtn: document.getElementById('previewBtn'),
     fullscreenBtn: document.getElementById('fullscreenBtn'),
@@ -179,8 +213,10 @@ export function renderApp() {
     saveBtn: document.getElementById('saveBtn'),
     resetBtn: document.getElementById('resetBtn'),
     addColorBtn: document.getElementById('addColorBtn'),
+    keyTesterModeBtn: document.getElementById('keyTesterModeBtn'),
     hexColorInput: document.getElementById('hexColorInput'),
     palettePreview: document.getElementById('palettePreview'),
+    keyTesterOutput: document.getElementById('keyTesterOutput'),
     keyList: document.getElementById('keyList'),
     activeKeyCount: document.getElementById('activeKeyCount'),
     fullscreenStatus: document.getElementById('fullscreenStatus'),
@@ -257,6 +293,29 @@ export function renderApp() {
         return;
       }
       refs.keyList.innerHTML = keys.map((key) => `<span class="key-badge">${escapeHtml(key)}</span>`).join('');
+    },
+    renderKeyTest(event) {
+      const modifiers = [
+        event.metaKey ? 'Meta' : '',
+        event.ctrlKey ? 'Ctrl' : '',
+        event.altKey ? 'Alt' : '',
+        event.shiftKey ? 'Shift' : ''
+      ].filter(Boolean).join(' + ') || 'none';
+
+      refs.keyTesterOutput.innerHTML = `
+        <div><span>key</span><strong>${escapeHtml(event.key || '(empty)')}</strong></div>
+        <div><span>code</span><strong>${escapeHtml(event.code || '(empty)')}</strong></div>
+        <div><span>location</span><strong>${escapeHtml(event.location)}</strong></div>
+        <div><span>repeat</span><strong>${event.repeat ? 'yes' : 'no'}</strong></div>
+        <div><span>modifiers</span><strong>${escapeHtml(modifiers)}</strong></div>
+      `;
+    },
+    setKeyTesterMode(isActive) {
+      document.body.classList.toggle('key-tester-mode', isActive);
+      refs.keyTesterModeBtn.textContent = isActive ? 'Exit tester' : 'Enter tester';
+    },
+    setKeyTesterInfoOpen(isOpen) {
+      refs.keyTesterInfoOverlay.hidden = !isOpen;
     },
     setFullscreenState(isFullscreen) {
       refs.fullscreenStatus.textContent = isFullscreen ? 'On' : 'Off';

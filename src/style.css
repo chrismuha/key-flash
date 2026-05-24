@@ -171,6 +171,34 @@ h2 {
   transition: transform .15s ease, background .15s ease, border-color .15s ease;
 }
 
+.compact-btn {
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+.key-tester-mode-btn {
+  font-size: 0.98em;
+  padding: 7.84px 11.76px;
+  transform: translateY(-5px);
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 999px;
+  font-weight: 800;
+  transform: translateY(-5px);
+}
+
+.mini-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .primary-btn {
   background: linear-gradient(135deg, rgba(121,231,255,0.22), rgba(157,139,255,0.2));
 }
@@ -348,6 +376,77 @@ input[type="checkbox"] {
   padding: 9px 12px;
   background: rgba(255,255,255,0.07);
   border: 1px solid rgba(255,255,255,0.10);
+}
+
+.key-tester-output {
+  display: grid;
+  gap: 8px;
+  min-height: 44px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.key-tester-output div {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.key-tester-output span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.key-tester-output strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+body.key-tester-mode .key-tester-output {
+  border-color: rgba(121,231,255,0.45);
+  background: rgba(121,231,255,0.08);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(3, 6, 12, 0.62);
+}
+
+.modal-overlay[hidden] {
+  display: none;
+}
+
+.modal-card {
+  width: min(520px, 100%);
+  border-radius: 18px;
+  padding: 22px;
+}
+
+.info-list {
+  display: grid;
+  gap: 10px;
+}
+
+.info-list div {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.info-list span {
+  color: var(--muted);
 }
 
 .swatch-color {

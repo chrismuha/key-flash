@@ -11,6 +11,7 @@ const HEX_COLOR_PATTERN = /^#([0-9a-f]{6}|[0-9a-f]{3})$/i;
 async function init() {
   const ui = renderApp();
   let isSettingsOpen = false;
+  let isKeyTesterMode = false;
   state.settings = await loadSettings(window.keyFlashAPI);
   ui.setFormValues(state.settings);
   ui.renderPressedKeys([]);
@@ -110,9 +111,30 @@ async function init() {
     setSettingsOpen(true);
   }
 
+  function setKeyTesterInfoOpen(nextValue) {
+    ui.setKeyTesterInfoOpen(Boolean(nextValue));
+  }
+
+  function setKeyTesterMode(nextValue) {
+    isKeyTesterMode = Boolean(nextValue);
+    ui.setKeyTesterMode(isKeyTesterMode);
+    if (isKeyTesterMode) {
+      state.pressedKeys.clear();
+      ui.renderPressedKeys([]);
+      flash.stopHeldFlashLoop();
+    }
+  }
+
+  function toggleKeyTesterMode() {
+    setKeyTesterMode(!isKeyTesterMode);
+  }
+
   ui.refs.fullscreenBtn.addEventListener('click', toggleFullscreen);
   ui.refs.hideUiBtn.addEventListener('click', toggleFocusMode);
   ui.refs.settingsBtn.addEventListener('click', toggleSettings);
+  ui.refs.keyTesterModeBtn.addEventListener('click', toggleKeyTesterMode);
+  ui.refs.keyTesterInfoBtn.addEventListener('click', () => setKeyTesterInfoOpen(true));
+  ui.refs.closeKeyTesterInfoBtn.addEventListener('click', () => setKeyTesterInfoOpen(false));
   ui.refs.focusMode.addEventListener('change', syncDisplayFromInputs);
   ui.refs.showHero.addEventListener('change', syncDisplayFromInputs);
   ui.refs.showSettingsPanel.addEventListener('change', syncDisplayFromInputs);
@@ -123,13 +145,25 @@ async function init() {
     if (!isSettingsOpen || !state.settings.closeSettingsOnOutsideClick) return;
     const target = event.target;
     if (!(target instanceof Node)) return;
+    if (!ui.refs.keyTesterInfoOverlay.hidden && ui.refs.keyTesterInfoOverlay === target) {
+      setKeyTesterInfoOpen(false);
+      return;
+    }
     if (ui.refs.settingsPanel.contains(target) || ui.refs.settingsBtn.contains(target)) return;
     setSettingsOpen(false);
   });
 
+  window.addEventListener('keydown', (event) => {
+    ui.renderKeyTest(event);
+  }, true);
+
   setupKeyboard(state, {
-    onNewKey: () => flash.scheduleFlash(),
-    onHeldKeysActive: () => flash.startHeldFlashLoop(),
+    onNewKey: () => {
+      if (!isKeyTesterMode) flash.scheduleFlash();
+    },
+    onHeldKeysActive: () => {
+      if (!isKeyTesterMode) flash.startHeldFlashLoop();
+    },
     onHeldKeysInactive: () => flash.stopHeldFlashLoop(),
     onKeysChanged: (keys) => ui.renderPressedKeys(keys),
     onToggleFullscreen: toggleFullscreen,
