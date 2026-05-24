@@ -13,6 +13,11 @@
 
 * { box-sizing: border-box; }
 
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+
 html, body, #app {
   margin: 0;
   width: 100%;
@@ -61,7 +66,7 @@ button {
   z-index: 0;
 }
 
-.show-ui-btn {
+.settings-btn {
   position: fixed;
   top: 16px;
   right: 16px;
@@ -73,6 +78,8 @@ button {
   background: rgba(8, 12, 20, 0.76);
   backdrop-filter: blur(12px);
   cursor: pointer;
+  transform: none;
+  transition: background .15s ease, border-color .15s ease;
 }
 
 .ghost-btn {
@@ -174,16 +181,41 @@ h2 {
 
 .primary-btn:hover,
 .secondary-btn:hover,
-.ghost-btn:hover,
-.show-ui-btn:hover {
+.ghost-btn:hover {
   transform: translateY(-1px);
   border-color: rgba(255,255,255,0.25);
 }
 
-body.chrome-hidden .chrome {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+.settings-btn:hover,
+.settings-btn:active,
+.settings-btn:focus-visible {
+  transform: none;
+  border-color: rgba(255,255,255,0.25);
+}
+
+body.focus-mode .hero,
+body.focus-mode .status-panel,
+body.focus-mode:not(.settings-open) .settings-panel,
+body.hide-hero .hero,
+body.hide-status-panel .status-panel,
+body.hide-settings-panel:not(.settings-open) .settings-panel {
+  display: none;
+}
+
+body.settings-open .settings-panel {
+  display: block;
+  position: fixed;
+  top: 72px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2;
+  width: min(480px, calc(100vw - 32px));
+  overflow: auto;
+}
+
+body.settings-open .settings-btn {
+  border-color: rgba(121,231,255,0.55);
+  background: rgba(30, 42, 62, 0.92);
 }
 
 .panel-header,
@@ -250,11 +282,26 @@ input[type="checkbox"] {
   height: 18px;
 }
 
-.check-row {
+.check-row,
+.switch-row {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 20px;
+}
+
+.display-options {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.display-options .switch-row {
+  margin: 0;
 }
 
 .value-pill {
@@ -272,6 +319,22 @@ input[type="checkbox"] {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.active-keys-field {
+  margin-bottom: 18px;
+}
+
+.key-list {
+  min-height: 42px;
+  max-height: 96px;
+  align-content: flex-start;
+  align-items: flex-start;
+  overflow: auto;
+}
+
+.tips-field {
+  margin-bottom: 0;
 }
 
 .swatch-badge,

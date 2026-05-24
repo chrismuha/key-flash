@@ -32,6 +32,11 @@ export function getNormalizedSettings(formValues) {
     colorOrder: normalizeColorOrder(formValues.colorOrder),
     flashOpacity: normalizeFloat(formValues.flashOpacity, DEFAULTS.flashOpacity, 0.1, 1),
     fullscreenOnLaunch: Boolean(formValues.fullscreenOnLaunch),
+    focusMode: Boolean(formValues.focusMode),
+    showHero: Boolean(formValues.showHero),
+    showSettingsPanel: Boolean(formValues.showSettingsPanel),
+    showStatusPanel: Boolean(formValues.showStatusPanel),
+    closeSettingsOnOutsideClick: Boolean(formValues.closeSettingsOnOutsideClick),
     colors: parsedColors.length ? parsedColors : [...DEFAULTS.colors]
   };
 }
@@ -43,6 +48,11 @@ export async function loadSettings(api) {
       ...DEFAULTS,
       ...saved,
       colorOrder: normalizeColorOrder(saved?.colorOrder),
+      focusMode: Boolean(saved?.focusMode),
+      showHero: saved?.showHero !== false,
+      showSettingsPanel: saved?.showSettingsPanel !== false,
+      showStatusPanel: saved?.showStatusPanel !== false,
+      closeSettingsOnOutsideClick: saved?.closeSettingsOnOutsideClick !== false,
       colors: Array.isArray(saved?.colors) && saved.colors.length ? saved.colors : [...DEFAULTS.colors]
     };
   } catch {

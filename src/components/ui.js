@@ -20,29 +20,52 @@ export function renderApp() {
   document.querySelector('#app').innerHTML = `
     <div class="app-shell">
       <div id="flashLayer" class="flash-layer"></div>
-      <button id="showUiBtn" class="show-ui-btn" type="button" hidden>Show controls</button>
+      <button id="settingsBtn" class="settings-btn" type="button" aria-expanded="false" title="Settings">Settings</button>
 
       <div id="chrome" class="chrome">
-        <div class="hero">
+        <div id="heroSection" class="hero">
           <div class="hero-card glass">
             <div class="eyebrow">Keyboard reactive screen flasher</div>
             <h1>KeyFlash Pro</h1>
             <p class="hero-copy">
-              Press any key and the screen flashes through your chosen color set. Includes live preview, sliders, fullscreen mode, and saved settings.
+              Press any key and the screen flashes through your chosen color set.
             </p>
             <div class="hero-actions">
               <button id="previewBtn" class="primary-btn">Preview flash</button>
               <button id="fullscreenBtn" class="secondary-btn">Toggle fullscreen</button>
-              <button id="hideUiBtn" class="ghost-btn" type="button">Hide controls</button>
+              <button id="hideUiBtn" class="ghost-btn" type="button">Focus mode</button>
             </div>
           </div>
         </div>
 
         <div class="layout">
-          <section class="panel glass">
+          <section id="settingsPanel" class="panel glass settings-panel">
             <div class="panel-header">
               <h2>Settings</h2>
               <span class="hint">Changes save locally</span>
+            </div>
+
+            <div class="display-options">
+              <label class="switch-row">
+                <input id="focusMode" type="checkbox" />
+                <span>Focus mode</span>
+              </label>
+              <label class="switch-row">
+                <input id="showHero" type="checkbox" />
+                <span>Show welcome panel</span>
+              </label>
+              <label class="switch-row">
+                <input id="showSettingsPanel" type="checkbox" />
+                <span>Show settings panel</span>
+              </label>
+              <label class="switch-row">
+                <input id="showStatusPanel" type="checkbox" />
+                <span>Show status panel</span>
+              </label>
+              <label class="switch-row">
+                <input id="closeSettingsOnOutsideClick" type="checkbox" />
+                <span>Click outside closes Settings</span>
+              </label>
             </div>
 
             <div class="field">
@@ -106,7 +129,7 @@ export function renderApp() {
             </div>
           </section>
 
-          <aside class="panel glass">
+          <aside id="statusPanel" class="panel glass status-panel">
             <div class="panel-header">
               <h2>Status</h2>
               <span class="hint">Live activity</span>
@@ -123,14 +146,14 @@ export function renderApp() {
               </div>
             </div>
 
-            <div class="field">
+            <div class="field active-keys-field">
               <label>Keys currently held</label>
               <div id="keyList" class="key-list">
                 <span class="empty">None</span>
               </div>
             </div>
 
-            <div class="field">
+            <div class="field tips-field">
               <label>Tips</label>
               <div class="tips">
                 <div class="tip">F11 toggles fullscreen</div>
@@ -147,10 +170,13 @@ export function renderApp() {
   const refs = {
     flashLayer: document.getElementById('flashLayer'),
     chrome: document.getElementById('chrome'),
+    heroSection: document.getElementById('heroSection'),
+    settingsPanel: document.getElementById('settingsPanel'),
+    statusPanel: document.getElementById('statusPanel'),
+    settingsBtn: document.getElementById('settingsBtn'),
     previewBtn: document.getElementById('previewBtn'),
     fullscreenBtn: document.getElementById('fullscreenBtn'),
     hideUiBtn: document.getElementById('hideUiBtn'),
-    showUiBtn: document.getElementById('showUiBtn'),
     saveBtn: document.getElementById('saveBtn'),
     resetBtn: document.getElementById('resetBtn'),
     addColorBtn: document.getElementById('addColorBtn'),
@@ -166,6 +192,11 @@ export function renderApp() {
     flashOpacity: document.getElementById('flashOpacity'),
     colorsInput: document.getElementById('colorsInput'),
     fullscreenOnLaunch: document.getElementById('fullscreenOnLaunch'),
+    focusMode: document.getElementById('focusMode'),
+    showHero: document.getElementById('showHero'),
+    showSettingsPanel: document.getElementById('showSettingsPanel'),
+    showStatusPanel: document.getElementById('showStatusPanel'),
+    closeSettingsOnOutsideClick: document.getElementById('closeSettingsOnOutsideClick'),
     flashDelayMsValue: document.getElementById('flashDelayMsValue'),
     minTimeBetweenFlashesMsValue: document.getElementById('minTimeBetweenFlashesMsValue'),
     flashDurationMsValue: document.getElementById('flashDurationMsValue'),
@@ -182,8 +213,14 @@ export function renderApp() {
       refs.flashOpacity.value = settings.flashOpacity;
       refs.colorsInput.value = settings.colors.join(', ');
       refs.fullscreenOnLaunch.checked = Boolean(settings.fullscreenOnLaunch);
+      refs.focusMode.checked = Boolean(settings.focusMode);
+      refs.showHero.checked = settings.showHero !== false;
+      refs.showSettingsPanel.checked = settings.showSettingsPanel !== false;
+      refs.showStatusPanel.checked = settings.showStatusPanel !== false;
+      refs.closeSettingsOnOutsideClick.checked = settings.closeSettingsOnOutsideClick !== false;
       this.updateValueLabels(settings);
       this.renderPalette(settings.colors);
+      this.setDisplayOptions(settings);
     },
     getFormValues() {
       return {
@@ -193,7 +230,12 @@ export function renderApp() {
         colorOrder: refs.colorOrder.value,
         flashOpacity: refs.flashOpacity.value,
         colorsText: refs.colorsInput.value,
-        fullscreenOnLaunch: refs.fullscreenOnLaunch.checked
+        fullscreenOnLaunch: refs.fullscreenOnLaunch.checked,
+        focusMode: refs.focusMode.checked,
+        showHero: refs.showHero.checked,
+        showSettingsPanel: refs.showSettingsPanel.checked,
+        showStatusPanel: refs.showStatusPanel.checked,
+        closeSettingsOnOutsideClick: refs.closeSettingsOnOutsideClick.checked
       };
     },
     updateValueLabels(values) {
@@ -225,10 +267,16 @@ export function renderApp() {
       refs.colorsInput.value = existing ? `${existing}, ${color}` : color;
       refs.hexColorInput.value = '';
     },
-    setChromeHidden(isHidden) {
-      document.body.classList.toggle('chrome-hidden', isHidden);
-      refs.showUiBtn.hidden = !isHidden;
-      refs.hideUiBtn.textContent = isHidden ? 'Show controls' : 'Hide controls';
+    setSettingsOpen(isOpen) {
+      document.body.classList.toggle('settings-open', isOpen);
+      refs.settingsBtn.setAttribute('aria-expanded', String(isOpen));
+    },
+    setDisplayOptions(settings) {
+      document.body.classList.toggle('focus-mode', Boolean(settings.focusMode));
+      document.body.classList.toggle('hide-hero', settings.showHero === false);
+      document.body.classList.toggle('hide-settings-panel', settings.showSettingsPanel === false);
+      document.body.classList.toggle('hide-status-panel', settings.showStatusPanel === false);
+      refs.hideUiBtn.textContent = settings.focusMode ? 'Show panels' : 'Focus mode';
     }
   };
 }

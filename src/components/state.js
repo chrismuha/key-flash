@@ -5,7 +5,12 @@ export const DEFAULTS = {
   colors: ['#ff0000','#ff7f00','#ffff00','#00ff00','#0000ff','#4b0082','#9400d3'],
   colorOrder: 'sequence',
   flashOpacity: 1,
-  fullscreenOnLaunch: false
+  fullscreenOnLaunch: false,
+  focusMode: false,
+  showHero: true,
+  showSettingsPanel: true,
+  showStatusPanel: true,
+  closeSettingsOnOutsideClick: true
 };
 
 export function createState() {

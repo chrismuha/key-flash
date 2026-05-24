@@ -13,6 +13,8 @@ export function setupKeyboard(state, { onNewKey, onKeysChanged, onToggleFullscre
   }
 
   window.addEventListener('keydown', (event) => {
+    const isSpaceKey = event.key === ' ' || event.key === 'Spacebar';
+
     if (event.key === 'F11') {
       event.preventDefault();
       onToggleFullscreen?.();
@@ -27,6 +29,10 @@ export function setupKeyboard(state, { onNewKey, onKeysChanged, onToggleFullscre
 
     if (event.key === 'Escape') {
       onRevealUi?.();
+    }
+
+    if (isSpaceKey && !isEditableTarget(event.target)) {
+      event.preventDefault();
     }
 
     const label = keyLabel(event);
