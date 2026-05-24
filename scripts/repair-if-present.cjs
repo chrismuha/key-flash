@@ -3,7 +3,7 @@ const { join, dirname } = require('path');
 const { spawnSync } = require('child_process');
 
 const scriptDir = dirname(__filename);
-const repairFile = join(scriptDir, '..', '_shared', 'repair.mjs');
+const repairFile = join(scriptDir, '..', '..', '_shared', 'repair.mjs');
 const appRoot = join(scriptDir, '..');
 
 function ensureSymlink(linkPath, targetPath) {
