@@ -44,7 +44,7 @@ export function renderApp() {
         <div id="heroSection" class="hero">
           <div class="hero-card glass">
             <div class="eyebrow">Keyboard reactive screen flasher</div>
-            <h1>KeyFlash Pro</h1>
+            <h1>KeyFlash</h1>
             <p class="hero-copy">
               Press any key and the screen flashes through your chosen color set.
             </p>

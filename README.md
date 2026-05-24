@@ -1,4 +1,4 @@
-# KeyFlash Pro
+# KeyFlash
 
 A modular Electron + Vite desktop app that flashes the screen when keyboard keys are pressed.
 
