@@ -1,4 +1,5 @@
 import './style.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import { createState, DEFAULTS } from './components/state.js';
 import { loadSettings, saveSettings, getNormalizedSettings, parseColors } from './components/settings.js';
 import { createFlashController } from './components/flash.js';
@@ -12,11 +13,15 @@ async function init() {
   const ui = renderApp();
   let isSettingsOpen = false;
   let isKeyTesterMode = false;
+  let activeContext = 'home';
+  let activeTab = 'play';
   state.settings = await loadSettings(window.keyFlashAPI);
   ui.setFormValues(state.settings);
   ui.renderPressedKeys([]);
   ui.setFullscreenState(false);
   ui.setSettingsOpen(false);
+  ui.setAppContext(activeContext);
+  ui.setActiveTab(activeTab);
 
   const flash = createFlashController(state, ui.refs.flashLayer);
 
@@ -68,7 +73,7 @@ async function init() {
   ui.refs.previewBtn.addEventListener('click', () => {
     const draft = getNormalizedSettings(ui.getFormValues());
     state.settings = { ...draft };
-    flash.previewFlash(draft.colors[0]);
+    flash.previewFlash();
   });
 
   ui.refs.saveBtn.addEventListener('click', async () => {
@@ -103,6 +108,7 @@ async function init() {
   }
 
   function toggleFocusMode() {
+    if (activeTab !== 'play') return;
     ui.refs.focusMode.checked = !ui.refs.focusMode.checked;
     syncDisplayFromInputs();
   }
@@ -125,20 +131,69 @@ async function init() {
     }
   }
 
-  function toggleKeyTesterMode() {
-    setKeyTesterMode(!isKeyTesterMode);
+  function setAppContext(nextContext) {
+    activeContext = nextContext;
+    ui.setAppContext(activeContext);
+    setSettingsOpen(false);
+    if (activeContext === 'home') {
+      setKeyTesterMode(false);
+      return;
+    }
+    setActiveTab(activeTab);
   }
 
+  function setActiveTab(nextTab) {
+    activeTab = nextTab;
+    ui.setActiveTab(activeTab);
+    setKeyTesterMode(activeContext === 'app' && activeTab === 'tester');
+  }
+
+  function restorePlayScreen() {
+    state.settings = {
+      ...state.settings,
+      focusMode: false,
+      showHero: true
+    };
+    ui.refs.focusMode.checked = false;
+    ui.refs.showHero.checked = true;
+    ui.setDisplayOptions(state.settings);
+  }
+
+  function goToMainScreen() {
+    activeTab = 'play';
+    setKeyTesterInfoOpen(false);
+    setSettingsOpen(false);
+    setKeyTesterMode(false);
+    state.pressedKeys.clear();
+    ui.renderPressedKeys([]);
+    flash.stopHeldFlashLoop();
+    ui.setActiveTab(activeTab);
+    setAppContext('home');
+  }
+
+  ui.refs.playContextBtn.addEventListener('click', () => {
+    activeTab = 'play';
+    restorePlayScreen();
+    setAppContext('app');
+  });
+  ui.refs.diagnoseContextBtn.addEventListener('click', () => {
+    activeTab = 'tester';
+    setSettingsOpen(false);
+    setAppContext('app');
+  });
+  ui.refs.homeTabBtn.addEventListener('click', goToMainScreen);
+  ui.refs.mainScreenBtn.addEventListener('click', goToMainScreen);
+  ui.refs.testerMainScreenBtn.addEventListener('click', goToMainScreen);
+  ui.refs.playTabBtn.addEventListener('click', () => setActiveTab('play'));
+  ui.refs.testerTabBtn.addEventListener('click', () => setActiveTab('tester'));
   ui.refs.fullscreenBtn.addEventListener('click', toggleFullscreen);
   ui.refs.hideUiBtn.addEventListener('click', toggleFocusMode);
   ui.refs.settingsBtn.addEventListener('click', toggleSettings);
-  ui.refs.keyTesterModeBtn.addEventListener('click', toggleKeyTesterMode);
   ui.refs.keyTesterInfoBtn.addEventListener('click', () => setKeyTesterInfoOpen(true));
   ui.refs.closeKeyTesterInfoBtn.addEventListener('click', () => setKeyTesterInfoOpen(false));
   ui.refs.focusMode.addEventListener('change', syncDisplayFromInputs);
   ui.refs.showHero.addEventListener('change', syncDisplayFromInputs);
-  ui.refs.showSettingsPanel.addEventListener('change', syncDisplayFromInputs);
-  ui.refs.showStatusPanel.addEventListener('change', syncDisplayFromInputs);
+  ui.refs.hideStatus.addEventListener('change', syncDisplayFromInputs);
   ui.refs.closeSettingsOnOutsideClick.addEventListener('change', syncDisplayFromInputs);
 
   document.addEventListener('pointerdown', (event) => {
@@ -154,15 +209,16 @@ async function init() {
   });
 
   window.addEventListener('keydown', (event) => {
+    if (!isKeyTesterMode) return;
     ui.renderKeyTest(event);
   }, true);
 
   setupKeyboard(state, {
     onNewKey: () => {
-      if (!isKeyTesterMode) flash.scheduleFlash();
+      if (activeContext === 'app' && activeTab === 'play') flash.scheduleFlash();
     },
     onHeldKeysActive: () => {
-      if (!isKeyTesterMode) flash.startHeldFlashLoop();
+      if (activeContext === 'app' && activeTab === 'play') flash.startHeldFlashLoop();
     },
     onHeldKeysInactive: () => flash.stopHeldFlashLoop(),
     onKeysChanged: (keys) => ui.renderPressedKeys(keys),

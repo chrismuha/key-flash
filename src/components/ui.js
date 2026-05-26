@@ -41,70 +41,147 @@ export function renderApp() {
       </div>
 
       <div id="chrome" class="chrome">
-        <div id="heroSection" class="hero">
-          <div class="hero-card glass">
-            <div class="eyebrow">Keyboard reactive screen flasher</div>
+        <main id="homeView" class="home-view">
+          <div class="home-heading">
             <h1>KeyFlash</h1>
-            <p class="hero-copy">
-              Press any key and the screen flashes through your chosen color set.
-            </p>
-            <div class="hero-actions">
-              <button id="previewBtn" class="primary-btn">Preview flash</button>
-              <button id="fullscreenBtn" class="secondary-btn">Toggle fullscreen</button>
-              <button id="hideUiBtn" class="ghost-btn" type="button">Focus mode</button>
-            </div>
+            <h2>Select a context.</h2>
           </div>
-        </div>
+          <div class="context-grid" aria-label="KeyFlash contexts">
+            <button id="playContextBtn" class="context-card" type="button">
+              <i class="bi bi-play-fill context-icon" aria-hidden="true"></i>
+              <span class="context-title">Play</span>
+              <span class="context-note">Open KeyFlash</span>
+            </button>
+            <button id="diagnoseContextBtn" class="context-card" type="button">
+              <i class="bi bi-activity context-icon" aria-hidden="true"></i>
+              <span class="context-title">Diagnose</span>
+              <span class="context-note">Test keyboard input</span>
+            </button>
+          </div>
+        </main>
 
-        <div class="layout">
-          <section id="settingsPanel" class="panel glass settings-panel">
-            <div class="panel-header">
-              <h2>Settings</h2>
-              <span class="hint">Changes save locally</span>
-            </div>
+        <main id="appView" class="app-view" hidden>
+          <nav class="app-tabs" aria-label="KeyFlash sections">
+            <button id="homeTabBtn" class="tab-btn main-screen-btn" type="button">Main Screen</button>
+            <button id="playTabBtn" class="tab-btn active" type="button" aria-selected="true">Play</button>
+            <button id="testerTabBtn" class="tab-btn" type="button" aria-selected="false">Diagnose</button>
+          </nav>
 
-            <div class="display-options">
-              <label class="switch-row">
-                <input id="focusMode" type="checkbox" />
-                <span>Focus mode</span>
-              </label>
-              <label class="switch-row">
-                <input id="showHero" type="checkbox" />
-                <span>Show welcome panel</span>
-              </label>
-              <label class="switch-row">
-                <input id="showSettingsPanel" type="checkbox" />
-                <span>Show settings panel</span>
-              </label>
-              <label class="switch-row">
-                <input id="showStatusPanel" type="checkbox" />
-                <span>Show status panel</span>
-              </label>
-              <label class="switch-row">
-                <input id="closeSettingsOnOutsideClick" type="checkbox" />
-                <span>Click outside closes Settings</span>
-              </label>
-              <label class="switch-row">
-                <input id="fullscreenOnLaunch" type="checkbox" />
-                <span>Start maximized on launch</span>
-              </label>
-            </div>
-
-            <div class="field">
-              <div class="field-row">
-                <label for="flashDelayMs">Delay before flash</label>
-                <span id="flashDelayMsValue" class="value-pill">0 ms</span>
+          <section id="playPanel" class="tab-panel">
+            <div id="heroSection" class="hero">
+              <div class="hero-card glass">
+                <div class="eyebrow">Keyboard reactive screen flasher</div>
+                <h1>KeyFlash</h1>
+                <p class="hero-copy">
+                  Press any key and the screen flashes through your chosen color set.
+                </p>
+                <div class="hero-actions">
+                  <button id="previewBtn" class="primary-btn">Preview flash</button>
+                  <button id="fullscreenBtn" class="secondary-btn">Toggle fullscreen</button>
+                  <button id="hideUiBtn" class="ghost-btn" type="button">Focus mode</button>
+                  <button id="mainScreenBtn" class="secondary-btn" type="button">Main screen</button>
+                </div>
               </div>
-              <input id="flashDelayMs" type="range" min="0" max="1000" step="10" />
+            </div>
+          </section>
+
+          <section id="testerPanel" class="tab-panel tester-panel" hidden>
+            <div class="panel glass tester-card">
+              <div class="panel-header">
+                <div>
+                  <h2>Key Tester</h2>
+                  <p class="panel-copy">Press a key to inspect its browser key values without triggering a flash.</p>
+                </div>
+                <div class="tester-actions">
+                  <button id="testerMainScreenBtn" class="secondary-btn compact-btn" type="button">Main screen</button>
+                  <button id="keyTesterInfoBtn" class="secondary-btn compact-btn" type="button">Info</button>
+                </div>
+              </div>
+              <div id="keyTesterOutput" class="key-tester-output">
+                <span class="empty">Press any key to test it</span>
+              </div>
             </div>
 
-            <div class="field">
-              <div class="field-row">
-                <label for="minTimeBetweenFlashesMs">Minimum time between flashes</label>
-                <span id="minTimeBetweenFlashesMsValue" class="value-pill">120 ms</span>
+            <aside id="statusPanel" class="panel glass status-panel diagnose-status">
+              <div class="panel-header">
+                <h2>Status</h2>
+                <span class="hint">Live activity</span>
               </div>
-              <input id="minTimeBetweenFlashesMs" type="range" min="0" max="1000" step="10" />
+
+              <div class="metric-grid">
+                <div class="metric-card">
+                  <div class="metric-label">Fullscreen</div>
+                  <div id="fullscreenStatus" class="metric-value">Off</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label">Active keys</div>
+                  <div id="activeKeyCount" class="metric-value">0</div>
+                </div>
+              </div>
+
+              <div class="field active-keys-field">
+                <label>Keys currently held</label>
+                <div id="keyList" class="key-list">
+                  <span class="empty">None</span>
+                </div>
+              </div>
+
+              <div class="field tips-field">
+                <label>Tips</label>
+                <div class="tips">
+                  <div class="tip">F11 toggles fullscreen</div>
+                  <div class="tip">Ctrl+H hides or shows the controls</div>
+                  <div class="tip">Escape brings the controls back</div>
+                </div>
+              </div>
+            </aside>
+          </section>
+        </main>
+
+        <section id="settingsPanel" class="panel glass settings-panel" aria-label="Settings">
+          <div class="panel-header">
+            <h2>Settings</h2>
+            <span class="hint">Changes save locally</span>
+          </div>
+
+          <div class="display-options">
+            <label id="focusModeSetting" class="switch-row play-only-setting">
+              <input id="focusMode" type="checkbox" />
+              <span>Focus mode</span>
+            </label>
+            <label class="switch-row">
+              <input id="showHero" type="checkbox" />
+              <span>Show welcome panel</span>
+            </label>
+            <label class="switch-row">
+              <input id="hideStatus" type="checkbox" />
+              <span>Hide status</span>
+            </label>
+            <label class="switch-row">
+              <input id="closeSettingsOnOutsideClick" type="checkbox" />
+              <span>Click outside closes Settings</span>
+            </label>
+            <label class="switch-row">
+              <input id="fullscreenOnLaunch" type="checkbox" />
+              <span>Start maximized on launch</span>
+            </label>
+          </div>
+
+          <div class="field">
+            <div class="field-row">
+              <label for="flashDelayMs">Delay before flash</label>
+              <span id="flashDelayMsValue" class="value-pill">0 ms</span>
             </div>
+            <input id="flashDelayMs" type="range" min="0" max="1000" step="10" />
+          </div>
+
+          <div class="field">
+            <div class="field-row">
+              <label for="minTimeBetweenFlashesMs">Minimum time between flashes</label>
+              <span id="minTimeBetweenFlashesMsValue" class="value-pill">120 ms</span>
+            </div>
+            <input id="minTimeBetweenFlashesMs" type="range" min="0" max="1000" step="10" />
+          </div>
 
           <div class="field">
             <div class="field-row">
@@ -114,85 +191,37 @@ export function renderApp() {
             <input id="flashDurationMs" type="range" min="20" max="1200" step="10" />
           </div>
 
-            <div class="field">
-              <label for="colorOrder">Color order</label>
-              <select id="colorOrder">
-                <option value="sequence">Cycle in order</option>
-                <option value="random">Random each flash</option>
-              </select>
-            </div>
+          <div class="field">
+            <label for="colorOrder">Color order</label>
+            <select id="colorOrder">
+              <option value="sequence">Cycle in order</option>
+              <option value="random">Random each flash</option>
+            </select>
+          </div>
 
-            <div class="field">
-              <div class="field-row">
-                <label for="flashOpacity">Flash strength</label>
-                <span id="flashOpacityValue" class="value-pill">100%</span>
-              </div>
-              <input id="flashOpacity" type="range" min="0.1" max="1" step="0.05" />
+          <div class="field">
+            <div class="field-row">
+              <label for="flashOpacity">Flash strength</label>
+              <span id="flashOpacityValue" class="value-pill">100%</span>
             </div>
+            <input id="flashOpacity" type="range" min="0.1" max="1" step="0.05" />
+          </div>
 
-            <div class="field">
-              <label for="colorsInput">Colors</label>
-              <div class="add-color-row">
-                <input id="hexColorInput" type="text" inputmode="text" placeholder="#ff00aa" maxlength="7" />
-                <button id="addColorBtn" class="secondary-btn" type="button">Add hex</button>
-              </div>
-              <textarea id="colorsInput" placeholder="#ff0000, #00ff00, #0000ff"></textarea>
-              <div id="palettePreview" class="palette"></div>
+          <div class="field">
+            <label for="colorsInput">Colors</label>
+            <div class="add-color-row">
+              <input id="hexColorInput" type="text" inputmode="text" placeholder="#ff00aa" maxlength="7" />
+              <button id="addColorBtn" class="secondary-btn" type="button">Add hex</button>
             </div>
+            <textarea id="colorsInput" placeholder="#ff0000, #00ff00, #0000ff"></textarea>
+            <div id="palettePreview" class="palette"></div>
+          </div>
 
-            <div class="field key-tester">
-              <div class="field-row">
-                <label>Key tester</label>
-                <div class="mini-actions">
-                  <button id="keyTesterInfoBtn" class="secondary-btn icon-btn" type="button" aria-label="Key tester info" title="Key tester info">i</button>
-                  <button id="keyTesterModeBtn" class="secondary-btn compact-btn key-tester-mode-btn" type="button">Enter tester</button>
-                </div>
-              </div>
-              <div id="keyTesterOutput" class="key-tester-output">
-                <span class="empty">Enter tester mode to capture keys without flashing</span>
-              </div>
-            </div>
-
-            <div class="button-row">
-              <button id="saveBtn" class="primary-btn">Save settings</button>
-              <button id="resetBtn" class="secondary-btn">Reset rainbow</button>
-            </div>
-          </section>
-
-          <aside id="statusPanel" class="panel glass status-panel">
-            <div class="panel-header">
-              <h2>Status</h2>
-              <span class="hint">Live activity</span>
-            </div>
-
-            <div class="metric-grid">
-              <div class="metric-card">
-                <div class="metric-label">Fullscreen</div>
-                <div id="fullscreenStatus" class="metric-value">Off</div>
-              </div>
-              <div class="metric-card">
-                <div class="metric-label">Active keys</div>
-                <div id="activeKeyCount" class="metric-value">0</div>
-              </div>
-            </div>
-
-            <div class="field active-keys-field">
-              <label>Keys currently held</label>
-              <div id="keyList" class="key-list">
-                <span class="empty">None</span>
-              </div>
-            </div>
-
-            <div class="field tips-field">
-              <label>Tips</label>
-              <div class="tips">
-                <div class="tip">F11 toggles fullscreen</div>
-                <div class="tip">Ctrl+H hides or shows the controls</div>
-                <div class="tip">Escape brings the controls back</div>
-              </div>
-            </div>
-          </aside>
-        </div>
+          <div class="button-row">
+            <button id="saveBtn" class="primary-btn">Save settings</button>
+            <button id="resetBtn" class="secondary-btn">Reset rainbow</button>
+          </div>
+        </section>
       </div>
     </div>
   `;
@@ -200,6 +229,10 @@ export function renderApp() {
   const refs = {
     flashLayer: document.getElementById('flashLayer'),
     chrome: document.getElementById('chrome'),
+    homeView: document.getElementById('homeView'),
+    appView: document.getElementById('appView'),
+    playPanel: document.getElementById('playPanel'),
+    testerPanel: document.getElementById('testerPanel'),
     heroSection: document.getElementById('heroSection'),
     settingsPanel: document.getElementById('settingsPanel'),
     statusPanel: document.getElementById('statusPanel'),
@@ -207,13 +240,19 @@ export function renderApp() {
     keyTesterInfoBtn: document.getElementById('keyTesterInfoBtn'),
     closeKeyTesterInfoBtn: document.getElementById('closeKeyTesterInfoBtn'),
     settingsBtn: document.getElementById('settingsBtn'),
+    playContextBtn: document.getElementById('playContextBtn'),
+    diagnoseContextBtn: document.getElementById('diagnoseContextBtn'),
+    homeTabBtn: document.getElementById('homeTabBtn'),
+    playTabBtn: document.getElementById('playTabBtn'),
+    testerTabBtn: document.getElementById('testerTabBtn'),
+    mainScreenBtn: document.getElementById('mainScreenBtn'),
+    testerMainScreenBtn: document.getElementById('testerMainScreenBtn'),
     previewBtn: document.getElementById('previewBtn'),
     fullscreenBtn: document.getElementById('fullscreenBtn'),
     hideUiBtn: document.getElementById('hideUiBtn'),
     saveBtn: document.getElementById('saveBtn'),
     resetBtn: document.getElementById('resetBtn'),
     addColorBtn: document.getElementById('addColorBtn'),
-    keyTesterModeBtn: document.getElementById('keyTesterModeBtn'),
     hexColorInput: document.getElementById('hexColorInput'),
     palettePreview: document.getElementById('palettePreview'),
     keyTesterOutput: document.getElementById('keyTesterOutput'),
@@ -227,10 +266,10 @@ export function renderApp() {
     flashOpacity: document.getElementById('flashOpacity'),
     colorsInput: document.getElementById('colorsInput'),
     fullscreenOnLaunch: document.getElementById('fullscreenOnLaunch'),
+    focusModeSetting: document.getElementById('focusModeSetting'),
     focusMode: document.getElementById('focusMode'),
     showHero: document.getElementById('showHero'),
-    showSettingsPanel: document.getElementById('showSettingsPanel'),
-    showStatusPanel: document.getElementById('showStatusPanel'),
+    hideStatus: document.getElementById('hideStatus'),
     closeSettingsOnOutsideClick: document.getElementById('closeSettingsOnOutsideClick'),
     flashDelayMsValue: document.getElementById('flashDelayMsValue'),
     minTimeBetweenFlashesMsValue: document.getElementById('minTimeBetweenFlashesMsValue'),
@@ -250,8 +289,7 @@ export function renderApp() {
       refs.fullscreenOnLaunch.checked = Boolean(settings.fullscreenOnLaunch);
       refs.focusMode.checked = Boolean(settings.focusMode);
       refs.showHero.checked = settings.showHero !== false;
-      refs.showSettingsPanel.checked = settings.showSettingsPanel !== false;
-      refs.showStatusPanel.checked = settings.showStatusPanel !== false;
+      refs.hideStatus.checked = settings.showStatusPanel === false;
       refs.closeSettingsOnOutsideClick.checked = settings.closeSettingsOnOutsideClick !== false;
       this.updateValueLabels(settings);
       this.renderPalette(settings.colors);
@@ -268,8 +306,8 @@ export function renderApp() {
         fullscreenOnLaunch: refs.fullscreenOnLaunch.checked,
         focusMode: refs.focusMode.checked,
         showHero: refs.showHero.checked,
-        showSettingsPanel: refs.showSettingsPanel.checked,
-        showStatusPanel: refs.showStatusPanel.checked,
+        showSettingsPanel: false,
+        showStatusPanel: !refs.hideStatus.checked,
         closeSettingsOnOutsideClick: refs.closeSettingsOnOutsideClick.checked
       };
     },
@@ -310,9 +348,25 @@ export function renderApp() {
         <div><span>modifiers</span><strong>${escapeHtml(modifiers)}</strong></div>
       `;
     },
+    setAppContext(context) {
+      const isHome = context === 'home';
+      refs.homeView.hidden = !isHome;
+      refs.appView.hidden = isHome;
+      document.body.classList.toggle('home-context', isHome);
+      document.body.classList.toggle('app-context', !isHome);
+    },
+    setActiveTab(tab) {
+      const isTester = tab === 'tester';
+      refs.playPanel.hidden = isTester;
+      refs.testerPanel.hidden = !isTester;
+      refs.focusModeSetting.hidden = isTester;
+      refs.playTabBtn.classList.toggle('active', !isTester);
+      refs.testerTabBtn.classList.toggle('active', isTester);
+      refs.playTabBtn.setAttribute('aria-selected', String(!isTester));
+      refs.testerTabBtn.setAttribute('aria-selected', String(isTester));
+    },
     setKeyTesterMode(isActive) {
       document.body.classList.toggle('key-tester-mode', isActive);
-      refs.keyTesterModeBtn.textContent = isActive ? 'Exit tester' : 'Enter tester';
     },
     setKeyTesterInfoOpen(isOpen) {
       refs.keyTesterInfoOverlay.hidden = !isOpen;
@@ -333,7 +387,6 @@ export function renderApp() {
     setDisplayOptions(settings) {
       document.body.classList.toggle('focus-mode', Boolean(settings.focusMode));
       document.body.classList.toggle('hide-hero', settings.showHero === false);
-      document.body.classList.toggle('hide-settings-panel', settings.showSettingsPanel === false);
       document.body.classList.toggle('hide-status-panel', settings.showStatusPanel === false);
       refs.hideUiBtn.textContent = settings.focusMode ? 'Show panels' : 'Focus mode';
     }
