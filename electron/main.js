@@ -1,7 +1,25 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, nativeImage } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const Store = require('electron-store').default;
 const { loadRenderer } = require('../startup-mode.cjs');
+
+const APP_NAME = 'Key Flash';
+const APP_ID = 'com.muha.keyflash';
+
+function applyAppIdentity() {
+  app.setName(APP_NAME);
+  app.setAppUserModelId(APP_ID);
+
+  if (process.platform === 'darwin') {
+    app.setAboutPanelOptions({
+      applicationName: APP_NAME,
+      applicationVersion: app.getVersion()
+    });
+  }
+}
+
+applyAppIdentity();
 
 const store = new Store({
   projectName: 'key-flash',
@@ -23,14 +41,43 @@ const store = new Store({
 
 let mainWindow;
 
+function getAppIconPath() {
+  const iconFileNameByPlatform = {
+    darwin: 'icon.icns',
+    win32: 'icon.ico',
+    linux: 'icon.png'
+  };
+
+  return path.join(app.getAppPath(), 'build', iconFileNameByPlatform[process.platform] || 'icon.png');
+}
+
+function getDockIconImage() {
+  const image = nativeImage.createFromPath(path.join(app.getAppPath(), 'build', 'icon.png'));
+  return image.isEmpty() ? null : image;
+}
+
+function applyMacDockIcon() {
+  if (process.platform !== 'darwin' || !app.dock?.setIcon) {
+    return;
+  }
+
+  const dockIcon = getDockIconImage();
+  if (dockIcon) {
+    app.dock.setIcon(dockIcon);
+  }
+}
+
 function createWindow() {
+  const appIconPath = getAppIconPath();
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 820,
     minWidth: 1000,
     minHeight: 680,
+    title: APP_NAME,
     backgroundColor: '#05070b',
     autoHideMenuBar: true,
+    ...(fs.existsSync(appIconPath) ? { icon: appIconPath } : {}),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -60,6 +107,8 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  applyAppIdentity();
+  applyMacDockIcon();
   createWindow();
 
   app.on('activate', () => {
