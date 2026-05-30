@@ -117,7 +117,7 @@ app.whenReady().then(() => {
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  if (!app.isPackaged || process.platform !== 'darwin') app.quit();
 });
 
 ipcMain.handle('settings:get', async () => store.store);
