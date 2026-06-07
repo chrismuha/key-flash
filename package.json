@@ -94,7 +94,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.10.2",
     "@electron-forge/plugin-fuses": "^7.10.2",
     "@electron-forge/plugin-vite": "^7.10.2",
-    "@electron/fuses": "^1.8.0",
+    "@electron/fuses": "^2.1.2",
     "@vitejs/plugin-vue": "^6.0.4",
     "concurrently": "^9.2.1",
     "cross-env": "^7.0.3",
