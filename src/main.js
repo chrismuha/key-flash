@@ -8,9 +8,48 @@ import { renderApp } from './components/ui.js';
 
 const state = createState();
 const HEX_COLOR_PATTERN = /^#([0-9a-f]{6}|[0-9a-f]{3})$/i;
+const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
+
+function getFocusableElements() {
+  return Array.from(document.querySelectorAll(FOCUSABLE_SELECTOR)).filter((element) => {
+    if (!(element instanceof HTMLElement)) return false;
+    if (element.hidden || element.getAttribute('aria-hidden') === 'true') return false;
+    const style = window.getComputedStyle(element);
+    return style.display !== 'none' && style.visibility !== 'hidden';
+  });
+}
+
+function handleTabAndEscapeFocus(event) {
+  if (event.defaultPrevented) return;
+
+  if (event.key === 'Escape') {
+    const active = document.activeElement;
+    if (active && active !== document.body && active !== document.documentElement && typeof active.blur === 'function') {
+      active.blur();
+    }
+    return;
+  }
+
+  if (event.key !== 'Tab' || event.altKey || event.ctrlKey || event.metaKey) return;
+
+  const focusable = getFocusableElements();
+  const currentIndex = focusable.indexOf(document.activeElement);
+  if (currentIndex === -1 || focusable.length < 2) return;
+
+  const target = event.shiftKey && currentIndex === 0
+    ? focusable[focusable.length - 1]
+    : !event.shiftKey && currentIndex === focusable.length - 1
+      ? focusable[0]
+      : null;
+
+  if (!target) return;
+  event.preventDefault();
+  target.focus({ preventScroll: true });
+}
 
 async function init() {
   const ui = renderApp();
+  window.addEventListener('keydown', handleTabAndEscapeFocus);
   let isSettingsOpen = false;
   let isKeyTesterMode = false;
   let activeContext = 'home';
