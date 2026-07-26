@@ -97,7 +97,7 @@
     "@electron-forge/plugin-fuses": "^7.10.2",
     "@electron-forge/plugin-vite": "^7.10.2",
     "@electron/fuses": "^1.8.0",
-    "@vitejs/plugin-vue": "^6.0.4",
+    "@vitejs/plugin-vue": "^6.0.8",
     "concurrently": "^10.0.3",
     "cross-env": "^10.1.0",
     "electron": "^43.0.0",
