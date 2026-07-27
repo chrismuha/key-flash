@@ -117,7 +117,7 @@
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^11.0.2",
     "pdf-lib": "^1.17.1",
-    "vue": "^3.5.13",
+    "vue": "^3.5.40",
     "vue-router": "^5.1.0"
   },
   "overrides": {
