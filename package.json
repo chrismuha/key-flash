@@ -1,7 +1,7 @@
 {
   "name": "key-flash",
   "version": "1.1.6",
-  "description": "Key Flash is a Customer Relationship Management (CRM) software. Key Flash is a one-of-a-kind utility to manage invoices, inventory, and to create budgets. Its features are very unique and are easy-to-use to manage your personal and/or business profits without the time-consuming tasks to manually input data onto documents. With Key Flash, it is easy to enter data and generate a PDF and automatically save it to specific accounts to manage your data professionally to help make business management easier.",
+  "description": "Key Flash is a desktop accessibility and visual-feedback app that flashes the screen when keyboard keys are pressed.",
   "main": "electron/main.js",
   "scripts": {
     "clean": "node -e \"const fs=require('fs'); for (const p of ['dist','release','out']) fs.rmSync(p,{recursive:true,force:true}); fs.mkdirSync('release',{recursive:true}); fs.writeFileSync('release/.gitkeep','\\n')\"",
