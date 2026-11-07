@@ -4,7 +4,7 @@
   "description": "Key Flash is a desktop accessibility and visual-feedback app that flashes the screen when keyboard keys are pressed.",
   "main": "electron/main.js",
   "scripts": {
-    "clean": "node -e \"const fs=require('fs'); for (const p of ['dist','release','out']) fs.rmSync(p,{recursive:true,force:true}); fs.mkdirSync('release',{recursive:true}); fs.writeFileSync('release/.gitkeep','\\n')\"",
+    "clean": "node ./scripts/clean-build-output.cjs dist release out",
     "prestart": "node ./scripts/repair-if-present.cjs",
     "start": "node ./scripts/run-shared-if-present.cjs ../_shared/vite-electron-dev.mjs --port 5189",
     "start:fixed": "concurrently \"npm run dev:renderer\" \"cross-env NODE_DISABLE_COMPILE_CACHE=1 VITE_DEV_SERVER_URL=http://127.0.0.1:5189/ npm run dev:main\"",
@@ -43,7 +43,14 @@
     "start:cloud": "node ./scripts/run-shared-if-present.cjs ../_shared/vite-electron-dev.mjs --port 5189",
     "start:offline": "cross-env NODE_DISABLE_COMPILE_CACHE=1 MCR_STARTUP_MODE=offline NODE_ENV=production node ./scripts/dev-main-wrapper.cjs --offline",
     "dev:cloud": "node ./scripts/run-shared-if-present.cjs ../_shared/vite-electron-dev.mjs --port 5189",
-    "dev:offline": "cross-env NODE_DISABLE_COMPILE_CACHE=1 MCR_STARTUP_MODE=offline NODE_ENV=development node ./scripts/dev-main-wrapper.cjs --offline"
+    "dev:offline": "cross-env NODE_DISABLE_COMPILE_CACHE=1 MCR_STARTUP_MODE=offline NODE_ENV=development node ./scripts/dev-main-wrapper.cjs --offline",
+    "prebuild:web": "node ./scripts/prepare-build-output.cjs",
+    "predist:mac:x64": "node ./scripts/prepare-build-output.cjs",
+    "predist:mac:arm64": "node ./scripts/prepare-build-output.cjs",
+    "predist:mac:universal": "node ./scripts/prepare-build-output.cjs",
+    "predist:win": "node ./scripts/prepare-build-output.cjs",
+    "predist:linux": "node ./scripts/prepare-build-output.cjs",
+    "postclean": "node ./scripts/prepare-build-output.cjs"
   },
   "build": {
     "mac": {
@@ -143,5 +150,10 @@
     "brace-expansion@2": "2.1.7",
     "brace-expansion@5": "5.0.12",
     "js-yaml@4": "4.3.2"
-  }
+  },
+  "mcrBuildOutputs": [
+    "dist",
+    "release",
+    "out"
+  ]
 }
